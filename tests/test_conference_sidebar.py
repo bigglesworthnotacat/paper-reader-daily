@@ -60,8 +60,8 @@ class ConferenceSidebarTest(unittest.TestCase):
             self.assertIn("* Conference Papers", text)
             self.assertIn("  * ICML 2025 <!--dpr-conference:icml-2025-->", text)
             self.assertNotIn("推荐论文", text)
-            self.assertNotIn("<!--dpr-conference-topic:", text)
-            self.assertIn("    * <a class=\"dpr-sidebar-item-link dpr-sidebar-item-structured\"", text)
+            self.assertIn("    * rl <!--dpr-conference-topic:icml-2025:query-rl-->", text)
+            self.assertIn("      * <a class=\"dpr-sidebar-item-link dpr-sidebar-item-structured\"", text)
             self.assertIn("href=\"#/conference/icml-2025/openreview-icml-2025-abc123-a-conference-paper\"", text)
             self.assertIn("A Conference Paper", text)
             self.assertIn("https://openreview.net/forum?id=abc123", text)
@@ -148,7 +148,7 @@ class ConferenceSidebarTest(unittest.TestCase):
             text = sidebar.read_text(encoding="utf-8")
 
             self.assertEqual(text.count("<!--dpr-conference:icml-2025-->"), 1)
-            self.assertNotIn("<!--dpr-conference-topic:", text)
+            self.assertEqual(text.count("<!--dpr-conference-topic:icml-2025:query-rl-->"), 1)
             self.assertNotIn("First Title", text)
             self.assertIn("Second Title", text)
 
@@ -174,7 +174,8 @@ class ConferenceSidebarTest(unittest.TestCase):
 
             text = sidebar.read_text(encoding="utf-8")
             self.assertEqual(text.count("<!--dpr-conference:icml-2025-->"), 1)
-            self.assertNotIn("<!--dpr-conference-topic:", text)
+            self.assertIn("<!--dpr-conference-topic:icml-2025:query-rl-->", text)
+            self.assertIn("<!--dpr-conference-topic:icml-2025:query-llm-sr-->", text)
             self.assertIn("RL Topic Paper", text)
             self.assertIn("LLM Topic Paper", text)
 
