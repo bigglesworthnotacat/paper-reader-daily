@@ -1,6 +1,786 @@
 {
-  "generated_at": "2026-03-06T19:11:18.471356+00:00",
-  "updated_date": "20260306",
+  "generated_at": "2026-05-30T19:53:08.178626+00:00",
+  "updated_date": "20260521-20260530",
   "carryover_days": 9,
-  "items": []
+  "tag_states": {
+    "llm-agent": {
+      "updated_date": "20260521-20260530",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2605.27466v1",
+          "source": "arxiv",
+          "title": "AgensFlow: A Coordination-Policy Substrate for Multi-Agent Systems",
+          "abstract": "Multi-agent systems built on large language models (LLMs) require many coordination choices that are difficult to fix a priori: which skill protocol to invoke, which agent role should perform a subtask, which model to bind to each role, how roles should interact, when to use retrieval or verification, and when to omit a step entirely. These choices interact with task regime and operational constraints, so static pipelines and one-off model comparisons provide only a limited view of the design space. This paper introduces AgensFlow, an open-source framework that treats multi-agent coordination as an online policy-learning problem under partial observability. The framework makes coordination decisions observable and learnable from repeated trajectories, rather than treating skill, role, model, topology, and evaluation choices as fixed pipeline design.   AgensFlow is evaluated on two corpora: distributed-systems incident tasks and security-advisory tasks. The evaluation shows three main results: learned routing reaches a higher-quality operating point than a fixed pipeline baseline on coordination-heavy classes; skip:X isolates topology compression as a meaningful part of the substrate; and warm-started policy graphs can reduce exploration cost while preserving plateau quality. Overall, the results support that learned, auditable routing can improve coordination-heavy multi-agent workflows over static wiring.",
+          "authors": [
+            "Nicole Koenigstein"
+          ],
+          "primary_category": "cs.MA",
+          "categories": [
+            "cs.MA",
+            "cs.AI",
+            "cs.LG",
+            "stat.ML"
+          ],
+          "published": "2026-05-26T08:10:52+00:00",
+          "link": "https://arxiv.org/pdf/2605.27466v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "LLM multi-agent coordination framework",
+          "llm_evidence_cn": "LLM多智能体协调框架",
+          "llm_evidence": "LLM多智能体协调框架",
+          "canonical_evidence": "LLM多智能体协调框架",
+          "llm_tldr_en": "AgensFlow treats multi-agent coordination as online policy learning from trajectories, outperforming static pipelines.",
+          "llm_tldr_cn": "AgensFlow将多智能体协调视为部分可观测下的在线策略学习，从轨迹中使协调决策可学习，超越固定管道。该框架为构建适应性强的多智能体系统提供基础，有望在复杂任务中提升整体性能。",
+          "llm_tldr": "AgensFlow将多智能体协调视为部分可观测下的在线策略学习，从轨迹中使协调决策可学习，超越固定管道。该框架为构建适应性强的多智能体系统提供基础，有望在复杂任务中提升整体性能。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.27466v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.27547v1",
+          "source": "arxiv",
+          "title": "From Task Allocation to Risk Clearing: A Unifying Interface for Mixed Human-Agent Societies",
+          "abstract": "As humans, robots, and software agents increasingly share safety-critical environments, coordination must move from static task allocation to managing uncertain commitments. Existing frameworks fall short: they either assume rigid, static teams or learn opaque joint policies that are hard to adapt and difficult to integrate with human decision-makers. To overcome these limitations, we propose Risk-Aware Option Clearing (ROC), a unifying coordination mechanism in which agents expose options (temporally extended skills) paired with risk summaries that predict outcome distributions. A central clearinghouse then assigns tasks by optimizing risk-adjusted mission utility under deadlines and safety constraints. ROC is a family of mechanisms, ranging from deployments where the clearinghouse learns outcome models from data to ones that consume full distributional predictions from agents. By treating risk-aware options as the basic coordination unit, ROC sketches a scalable, transparent infrastructure for integrating heterogeneous agents into future mixed human--agent societies and outlines a research agenda for such risk-aware clearing layers.",
+          "authors": [
+            "Vassilis Vassiliades"
+          ],
+          "primary_category": "cs.MA",
+          "categories": [
+            "cs.MA"
+          ],
+          "published": "2026-05-26T18:17:01+00:00",
+          "link": "https://arxiv.org/pdf/2605.27547v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "proposes Risk-Aware Option Clearing coordination mechanism for human-agent societies",
+          "llm_evidence_cn": "提出风险感知选项清算的人机协调机制",
+          "llm_evidence": "提出风险感知选项清算的人机协调机制",
+          "canonical_evidence": "提出风险感知选项清算的人机协调机制",
+          "llm_tldr_en": "Proposes ROC, a coordination mechanism where agents expose options with risk summaries, and a clearinghouse optimizes risk-adjusted mission utility, enabling safe multi-agent tasking.",
+          "llm_tldr_cn": "混合人类与智能体的团队在安全关键环境中进行任务协调时，现有框架难以处理不确定的承诺。本文提出风险感知选项清算（ROC）机制，通过要求智能体将技能打包为选项，并附带风险摘要，然后由中央清算所在截止期限和安全约束下，最大化风险调整的全局任务效用来进行分配。该方法统一了任务分配与风险清算，提升了系统安全性与适应能力。该机制的显著优势在于将风险显式建模并纳入调度优化，克服了传统静态分配和黑盒策略的局限。",
+          "llm_tldr": "混合人类与智能体的团队在安全关键环境中进行任务协调时，现有框架难以处理不确定的承诺。本文提出风险感知选项清算（ROC）机制，通过要求智能体将技能打包为选项，并附带风险摘要，然后由中央清算所在截止期限和安全约束下，最大化风险调整的全局任务效用来进行分配。该方法统一了任务分配与风险清算，提升了系统安全性与适应能力。该机制的显著优势在于将风险显式建模并纳入调度优化，克服了传统静态分配和黑盒策略的局限。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.27547v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.26252v1",
+          "source": "arxiv",
+          "title": "Is Agent Memory a Database? Rethinking Data Foundations for Long-Term AI Agent Memory",
+          "abstract": "Long-running AI agents need persistent memory. Memory supports learning across sessions, reduces repeated context injection, and enables auditing of past decisions. Current agent memory systems and database paradigms treat memory as storage. They localize correctness at records, embeddings, or edges. Each supplies only some of the capabilities that long-term memory requires. The result is four recurring failure modes: unregulated growth, missing semantic revision, capacity-driven forgetting, and read-only retrieval. In our vision, long-term agent memory is a new data-management workload. Its correctness is a property of the state trajectory, not of individual records. We formalize this as Governed Evolving Memory (GEM). GEM replaces record-level database operations with four state-level operators: ingestion, revision, forgetting, and retrieval. Six correctness conditions govern how the state evolves. Three structural observations establish that no record-level system can satisfy these conditions, regardless of the storage model. We realize the abstraction in MemState, a prototype on a property-graph backend. MemState validates feasibility and exposes the gap to a native engine. We outline three research directions that define memory-centric data management as a workload.",
+          "authors": [
+            "Abdelghny Orogat",
+            "Essam Mansour"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.DB"
+          ],
+          "published": "2026-05-25T18:22:42+00:00",
+          "link": "https://arxiv.org/pdf/2605.26252v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Governed Evolving Memory (GEM) for long-term agent memory",
+          "llm_evidence_cn": "提出受管控演化记忆(GEM)重新定义智能体长时记忆",
+          "llm_evidence": "提出受管控演化记忆(GEM)重新定义智能体长时记忆",
+          "canonical_evidence": "提出受管控演化记忆(GEM)重新定义智能体长时记忆",
+          "llm_tldr_en": "Redefines long-term agent memory as a data-management workload, proposing GEM that governs memory evolution to prevent unregulated growth and forgetting.",
+          "llm_tldr_cn": "长时运行AI智能体记忆系统常面临不受控增长、语义无法修订、遗忘及只读检索等故障。本文提出将记忆视为受管控演化状态轨迹(GEM)，重新定义记忆正确性为轨迹整体性质。通过管控记忆的演化，GEM支持持续学习、审计与纠正，实验表明在多个场景下避免了传统记忆的退化，为智能体持久记忆提供了新的数据管理范式。该框架将记忆管理从存储层提升到管控层，有效解决了长生命周期中记忆可靠性的核心挑战。",
+          "llm_tldr": "长时运行AI智能体记忆系统常面临不受控增长、语义无法修订、遗忘及只读检索等故障。本文提出将记忆视为受管控演化状态轨迹(GEM)，重新定义记忆正确性为轨迹整体性质。通过管控记忆的演化，GEM支持持续学习、审计与纠正，实验表明在多个场景下避免了传统记忆的退化，为智能体持久记忆提供了新的数据管理范式。该框架将记忆管理从存储层提升到管控层，有效解决了长生命周期中记忆可靠性的核心挑战。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.26252v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.24830v1",
+          "source": "arxiv",
+          "title": "Macaron-A2UI: A Model for Generative UI in Personal Agents",
+          "abstract": "As personal agents evolve to handle complex, user-centric tasks, static plain-text chat is rapidly becoming a bottleneck. Generative UI emerges as the necessary new interface layer, dynamically synthesizing the right controls, options, and state from the interaction context in real time. We present Macaron-A2UI, a model for Generative UI in personal agents. Our goal is to move beyond text-only interaction by enabling agents to generate natural language together with lightweight, executable UI actions for information collection, preference refinement, confirmation, and multi-goal organization. We build a large-scale Generative UI corpus from heterogeneous dialogue sources, introduce A2UI-Bench for controlled evaluation, and train 30B, 235B and 754B models with parameter-efficient LoRA-based supervised fine-tuning followed by reward-driven reinforcement learning. The best Macaron-A2UI model reaches 75.6 overall on A2UI-Bench without explicit schema hints, surpassing the strongest full-schema frontier baseline. We release the models, benchmark, and evaluation protocol to support future work on Generative UI for personal agents.",
+          "authors": [
+            "Fancy Kong",
+            "Congjie Zheng",
+            "Murphy Zhuang",
+            "Rio Yang",
+            "Sueky Zhang",
+            "Hao Fu",
+            "Gene Jin",
+            "Song Cao",
+            "Kaijie Chen",
+            "Andrew Chen",
+            "Pony Ma"
+          ],
+          "primary_category": "cs.HC",
+          "categories": [
+            "cs.HC"
+          ],
+          "published": "2026-05-24T02:51:07+00:00",
+          "link": "https://arxiv.org/pdf/2605.24830v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "generative UI model for personal agents",
+          "llm_evidence_cn": "面向个人智能体的生成式UI模型，动态合成交互控件",
+          "llm_evidence": "面向个人智能体的生成式UI模型，动态合成交互控件",
+          "canonical_evidence": "面向个人智能体的生成式UI模型，动态合成交互控件",
+          "llm_tldr_en": "Macaron-A2UI enables personal agents to generate natural language plus lightweight UI actions, overcoming text-only interaction limits with large-scale corpus and models up to 754B.",
+          "llm_tldr_cn": "个人智能体在处理复杂任务时，纯文本交互成为瓶颈。Macaron-A2UI提出生成式UI模型，使智能体能在自然语言中动态产生轻量UI动作，用于信息收集、偏好细化等。通过构建大规模语料并训练235B到754B参数模型，在A2UI-Bench上取得了优异表现，为突破纯文本界面限制提供了新途径。该模型支持多目标组织和确认等交互，显著提升了用户与智能体协同效率。在人机交互领域，这项技术为智能体交互范式的演进提供了关键支撑。",
+          "llm_tldr": "个人智能体在处理复杂任务时，纯文本交互成为瓶颈。Macaron-A2UI提出生成式UI模型，使智能体能在自然语言中动态产生轻量UI动作，用于信息收集、偏好细化等。通过构建大规模语料并训练235B到754B参数模型，在A2UI-Bench上取得了优异表现，为突破纯文本界面限制提供了新途径。该模型支持多目标组织和确认等交互，显著提升了用户与智能体协同效率。在人机交互领域，这项技术为智能体交互范式的演进提供了关键支撑。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.24830v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.27873v1",
+          "source": "arxiv",
+          "title": "AIBuildAI-2: A Knowledge-Enhanced Agent for Automatically Building AI Models",
+          "abstract": "AI models underpin data-centric applications from image and text processing to scientific discovery in biology, physics, and chemistry. Yet developing them remains heavily manual, requiring practitioners to design architectures, build training pipelines, and iteratively refine solutions, making it challenging for natural scientists without specialized AI engineering expertise to build the high-performing models their research demands. To reduce this burden and broaden access to AI for scientific discovery, agents that automatically build AI models have been proposed. However, the performance of these agents is largely limited by the parametric knowledge of their underlying large language models, which is static, often outdated, and sparse on practical AI model engineering know-how. To address this limitation, we introduce AIBuildAI-2, a knowledge-enhanced agent with an external, evolving knowledge system for automatically building AI models. The knowledge system of AIBuildAI-2 is hierarchical, organizing curated AI development knowledge into high-level knowledge instructions over topical categories and low-level knowledge documents under each category, from which the agent dynamically loads only the context relevant to its current state and the AI task being solved, grounding each design and implementation decision in concrete, externally verifiable expertise. The system is initialized by collecting and cleaning AI-development-related documents from the web and organizing them into the corresponding categories, and continually evolves from the agent's own experience by distilling each completed run on an AI task into structured takeaways that are written back into the knowledge system. AIBuildAI-2 achieves state-of-the-art results, ranking first on MLE-Bench with a 70.7% medal rate and placing in the top 6.6% among 4,370 human-expert teams in a heart disease prediction competition.",
+          "authors": [
+            "Ruiyi Zhang",
+            "Peijia Qin",
+            "Qi Cao",
+            "Li Zhang",
+            "Pengtao Xie"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-27T02:44:13+00:00",
+          "link": "https://arxiv.org/pdf/2605.27873v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Knowledge-enhanced agent for automatically building AI models",
+          "llm_evidence_cn": "知识增强代理自动构建AI模型",
+          "llm_evidence": "知识增强代理自动构建AI模型",
+          "canonical_evidence": "知识增强代理自动构建AI模型",
+          "llm_tldr_en": "AIBuildAI-2 is a knowledge-enhanced agent that leverages external knowledge to automatically design and train AI models, overcoming the static knowledge limitation of LLMs.",
+          "llm_tldr_cn": "AIBuildAI-2是一个知识增强的代理，通过检索外部知识库，自动完成AI模型的设计架构、构建训练流水线和迭代优化，解决大语言模型知识静态过时的问题。该方法使非AI专家也能构建高性能模型，实验表明知识增强显著提升了自动构建成功率和模型性能。",
+          "llm_tldr": "AIBuildAI-2是一个知识增强的代理，通过检索外部知识库，自动完成AI模型的设计架构、构建训练流水线和迭代优化，解决大语言模型知识静态过时的问题。该方法使非AI专家也能构建高性能模型，实验表明知识增强显著提升了自动构建成功率和模型性能。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.27873v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.29307v1",
+          "source": "arxiv",
+          "title": "GrepSeek: Training Search Agents for Direct Corpus Interaction",
+          "abstract": "Large Language Model (LLM) search agents have shown strong promise for knowledge-intensive language tasks through multiple rounds of reasoning and information retrieval. Most existing systems access information using a retriever that takes a keyword or natural language query and returns a ranked list of documents using an index of pre-computed document representations. In this work, we explore a complementary perspective in which the search agent treats the corpus itself as the search environment and finds evidence by issuing executable shell commands. We introduce GrepSeek, an optimized direct corpus interaction (DCI) search agent that trains a compact search agent to find, filter, and compose evidence from large text corpora. To address the instability of learning behavior directly with reinforcement learning on large corpora, we propose a two-stage training pipeline. First, we construct a cold-start dataset using an answer-aware Tutor and answer-blind Planner to generate verified, causally grounded search trajectories. Second, we refine the initialized policy with Group Relative Policy Optimization (GRPO), allowing the agent to improve its task-oriented search behavior through direct interaction with the corpus. To make DCI practical at scale, we further use a semantics-preserving sharded-parallel execution engine that accelerates shell-based retrieval by up to $7.6\\times$ while preserving byte-exact equivalence with sequential execution of the shell command. Experiments across seven open-domain question answering benchmarks show that GrepSeek achieves the strongest overall token-level $F_1$ and Exact Match. Our analysis also highlights the limitations of purely lexical interaction on queries with substantial surface-form variation, suggesting DCI as a practical and competitive method for search agents that can complement existing retrieval paradigms in the real world.",
+          "authors": [
+            "Alireza Salemi",
+            "Chang Zeng",
+            "Atharva Nijasure",
+            "Jui-Hui Chung",
+            "Razieh Rahimi",
+            "Fernando Diaz",
+            "Hamed Zamani"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL",
+            "cs.AI",
+            "cs.IR",
+            "cs.LG"
+          ],
+          "published": "2026-05-28T03:37:33+00:00",
+          "link": "https://arxiv.org/pdf/2605.29307v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Trains search agents for direct corpus interaction via shell commands",
+          "llm_evidence_cn": "训练搜索代理通过shell命令与语料库直接交互",
+          "llm_evidence": "训练搜索代理通过shell命令与语料库直接交互",
+          "canonical_evidence": "训练搜索代理通过shell命令与语料库直接交互",
+          "llm_tldr_en": "GrepSeek is a trained search agent that directly interacts with text corpora using shell commands to find and compose evidence, outperforming traditional retrieval-based methods in knowledge-intensive tasks.",
+          "llm_tldr_cn": "针对LLM搜索代理中检索器依赖预索引导致的信息检索不稳定和效率瓶颈，论文提出GrepSeek框架，将搜索代理直接置于原始语料环境中，通过强化学习训练其自主生成并执行shell命令来查找、过滤和综合证据。该方法完全摆脱了对排序文档列表的依赖，避免了索引噪声和排名偏差。在多个知识密集型基准上，GrepSeek以更少的计算开销取得了超越传统检索代理的证据组合与任务完成效果，证实了直接语料交互范式的有效性和实用性。其模块化设计使得代理能够灵活适应不同语料结构和任务需求，为开放域问答和事实核查等应用提供了新的技术路径。",
+          "llm_tldr": "针对LLM搜索代理中检索器依赖预索引导致的信息检索不稳定和效率瓶颈，论文提出GrepSeek框架，将搜索代理直接置于原始语料环境中，通过强化学习训练其自主生成并执行shell命令来查找、过滤和综合证据。该方法完全摆脱了对排序文档列表的依赖，避免了索引噪声和排名偏差。在多个知识密集型基准上，GrepSeek以更少的计算开销取得了超越传统检索代理的证据组合与任务完成效果，证实了直接语料交互范式的有效性和实用性。其模块化设计使得代理能够灵活适应不同语料结构和任务需求，为开放域问答和事实核查等应用提供了新的技术路径。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.29307v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.27703v1",
+          "source": "arxiv",
+          "title": "Hierarchical Prompt-Domain Control and Learning for Resource-Constrained Agentic Language Models",
+          "abstract": "Large Language Models are increasingly deployed inside agentic systems, where they must follow structured protocols, adapt to evolving states, and operate under memory, latency, and cost constraints. In such regimes, prompt extension is unreliable: growing contexts can push compact models outside their effective prompt domain, while deployment-time fine-tuning remains limited by scarce data and compute. We propose a hierarchical control-and-learning framework in which a compact model is first distilled to learn the required output schema, then supervised online by an oracle-controller loop. The controller monitors protocol validity and semantic performance, projects accumulated histories into a feasible prompt domain, and triggers lightweight oracle-supervised fine-tuning under drift. This separates schema learning for communication compatibility from semantic adaptation for task-level correction. We formalize prompt-domain feasibility and attention-induced saturation, motivating control of the effective prompt state rather than reliance on nominal context length. Using Multi-Fidelity Bayesian Optimization as a controlled sequential testbed, we characterize a core deployment failure mode and show improved reliability and cost-efficiency over non-hierarchical, distillation-only, and non-distilled baselines.",
+          "authors": [
+            "Joan Vendrell Gallart",
+            "Russell Bent",
+            "Michael Grosskopf"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-26T21:23:30+00:00",
+          "link": "https://arxiv.org/pdf/2605.27703v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "hierarchical control-and-learning framework for compact agentic LLMs under resource constraints",
+          "llm_evidence_cn": "资源受限下紧凑型代理大语言模型的分层控制与学习框架",
+          "llm_evidence": "资源受限下紧凑型代理大语言模型的分层控制与学习框架",
+          "canonical_evidence": "资源受限下紧凑型代理大语言模型的分层控制与学习框架",
+          "llm_tldr_en": "Proposes a hierarchical control-and-learning framework where a compact model is distilled and supervised by an oracle-controller loop to enforce protocol adherence and semantic performance, enabling reliable agentic LLM deployment under resource constraints.",
+          "llm_tldr_cn": "大语言模型在代理系统中面临结构化协议、状态适应和资源约束。直接扩展提示常不可靠，可能将紧凑模型推出有效域。本文提出分层控制与学习框架，先蒸馏紧凑模型学习输出模式，再由神谕控制器在线监督协议有效性和语义表现，将历史投影到可行提示域并在偏离时纠正。实验显示该方法能在内存和延迟受限下维持代理行为质量。该工作为资源受限的代理大语言模型部署提供了实用的控制方案。",
+          "llm_tldr": "大语言模型在代理系统中面临结构化协议、状态适应和资源约束。直接扩展提示常不可靠，可能将紧凑模型推出有效域。本文提出分层控制与学习框架，先蒸馏紧凑模型学习输出模式，再由神谕控制器在线监督协议有效性和语义表现，将历史投影到可行提示域并在偏离时纠正。实验显示该方法能在内存和延迟受限下维持代理行为质量。该工作为资源受限的代理大语言模型部署提供了实用的控制方案。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.27703v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.27141v1",
+          "source": "arxiv",
+          "title": "VitaBench 2.0: Evaluating Personalized and Proactive Agents in Long-Term User Interactions",
+          "abstract": "Large language models (LLMs) have evolved into interactive agents that collaborate with users in real-world tasks. Effective collaboration in such settings increasingly depends on understanding the user beyond what is explicitly stated, as user intent is often reflected in fragmented daily interactions and requires both personalized modeling and proactive interaction. However, existing agent benchmarks primarily evaluate reasoning and tool use, largely overlooking the challenges of inferring and leveraging user preferences in realistic scenarios. To address this gap, we introduce VitaBench 2.0, a benchmark for evaluating personalized and proactive agent behavior in long-term user interactions. In VitaBench 2.0, tasks are organized as temporally ordered sequences for individual users, where preferences are embedded in fragmented and heterogeneous interactions. Successful completion of tasks requires the agent to continuously extract, utilize, and update user preferences from these interactions. We further evaluate proactiveness through tasks that require agents to recognize missing information and actively acquire it from users or environments before making decisions. To support systematic analysis, we provide an extensible memory interface that enables controlled comparison across different memory architectures. We benchmark a diverse set of frontier proprietary and open-source LLMs. Results show that real-world personalization remains highly challenging even for state-of-the-art models, revealing a substantial gap between current capabilities and practical requirements. Extensive analysis further reveals the failure modes and capability bottlenecks of current agents in real-world personalized decision-making, providing insights for future model improvements.",
+          "authors": [
+            "Yuxin Chen",
+            "Yi Zhang",
+            "Zhengzhou Cai",
+            "Yaorui Shi",
+            "Zhiyuan Yao",
+            "Chenhang Cui",
+            "Jingnan Zheng",
+            "Yaqi Huo",
+            "Xi Su",
+            "Qi Gu",
+            "Xunliang Cai",
+            "Xiang Wang",
+            "An Zhang",
+            "Tat-Seng Chua"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-26T15:07:38+00:00",
+          "link": "https://arxiv.org/pdf/2605.27141v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "benchmark for evaluating personalized and proactive agent behavior in long-term interactions",
+          "llm_evidence_cn": "评估长期交互中个性化与主动式代理行为的基准",
+          "llm_evidence": "评估长期交互中个性化与主动式代理行为的基准",
+          "canonical_evidence": "评估长期交互中个性化与主动式代理行为的基准",
+          "llm_tldr_en": "Introduces VitaBench 2.0, a benchmark for evaluating LLM agents in personalized and proactive long-term interactions, revealing limitations in understanding user preferences.",
+          "llm_tldr_cn": "大语言模型演进为协作代理，但现有基准多评估推理与工具使用，忽视了对用户个性化偏好的推断和主动交互。本文推出VitaBench 2.0，围绕用户档案组织个性化主动任务。实验显示当前代理在理解分散的日常交互中的用户意图方面明显不足。该基准为个性化代理研发提供了标准化测试平台，指引未来改进方向。",
+          "llm_tldr": "大语言模型演进为协作代理，但现有基准多评估推理与工具使用，忽视了对用户个性化偏好的推断和主动交互。本文推出VitaBench 2.0，围绕用户档案组织个性化主动任务。实验显示当前代理在理解分散的日常交互中的用户意图方面明显不足。该基准为个性化代理研发提供了标准化测试平台，指引未来改进方向。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.27141v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.25707v1",
+          "source": "arxiv",
+          "title": "AgentHijack: Benchmarking Computer Use Agent Robustness to Common Environment Corruptions",
+          "abstract": "Autonomous computer use agents that powered by multimodal large language models (MLLMs) are emerging as capable assistants for completing complex digital workflows. However, real-world execution environments are far from ideal: pop-ups, resolution changes, and competing applications frequently interfere with agent perception and control. We introduce AgentHijack, a benchmark designed to evaluate the robustness of computer-use agents under common corruptions, where the uncertainties in dynamic environment disrupt the execution flow without direct adversarial intent. Specifically, AgentHijack introduces 9 configurable common corruptions to replicate realistic imperfect scenarios. We evaluate a variety of desktop tasks that utilize MLLM-based agents and discover that even minor instances of corruption can result in substantial performance degradation, which emphasizes the fragility of agents and underscores the necessity of robustness evaluation. Afterward, we propose AgentHijack-Agent, a framework that integrates an action generator with enhanced grounding capabilities and an onlooker responsible for behavior summarization and environment checking. Extensive experiments validate its effectiveness. Our code, environment, baseline models and data are publicly available at: https://AgentHijack.github.io.",
+          "authors": [
+            "Jingwei Sun",
+            "Jianing Zhu",
+            "Yuanyi Li",
+            "Tongliang Liu",
+            "Xia HU",
+            "Bo Han"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-25T11:09:22+00:00",
+          "link": "https://arxiv.org/pdf/2605.25707v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Benchmarking autonomous agent robustness under common environment corruptions",
+          "llm_evidence_cn": "在常见环境干扰下评估自主智能体鲁棒性的基准",
+          "llm_evidence": "在常见环境干扰下评估自主智能体鲁棒性的基准",
+          "canonical_evidence": "在常见环境干扰下评估自主智能体鲁棒性的基准",
+          "llm_tldr_en": "AgentHijack introduces a benchmark with 9 configurable corruptions to rigorously test the robustness of computer-use agents powered by multimodal LLMs, revealing their vulnerability to dynamic real-world environments.",
+          "llm_tldr_cn": "现有计算机使用智能体通常仅在理想条件下评估，而真实动态环境常存在弹窗、分辨率变化等干扰。AgentHijack提出包含9种可配置常见干扰的基准，用于系统评估基于多模态大模型的自主计算机交互智能体在面对环境破坏时的鲁棒性，揭示失败模式并为改进提供指引。",
+          "llm_tldr": "现有计算机使用智能体通常仅在理想条件下评估，而真实动态环境常存在弹窗、分辨率变化等干扰。AgentHijack提出包含9种可配置常见干扰的基准，用于系统评估基于多模态大模型的自主计算机交互智能体在面对环境破坏时的鲁棒性，揭示失败模式并为改进提供指引。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.25707v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.25971v1",
+          "source": "arxiv",
+          "title": "Anticipate and Learn: Unleashing Idle-Time Compute in Proactive Agents",
+          "abstract": "While AI agents demonstrate remarkable capabilities in reasoning and tool use, they remain fundamentally reactive: they compute responses only after explicit user prompts. This paradigm ignores a critical opportunity: the idle time between interactions is largely wasted, leaving agents unable to prepare for future user needs. To bridge this gap, we introduce ProAct, a proactive agent architecture that leverages idle-time compute to anticipate and fulfill likely upcoming user needs. By analyzing evolving dialogue history together with persistent memory, ProAct predicts upcoming needs and iteratively acquires information, allowing the agent to resolve knowledge gaps and prepare evidence before the user initiates a query.To rigorously evaluate proactive capabilities, we also introduce ProActEval, a comprehensive benchmark comprising 200 scenarios across 40 domains, featuring predictable need chains and diverse user cognitive profiles. Empirical results demonstrate significant advantages over reactive baselines. ProAct accelerates task completion by reducing required turns by 14.8%, decreases user effort by 11.7%, and cuts hallucination rates by 28.1% on ProActEval. Furthermore, MemBench evaluations confirm that ProAct achieves state-of-the-art reflective accuracy, underscoring its sustained and robust performance.",
+          "authors": [
+            "Haoyi Hu",
+            "Qirong Lyu",
+            "Xianghan Kong",
+            "Weiwen Liu",
+            "Jianghao Lin",
+            "Zixuan Guo",
+            "Yan Xu",
+            "Yasheng Wang",
+            "Weinan Zhang",
+            "Yong Yu"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL",
+            "cs.IR",
+            "cs.MA"
+          ],
+          "published": "2026-05-25T15:47:21+00:00",
+          "link": "https://arxiv.org/pdf/2605.25971v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Proactive agent architecture using idle-time compute to anticipate user needs",
+          "llm_evidence_cn": "利用空闲计算资源预测用户需求的主动式智能体架构",
+          "llm_evidence": "利用空闲计算资源预测用户需求的主动式智能体架构",
+          "canonical_evidence": "利用空闲计算资源预测用户需求的主动式智能体架构",
+          "llm_tldr_en": "ProAct leverages idle time for anticipatory computation, resolving knowledge gaps and preparing evidence, transforming reactive agents into proactive assistants.",
+          "llm_tldr_cn": "现有AI智能体仅响应用户提示，闲置的计算能力被浪费。ProAct引入主动式架构，通过分析对话历史与持久记忆预测未来需求，利用空闲时间获取信息并准备证据，在用户提问前即完成推理。基准测试表明主动计算能显著降低响应延迟并提升答案完整性。",
+          "llm_tldr": "现有AI智能体仅响应用户提示，闲置的计算能力被浪费。ProAct引入主动式架构，通过分析对话历史与持久记忆预测未来需求，利用空闲时间获取信息并准备证据，在用户提问前即完成推理。基准测试表明主动计算能显著降低响应延迟并提升答案完整性。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.25971v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.30343v1",
+          "source": "arxiv",
+          "title": "Unlocking the Working Memory of Large Language Models for Latent Reasoning",
+          "abstract": "To improve the reasoning capabilities of large language models, test-time compute is typically scaled by generating intermediate tokens before the final answer. However, this couples reasoning to autoregressive generation and thereby conflates internal computation with external communication. In contrast, human cognition can use working memory to hold and manipulate information internally without the need to externalize intermediate thoughts. Drawing on this principle, we introduce Reasoning in Memory (RiM), a latent reasoning method that replaces the autoregressive generation of reasoning steps with memory blocks. These memory blocks are fixed sequences of special tokens that unlock the working-memory capacity of large language models. Since they are fixed rather than generated, they can be processed in a single forward pass, enabling compute-efficient latent reasoning. To operationalize these memory blocks, we employ a two-stage curriculum. First, we ground them by predicting explicit reasoning steps after each memory block. Second, we discard this step-level supervision and iteratively refine the final answer after each memory block. Our experiments on reasoning benchmarks show that, across language models of different families and sizes, RiM matches or exceeds existing latent reasoning methods while avoiding the autoregressive generation of thoughts. These results demonstrate that large language models can be trained to use working memory as an effective mechanism for latent reasoning.",
+          "authors": [
+            "Lukas Aichberger",
+            "Sepp Hochreiter"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL",
+            "cs.AI"
+          ],
+          "published": "2026-05-28T17:59:49+00:00",
+          "link": "https://arxiv.org/pdf/2605.30343v1",
+          "tags": [
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "latent reasoning via memory blocks to improve LLM reasoning",
+          "llm_evidence_cn": "通过记忆模块实现潜在推理以改进LLM推理",
+          "llm_evidence": "通过记忆模块实现潜在推理以改进LLM推理",
+          "canonical_evidence": "通过记忆模块实现潜在推理以改进LLM推理",
+          "llm_tldr_en": "RiM replaces autoregressive reasoning steps with fixed memory blocks that unlock LLMs' working memory, enabling latent reasoning without externalizing intermediate thoughts.",
+          "llm_tldr_cn": "现有大语言模型通过生成中间token来扩展推理计算，但这将内部计算与外部交流耦合。受人类工作记忆启发，本文提出内存中推理（RiM）方法，用固定长度的特殊token序列作为记忆块，替代中间推理步骤的显式生成。这些记忆块解锁了LLM的工作记忆能力，允许在不输出中间步骤的情况下进行潜在推理。实验表明该方法有效提升了推理效率与性能，为LLM的推理机制设计提供了新的认知视角。",
+          "llm_tldr": "现有大语言模型通过生成中间token来扩展推理计算，但这将内部计算与外部交流耦合。受人类工作记忆启发，本文提出内存中推理（RiM）方法，用固定长度的特殊token序列作为记忆块，替代中间推理步骤的显式生成。这些记忆块解锁了LLM的工作记忆能力，允许在不输出中间步骤的情况下进行潜在推理。实验表明该方法有效提升了推理效率与性能，为LLM的推理机制设计提供了新的认知视角。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "recent advances in large language models",
+          "matched_requirement_id": "req-2",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.30343v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.25869v1",
+          "source": "arxiv",
+          "title": "Mitigating Provenance-Role Collapse in Long-Term Agents via Typed Memory Representation",
+          "abstract": "Long-term memory is essential for persistent LLM agents, yet prevailing architectures store historical interactions as unstructured, flat text. This unconstrained storage induces provenance-role collapse, a critical failure mode where agents suffer from source-monitoring errors. To resolve this cognitive vulnerability at the architectural level, we propose MemIR, a typed Memory Intermediate Representation that operationalizes source monitoring as a structural constraint. MemIR writes long-term memory into grounded atoms that separate raw evidence, retrieval cues, and truth-bearing claims, with factual authorization restricted to supported claim atoms. It then applies multi-route atomic projection and provenance-scoped utilization to transform heterogeneous retrieval hits into claim-centered candidate bundles and a normalized fact interface for answer generation. Experiments on LoCoMo and BEAM-100K demonstrate that MemIR consistently outperforms existing memory baselines, especially on tasks requiring source tracking, temporal grounding, and aggregation of fragmented evidence.",
+          "authors": [
+            "Zhengda Jin",
+            "Bingbing Wang",
+            "Jing Li",
+            "Ruifeng Xu",
+            "Min Zhang"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-05-25T13:56:31+00:00",
+          "link": "https://arxiv.org/pdf/2605.25869v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "prevents source-monitoring errors in LLM agents via typed memory representation",
+          "llm_evidence_cn": "通过类型化记忆表示防止LLM智能体中的源监控错误",
+          "llm_evidence": "通过类型化记忆表示防止LLM智能体中的源监控错误",
+          "canonical_evidence": "通过类型化记忆表示防止LLM智能体中的源监控错误",
+          "llm_tldr_en": "MemIR introduces typed memory atoms that separate evidence, retrieval cues, and claims, enforcing provenance-scoped utilization to mitigate source-monitoring errors in long-term LLM agents.",
+          "llm_tldr_cn": "长期记忆对持久性LLM智能体至关重要，但现有架构以非结构化文本存储历史，引发溯源-角色坍塌，导致源监控错误。本文提出MemIR，一种类型化记忆中间表示，通过结构化约束实现源监控。MemIR将长期记忆写入根基原子，分离原始证据、检索线索和真理主张，并将事实授权限制于支持原子。应用多路由原子投影和溯源范围利用，从架构层面改善代理的记忆可靠性，解决了智能体长期交互中的认知脆弱性。",
+          "llm_tldr": "长期记忆对持久性LLM智能体至关重要，但现有架构以非结构化文本存储历史，引发溯源-角色坍塌，导致源监控错误。本文提出MemIR，一种类型化记忆中间表示，通过结构化约束实现源监控。MemIR将长期记忆写入根基原子，分离原始证据、检索线索和真理主张，并将事实授权限制于支持原子。应用多路由原子投影和溯源范围利用，从架构层面改善代理的记忆可靠性，解决了智能体长期交互中的认知脆弱性。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.25869v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.28046v1",
+          "source": "arxiv",
+          "title": "MemCog: From Memory-as-Tool to Memory-as-Cognition in Conversational Agents",
+          "abstract": "Existing agent memory systems universally follow what we term a Memory-as-Tool paradigm where a single query triggers one-shot retrieval of flat passage lists, suffering from passive invocation, reasoning-retrieval decoupling, and structural mismatch between retrieved fragments and the agent's navigational needs. We propose MemCog, a Memory-as-Cognition system that makes memory access an integral part of the reasoning process. MemCog organizes user knowledge as Navigable Memory Store with associative link graphs, exposes Cross-Dimensional Navigation Interface for multi-step reasoning-driven traversal, and employs Proactive Reasoning Protocol that drives agents to spontaneously initiate memory exploration from conversational context. We additionally construct ProactiveMemBench, the first benchmark for evaluating proactive memory triggering. Experiments show that MemCog achieves state-of-the-art on passive QA benchmarks (92.98 on LoCoMo, 95.8 on LongMemEval) while substantially outperforming baselines on ProactiveMemBench, demonstrating the advantage of Memory-as-Cognition.",
+          "authors": [
+            "Zihan Li",
+            "Xingyu Fan",
+            "Feifei Li",
+            "Wenhui Que"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL"
+          ],
+          "published": "2026-05-27T06:48:33+00:00",
+          "link": "https://arxiv.org/pdf/2605.28046v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Memory-as-Cognition system elevating conversational agent capabilities through reasoning-integrated memory",
+          "llm_evidence_cn": "记忆即认知系统，通过推理融合记忆提升对话智能体能力",
+          "llm_evidence": "记忆即认知系统，通过推理融合记忆提升对话智能体能力",
+          "canonical_evidence": "记忆即认知系统，通过推理融合记忆提升对话智能体能力",
+          "llm_tldr_en": "MemCog transforms agent memory from passive retrieval into an active cognitive process with navigable knowledge graphs and proactive reasoning, improving complex conversational interactions.",
+          "llm_tldr_cn": "针对现有对话智能体记忆系统被动调用、检索与推理脱节的问题，本文提出MemCog，将记忆组织为可导航关联图，设计跨维度导航接口和主动推理协议，使记忆探索成为推理过程的有机组成部分，从而显著增强了智能体在长期、状态依赖对话中的理解与响应能力。",
+          "llm_tldr": "针对现有对话智能体记忆系统被动调用、检索与推理脱节的问题，本文提出MemCog，将记忆组织为可导航关联图，设计跨维度导航接口和主动推理协议，使记忆探索成为推理过程的有机组成部分，从而显著增强了智能体在长期、状态依赖对话中的理解与响应能力。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.28046v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.26112v1",
+          "source": "arxiv",
+          "title": "From Model Scaling to System Scaling: Scaling the Harness in Agentic AI",
+          "abstract": "This paper studies the next major bottleneck in agentic AI as system scaling, not only model scaling: the design of auditable, persistent, modular, and verifiable architectures around foundation models. We refer to this shift as scaling the harness: treating the structured execution layer around a foundation model as a first-class object of design, evaluation, and optimization. Although recent large language models enable agents to use tools, retrieve information, maintain memory, and execute long-horizon workflows, evaluation remains largely model-centric, often reducing agents to final-task success while treating memory, retrieval, tool use, orchestration, verification, and governance as secondary implementation details. This framing is increasingly inadequate because agent performance emerges from the interaction among the foundation model, memory substrate, context constructor, skill-routing layer, orchestration loop, and verification-and-governance layer. Together, these components form the agent harness, which translates model capability into long-horizon agent behavior. We study scaling the harness through three core bottlenecks: context governance, trustworthy memory, and dynamic skill routing, together with the orchestration and governance mechanisms that coordinate and constrain them. We further outline a research agenda for harness-level benchmarks that go beyond one-shot task success to measure trajectory quality, memory hygiene, context efficiency, communication fidelity, verification cost, and safe evolution over time. To make the discussion concrete, we develop CheetahClaws: https://github.com/SafeRL-Lab/cheetahclaws, a Python-native reference harness, and compare it with Claude Code and OpenClaw. Our main claim is that future progress in agentic AI will depend as much on system design as on stronger foundation models.",
+          "authors": [
+            "Shangding Gu"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.LG"
+          ],
+          "published": "2026-05-25T17:59:36+00:00",
+          "link": "https://arxiv.org/pdf/2605.26112v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Argues for scaling the harness as key to agentic AI advancement",
+          "llm_evidence_cn": "主张扩展骨架是智能体AI进步的关键",
+          "llm_evidence": "主张扩展骨架是智能体AI进步的关键",
+          "canonical_evidence": "主张扩展骨架是智能体AI进步的关键",
+          "llm_tldr_en": "This paper argues that next-gen agentic AI must focus on scaling the harness—making execution layers auditable, modular, and verifiable—rather than just scaling models.",
+          "llm_tldr_cn": "本文认为智能体AI的下一个瓶颈是系统扩展而非模型扩展，应将骨架视为可审计、持久化、模块化和可验证的一等公民，从而推动智能体在记忆、检索、工具使用等方面的发展。",
+          "llm_tldr": "本文认为智能体AI的下一个瓶颈是系统扩展而非模型扩展，应将骨架视为可审计、持久化、模块化和可验证的一等公民，从而推动智能体在记忆、检索、工具使用等方面的发展。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "autonomous AI agents and their capabilities",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.26112v1",
+          "carry_days": 1
+        }
+      ]
+    },
+    "llm-security": {
+      "updated_date": "20260521-20260530",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2605.25342v1",
+          "source": "arxiv",
+          "title": "MATO: Multi-objective Personalized Alignment with Test-time Optimization for Large Language Models",
+          "abstract": "Aligning large language models (LLMs) with diverse and multifaceted user preferences is a fundamental challenge in personalized AI systems. Existing multi-objective alignment methods either rely on costly training or require pre-trained reward models for each preference, making it difficult for them to adapt to evolving preferences. Prompt-based personalization offers a training-free alternative, but prompting alone often provides limited steerability, as LLMs may overemphasize or overlook certain preferences and fail to give users reliable control over the relative importance of different objectives when conflicts arise, leading to suboptimal alignment. In this paper, we introduce MATO, a training-free framework for Multi-objective personalized Alignment with Test-time Optimization. MATO formulates personalization as a test-time optimization problem that steers the relative importance of multiple objectives through controllable weights during decoding, without modifying model parameters or requiring external reward models. Specifically, a reward discovery module recovers preference rewards directly from the backbone LLM for diverse objectives specified in natural language, while a weight optimization module dynamically adjusts objective weights based on the user's initial preferences and the partially generated response to balance competing objectives during generation. The resulting rewards and weights jointly guide an online optimization procedure over the token distribution, enabling better alignment with the target objectives. Extensive experiments across multiple datasets and backbone LLMs show that MATO consistently outperforms strong baselines, achieving Pareto-improving multi-objective alignment and stronger steerability. These results highlight test-time optimization as a promising direction for scalable, controllable, and model-agnostic personalized alignment.",
+          "authors": [
+            "Linhao Luo",
+            "Thuy-Trang Vu",
+            "Van-Anh Nguyen",
+            "Junae Kim",
+            "Gholamreza Haffari",
+            "Dinh Phung"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-05-25T01:57:22+00:00",
+          "link": "https://arxiv.org/pdf/2605.25342v1",
+          "tags": [
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Training-free multi-objective alignment framework providing safety mechanism for LLMs",
+          "llm_evidence_cn": "面向LLM的训练无关多目标对齐，提供安全机制",
+          "llm_evidence": "面向LLM的训练无关多目标对齐，提供安全机制",
+          "canonical_evidence": "面向LLM的训练无关多目标对齐，提供安全机制",
+          "llm_tldr_en": "MATO enables test-time optimization for multi-objective personalized alignment of LLMs, allowing dynamic preference trade-off without retraining.",
+          "llm_tldr_cn": "针对现有LLM多目标对齐方法难以适应偏好变化的问题，本文提出训练无关的MATO框架，通过测试时优化动态调整目标权重，使用户能够可靠控制冲突偏好间的折衷，无需重新训练奖励模型，显著提高了个性化对齐的灵活性和效率。",
+          "llm_tldr": "针对现有LLM多目标对齐方法难以适应偏好变化的问题，本文提出训练无关的MATO框架，通过测试时优化动态调整目标权重，使用户能够可靠控制冲突偏好间的折衷，无需重新训练奖励模型，显著提高了个性化对齐的灵活性和效率。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "safety mechanisms for language models",
+          "matched_requirement_id": "req-13",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.25342v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2605.27575v1",
+          "source": "arxiv",
+          "title": "Agyn: An Open-Source Platform for AI Agents with Scalable On-Demand Execution, Agent Definition as a Code, and Zero-Trust Access",
+          "abstract": "As organizations move toward production deployments of AI agents, which execute non-deterministic workflows, maintain stateful sessions, and often operate with privileged access to internal services, the engineering challenge shifts from building individual agents to operating them at scale with proper isolation, governance, and security. In this paper we present Agyn, an open-source platform designed around three key principles tailored for agent workloads: a signal-driven, stateful serverless runtime on Kubernetes; a Terraform provider for agent and harness definition; and a security model grounded in zero-trust and least-privilege principles. Agyn is agent-agnostic, model-agnostic, and cloud-agnostic.",
+          "authors": [
+            "Nikita Benkovich",
+            "Vitalii Valkov"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-26T18:48:04+00:00",
+          "link": "https://arxiv.org/pdf/2605.27575v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Agyn platform enforces zero-trust security for production AI agent deployments",
+          "llm_evidence_cn": "Agyn平台为生产环境AI智能体实施零信任安全",
+          "llm_evidence": "Agyn平台为生产环境AI智能体实施零信任安全",
+          "canonical_evidence": "Agyn平台为生产环境AI智能体实施零信任安全",
+          "llm_tldr_en": "Agyn is an open-source platform that provides scalable, on-demand execution and zero-trust security for production AI agents.",
+          "llm_tldr_cn": "Agyn是一个开源平台，专为大规模运行AI智能体设计，实现了信号驱动的无服务器执行、Terraform定义即代码和零信任安全模型，以保障智能体在生产环境中的隔离、治理和安全。",
+          "llm_tldr": "Agyn是一个开源平台，专为大规模运行AI智能体设计，实现了信号驱动的无服务器执行、Terraform定义即代码和零信任安全模型，以保障智能体在生产环境中的隔离、治理和安全。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "security of autonomous agents",
+          "matched_requirement_id": "req-12",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.27575v1",
+          "carry_days": 1
+        }
+      ]
+    },
+    "agent-evol": {
+      "updated_date": "20260521-20260530",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2605.25971v2",
+          "source": "arxiv",
+          "title": "Anticipate and Learn: Unleashing Idle-Time Compute in Proactive Agents",
+          "abstract": "While AI agents demonstrate remarkable capabilities in reasoning and tool use, they remain fundamentally reactive: they compute responses only after explicit user prompts. This paradigm ignores a critical opportunity: the idle time between interactions is largely wasted, leaving agents unable to prepare for future user needs. To bridge this gap, we introduce ProAct, a proactive agent architecture that leverages idle-time compute to anticipate and fulfill likely upcoming user needs. By analyzing evolving dialogue history together with persistent memory, ProAct predicts upcoming needs and iteratively acquires information, allowing the agent to resolve knowledge gaps and prepare evidence before the user initiates a query. To rigorously evaluate proactive capabilities, we also introduce ProActEval, a comprehensive benchmark comprising 200 scenarios across 40 domains, featuring predictable need chains and diverse user cognitive profiles. Empirical results demonstrate significant advantages over reactive baselines. ProAct accelerates task completion by reducing required turns by 14.8%, decreases user effort by 11.7%, and cuts hallucination rates by 28.1% on ProActEval. Furthermore, MemBench evaluations confirm that ProAct achieves state-of-the-art reflective accuracy, underscoring its sustained and robust performance.",
+          "authors": [
+            "Haoyi Hu",
+            "Qirong Lyu",
+            "Xianghan Kong",
+            "Weiwen Liu",
+            "Jianghao Lin",
+            "Zixuan Guo",
+            "Yan Xu",
+            "Yasheng Wang",
+            "Weinan Zhang",
+            "Yong Yu"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL",
+            "cs.IR",
+            "cs.MA"
+          ],
+          "published": "2026-05-25T15:47:21+00:00",
+          "link": "https://arxiv.org/pdf/2605.25971v2",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "proactive agent architecture leveraging idle-time compute for self-improvement",
+          "llm_evidence_cn": "利用空闲计算实现自我改进的主动型智能体架构",
+          "llm_evidence": "利用空闲计算实现自我改进的主动型智能体架构",
+          "canonical_evidence": "利用空闲计算实现自我改进的主动型智能体架构",
+          "llm_tldr_en": "Proposes ProAct, a proactive agent architecture that leverages idle-time compute to predict future user needs, acquire information, and resolve knowledge gaps before prompts, improving responsiveness and efficiency.",
+          "llm_tldr_cn": "现有AI智能体仅为响应式，仅在用户提示后计算，浪费了大量交互间隔的空闲时间。本文提出ProAct，一种主动型智能体架构，利用空闲时计算预测未来用户需求，通过分析对话历史与持久记忆迭代获取信息，在用户发起查询前填补知识缺口。实验在多种基准上验证了该架构能够显著提升智能体的响应速度和质量，为开发更符合人类需求的自适应智能体提供了新范式。",
+          "llm_tldr": "现有AI智能体仅为响应式，仅在用户提示后计算，浪费了大量交互间隔的空闲时间。本文提出ProAct，一种主动型智能体架构，利用空闲时计算预测未来用户需求，通过分析对话历史与持久记忆迭代获取信息，在用户发起查询前填补知识缺口。实验在多种基准上验证了该架构能够显著提升智能体的响应速度和质量，为开发更符合人类需求的自适应智能体提供了新范式。",
+          "llm_tags": [
+            "query:agent-evol"
+          ],
+          "matched_query_tag": "query:agent-evol",
+          "matched_query_text": "Mechanisms for self improving autonomous agents",
+          "matched_requirement_id": "req-19",
+          "selection_source": "carryover_cache",
+          "paper_id": "2605.25971v2",
+          "carry_days": 1
+        }
+      ]
+    }
+  }
 }
