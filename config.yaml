@@ -27,7 +27,7 @@ subscriptions:
   keyword_recall_mode: or
   intent_profiles:
     - tag: llm-agent
-      description: 大厂 LLM 与 Agent 研究论文
+      description: 大厂（比如Anthropic Google Openai Nvidia Deepseek Qwen Meta等）前沿 LLM 与 Agent 研究论文
       enabled: true
       paper_sources:
         - arxiv
@@ -35,27 +35,22 @@ subscriptions:
         - keyword: Anthropic
           keyword_cn: Anthropic
           query: research from Anthropic
-        - keyword: Google
-          keyword_cn: 谷歌
-          query: research from Google
-        - keyword: OpenAI
-          keyword_cn: OpenAI
-          query: research from OpenAI
-        - keyword: DeepSeek
-          keyword_cn: 深度求索
-          query: research from DeepSeek
         - keyword: large language model
-          keyword_cn: 大语言模型
-          query: large language model
+          keyword_cn: 大型语言模型
+          query: recent advances in large language models
         - keyword: AI agent
-          keyword_cn: AI 智能体
-          query: AI agent
+          keyword_cn: AI智能体
+          query: autonomous AI agents and their capabilities
+        - keyword: Google research
+          keyword_cn: 谷歌研究
+          query: Google AI research publications and models
+        - keyword: OpenAI research
+          keyword_cn: OpenAI研究
+          query: OpenAI research papers on language models
+        - keyword: DeepSeek research
+          keyword_cn: DeepSeek研究
+          query: DeepSeek large language model and agent research
       intent_queries:
-        - query: Large language model research papers from Anthropic, Google, OpenAI, and DeepSeek
-          query_cn: 来自Anthropic、谷歌、OpenAI和深度求索的大语言模型研究论文
-          enabled: true
-          source: manual
-          note: ''
         - query: AI agent and LLM publications from top AI companies
           query_cn: 顶级AI公司关于AI智能体和LLM的出版物
           enabled: true
@@ -71,7 +66,7 @@ subscriptions:
           enabled: true
           source: manual
           note: ''
-      updated_at: '2026-05-30T19:26:03.901Z'
+      updated_at: '2026-05-30T19:35:04.359Z'
     - tag: llm-security
       description: 查找LLM和Agent安全相关论文
       enabled: true
@@ -102,6 +97,30 @@ subscriptions:
           source: manual
           note: ''
       updated_at: '2026-05-30T19:29:30.491Z'
+    - tag: agent-evol
+      description: 智能体自我进化相关论文
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: agent self evolution
+          keyword_cn: 智能体自我进化
+          query: agents evolving their own capabilities autonomously through learning and adaptation
+        - keyword: evolutionary agents
+          keyword_cn: 进化智能体
+          query: agents evolving through evolutionary algorithms and genetic programming
+      intent_queries:
+        - query: agent self evolution
+          query_cn: 智能体自我进化
+          enabled: true
+          source: manual
+          note: ''
+        - query: Mechanisms for self improving autonomous agents
+          query_cn: 自我改进的自主智能体机制
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-05-30T19:38:40.731Z'
 source_backends:
   arxiv:
     papers_table: arxiv_papers
