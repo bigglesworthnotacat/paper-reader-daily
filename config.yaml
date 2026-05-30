@@ -25,3 +25,65 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: llm-agent
+      description: 大厂 LLM 与 Agent 研究论文
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: Anthropic
+          keyword_cn: Anthropic
+          query: research from Anthropic
+        - keyword: Google
+          keyword_cn: 谷歌
+          query: research from Google
+        - keyword: OpenAI
+          keyword_cn: OpenAI
+          query: research from OpenAI
+        - keyword: DeepSeek
+          keyword_cn: 深度求索
+          query: research from DeepSeek
+        - keyword: large language model
+          keyword_cn: 大语言模型
+          query: large language model
+        - keyword: AI agent
+          keyword_cn: AI 智能体
+          query: AI agent
+      intent_queries:
+        - query: Large language model research papers from Anthropic, Google, OpenAI, and DeepSeek
+          query_cn: 来自Anthropic、谷歌、OpenAI和深度求索的大语言模型研究论文
+          enabled: true
+          source: manual
+          note: ''
+        - query: AI agent and LLM publications from top AI companies
+          query_cn: 顶级AI公司关于AI智能体和LLM的出版物
+          enabled: true
+          source: manual
+          note: ''
+        - query: Autonomous agent research by industry leaders
+          query_cn: 行业领导者的自主智能体研究
+          enabled: true
+          source: manual
+          note: ''
+        - query: Foundation model papers from major AI labs
+          query_cn: 主要AI实验室的基础模型论文
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-05-30T19:26:03.901Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
