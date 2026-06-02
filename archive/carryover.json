@@ -1,22 +1,384 @@
 {
-  "generated_at": "2026-06-01T22:20:22.990243+00:00",
-  "updated_date": "20260601",
+  "generated_at": "2026-06-02T22:31:04.492797+00:00",
+  "updated_date": "20260602",
   "carryover_days": 9,
   "tag_states": {
     "llm-agent": {
-      "updated_date": "20260601",
+      "updated_date": "20260602",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2606.01838v1",
+          "source": "arxiv",
+          "title": "LayerRoute: Input-Conditioned Adaptive Layer Skipping via LoRA Fine-Tuning for Agentic Language Models",
+          "abstract": "Agentic language model systems alternate between two structurally distinct step types: structured tool calls (short, deterministic, low perplexity) and open-ended planning/reasoning steps (long, complex, high perplexity). Despite this heterogeneity, current inference systems apply identical compute to every step. We introduce LayerRoute, a lightweight adapter that learns to selectively skip transformer blocks on a per-input basis. LayerRoute augments each of the 24 transformer blocks in Qwen2.5-0.5B-Instruct with: (1) a per-layer router (~897 parameters, Linear(896,1)) that outputs a hard binary gate via the straight-through estimator, and (2) LoRA adapters (rank 8, ~1.08M parameters) on the Q/K/V/O attention projections. The backbone weights remain frozen. A single end-to-end training pass on agentic data (Hermes, Glaive, GSM8K, Turing) with a gate regularisation term forces the system to discover which blocks are skippable per input type. After 3,000 steps (6.4 minutes on an A100 40GB), LayerRoute achieves a 12.91% skip differential: tool calls skip 15.25% of FLOPs while planning steps skip only 2.34%, using only 1.10M trainable parameters (0.22% of the 494M backbone). Quality improves over the base model due to LoRA adaptation, with perplexity delta of -1.29 on tool calls and -1.30 on planning.",
+          "authors": [
+            "Prateek Kumar Sikdar"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL",
+            "cs.AI",
+            "cs.LG"
+          ],
+          "published": "2026-06-01T07:50:05+00:00",
+          "link": "https://arxiv.org/pdf/2606.01838v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Proposes LayerRoute, an adapter that conditionally skips transformer blocks for agentic language models, optimizing inference for agent architecture.",
+          "llm_evidence_cn": "提出LayerRoute，一种为代理语言模型条件跳过Transformer块的适配器，优化面向代理的模型架构推理。",
+          "llm_evidence": "提出LayerRoute，一种为代理语言模型条件跳过Transformer块的适配器，优化面向代理的模型架构推理。",
+          "canonical_evidence": "提出LayerRoute，一种为代理语言模型条件跳过Transformer块的适配器，优化面向代理的模型架构推理。",
+          "llm_tldr_en": "LayerRoute introduces a lightweight adapter that learns to skip transformer layers per input, addressing heterogeneity between tool calls and reasoning in agentic LLMs, leading to efficient inference without quality loss.",
+          "llm_tldr_cn": "针对代理语言模型中工具调用（短、确定性）与规划推理（长、复杂）步骤的计算需求差异，LayerRoute提出一种轻量适配器，为每个输入动态跳过Transformer层。通过在24个块上添加路由器和LoRA适配器，实现了推理加速，同时保持生成质量，为代理模型的高效部署提供了新架构方案。",
+          "llm_tldr": "针对代理语言模型中工具调用（短、确定性）与规划推理（长、复杂）步骤的计算需求差异，LayerRoute提出一种轻量适配器，为每个输入动态跳过Transformer层。通过在24个块上添加路由器和LoRA适配器，实现了推理加速，同时保持生成质量，为代理模型的高效部署提供了新架构方案。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "large language model agent architecture",
+          "matched_requirement_id": "req-19",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.01838v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.02109v1",
+          "source": "arxiv",
+          "title": "BADGER: Bridging Agentic and Deterministic Evaluation for Generative Enterprise Reasoning",
+          "abstract": "Enterprise AI systems that translate natural language into SQL queries and orchestrate multi-step agentic reasoning pipelines require evaluation approaches fundamentally different from academic benchmarks. Spider and BIRD established execution-accuracy protocols; G-Eval and RAGAS advanced LLM-based assessment; and recent work such as Spider 2.0, BEAVER, and BIRD-Interact has begun to address enterprise and agentic dimensions. No single framework unifies text-to-SQL assessment with agentic behavior evaluation into a production-grade pipeline calibrated against human expert judgment.   We present BADGER, developed at Merkle, a unified evaluation framework integrating text-to-SQL assessment with agentic behavior evaluation. BADGER offers three contributions. First, LLM-assisted SQL component extraction extending Spider methodology to handle CTE-heavy, dialect-specific SQL. Second, a hybrid execution accuracy metric (Hybrid-EX) resolving column-aliasing and numeric-tolerance brittleness by using an LLM to infer structural alignments before deterministic cell-level scoring. Validated on 150 human-annotated industry queries, Hybrid-EX achieves Cohen's kappa=0.717 [95% CI: 0.600-0.822] (Substantial agreement) and 87.3% balanced accuracy, outperforming all six competing frameworks (Delta-kappa: 0.322-0.502, all p<=0.001). Third, an enterprise agentic evaluation suite assembling RAGAS, G-Eval, and agent benchmark metrics into a unified pipeline; Excess Tool Usage is the sole novel element.   BADGER runs entirely within the client's governed data environment, supports configurable LLM judge backends, and enables rapid prototyping of client-specific judges and metrics, serving as a continuous evaluation backbone rather than a one-time quality gate.",
+          "authors": [
+            "Shannon Serrao",
+            "Soumitra Chatterjee",
+            "Dorina Strori",
+            "Abhishek Sharma",
+            "Nathan Miller"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-06-01T11:42:37+00:00",
+          "link": "https://arxiv.org/pdf/2606.02109v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Presents BADGER, a unified evaluation framework for agentic behavior and text-to-SQL in enterprise reasoning, contributing to LLM agent frameworks.",
+          "llm_evidence_cn": "提出BADGER，一个统一评估代理行为与文本到SQL的企业推理框架，为LLM代理框架研究做出贡献。",
+          "llm_evidence": "提出BADGER，一个统一评估代理行为与文本到SQL的企业推理框架，为LLM代理框架研究做出贡献。",
+          "canonical_evidence": "提出BADGER，一个统一评估代理行为与文本到SQL的企业推理框架，为LLM代理框架研究做出贡献。",
+          "llm_tldr_en": "BADGER integrates deterministic text-to-SQL assessment with agentic behavior evaluation into a production-grade pipeline calibrated with human judgment, filling a gap in enterprise AI evaluation.",
+          "llm_tldr_cn": "针对企业AI系统中文本到SQL查询与多步代理推理管道评估需求，BADGER提出统一评估框架，将确定性执行准确度评估与代理行为评价相结合，并与人类专家判断校准。该框架填补了学术界没有覆盖代理维度的空白，为生产环境下的企业级生成式推理提供了端到端的评估方案，推动了代理技术在业务场景中的可靠应用。",
+          "llm_tldr": "针对企业AI系统中文本到SQL查询与多步代理推理管道评估需求，BADGER提出统一评估框架，将确定性执行准确度评估与代理行为评价相结合，并与人类专家判断校准。该框架填补了学术界没有覆盖代理维度的空白，为生产环境下的企业级生成式推理提供了端到端的评估方案，推动了代理技术在业务场景中的可靠应用。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "agent framework for LLM",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.02109v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.01279v1",
+          "source": "arxiv",
+          "title": "ANDES: Agent Native Data Evolving Synthesis Tool for Autonomous Instruction Alignment",
+          "abstract": "AI agents are increasingly being tasked with automating AI research itself, particularly the critical post-training phase that transforms base LLMs into aligned assistants. However, recent evaluations reveal that even frontier agents struggle to perform this task. While the success of post-training fundamentally relies on acquiring high-quality data, relying on agents to autonomously curate targeted training datasets from the open web introduces severe challenges. Executing the long-horizon tasks of searching, filtering, and balancing data within noisy web environments frequently overwhelms an agent's limited context, ultimately leading to degraded dataset quality and suboptimal downstream training performance. To bridge this gap, we introduce Andes (Agent Native Data Evolving Synthesis), a framework that reimagines data generation as a plug-and-play \\emph{agent skill}. Rather than forcing agents to devise complex data-gathering strategies from scratch, \\textsc{Andes} provides an intelligent abstraction layer. By leveraging a self-evolving World Tree routing mechanism and actionable diagnostic reports, it allows trainer agents to dynamically steer data synthesis through an interactive, closed-loop interface. We demonstrate that under strict compute constraints, equipping foundationally weaker agents with Andes improves automated alignment, securing state-of-the-art performance on PostTrainBench and robust cross-task generalization. Our project is available at https://github.com/zzy1127/ANDES.",
+          "authors": [
+            "Zhengyang Zhao",
+            "Shengjie Ye",
+            "Lu Ma",
+            "Hao Liang",
+            "Hengyi Feng",
+            "Wentao Zhang"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-31T15:03:50+00:00",
+          "link": "https://arxiv.org/pdf/2606.01279v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Develops ANDES, an agentic data synthesis tool for autonomous instruction alignment of LLMs.",
+          "llm_evidence_cn": "开发ANDES，用于LLM自主指令对齐的代理数据合成工具。",
+          "llm_evidence": "开发ANDES，用于LLM自主指令对齐的代理数据合成工具。",
+          "canonical_evidence": "开发ANDES，用于LLM自主指令对齐的代理数据合成工具。",
+          "llm_tldr_en": "ANDES enables LLM agents to autonomously curate high-quality instruction datasets from the web, overcoming context length and data quality issues in post-training alignment.",
+          "llm_tldr_cn": "AI代理被用于自动化LLM对齐的数据整理，但长距离搜索和过滤易使代理上下文过载，导致数据质量下降。本文提出ANDES工具，通过代理原生数据进化合成，在噪声网络环境中高效搜索、过滤和平衡数据。实验表明，该方法能生成高质量指令数据集，显著改善下游对齐训练效果。",
+          "llm_tldr": "AI代理被用于自动化LLM对齐的数据整理，但长距离搜索和过滤易使代理上下文过载，导致数据质量下降。本文提出ANDES工具，通过代理原生数据进化合成，在噪声网络环境中高效搜索、过滤和平衡数据。实验表明，该方法能生成高质量指令数据集，显著改善下游对齐训练效果。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "agent framework for LLM",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.01279v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.01230v1",
+          "source": "arxiv",
+          "title": "HomeFlow: A Data Flywheel for Smart Home Agent Training with Verifiable Simulation",
+          "abstract": "Large language model agents are moving beyond text-only interaction toward physical-world control, with smart homes as a representative domain. Real domestic interaction requires understanding ambiguous intents, operating in dynamic environments, and performing multi-turn reasoning. However, existing methods struggle to generate high-quality training data for smart home agents. We propose HomeFlow, a verifiable data flywheel for this domain. HomeFlow uses HomeEnv as a unified simulation environment and HomeMaker to procedurally generate diverse home settings. Subsequently, Blueprint compiles open-ended user intents into executable state-based success conditions, while MCTS-Flow synthesizes diverse, verifiable multi-turn trajectories through environment-guided tree search. We then optimize the agents via supervised fine-tuning and step-wise RLVE, which facilitates iterative improvement through authentic physical feedback. We further construct SmartHome-Bench to evaluate the agent across various smart home tasks. On this benchmark, HomeFlow-RL-4B and HomeFlow-RL-8B achieve task success rates of 84.60% and 87.03%. It is worth noting that HomeFlow-RL-8B even surpasses the leading GPT-5.5 by 1.23 percentage points.",
+          "authors": [
+            "Yi Gu",
+            "Huacan Wang",
+            "Shuo Zhang",
+            "Yuqing Hou",
+            "Lei Xue",
+            "Weipeng Ming",
+            "Chen Liu",
+            "Fangzhou Yu",
+            "Kuan Li",
+            "Ronghao Chen",
+            "Sen Hu",
+            "Xiaofeng Mou",
+            "Yi Xu"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-31T13:26:46+00:00",
+          "link": "https://arxiv.org/pdf/2606.01230v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Data flywheel for training smart home LLM agents with verifiable simulation",
+          "llm_evidence_cn": "基于可验模拟的智能家居LLM智能体数据飞轮",
+          "llm_evidence": "基于可验模拟的智能家居LLM智能体数据飞轮",
+          "canonical_evidence": "基于可验模拟的智能家居LLM智能体数据飞轮",
+          "llm_tldr_en": "HomeFlow uses a simulation-based flywheel to generate diverse, verifiable training data for LLM agents in smart home tasks, improving performance on ambiguous intent and multi-turn reasoning.",
+          "llm_tldr_cn": "针对智能家居LLM智能体训练数据质量低的问题，HomeFlow利用HomeEnv模拟环境和MCTS-Flow合成可验证多轮轨迹，构建数据飞轮，提升智能体在模糊意图和动态环境下的多轮推理能力。",
+          "llm_tldr": "针对智能家居LLM智能体训练数据质量低的问题，HomeFlow利用HomeEnv模拟环境和MCTS-Flow合成可验证多轮轨迹，构建数据飞轮，提升智能体在模糊意图和动态环境下的多轮推理能力。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "language agent for task automation",
+          "matched_requirement_id": "req-15",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.01230v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.01815v1",
+          "source": "arxiv",
+          "title": "CRAB-Bench: Evaluating LLM Agents under Complex Task Dependencies and Human-aligned User Simulation",
+          "abstract": "Evaluating LLM agents in realistic service scenarios requires complex task dependencies, imperfect user behavior, and an evaluation that accommodates multiple valid solutions. We introduce CRAB-Bench (Constraint-based Realistic Agent Benchmark) and RUSE (Realistic User Simulation Engine) to address this gap. CRAB-Bench generates tasks via a constraint graph over multiple interdependent entities with structured distractors, requiring agents to reason carefully over thousands of misleading candidates where only a tiny fraction of solutions are valid. RUSE replaces cooperative, template-like simulators with realistic users grounded in human behavioral studies, instantiated across diverse personas and four behavioral dimensions. Experiments on four frontier LLM agents show that the best model achieves only 61% pass@1 on CRAB-Bench, and switching to RUSE causes further drops of up to 57%, concentrated in task-solving ability rather than conversational quality. Information Disclosure is the most damaging behavioral dimension, and agents interacting with RUSE are less likely to admit mistakes, instead masking errors through implicit corrections.",
+          "authors": [
+            "Danqing Wang",
+            "Akshay Sivaraman",
+            "Lei Li"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-06-01T07:31:04+00:00",
+          "link": "https://arxiv.org/pdf/2606.01815v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "benchmark for LLM agents under complex dependencies",
+          "llm_evidence_cn": "复杂依赖下LLM智能体的基准测试",
+          "llm_evidence": "复杂依赖下LLM智能体的基准测试",
+          "canonical_evidence": "复杂依赖下LLM智能体的基准测试",
+          "llm_tldr_en": "CRAB-Bench evaluates LLM agents with constraint-based tasks and a realistic user simulator, setting a new standard for agent benchmarking.",
+          "llm_tldr_cn": "现有LLM智能体评测缺乏复杂任务依赖和符合真实用户行为的模拟，且有效解通常不唯一。CRAB-Bench通过约束图生成含结构化干扰的复杂多实体任务，并引入基于人类行为研究的四维度用户模拟引擎RUSE。该基准测试要求智能体在大量误导候选中精细推理，揭示了当前方法的推理瓶颈，为开发更具鲁棒性的服务型智能体提供了高保真评估平台。",
+          "llm_tldr": "现有LLM智能体评测缺乏复杂任务依赖和符合真实用户行为的模拟，且有效解通常不唯一。CRAB-Bench通过约束图生成含结构化干扰的复杂多实体任务，并引入基于人类行为研究的四维度用户模拟引擎RUSE。该基准测试要求智能体在大量误导候选中精细推理，揭示了当前方法的推理瓶颈，为开发更具鲁棒性的服务型智能体提供了高保真评估平台。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "latest advances in LLM based autonomous agents",
+          "matched_requirement_id": "req-21",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.01815v1",
+          "carry_days": 1
+        }
+      ]
     },
     "llm-security": {
-      "updated_date": "20260601",
+      "updated_date": "20260602",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2606.01755v1",
+          "source": "arxiv",
+          "title": "TriAlign: Towards Universal Truth Consistency in Personalized LLM Alignment",
+          "abstract": "Personalized large language models adapt responses to users' preferences and social attributes, but can introduce substantial universal truth inconsistencies across social groups, where some groups systematically receive less accurate responses on objective tasks. Existing alignment methods either ignore personalization or mainly focus on subjective preference alignment, largely overlooking fairness and consistency in universal truths. To address this gap, we study Truth-Invariant Alignment (TIA), an alignment problem for personalized LLMs that aims to ensure universal truths remain consistent across social groups while preserving personalization. We propose TriAlign, the first offline multi-agent reinforcement learning (MARL) framework for TIA, where each social group is modeled as an agent interacting. TriAlign jointly optimizes universal truth accuracy, cross-group truth consistency, and personalization through a fairness-aware objective and an explicit inconsistency penalty. Experiments across diverse benchmarks demonstrate that TriAlign achieves a stronger balance among these three objectives than strong baselines, reducing universal truth disparities across social groups while improving both objective task performance and personalization quality.",
+          "authors": [
+            "Thi-Nhung Nguyen",
+            "Linhao Luo",
+            "Rollin Omari",
+            "Junae Kim",
+            "Thuy-Trang Vu",
+            "Dinh Phung"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL"
+          ],
+          "published": "2026-06-01T06:19:52+00:00",
+          "link": "https://arxiv.org/pdf/2606.01755v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "addresses alignment of LLMs for truth consistency using a multi-agent RL framework",
+          "llm_evidence_cn": "解决LLM对齐中的真值一致性问题，使用多智能体强化学习框架",
+          "llm_evidence": "解决LLM对齐中的真值一致性问题，使用多智能体强化学习框架",
+          "canonical_evidence": "解决LLM对齐中的真值一致性问题，使用多智能体强化学习框架",
+          "llm_tldr_en": "Proposes TriAlign, the first offline multi-agent RL framework for truth-invariant alignment in personalized LLMs, ensuring universal truth consistency across social groups while preserving personalization.",
+          "llm_tldr_cn": "个性化大语言模型可能在不同社会群体间产生普遍真理的不一致。本文研究真理不变对齐问题，提出TriAlign，首个离线多智能体强化学习框架，旨在保持跨群体真理一致性的同时保留个性化。实验证明该方法能有效减少群体间的真值偏差。",
+          "llm_tldr": "个性化大语言模型可能在不同社会群体间产生普遍真理的不一致。本文研究真理不变对齐问题，提出TriAlign，首个离线多智能体强化学习框架，旨在保持跨群体真理一致性的同时保留个性化。实验证明该方法能有效减少群体间的真值偏差。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "alignment and safety measures for language model agents",
+          "matched_requirement_id": "req-6",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.01755v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.01365v1",
+          "source": "arxiv",
+          "title": "Early Diagnosis of Wasted Computation in Multi-Agent LLM Systems via Failure-Aware Observability",
+          "abstract": "Tool-using multi-agent large language model (LLM) systems spend computation through model tokens, tool calls, retries, and code execution before producing an answer. When a run fails, final-answer evaluation reveals the endpoint but usually not the point at which the trajectory stopped making recoverable progress. This paper introduces a failure-aware observability framework for diagnosing wasted computation in multi-agent LLM traces. The framework maps recurring failure modes to online trace signals, including tool reliability, execution recovery, orchestration loops, evidence availability, information change, and budget pressure. We instantiate the framework in a three- agent question-answering system and evaluate it on 165 GAIA validation traces under identical execution caps. Operational failures remain common: 22/53 level-1 runs, 33/86 level-2 runs, and 12/26 level-3 runs fail to produce a usable final answer. The traces expose different mechanisms behind these outcomes, including insufficient evidence, repeated-action loops, max-step termination, tool-failure streaks, and execution calls that succeed without useful output. Mean token use rises from 8,152 tokens at level 1 to 16,389 tokens at level 3, while evidence availability and sentence-level support diverge. A cached 10-trace LLM-judge grounding audit shows that cheap online signals and deeper semantic metrics capture complementary layers of failure. The results position failure-aware observability as a diagnostic layer between raw execution logs and final-answer accuracy.",
+          "authors": [
+            "Xianyou Li",
+            "Weiran Yan",
+            "Yichao Wu",
+            "Penghao Liang",
+            "Mengwei Yuan",
+            "Jianan Liu",
+            "Jing Yang"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-05-31T17:50:11+00:00",
+          "link": "https://arxiv.org/pdf/2606.01365v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "failure-aware observability detects wasted computation in multi-agent LLM traces",
+          "llm_evidence_cn": "故障感知可观测性框架诊断多智能体LLM系统中的浪费计算",
+          "llm_evidence": "故障感知可观测性框架诊断多智能体LLM系统中的浪费计算",
+          "canonical_evidence": "故障感知可观测性框架诊断多智能体LLM系统中的浪费计算",
+          "llm_tldr_en": "Maps failure modes to online trace signals to enable early diagnosis of wasted computation in tool-using multi-agent LLM systems.",
+          "llm_tldr_cn": "多智能体LLM系统在失败运行中常浪费大量计算，但最终评估无法定位可恢复进度终止点。本文提出故障感知可观测性框架，将循环失败模式映射到在线追踪信号，包括工具可靠性、执行恢复、编排循环等。在问答系统上的实验表明，该方法能早期诊断浪费计算，为提升系统效率与安全性提供了可操作的监测手段。",
+          "llm_tldr": "多智能体LLM系统在失败运行中常浪费大量计算，但最终评估无法定位可恢复进度终止点。本文提出故障感知可观测性框架，将循环失败模式映射到在线追踪信号，包括工具可靠性、执行恢复、编排循环等。在问答系统上的实验表明，该方法能早期诊断浪费计算，为提升系统效率与安全性提供了可操作的监测手段。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "safety mechanisms for language models",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.01365v1",
+          "carry_days": 1
+        }
+      ]
     },
     "agent-evol": {
-      "updated_date": "20260601",
+      "updated_date": "20260602",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2606.02536v1",
+          "source": "arxiv",
+          "title": "Tracking the Behavioral Trajectories of Adapting Agents",
+          "abstract": "Text files such as skill files, memory files, and behavioral configuration files play a central role in defining how modern agents act. Through edits by humans or the agents themselves, these files may evolve over time, directly steering the agent's behavior in future interactions. We present a methodology and framework for measuring agent $traits$ by defining traits as directions in the embedding space of a text embedding model. We train a linear model on labeled \"before\" versus \"after\" skill file diffs to learn a trait vector, then score arbitrary skill edits by projecting their embedding diffs onto this vector. Evaluated on 68 labeled skill diff pairs for the trait of propensity to seek sensitive data, our method achieves 91.2% sign classification accuracy and a Spearman rank correlation of $ρ= 0.82$ under leave-one-out cross-validation. We build this trait evaluation into a broader agent-to-agent protocol that enables one agent to evaluate another's skill file updates through a trusted intermediary.",
+          "authors": [
+            "Jonah Leshin",
+            "Manish Shah",
+            "Ian Timmis"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-06-01T17:40:31+00:00",
+          "link": "https://arxiv.org/pdf/2606.02536v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "methodology to track agent behavioral trajectories through skill file edits, measuring adaptation traits",
+          "llm_evidence_cn": "通过技能文件编辑追踪智能体行为轨迹的方法，测量适应性特征",
+          "llm_evidence": "通过技能文件编辑追踪智能体行为轨迹的方法，测量适应性特征",
+          "canonical_evidence": "通过技能文件编辑追踪智能体行为轨迹的方法，测量适应性特征",
+          "llm_tldr_en": "Proposes a framework to measure agent traits by learning trait vectors from skill file diffs, achieving 91.2% accuracy in classifying propensity to seek sensitive data, enabling tracking of behavioral adaptation.",
+          "llm_tldr_cn": "现代智能体的行为由可编辑的技能文件、记忆文件等定义，这些文件的演化直接影响行为。本文提出一种测量智能体特质的方法，将特质定义为文本嵌入空间中的方向，通过训练线性模型从技能文件差异中学习特质向量。在68组标记的技能差异对上测试，识别寻求敏感数据倾向的准确率达91.2%，斯皮尔曼相关系数高，为追踪智能体行为适应提供了有效工具。",
+          "llm_tldr": "现代智能体的行为由可编辑的技能文件、记忆文件等定义，这些文件的演化直接影响行为。本文提出一种测量智能体特质的方法，将特质定义为文本嵌入空间中的方向，通过训练线性模型从技能文件差异中学习特质向量。在68组标记的技能差异对上测试，识别寻求敏感数据倾向的准确率达91.2%，斯皮尔曼相关系数高，为追踪智能体行为适应提供了有效工具。",
+          "llm_tags": [
+            "query:agent-evol"
+          ],
+          "matched_query_tag": "query:agent-evol",
+          "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
+          "matched_requirement_id": "req-9",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.02536v1",
+          "carry_days": 1
+        }
+      ]
     },
     "company": {
       "updated_date": "20260522-20260531",
