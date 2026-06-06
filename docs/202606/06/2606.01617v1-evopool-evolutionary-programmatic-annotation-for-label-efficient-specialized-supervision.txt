@@ -1,0 +1,2105 @@
+Title: EvoPool: Evolutionary Programmatic Annotation for Label-Efficient Specialized Supervision
+
+URL Source: https://arxiv.org/pdf/2606.01617v1
+
+Published Time: Tue, 02 Jun 2026 01:59:02 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+## EvoPool: Evolutionary Programmatic Annotation for Label-Efficient Specialized Supervision 
+
+Tianyi Xu 1,2 Yaolun Zhang 1 Xuan Ouyang 2 Huazheng Wang 1*
+
+> 1
+
+Oregon State University 2University of Wisconsin–Madison 
+
+{xut2, zhanyaol, huazheng.wang}@oregonstate.edu xouyang7@wisc.edu 
+
+Abstract 
+
+Large language models excel at general tasks but underperform smaller supervised models in specialized, high-stakes domains where train-ing labels are costly. We address this regime with EvoPool , an evolutionary multi-agent framework inspired by Darwinian evolution. Three specialized agents iteratively propose executable annotator code, a small validation set provides a fitness signal, and a determin-istic gate keeps only annotators that pass vi-ability, diversity, and marginal-contribution checks across generations. Pool votes are mapped to soft training labels by EvoAgg, a text-aware aggregator combining semantic fea-tures with annotator-vote features. The au-thored pool runs at near-zero per-example cost and is 4500 to 31000 × faster than LLM anno-tation on 100K examples. Across 7 of 8 LLM-weak specialized and complex tasks spanning biomedical relation extraction, legal-clause classification, complex reasoning, and dense multi-label biomedical classification, EvoPool beats the strongest LLM annotation baseline by an average +0 .141 macro-F1, peaking at 
+
++0 .301 on ChemProt and +0 .265 on PubMed. Code is available at: https://github.com/ tianyi0216/EvoPool .
+
+1 Introduction 
+
+Specialized, high-stakes domains like biomedi-cal relation extraction (Krallinger et al., 2017; Herrero-Zazo et al., 2013), legal-clause classifica-tion (Zhang et al., 2024), and scientific claim verifi-cation (Wadden et al., 2020) require large amounts of accurately labeled training data. A small model (Liu et al., 2020) fine-tuned on a few thousand such examples reaches strong macro-F1, but those labels require clinicians, lawyers, or scientific reviewers and routinely cost tens to hundreds of thousands of dollars per dataset. Annotation budgets typically al-
+
+> *Corresponding author.
+
+low only a small validation set, leaving the training corpus unlabeled. Large language models, with their strong general task knowledge and code-synthesis capability, are a promising route to scalable annotation in such domains. Two natural variants have emerged, but both fall short. LLM annotation labels each training example via a per-example LLM inference (Zheng et al., 2023; Wang et al., 2021). It is slow and ex-pensive at deployment because cost scales linearly with corpus size, and on specialized domains ac-curacy still trails task-specific models (Xu et al., 2025): on ChemProt (Krallinger et al., 2017), gpt-4o-mini annotation reaches only 0.28 test macro-F1. LLM annotator synthesis methods such as Al-chemist (Huang et al., 2024), DataSculpt (Guan et al., 2025), and EXPONA (Lam et al., 2026) au-thor a pool of executable labeling functions in one LLM shot, building on the data-programming ab-straction of Snorkel (Ratner et al., 2017, 2016). This is cheap to deploy at inference but the pool inherits the LLM’s a priori biases over the label space, ignores observed per-class weakness, and collapses coverage on rare classes. To address these gaps, we ask: can the anno-tator pool itself evolve to fit each domain rather than being authored once and frozen? Our answer is EvoPool , an evolutionary multi-agent frame-work that draws on Darwinian evolution (Darwin, 1859) and recent evolutionary methods for data and agents (Mi et al., 2026; Yuan et al., 2025). Each generation, three specialized agents propose new executable annotators targeting weak classes, the validation set provides a fitness signal, and a deter-ministic gate keeps annotators that pass viability, di-versity, and marginal-contribution checks. Only the surviving pool persists to the next generation, accu-mulating across K generations as auditable Python rules. This per-class feedback and cross-generation accumulation is what one-shot annotator synthesis and per-example LLM annotation cannot provide, 
+
+> arXiv:2606.01617v1 [cs.CL] 1 Jun 2026
+
+Why EvoPool? 
+
+From costly per -example annotation to reusable specialized supervision 
+
+Specialized 
+
+Unlabeled Corpus 
+
+> Biomedical
+> relation
+> extraction
+> Legal clause
+> classification
+> Claim verification
+> Labels are expensive, but
+> specialized supervisions
+> are valuable.
+
+Human Expert Annotation   
+
+> Unlabeled
+> examples Experts annotate High -quality
+> labeled examples
+> Strong specialized
+> model
+> High Quality Labels
+> Scarce Experts
+> High Annotation Cost
+> Slow at Scale
+
+LLM Direct Annotation   
+
+> Unlabeled
+> examples
+> LLM inference LLM Labels Downstream Model
+> Easy but Costly to
+> Deploy/Reuse
+> Cost Grows with
+> Corpus Size
+> Often Weak on
+> Specialized
+> Domains
+
+EvoPool: Author Once, Supervise Cheaply at Scale       
+
+> 1. One Time Authoring
+> Unlabeled
+> Corpus
+> Labeled
+> Set
+> Agent
+> Authoring
+> 2. Evolutionary Refinement 3. Reusable
+> Annotator Pool
+> 4. Cheap Large -Scale
+> Supervision
+> Propose Evaluate Keep Best Specialized
+> Supervision
+> Many
+> Examples
+> Apply
+> Pools Get labels Strong
+> specialized
+> model
+> Best Cost -
+> Accuracy
+> Tradeoff
+> Instead of paying annotation cost for every example, EvoPool distills Agent knowledge and reasoning into a reusable evolved a nno tator pool.
+
+Figure 1: Why EvoPool? Three regimes for obtaining specialized supervision when training labels are unavailable. 
+
+(1) Human-expert annotation provides high-quality labels but depends on scarce experts and scales poorly. 
+
+(2) LLM-direct annotation is easy to deploy, but requires one LLM call per example, making cost grow with corpus size while often remaining unreliable on specialized domains. (3) EvoPool amortizes LLM reasoning into a reusable pool of executable annotators. Through one-time evolutionary authoring, candidate annotators are proposed, evaluated, and refined into dataset-specific supervision that can be applied cheaply across the full unlabeled corpus to train a strong specialized model. 
+
+and it lets EvoPool keep improving where they stall. Pool votes are then mapped to soft training labels by EvoAgg, a text-aware aggregator combin-ing a low-dimensional sentence-BERT embedding (Reimers and Gurevych, 2019) with annotator-vote features. Once authored, the pool runs at near-zero per-example cost while LLM annotation scales lin-early with the corpus. Figure 1 contrasts these three regimes for specialized supervision. We evaluate EvoPool on 10 datasets across 4 task categories. On 7 of 8 LLM-weak specialized and complex tasks, EvoPool beats LLM annota-tion by an average +0 .141 test macro-F1, with the largest gain exceeding +0 .30 on biomedical rela-tion extraction. On the remaining 2 tasks, EvoPool matches or beats LLM annotation while still out-performing the stronger of the LLM annotator syn-thesis methods by 0.36 to 0.62 . We further evalu-ate the framework across 4 LLM backbones and 3
+
+downstream models that vary in size and architec-ture, confirming that the cost-accuracy advantage is robust to the choice of agent backbone and down-stream architecture. Our contributions are: • EvoPool , a Darwinian-inspired evolutionary multi-agent framework that authors a pool of executable annotators under deterministic pool-level selection, paired with EvoAgg , a text-aware aggregator that lifts macro-F1 over ma-jority vote by +0 .10 to +0 .43 on long-tail and dense multi-label datasets. • Task-aware programmatic supervision for complex structured tasks : to our knowl-edge, the first programmatic-annotation frame-work evaluated across both complex reasoning with explicit claim/evidence comparison and dense multi-label biomedical classification, two regimes where prior LLM annotator synthesis collapses. Coverage is enabled by task-aware Generators and a text-aware aggregator. • Best cost-accuracy tradeoff and cross-backbone robustness : the authored pool is 
+
+4500 to 31000 × faster than LLM annotation on 100K examples, and EvoPool outperforms the strongest baseline or stays competitive across 4 LLM backbones and 3 downstream models. 2 Methods 
+
+Figure 2 summarizes our pipeline. EvoPool casts programmatic annotation as evolutionary search over a population of executable annotators: a multi-agent loop introduces variation, a deterministic selection gate enforces fitness, and the surviving pool’s votes are aggregated by EvoAgg into soft training labels for a downstream model. 
+
+2.1 Problem Setup 
+
+Given a corpus of unlabeled training texts Dtrain =
+
+{xi}Ni=1 , a small labeled validation set Dval =
+
+{(xj , y j )}Mj=1 with M ≪ N , and a held-out test set Dtest , we aim to author a pool of executable annotators that produces pseudo-labels ˆDtrain =
+
+{(xi, ˆyi)}Ni=1 for the training corpus, on which we then fine-tune a downstream model f : X → Y 
+
+over C classes. The train-time loop may access 
+
+Dtrain texts and Dval labels but never Dtrain labels. 
+
+2.2 Evolutionary Multi-Agent Loop 
+
+We organize annotator authoring as an evolution-ary process with three primitives: variation for proposing new annotators, selection for retaining the fittest, and inheritance for carrying the surviv-ing pool into the next generation. At each gener-ation k, three role-specialized LLM agents act on the current pool Pk−1, and the three roles together partition the exploration-exploitation tradeoff. 
+
+Generator (broad variation). The Generator seeds the initial pool at k = 0 with diverse can-didate annotators that span the label space. Its role is breadth-first exploration of the programmatic-supervision space, providing initial coverage across all classes before any selection is applied. 
+
+Improver (targeted variation). The Improver reads a per-iteration analysis brief that packages the current pool’s per-class diagnostics with the query selector’s picks. From this brief it identifies the classes where the pool is weakest by valida-tion F1 and concentrates variation there, proposing new annotators for under-performing classes with confusable-class guardrails. 
+
+Refiner (exploitation). The Refiner takes high-precision but low-recall annotators and proposes broader variants that retain the discriminative sig-nal while widening coverage. It exploits already-validated rules to expand coverage around high-fitness candidates rather than introducing fresh di-versity. Each agent is re-invoked from scratch every generation with no persistent state. The pool Pk
+
+is the only inheritance channel, making the sys-tem strictly Darwinian rather than Lamarckian (de Lamarck, 1873). Empirically this stateless choice is both cheaper and slightly better than Lamarckian variants with cross-iteration verbal lessons (App. H.1), since pool-level selection al-ready supplies the per-class feedback. Algorithm 1 in App. B gives the full training-time loop, includ-ing the explicit selection gate, the Refiner activa-tion rule, and the per-class targeting logic. App. C expands the rationale behind each agent role and selection primitive. 
+
+2.3 Pool-Level Natural Selection 
+
+Selection acts on the augmented pool Pk−1 ∪
+
+∆Pimp ∪ ∆Pref at the end of each generation through three deterministic filters, each motivated by a Darwinian primitive. Formal definitions and thresholds are in App. D. 
+
+Niche redundancy. Annotators whose firing pat-tern overlaps an existing pool member above a sim-ilarity threshold are removed. This keeps the pool diverse without explicit diversity penalties. 
+
+Minimum competence. Annotators that fail a validation-precision floor or fire too rarely are re-moved. This is the basic viability threshold for entering the pool. 
+
+Marginal contribution. Newly proposed annota-tors whose removal strictly improves the pool’s collective validation score (by at least a small tolerance τabl ) are dropped through greedy post-iteration ablation. This ensures every newly ad-mitted member contributes positively to population fitness rather than free-riding on other annotators. The strict-improvement form of this ablation rule gives the post-iteration step a clean mono-tonicity guarantee: each accepted drop strictly im-proves the pool’s validation macro-F1, so the post-ablation pool always dominates the pre-ablation pool (Prop. 1, App. D). Empirically the end-of-generation pool is monotone non-decreasing across all our experiments, justifying the Darwinian fram-ing of pool inheritance. 
+
+2.4 Query Selection 
+
+The Improver and Refiner need a signal indicating where the current pool fails, so we design query selection as a principled feedback channel. At each generation we draw a small batch of training exam-ples for the agents to reason over. We use Batch-BALD (Kirsch et al., 2019) over the annotator en-EvoPool Pipeline 
+
+Inputs 
+
+> Unlabeled Training Corpus
+> Labeled Validation Set
+
+Evolutionary Annotator 
+
+Authoring for K iterations         
+
+> Initialize
+> annotator
+> pool
+> Improver
+> Propose
+> better
+> annotations.
+> Refiner
+> Refine and
+> validate
+> annotators
+> Improvement
+> Brief
+> •Coverage gaps
+> •Errors
+> •Priority Areas
+> •…
+> Update Annotator Pool
+> Selected
+> Examples
+> •Diversity
+> •Uncertainty
+> •Informative
+> •…
+> Generator
+> 𝜙 (𝑥 );
+
+Pool Selection 
+
+> Deduplication
+> Precision Filter
+> Post -iteration
+> Ablation
+> Pool -level
+> inheritance
+
+Aggregation and 
+
+Downstream    
+
+> Votes Text
+> Features
+> EvoAgg
+> 𝑿 = [ 𝜙 (𝑥 ); 𝑽 ]
+> 𝜙 (𝑥 )V
+> Pseudo -labels
+> Downstream Model
+> Specialized Model
+> Full
+> coverage
+> Near -instant
+> execution.
+> Agents mutate, distill their knowledge into annotator pools. Pool selects, and surviving annotators are the unit of inheritan ce.
+
+Figure 2: Overview of the EvoPool pipeline. Over K generations, Generator, Improver, and Refiner propose annotators targeting weak classes. A selection gate keeps annotators that pass viability, diversity, and marginal-contribution checks against validation fitness. EvoAgg then aggregates the surviving pool PK from text features and votes into soft training labels. 
+
+semble, an information-theoretic acquisition that picks examples maximizing the expected mutual information between unknown labels and annota-tor predictions, surfacing inputs where the popula-tion lacks discriminative power. Unlike uncertainty top-K, BatchBALD measures each example’s in-formation given the others in the batch, penalizing internal redundancy. Full derivation is in App. E. 
+
+2.5 EvoAgg: Text-Aware Aggregation 
+
+The pool PK casts a vote vector per example, but turning these votes into a label is itself a learning problem. Majority vote assumes annotators are independent and equally reliable and uses no signal beyond the votes themselves. Both assumptions break here: on hard or rare classes the pool may fire only a few times or abstain entirely, and when most annotators fire on a single class, MV collapses to that class regardless of input. To address these issues, we propose EvoAgg , a learned aggregator that conditions on both votes and the input text. Text is the only signal that does not depend on pool composition: it is present for every example and grounds annotator reliability in actual content. We concatenate a low-dimensional text embedding ϕ(x) with the annotator-vote one-hot encoding to form X = [ ϕ(x); V], and fit a logistic regression on the validation labels. The embedding ϕ plays three roles. First, it is a fallback signal where the pool is weak or silent, so EvoAgg has coverage 1.0 by construction. Second, by concatenating rather than predicting separately, the model arbitrates per-example between text and votes. Third, it regularizes the high-dimensional vote space, preventing overfitting on the small vali-dation set. 
+
+3 Experiment Setup 
+
+Datasets and splits. We evaluate EvoPool on 10 datasets organized into four task categories. 
+
+(1) General classification covers LLM-friendly topic and intent tasks (AGNews (Zhang et al., 2015), Banking77 (Casanueva et al., 2020)). (2) High-stakes specialized targets domains where expert labels are costly and LLM annotation is weak (biomedical relation extraction on ChemProt (Krallinger et al., 2017) and DDI (Herrero-Zazo et al., 2013), legal-clause classification on Claude9 (Zhang et al., 2024)). (3) Complex reasoning cov-ers verification tasks that require explicit claim/evi-dence comparison (FEVER (Thorne et al., 2018), VitaminC (Schuster et al., 2021), SciFact (Wadden et al., 2020)). For these tasks we precompute a small set of claim-evidence comparison features Table 1: Annotator-level validation and test macro-F1 across 10 datasets organized into 4 task cate-gories. All methods use gpt-4o-mini as the LLM backbone. Bold marks the best performance. Full per-dataset Coverage/Acc/Acc-c/F1 breakdown is in App. H.10.                                                                                            
+
+> Dataset Alchemist DataSculpt LLM annotation (gpt-4o-mini) EvoPool (ours)
+> Val Test Val Test Val Test Val Test
+> (1) General classification
+> AGNews 0.4724 0.4668 0.5151 0.4994 0.8560 0.8628 0.8599 0.8642
+> Banking77 0.0356 0.0382 0.0871 0.0824 0.6086 0.6261 0.8720 0.7023 (2) High-stakes specialized
+> ChemProt 0.2447 0.2204 0.2035 0.1965 0.3212 0.2817 0.6059 0.5826
+> DDI 0.1239 0.1189 0.1249 0.1134 0.2059 0.2345 0.5827 0.4539
+> Claude9 0.1607 0.1633 0.2338 0.1458 0.4409 0.3320 0.3461 0.3645 (3) Complex reasoning
+> FEVER 0.1665 0.1667 0.0464 0.0339 0.7932 0.7599 0.8467 0.8117
+> VitaminC 0.1692 0.1681 0.0603 0.0473 0.5993 0.6482 0.6999 0.6667
+> SciFact 0.3438 0.2855 0.2609 0.2000 0.7040 0.7617 0.7115 0.5890
+> (4) Multi-label biomedical
+> Ohsumed 0.1872 0.1901 0.0722 0.0738 0.4264 0.4433 0.8086 0.5420
+> PubMed 0.1498 0.1461 0.0064 0.0069 0.4410 0.4375 0.7587 0.7026
+
+and attach them to each example’s metadata for all methods, as described in App. F. (4) Multi-label biomedical probes dense per-class supervi-sion (Ohsumed (Hersh et al., 1994), PubMed (Der-noncourt and Lee, 2017)). For all datasets, train has no ground-truth labels, validation is used by EvoPool only for selection and aggregator fitting, and test is held out. Full dataset sizes and statistics are in App. G.1. 
+
+Baselines. We compare against five families. LLM-Eval performs direct LLM evaluation at test time without annotating training data. LLM annotation 
+
+uses per-example LLM inference to label the train-ing set. One-shot LLM annotator synthesis includes Alchemist (Huang et al., 2024) and DataSculpt (Guan et al., 2025). Self-Training (Xie et al., 2020) trains a teacher on the validation labels, uses it to pseudo-label the training corpus, and re-trains the downstream model on those pseudo-labels. Super-vised (Golden) uses available labeled data from the validation set. All methods share the same data, validation labels, and metadata, with pool-based baselines such as Alchemist and DataSculpt using majority vote as their native aggregator. 
+
+Training. The EvoPool loop runs for K gen-erations with gpt-4o-mini (OpenAI et al., 2024) as the primary agent backbone. Cross-backbone variants (gpt-5-mini (Singh et al., 2026), gemini-3.1-pro-preview (Google, 2026), deepseek-v4-flash (DeepSeek-AI, 2026)) are evaluated on ChemProt and FEVER. We evaluate 3 downstream models: RoBERTa-large (Liu et al., 2020), Qwen3-1.7B (Yang et al., 2025), and Llama-3.1-8B (Grattafiori et al., 2024). Full training details and hyperparam-eters in App. G. 
+
+Evaluation. We report test macro-F1 on the down-stream model and annotator-level macro-F1 on both validation and test. Coverage, accuracy, accu-racy on the covered subset, and weighted-F1 are reported alongside in App. H.10. 
+
+4 Results 
+
+Annotator-level results. Table 1 reports perfor-mance of the annotator pools on 10 datasets across four task categories. EvoPool wins 8 of 10 datasets on both validation and test, with the largest test-set gap on the 10 -class biomedical ChemProt task at +0 .301 over LLM annotation, followed by the multi-label biomedical PubMed at +0 .265 and DDI at +0 .219 . Across 7 of 8 LLM-weak special-ized and complex datasets, EvoPool beats LLM an-notation by an average +0 .141 . SciFact is the one test-set loss, where LLM annotation leads EvoPool by 0.173 , consistent with gpt-4o-mini’s strong pre-training on scientific claim language. 
+
+Downstream model results. Table 2 reports test macro-F1 of three downstream models RoBERTa-large, Qwen3-1.7B, and Llama-3.1-8B fine-tuned on each method’s pseudo-labels. The downstream ranking mirrors the annotator-level ranking. On Table 2: Downstream model test macro-F1 across 10 datasets × 3 downstream models, organized into 4 task categories. Each method’s pool produces pseudo-labels for the full train set. Downstream model fine-tuned end-to-end. Models: RoB =RoBERTa-large, Qwen =Qwen3-1.7B, Llama =Llama-3.1-8B. All pools constructed using gpt-4o-mini backbone. Full metrics in App. H.11. 
+
+(1) General classification 
+
+Dataset Method RoB Qwen Llama AGNews Golden 0.9016 0.8422 0.8658 LLM-Eval 0.8628 0.8628 0.8628 Alchemist 0.5732 0.5541 0.5298 DataSculpt 0.8222 0.7922 0.7248 LLM-Annotation 0.8746 0.8701 0.8735 Self-Train 0.8925 0.8588 0.8803 
+
+EvoPool 0.8860 0.8951 0.8859 
+
+Banking77 Golden 0.4330 0.0679 0.5117 LLM-Eval 0.6261 0.6261 0.6261 Alchemist 0.0491 0.0443 0.0476 DataSculpt 0.0929 0.0540 0.0713 LLM-Annotation 0.6550 0.6361 0.6410 Self-Train 0.7607 0.1220 0.6371 
+
+EvoPool 0.7332 0.7150 0.7241 (3) Complex reasoning 
+
+Dataset Method RoB Qwen Llama FEVER Golden 0.7805 0.6477 0.6042 LLM-Eval 0.7599 0.7599 0.7599 Alchemist 0.1667 0.1667 0.1667 DataSculpt 0.3285 0.3541 0.3434 LLM-Annotation 0.7428 0.7626 0.7645 Self-Train 0.7556 0.7099 0.6879 
+
+EvoPool 0.8132 0.8262 0.8435 
+
+VitaminC Golden 0.4543 0.5065 0.4481 LLM-Eval 0.6482 0.6482 0.6482 Alchemist 0.1667 0.1667 0.1667 DataSculpt 0.2646 0.2257 0.2600 LLM-Annotation 0.5919 0.6562 0.6508 Self-Train 0.5282 0.5174 0.4784 
+
+EvoPool 0.6476 0.6659 0.6797 
+
+SciFact Golden 0.2864 0.2929 0.4096 LLM-Eval 0.7617 0.7617 0.7617 Alchemist 0.2051 0.2743 0.2903 DataSculpt 0.3159 0.3111 0.2759 LLM-Annotation 0.5919 0.4355 0.4788 
+
+Self-Train 0.3553 0.4205 0.4060 
+
+EvoPool 0.2890 0.3797 0.4442 
+
+(2) High-stakes specialized 
+
+Dataset Method RoB Qwen Llama ChemProt Golden 0.5194 0.2775 0.3178 LLM-Eval 0.2817 0.2817 0.2817 Alchemist 0.2193 0.2194 0.2129 DataSculpt 0.2267 0.2084 0.1994 LLM-Annotation 0.2840 0.2945 0.2809 Self-Train 0.5535 0.3049 0.3253 
+
+EvoPool 0.5396 0.5383 0.5909 
+
+DDI Golden 0.5774 0.4491 0.3863 LLM-Eval 0.2345 0.2345 0.2345 Alchemist 0.1806 0.2155 0.2121 DataSculpt 0.1746 0.1756 0.1778 LLM-Annotation 0.2234 0.2206 0.2305 Self-Train 0.5782 0.4592 0.4581 
+
+EvoPool 0.5340 0.5293 0.5379 
+
+Claude9 Golden 0.1057 0.1053 0.2111 LLM-Eval 0.3320 0.3320 0.3320 Alchemist 0.1867 0.2207 0.1941 DataSculpt 0.1057 0.1909 0.1500 LLM-Annotation 0.3469 0.3579 0.3639 Self-Train 0.1057 0.0765 0.1131 
+
+EvoPool 0.3413 0.3827 0.3908 (4) Multi-label biomedical 
+
+Dataset Method RoB Qwen Llama Ohsumed Golden 0.0671 0.0042 0.0530 LLM-Eval 0.4433 0.4433 0.4433 Alchemist 0.1940 0.2012 0.2006 DataSculpt 0.0713 0.0685 0.0692 LLM-Annotation 0.4566 0.4634 0.4726 Self-Train 0.2526 0.0652 0.1869 
+
+EvoPool 0.5565 0.5473 0.5566 
+
+PubMed Golden 0.6229 0.4477 0.5593 LLM-Eval 0.4375 0.4375 0.4375 Alchemist 0.1399 0.1390 0.1397 DataSculpt 0.0043 0.0047 0.0053 LLM-Annotation 0.4396 0.4313 0.4353 Self-Train 0.6975 0.4566 0.5618 
+
+EvoPool 0.7126 0.7095 0.7110 
+
+the biomedical tasks EvoPool dominates LLM-Annotation by +0 .24 to +0 .31 on ChemProt and by approximately +0 .31 on DDI across all three downstream models, and beats every baseline on DDI under Llama-3.1-8B. EvoPool also leads on FEVER by +0 .06 to +0 .08 , on VitaminC by 
+
++0 .01 to +0 .06 , and on Banking77 by approxi-mately +0 .08 , while matching LLM-Annotation on Claude9 where both methods maintain non-collapsed multi-class coverage as the other base-lines collapse to a dominant class. SciFact remains the boundary case where LLM-Annotation wins downstream as well. On the multi-label biomedical tasks, EvoPool wins every cell, lifting test macro-F1 by +0 .015 to +0 .25 over the strongest baseline per model, with Self-Training collapsing on several LoRA-tuned cells. App. H.4 extends the down-stream evaluation with continued fine-tuning on validation, and App. H.5 compares EvoPool to the hand-crafted human annotator pools. 
+
+Pipeline component ablation. Table 3 reports a leave-one-out ablation on ChemProt and FEVER, removing the Improver, the Refiner, the selection gate, the query selector, or iteration entirely from Table 3: Pipeline component ablation. Leave-one-out using gpt-4o-mini backbone: starting from the final configuration with all components, remove a single component and re-run the full pipeline on ChemProt and FEVER. Four metrics are measured per dataset: MV and EvoAgg annotator-level test macro-F1, and Llama-3.1-8B downstream test macro-F1 trained on MV and EvoAgg pseudo-labels. 
+
+ChemProt FEVER 
+
+Configuration MV EvoAgg Down. MV Down. EvoAgg MV EvoAgg Down. MV Down. EvoAgg 
+
+Full pipeline 0.4787 0.5826 0.4817 0.5909 0.6696 0.8117 0.6735 0.8435 
+
+−Improver 0.4210 0.5207 0.4573 0.5176 0.5407 0.7456 0.5604 0.7790 
+
+−Refiner 0.4508 0.5712 0.4592 0.5671 0.6426 0.7881 0.6485 0.8192 
+
+−Selection gate 0.4389 0.5822 0.4363 0.5881 0.5572 0.8112 0.5519 0.8396 
+
+−Query selection 0.4403 0.5783 0.4527 0.5832 0.5846 0.7984 0.5916 0.8336 Generator only 0.3289 0.5375 0.3636 0.5365 0.5084 0.7335 0.5092 0.6064 
+
+Table 4: Cross-backbone transfer. We run identical pipeline across backbones, with only the LLM author differing. We report downstream performance using Llama-3.1-8B on ChemProt and FEVER.                                                    
+
+> ChemProt FEVER
+> Backbone LLM-Eval LLM-Annotation Alchemist DataSculpt EvoPool LLM-Eval LLM-Annotation Alchemist DataSculpt EvoPool gpt-4o-mini 0.282 0.281 0.213 0.199 0.591 0.760 0.765 0.167 0.343 0.844
+> gpt-5-mini 0.282 0.288 0.308 0.237 0.586 0.760 0.760 0.366 0.323 0.840 gemini-3.1-pro-preview 0.430 0.439 0.425 0.149 0.602 0.871 0.847 0.393 0.337 0.841 deepseek-v4-flash 0.317 0.313 0.291 0.184 0.569 0.854 0.843 0.268 0.371 0.842
+
+the default configuration and re-running the full pipeline. Every component contributes positively on both datasets, with the Improver carrying the largest single load: it is the only agent that targets specific weak classes from per-iteration validation diagnostics, whereas the Generator front-loads di-versity at k=0 and the Refiner exploits already-validated rules. Stripping iteration so only the Gen-erator pool remains drops MV macro-F1 by 0.150 
+
+on ChemProt and 0.161 on FEVER, isolating the evolutionary loop as the main source of the lift. The drops are more pronounced under majority vote than under EvoAgg, since each component directly shapes the pool composition that the vote aggregates over. Switching aggregation from ma-jority vote to EvoAgg adds +0 .099 to +0 .210 on ChemProt and +0 .142 to +0 .254 on FEVER on top of the per-component lifts, indicating that pool evolution and text-aware aggregation complement rather than substitute for one another. App. H.9 ex-tends the comparison to the Alchemist and DataS-culpt pools and a text-only baseline. At fixed MV aggregation EvoPool ChemProt reaches 0.479 
+
+macro-F1, +0 .255 above Alchemist and +0 .298 
+
+above DataSculpt, and still wins by +0 .067 at fixed EvoAgg aggregator and by +0 .119 over text-only. Further ablations cover agent memory in App. H.1, query-selector choice in App. H.2, pool-size Pareto efficiency of the selection gate in App. H.7, and hyperparameter sensitivity in App. H.8. The full pipeline wins both datasets. 
+
+Cross-backbone transfer. Table 4 evaluates all five methods with four LLM backbones 10 1 10 0  
+
+> LLM API cost on ChemProt (USD, log scale)
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> ChemProt test macro-F1
+> Self-Training (500 gold)
+> Golden 500
+> Human LFs (WRENCH)
+> Alchemist
+> DataSculpt
+> LLM-Annot. (gpt-4o-mini)
+> LLM-Annot. (gpt-5-mini)
+> LLM-Annot. (deepseek-v4-flash)
+> LLM-Annot. (gemini-3.1-pro)
+> EvoPool (ours, K= 3 )
+> Cost vs. performance on ChemProt
+
+Figure 3: Cost vs. performance. Each point is one annotation method on ChemProt. Cost is total USD spend measured from gpt-4o-mini API calls. Horizontal lines are clean-label references dominated by human annotation cost. EvoPool with K=3 sits at the top-left, beating Self-Training, Golden, and the expert hand-authored pool at roughly $0.21. 
+
+on ChemProt and FEVER, reporting Llama-3.1-8B downstream test macro-F1 trained on each method’s pseudo-labels. EvoPool downstream per-formance is highly consistent across backbones, landing in 0.569 –0.602 on ChemProt and 0.840 –
+
+0.844 on FEVER, while one-shot synthesis base-lines fluctuate by up to 0.21 across backbones on ChemProt. On ChemProt EvoPool leads every backbone by +0 .17 to +0 .31 over direct LLM pre-diction. On FEVER the gap closes, but EvoPool’s pool stays within 0.4pp across the four backbones while LLM-Eval itself swings by 11 .1pp on the same axis. The cheapest backbone authors a pool indistinguishable from the most expensive at near-zero per-example deployment cost. 
+
+Cost-performance trade-off. Figure 3 plots an-Part-of                                                          
+
+> Regulator
+> Upreg.
+> Downreg.
+> Agonist
+> Antag.
+> Modul.
+> Cofactor
+> Subst.
+> Not-rel.
+> Generator
+> Improver
+> Refiner
+> 17 17 18 18 10 17
+> 11 12 15 5
+> 2
+> (a) Agent × class niche: surviving LFs
+> 0246810 12
+> Generation k
+> 0
+> 20
+> 40
+> 60
+> 80
+> Cumulative surviving LFs
+> (b) Cumulative LF contribution per agent
+> Generator
+> Improver
+> Refiner
+> Part-of
+> Regulator
+> Upreg.
+> Downreg.
+> Agonist
+> Antag.
+> Modul.
+> Cofactor
+> Subst.
+> Not-rel.
+> k=0
+> k=1
+> k=2
+> k=3
+> k=4
+> k=5
+> k=6
+> k=7
+> k=8
+> k=9
+> k=10
+> k=11
+> k=12
+> 375
+> 3253
+> 16511
+> 3252
+> 5421
+> 36521
+> 632
+> 425
+> 4661
+> 2421
+> 363
+> 23211
+> (c) Improver class-focus per generation
+> 0246810 12
+> Generation k
+> 0
+> 5
+> 10
+> 15
+> 20
+> 25
+> LFs proposed per generation
+> (d) Selection gate: proposed vs killed
+> Improver kept
+> Improver killed
+> Refiner kept
+> Refiner killed
+
+Figure 4: Pool co-evolution signals. Analysis done on ChemProt with gpt-4o-mini backbone. (a) Agent × class niche in the final pool. The Generator covers the broad classes, and the Improver fills Part-of, Agonist, Modulator, and Not-relation. (b) Cumulative surviving annotators by agent. The Generator front-loads at k=0 , the Improver ramps from k=1 , and the Refiner activates at k=7 once τref-min =3 allows it. (c) Improver class-focus per generation. (d) Selection gate retention: roughly 40 –65 % of Improver and 70 –95 % of Refiner candidates are killed each generation by the niche-redundancy and precision filters. 
+
+notator test macro-F1 against total LLM API cost on ChemProt, measured directly from cached us-age logs. EvoPool with K=3 generations, a cost-efficient variant of the default K=12 , reaches 
+
+0.589 macro-F1 at $ 0.21 , dominating every base-line on both axes. It exceeds direct LLM annotation with gemini-3.1-pro-preview by +0 .15 at roughly 
+
+1/8 of its cost, and the one-shot Alchemist and DataSculpt pools by more than +0 .35 at only 5–7×
+
+their cost. The Self-Training, Golden, and expert-LF clean-label references all sit below EvoPool, indicating that a few iterations of agent-authored programmatic supervision substitute for clean-label supervision in this regime. App. H.6 reports per-example deployment latency over 100 K examples for EvoPool versus four LLM annotation APIs. 
+
+Pool co-evolution analysis. Figure 4 shows how the pool evolves on ChemProt with gpt-4o-mini. Starting from identical prompt templates, the three agents differentiate into emergent class niches in panel (a): the Generator covers broad relation classes and the Improver fills long-tail biomedical classes the Generator missed. An activation sched-ule also emerges in panel (b), with the Generator front-loading at k=0 , the Improver ramping from 
+
+k=1 , and the Refiner activating only at k=7 once the pool has stabilized. Panels (c) and (d) show the gate killing 40 –65 % of Improver and most Re-finer candidates each generation, and the Improver giving up on classes the gate has ruled out. None of these patterns are pre-specified. They emerge from validation-driven selection across generations, supporting that the pool, not the agents, is the unit of inheritance. The FEVER plot is in App. H.3, and App. I collects agent prompts, the analysis-to-Improver dialogue, and the highest-F1 surviving annotators per method on ChemProt and FEVER. 
+
+5 Conclusion 
+
+We introduced EvoPool, an evolutionary multi-agent framework that authors a pool of executable annotators under pool-level selection, paired with EvoAgg, a text-aware aggregator. Across 10 datasets, EvoPool beats LLM annotation by an av-erage +0 .141 test macro-F1 on 7 of 8 LLM-weak tasks at near-zero per-example deployment cost, and the advantage holds across 4 LLM backbones and 3 downstream models. EvoPool moves pro-grammatic annotation from one-shot synthesis to an adaptive process where the pool itself evolves under feedback from a small validation set, opening specialized supervision to settings where expert an-notation is unaffordable and direct LLM annotation does not scale. 
+
+Limitations 
+
+Our evaluation spans 10 English datasets and four LLM backbones. Broader languages and multi-seed variance are deferred. EvoPool targets struc-tured prediction tasks expressible as discrete-label Python rules such as text classification, relation ex-traction, and claim verification. Open-ended gener-ation, extractive question answering, and multi-step reasoning trajectories fall outside this scope and represent natural extensions to non-programmatic supervision. The pipeline also relies on an LLM author for annotator generation. We validate ro-bustness across four backbones, but the authored pool inherits each author’s coverage of the target domain. EvoAgg requires roughly ten validation examples per class for stable cross-validated fitting. On Claude9, several rare classes have fewer than ten validation examples due to severe class imbal-ance, so we use MV as the final aggregator there. Training-time LLM calls remain, so the cost story is amortization over a large unlabeled corpus rather than zero LLM usage. 
+
+Ethical Considerations 
+
+EvoPool targets specialized, high-stakes domains where expert annotation is expensive, potentially broadening programmatic-supervision access for under-resourced labs and clinics. However, the au-thored annotators inherit biases of the LLM author and may produce disparate failure modes on rare clinical entities or minority legal-clause types that we do not exhaustively audit. The Python-rule for-mat is auditable by design, and we recommend that deployments in consequential settings such as clin-ical decision support or legal triage treat EvoPool labels as a starting point requiring human review rather than a substitute for expert judgment. 
+
+References 
+
+Jacob Austin, Augustus Odena, Maxwell Nye, Maarten Bosma, Henryk Michalewski, David Dohan, Ellen Jiang, Carrie Cai, Michael Terry, Quoc Le, and Charles Sutton. 2021. Program synthesis with large language models. Preprint , arXiv:2108.07732. Stephen H Bach, Daniel Rodriguez, Yintao Liu, Chong Luo, Haidong Shao, Cassandra Xia, Souvik Sen, Alex Ratner, Braden Hancock, Houman Alborzi, and 1 others. 2019. Snorkel drybell: A case study in deploying weak supervision at industrial scale. In 
+
+Proceedings of the 2019 International Conference on Management of Data , pages 362–375. Adrien Bibal, Nathaniel Gerlek, Goran Muric, Eliza-beth Boschee, Steven C. Fincke, Mike Ross, and Steven N. Minton. 2025. Automating annotation guideline improvements using LLMs: A case study. In Proceedings of Context and Meaning: Navigating Disagreements in NLP Annotation , pages 129–144, Abu Dhabi, UAE. International Committee on Com-putational Linguistics. Iñigo Casanueva, Tadas Temˇ cinas, Daniela Gerz, Matthew Henderson, and Ivan Vuli´ c. 2020. Efficient intent detection with dual sentence encoders. In Pro-ceedings of the 2nd Workshop on Natural Language Processing for Conversational AI , pages 38–45, On-line. Association for Computational Linguistics. Charles Darwin. 1859. On the origin of species by means of natural selection, or the preservation of favoured races in the struggle for life. London: John Murray .Jean-Baptiste de Monet de Lamarck. 1873. Philosophie zoologique... , volume 1. F. Savy. DeepSeek-AI. 2026. DeepSeek-V4: Towards highly ef-ficient million-token context intelligence. Technical report, DeepSeek. Franck Dernoncourt and Ji Young Lee. 2017. PubMed 200k RCT: a dataset for sequential sentence clas-sification in medical abstracts. In Proceedings of the Eighth International Joint Conference on Natu-ral Language Processing (Volume 2: Short Papers) ,pages 308–313, Taipei, Taiwan. Asian Federation of Natural Language Processing. Yann Dubois, Xuechen Li, Rohan Taori, Tianyi Zhang, Ishaan Gulrajani, Jimmy Ba, Carlos Guestrin, Percy Liang, and Tatsunori Hashimoto. 2023. Alpacafarm: A simulation framework for methods that learn from human feedback. In Thirty-seventh Conference on Neural Information Processing Systems .Daniel Fu, Mayee Chen, Frederic Sala, Sarah Hooper, Kayvon Fatahalian, and Christopher Ré. 2020. Fast and three-rious: Speeding up weak supervision with triplet methods. In International conference on ma-chine learning , pages 3280–3291. PMLR. Google. 2026. Gemini 3.1 Pro. Google Blog. Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schel-ten, Alex Vaughan, Amy Yang, Angela Fan, Anirudh Goyal, Anthony Hartshorn, Aobo Yang, Archi Mi-tra, Archie Sravankumar, Artem Korenev, Arthur Hinsvark, and 542 others. 2024. The llama 3 herd of models. Preprint , arXiv:2407.21783. Naiqing Guan, Kaiwen Chen, and Nick Koudas. 2025. Datasculpt: Cost-efficient label function design via prompting large language models. In EDBT , pages 226–232. Naiqing Guan and Nick Koudas. 2025. Weshap: Weak supervision source evaluation with shapley values. 
+
+Preprint , arXiv:2406.11010. Braden Hancock, Paroma Varma, Stephanie Wang, Mar-tin Bringmann, Percy Liang, and Christopher Ré. 2018. Training classifiers with natural language ex-planations. In Proceedings of the 56th Annual Meet-ing of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 1884–1895, Mel-bourne, Australia. Association for Computational Linguistics. Pengcheng He, Jianfeng Gao, and Weizhu Chen. 2023. DeBERTav3: Improving deBERTa using ELECTRA-style pre-training with gradient-disentangled embed-ding sharing. In The Eleventh International Confer-ence on Learning Representations .María Herrero-Zazo, Isabel Segura-Bedmar, Paloma Martínez, and Thierry Declerck. 2013. The ddi corpus: An annotated corpus with pharmacological substances and drug–drug interactions. Journal of Biomedical Informatics , 46(5):914–920. William Hersh, Chris Buckley, T. J. Leone, and David Hickam. 1994. Ohsumed: An interactive retrieval evaluation and new large test collection for research. In SIGIR ’94 , pages 192–201, London. Springer Lon-don. Sirui Hong, Mingchen Zhuge, Jonathan Chen, Xiawu Zheng, Yuheng Cheng, Jinlin Wang, Ceyao Zhang, Zili Wang, Steven Ka Shing Yau, Zijuan Lin, Liyang Zhou, Chenyu Ran, Lingfeng Xiao, Chenglin Wu, and Jürgen Schmidhuber. 2024. MetaGPT: Meta pro-gramming for a multi-agent collaborative framework. In The Twelfth International Conference on Learning Representations .Or Honovich, Thomas Scialom, Omer Levy, and Timo Schick. 2023. Unnatural instructions: Tuning lan-guage models with (almost) no human labor. In 
+
+Proceedings of the 61st Annual Meeting of the As-sociation for Computational Linguistics (Volume 1: Long Papers) , pages 14409–14428, Toronto, Canada. Association for Computational Linguistics. Edward J Hu, yelong shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2022. LoRA: Low-rank adaptation of large language models. In International Conference on Learning Representations .Tzu-Heng Huang, Catherine Cao, Vaishnavi Bhargava, and Frederic Sala. 2024. The ALCHEmist: Auto-mated labeling 500x CHEaper than LLM data anno-tators. In The Thirty-eighth Annual Conference on Neural Information Processing Systems .Giannis Karamanolakis, Daniel Hsu, and Luis Gravaano. 2024. Interactive machine teaching by labeling rules and instances. Transactions of the Association for Computational Linguistics , 12:1441–1459. Andreas Kirsch, Joost van Amersfoort, and Yarin Gal. 2019. Batchbald: Efficient and diverse batch acquisi-tion for deep bayesian active learning. In Advances in Neural Information Processing Systems , volume 32. Curran Associates, Inc. Martin Krallinger, Obdulia Rabal, Saber Ahmad Akhondi, Martín Pérez Pérez, Jesus Santamaría, Gael Pérez Rodríguez, Georgios Tsatsaronis, Ander Intxaurrondo, José Antonio Baso López, Umesh K. Nandal, Erin M. van Buel, Ambika Chandrasekhar, Marleen Rodenburg, Astrid Lægreid, Marius A. Doornenbal, Julen Oyarzábal, Anália Lourenço, and Alfonso Valencia. 2017. Overview of the biocreative vi chemical-protein interaction track. Phong Lam, Ha-Linh Nguyen, Thu-Trang Nguyen, Son Nguyen, and Hieu Dinh Vo. 2026. Structured explo-ration and exploitation of label functions for auto-mated data annotation. Knowledge-Based Systems ,page 115843. Guohao Li, Hasan Abed Al Kader Hammoud, Hani Itani, Dmitrii Khizbullin, and Bernard Ghanem. 2023. CAMEL: Communicative agents for ”mind” explo-ration of large language model society. In Thirty-seventh Conference on Neural Information Process-ing Systems .Guozheng Li, Ao Wang, Shaoxiang Wang, Yu Zhang, Pengcheng Cao, Yang Bai, and Chi Harold Liu. 2026. Dall: Data labeling via data programming and ac-tive learning enhanced by large language models. In 
+
+Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems , pages 1–14. Yinhan Liu, Myle Ott, Naman Goyal, Jingfei Du, Man-dar Joshi, Danqi Chen, Omer Levy, Mike Lewis, Luke Zettlemoyer, and Veselin Stoyanov. 2020. Ro{bert}a: A robustly optimized {bert} pretraining approach. Zijun Liu, Yanzhe Zhang, Peng Li, Yang Liu, and Diyi Yang. 2024. Dynamic LLM-agent network: An LLM-agent collaboration framework with agent team optimization. Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, Shashank Gupta, Bodhisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir Yazdan-bakhsh, and Peter Clark. 2023. Self-refine: Itera-tive refinement with self-feedback. In Thirty-seventh Conference on Neural Information Processing Sys-tems .Yu Meng, Jiaxin Huang, Yu Zhang, and Jiawei Han. 2022. Generating training data with language mod-els: Towards zero-shot language understanding. In 
+
+Advances in Neural Information Processing Systems .Tiantian Mi, Dongming Shan, Zhen Huang, Yiwei Qin, Muhang Xie, Yuxuan Qiao, Yixiu Liu, Chenyang Zhou, and Pengfei Liu. 2026. Data darwinism part ii: Dataevolve – ai can autonomously evolve pretraining data curation. Preprint , arXiv:2603.14420. George L Nemhauser, Laurence A Wolsey, and Mar-shall L Fisher. 1978. An analysis of approximations for maximizing submodular set functions—i. Mathe-matical programming , 14(1):265–294. OpenAI, Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Florencia Leoni Ale-man, Diogo Almeida, Janko Altenschmidt, Sam Alt-man, Shyamal Anadkat, Red Avila, Igor Babuschkin, Suchir Balaji, Valerie Balcom, Paul Baltescu, Haim-ing Bao, Mohammad Bavarian, Jeff Belgum, and 262 others. 2024. Gpt-4 technical report. Preprint ,arXiv:2303.08774. Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir G. Patil, Ion Stoica, and Joseph E. Gonzalez. 2024. Memgpt: Towards llms as operating systems. 
+
+Preprint , arXiv:2310.08560. Joon Sung Park, Joseph O’Brien, Carrie Jun Cai, Mered-ith Ringel Morris, Percy Liang, and Michael S Bern-stein. 2023. Generative agents: Interactive simulacra of human behavior. In Proceedings of the 36th an-nual acm symposium on user interface software and technology , pages 1–22. Chen Qian, Wei Liu, Hongzhang Liu, Nuo Chen, Yufan Dang, Jiahao Li, Cheng Yang, Weize Chen, Yusheng Su, Xin Cong, Juyuan Xu, Dahai Li, Zhiyuan Liu, and Maosong Sun. 2024. ChatDev: Communicative agents for software development. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) ,pages 15174–15186, Bangkok, Thailand. Association for Computational Linguistics. Yiwei Qin, Zhen Huang, Tiantian Mi, Weiye Si, Chenyang Zhou, Qipeng Guo, Siyuan Feng, and Pengfei Liu. 2026. Data darwinism part i: Unlocking the value of scientific data for pre-training. Preprint ,arXiv:2602.07824. Alexander Ratner, Stephen H Bach, Henry Ehrenberg, Jason Fries, Sen Wu, and Christopher Ré. 2017. Snorkel: Rapid training data creation with weak su-pervision. In Proceedings of the VLDB endowment. International conference on very large data bases ,volume 11, page 269. Alexander Ratner, Braden Hancock, Jared Dunnmon, Frederic Sala, Shreyash Pandey, and Christopher Ré. 2019. Training complex models with multi-task weak supervision. In Proceedings of the AAAI con-ference on artificial intelligence , volume 33, pages 4763–4771. Alexander J Ratner, Christopher De Sa, Sen Wu, Daniel Selsam, and Christopher Ré. 2016. Data program-ming: Creating large training sets, quickly. In Ad-vances in Neural Information Processing Systems ,volume 29. Curran Associates, Inc. Nils Reimers and Iryna Gurevych. 2019. Sentence-BERT: Sentence embeddings using Siamese BERT-networks. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natu-ral Language Processing (EMNLP-IJCNLP) , pages 3982–3992, Hong Kong, China. Association for Com-putational Linguistics. Tal Schuster, Adam Fisch, and Regina Barzilay. 2021. Get your vitamin C! robust fact verification with contrastive evidence. In Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies , pages 624–643, Online. As-sociation for Computational Linguistics. Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik R Narasimhan, and Shunyu Yao. 2023. Re-flexion: language agents with verbal reinforcement learning. In Thirty-seventh Conference on Neural Information Processing Systems .Aaditya Singh and 1 others. 2026. Openai gpt-5 system card. Preprint , arXiv:2601.03267. Zhen Tan, Dawei Li, Song Wang, Alimohammad Beigi, Bohan Jiang, Amrita Bhattacharjee, Man-sooreh Karami, Jundong Li, Lu Cheng, and Huan Liu. 2024. Large language models for data annotation and synthesis: A survey. In Proceedings of the 2024 Con-ference on Empirical Methods in Natural Language Processing , pages 930–957, Miami, Florida, USA. Association for Computational Linguistics. James Thorne, Andreas Vlachos, Christos Christodoulopoulos, and Arpit Mittal. 2018. FEVER: a large-scale dataset for fact extraction and VERification. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long Papers) , pages 809–819, New Orleans, Louisiana. Association for Computational Linguistics. Paroma Varma and Christopher Ré. 2018. Snuba: Au-tomating weak supervision to label training data. In 
+
+Proceedings of the VLDB Endowment. International Conference on Very Large Data Bases , volume 12, page 223. David Wadden, Shanchuan Lin, Kyle Lo, Lucy Lu Wang, Madeleine van Zuylen, Arman Cohan, and Hannaneh Hajishirzi. 2020. Fact or fiction: Verifying scientific claims. In Proceedings of the 2020 Con-ference on Empirical Methods in Natural Language Processing (EMNLP) , pages 7534–7550, Online. As-sociation for Computational Linguistics. Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Man-dlekar, Chaowei Xiao, Yuke Zhu, Linxi Fan, and Anima Anandkumar. 2024. Voyager: An open-ended embodied agent with large language models. Trans-actions on Machine Learning Research .Shaobo Wang, Xuan Ouyang, Tianyi Xu, Yuzheng Hu, Jialin Liu, Guo Chen, Tianyu Zhang, Junhao Zheng, Kexin Yang, Xingzhang Ren, Dayiheng Liu, and Linfeng Zhang. 2026. OPUS: Towards ef-ficient and principled data selection in large lan-guage model pre-training in every iteration. Preprint ,arXiv:2602.05400. Shuohang Wang, Yang Liu, Yichong Xu, Chenguang Zhu, and Michael Zeng. 2021. Want to reduce la-beling cost? GPT-3 can help. In Findings of the Association for Computational Linguistics: EMNLP 2021 , pages 4195–4205, Punta Cana, Dominican Re-public. Association for Computational Linguistics. Yizhong Wang, Yeganeh Kordi, Swaroop Mishra, Alisa Liu, Noah A. Smith, Daniel Khashabi, and Hannaneh Hajishirzi. 2023. Self-instruct: Aligning language models with self-generated instructions. In Proceed-ings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) ,pages 13484–13508, Toronto, Canada. Association for Computational Linguistics. Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, Ahmed Hassan Awadallah, Ryen W White, Doug Burger, and Chi Wang. 2024. Autogen: Enabling next-gen LLM applications via multi-agent conversations. In First Conference on Language Modeling .Mingxuan Xia, Haobo Wang, Yixuan Li, Zewei Yu, Jindong Wang, Junbo Zhao, and Runze Wu. 2025. Prompt candidates, then distill: A teacher-student framework for LLM-driven data annotation. In Pro-ceedings of the 63rd Annual Meeting of the Associa-tion for Computational Linguistics (Volume 1: Long Papers) , pages 2750–2770, Vienna, Austria. Associa-tion for Computational Linguistics. Qizhe Xie, Minh-Thang Luong, Eduard Hovy, and Quoc V. Le. 2020. Self-training with noisy student improves ImageNet classification. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) .Zongzhe Xu, Ritvik Gupta, Wenduo Cheng, Alexander Shen, Junhong Shen, Ameet Talwalkar, and Mikhail Khodak. 2025. Specialized foundation models strug-gle to beat supervised baselines. In The Thirteenth International Conference on Learning Representa-tions .An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chujie Zheng, Day-iheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang, and 41 others. 2025. Qwen3 technical report. Preprint ,arXiv:2505.09388. Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan, and Yuan Cao. 2023. React: Synergizing reasoning and acting in language models. In The Eleventh International Conference on Learning Representations .Peilin Yu and Stephen Bach. 2023. Alfred: A system for prompted weak supervision. In Proceedings of the 61st Annual Meeting of the Association for Com-putational Linguistics (Volume 3: System Demonstra-tions) , pages 479–488, Toronto, Canada. Association for Computational Linguistics. Siyu Yuan, Kaitao Song, Jiangjie Chen, Xu Tan, Dong-sheng Li, and Deqing Yang. 2025. EvoAgent: To-wards automatic multi-agent generation via evolu-tionary algorithms. In Proceedings of the 2025 Con-ference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers) ,pages 6192–6217, Albuquerque, New Mexico. Asso-ciation for Computational Linguistics. Jenny Zhang, Shengran Hu, Cong Lu, Robert Tjarko Lange, and Jeff Clune. 2026a. Darwin gödel ma-chine: Open-ended evolution of self-improving agents. In The Fourteenth International Conference on Learning Representations .Jenny Zhang, Bingchen Zhao, Wannan Yang, Jakob Foerster, Jeff Clune, Minqi Jiang, Sam Devlin, and Tatiana Shavrina. 2026b. Hyperagents. Preprint ,arXiv:2603.19461. Jieyu Zhang, Yue Yu, Yinghao Li, Yujing Wang, Yam-ing Yang, Mao Yang, and Alexander Ratner. 2021. WRENCH: A comprehensive benchmark for weak supervision. In Thirty-fifth Conference on Neural Information Processing Systems Datasets and Bench-marks Track (Round 2) .Tianyi Zhang, Linrong Cai, Jeffrey Li, Nicholas Roberts, Neel Guha, and Frederic Sala. 2024. Stronger than you think: Benchmarking weak supervision on real-istic tasks. In The Thirty-eight Conference on Neural Information Processing Systems Datasets and Bench-marks Track .Xiang Zhang, Junbo Zhao, and Yann LeCun. 2015. Character-level convolutional networks for text clas-sification. In Advances in Neural Information Pro-cessing Systems , volume 28. Curran Associates, Inc. Yaolun Zhang, Tianyi Xu, Shengyu Dai, Zhenwen Shao, Qingyun Wu, and Huazheng Wang. 2026c. Evocham-ber: Test-time co-evolution of multi-agent system at individual, team, and population scales. Preprint ,arXiv:2605.11136. Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. 2023. Judging LLM-as-a-judge with MT-bench and chatbot arena. In Thirty-seventh Conference on Neural Information Processing Systems Datasets and Benchmarks Track .Pei Zhou, Jay Pujara, Xiang Ren, Xinyun Chen, Heng-Tze Cheng, Quoc V Le, Ed H. Chi, Denny Zhou, Swaroop Mishra, and Steven Zheng. 2024. SELF-DISCOVER: Large language models self-compose reasoning structures. In The Thirty-eighth Annual Conference on Neural Information Processing Sys-tems .
+
+A Related Work 
+
+Weak supervision and programmatic annota-tion. Programmatic weak supervision authors la-beling functions that vote on each example and aggregates the noisy votes into pseudo-labels. Data programming (Ratner et al., 2016) and Snorkel (Ratner et al., 2017) formalized this around hand-authored labeling functions, with Snorkel DryBell (Bach et al., 2019) extending the paradigm to or-ganizational scale. Subsequent work scaled aggre-gation (Ratner et al., 2019; Fu et al., 2020), stan-dardized benchmarking (Zhang et al., 2021, 2024), reduced human effort through natural-language ex-planations (Hancock et al., 2018), and automati-cally synthesized labeling functions from a small labeled set (Varma and Ré, 2018). Alfred (Yu and Bach, 2023) replaced hand-coded labeling func-tions with prompted LLM sources, and interactive systems combine labeling-function authoring with feedback on individual instances (Karamanolakis et al., 2024) or active learning (Li et al., 2026). EvoPool removes the human author entirely. LLM agents author the annotators themselves under se-lection pressure on the pool, and EvoAgg condi-tions on the input text rather than the votes alone. 
+
+LLM-as-Judge and LLM-synthesized annota-tors. A complementary line uses the LLM itself as the supervision source (Tan et al., 2024). LLM-as-Judge and LLM-as-Annotator approaches call the model once per training example (Zheng et al., 2023; Dubois et al., 2023; Wang et al., 2021), with recent refinements distilling uncertainty over can-didate annotations (Xia et al., 2025) or automating guideline improvement (Bibal et al., 2025). Cost scales linearly with the corpus, which is impracti-cal at deployment scale. A cheaper variant synthe-sizes training data or executable annotators offline. Self-Instruct (Wang et al., 2023), Unnatural Instruc-tions (Honovich et al., 2023), and SuperGen (Meng et al., 2022) generate synthetic examples, while Al-chemist (Huang et al., 2024), DataSculpt (Guan et al., 2025), and EXPONA (Lam et al., 2026) pro-duce labeling functions in a single shot, drawing on broader LLM program-synthesis capability (Austin et al., 2021). WeShap (Guan and Koudas, 2025) complements these by attributing per-source con-tributions to the downstream pipeline via Shapley values. Without feedback on the actual class distri-bution, the resulting pool inherits the LLM’s prior biases and abandons the long tail. EvoPool closes this gap by iterating the pool under explicit valida-tion pressure. 
+
+Multi-agent systems. Multi-agent LLM frame-works coordinate specialized agents for complex tasks. MetaGPT (Hong et al., 2024), AutoGen (Wu et al., 2024), ChatDev (Qian et al., 2024), CAMEL (Li et al., 2023), and DyLAN (Liu et al., 2024) orchestrate role-specialized LLMs for soft-ware engineering, dialogue, and reasoning. Re-Act (Yao et al., 2023) interleaves reasoning traces with grounded actions inside a single trajectory, and a second strand equips agents with persistent state across episodes, where Reflexion (Shinn et al., 2023), Voyager (Wang et al., 2024), Generative Agents (Park et al., 2023), and MemGPT (Packer et al., 2024) store verbal lessons across iterations under the assumption that experience compounds. EvoPool extends this multi-agent paradigm to effi-cient code-based annotation, where agents collab-oratively author and iteratively refine executable annotator code that then labels the entire corpus at near-zero per-example cost. Within this loop, deterministic selection on the surviving annotators substitutes for cross-iteration agent memory. 
+
+Agent evolution and data Darwinism. As data quality becomes the binding constraint on mod-ern LLM training (Wang et al., 2026), a recent line treats data engineering itself as an evolution-ary, automated process. Data Darwinism (Qin et al., 2026; Mi et al., 2026) evolves pretraining-data curation strategies through a closed generate-evaluate-refine loop, EvoAgent (Yuan et al., 2025) applies evolutionary operators to a single-agent template to spawn diverse multi-agent variants, Self-Refine (Madaan et al., 2023) iteratively revises a model’s outputs via self-feedback, Self-Discover (Zhou et al., 2024) composes task-specific reason-ing structures from atomic reasoning modules, and EvoChamber (Zhang et al., 2026c) co-evolves a multi-agent system at the individual, team, and population scales at test time. The Darwin Gödel Machine (Zhang et al., 2026a) pushes this further by letting agents self-modify their own code un-der archival selection, and Hyperagents (Zhang et al., 2026b) extends this with metacognitive self-modification where the modification procedure it-self is editable. In each case the evolving unit is the agent, the data, or the reasoning chain. EvoPool sits at a complementary layer by evolving the exe-cutable annotators themselves, so the surviving ar-tifacts rather than the surviving agents form the her-itable unit and produce a reusable cheap-to-execute pool. 
+
+B Detailed Algorithm 
+
+Algorithm 1 shows the full EvoPool training-time loop, with the query selector in line 2 detailed in App. E, the selection gate in lines 8 and 9 in App. D, and per-task hyperparameter values in App. G. 
+
+C Design Justification 
+
+This section expands the rationale behind key de-sign choices in EvoPool that Sec. 2 states but does not fully argue. Each choice corresponds to a Dar-winian primitive applied to the annotator popula-tion. For completeness we briefly state the Lamar-ckian alternative and why we did not adopt it. 
+
+Pool as the unit of inheritance, not agents. Anatural default in multi-agent LLM frameworks is the Lamarckian view, in which each agent carries verbal lessons, per-class personas, or hard-negative caches across iterations, and these compounding traces shape the next attempt. Reflexion, Voyager, and MemGPT (Shinn et al., 2023; Wang et al., 2024; Packer et al., 2024) are canonical instances of this design and the approach works well in many settings. EvoPool deliberately diverges for two reasons. First, the agent prompt grows linearly in iteration count under the Lamarckian view, so each later-iteration call is materially more expensive in input tokens than the corresponding stateless call. Second, pool-level selection already provides the per-class feedback signal directly in our setting. An annotator that fails on the long tail is filtered out, whereas a verbal lesson about the long tail mostly amplifies what the agent already wanted to do. Agents in EvoPool are therefore stateless mutation operators re-invoked from scratch every iteration, and selection acts on the pool of surviving annotators rather than on the agents that authored them. App. H.1 reports the empirical comparison on ChemProt. Stateless is not just cheaper but also slightly better, beating Reflector memory by 
+
++0 .014 and Full memory by +0 .040 .
+
+Three role-specialized agents rather than one. 
+
+The Generator, Improver, and Refiner partition the exploration-exploitation tradeoff of evolutionary search. The Generator provides breadth-first cover-age of the label space, the Improver concentrates variation on weak classes using per-class feedback, and the Refiner broadens already-validated rules to expand coverage around high-fitness candidates. A single agent with a unified prompt has to time-share these objectives, and ablating any one of the three strictly degrades pool quality on both datasets in Table 3. 
+
+Deterministic selection gate. We compose three orthogonal filters, namely niche-redundancy dedu-plication, validation-precision floor, and post-iteration marginal-contribution ablation, instead of learning a candidate ranker. Each filter implements a distinct Darwinian primitive of niche differentia-tion, viability threshold, and free-rider elimination, and the deterministic form gives a stable, auditable inheritance rule that does not itself drift across iter-ations. A learned ranker would couple the selection gate to the noise model of the validation set and would remove the strict-improvement guarantee on the pool. 
+
+Executable code as the unit of inheritance. The pool stores Python functions that emit a class label or abstain on each example, rather than continuous embeddings or learned models. Discrete code pre-serves auditability, runs at near-zero per-example cost at deployment, and admits direct comparison to hand-authored labeling functions in App. H.5. A continuous artifact would partly close the cost gap to a small fine-tuned model and lose the Python-rule auditability that high-stakes deployments re-quire. 
+
+A complementary posterior-refinement reading. 
+
+The Darwinian framing makes the mechanism in-terpretable, and a complementary Bayesian reading makes the loop’s objective explicit and links the design choices above to a single principled guar-antee. The current pool A(t) induces a pseudo-posterior p(θ | A (t)) over the latent labeling func-tion θ, where consistency with the pool’s votes on the validation set serves as evidence. Under this reading, the three role-specialized agents are amor-tized samplers from p(θ | · ) that propose new anno-tators, the deterministic selection gate is a posterior conditioning that retains only candidates passing the three filters, and BatchBALD query selection in App. E is the greedy expected-information-gain step of sequential Bayesian experimental design. The selection gate is the only step where the vali-dation set enters the loop, so it is the operational analog of conditioning the posterior on observed ev-idence. The strict-improvement ablation step yields a principled per-step monotonicity guarantee on the Algorithm 1 EvoPool training-time loop 
+
+1: Input: train Dtrain , val Dval , test Dtest ; LLM M at temperature T ; agents G, I, R .2: Hyperparameters: generations K, Generator batches nG, Improver batches nI , positives per class npos , query size kmax ,precision τprec , min fires τfires , Jaccard cap τjac , train-val gap τtv , ablation tolerance τabl , Refiner activation τref-min , dropout streak τdrop , subsumption τsub .3: Initialize: P0 ← G(Dtrain , M, T, n G), filtered by val precision ≥ τprec and fires ≥ τfires . Class fail streak cj ← 0.4: for k = 1 to K do 
+
+5: 1. Analyze: evaluate Pk−1 on Dval , build improvement brief Bk over low-recall regions of Dtrain .6: 2. Query selection: BatchBALD picks Sk ⊂ D train with |Sk | = kmax ; cluster by facility location, attach to Bk .7: 3. Class targeting: pick bottom-nI classes with val F1 < 0.40 and cj < τ drop as Improver targets. 8: 4. Improver: ∆P raw imp ← I(M, T, P k−1, Bk , n pos ).9: 5. Improver gate: keep candidates with val precision ≥ τprec , fires ≥ τfires , train-val gap ≤ τtv , Jaccard with Pk−1 < τ jac .Output ∆Pimp .10: 6. Refiner: if k ≥ τref-min pick members of Pk−1 ∪ ∆Pimp with val precision ≥ 0.65 and val cov ∈ [0 .005 , 0.05] , call 
+
+∆P raw ref ← R(·) for 2 to 3 broader variants each. else ∆P raw ref ← ∅ .11: 7. Refiner gate: apply the step-5 filter to ∆P raw ref . Output ∆Pref .12: 8. Ablation: P merge  
+
+> k
+
+← Pk−1 ∪ ∆Pimp ∪ ∆Pref . Greedily drop any newly-added annotator ℓ ∈ ∆Pimp ∪ ∆Pref whose removal strictly improves val macro F1 by at least τabl .13: 9. Subsumption prune: drop pool members subsumed by a new one at Jaccard ≥ τsub . Output Pk .14: 10. Viability: cj ← cj + 1 if class j F1 stagnated, else cj ← 0.15: end for 
+
+16: Aggregator: fit EvoAgg LR-CV on Dval from PK votes and sentence-BERT features. Pseudo-label ˆytrain ←
+
+EvoAgg (Dtrain , P K ). Fine-tune the downstream model on (Dtrain , ˆytrain ).
+
+validation fitness, F (A(t+1) ) ≥ F (A(t)+ ), given in Prop. 1 and App. D. The two readings agree on what survives across generations: under the Dar-winian view, the fittest annotators, and under the Bayesian view, the annotators most consistent with the validation evidence. 
+
+D Pool-Level Selection: Formal Definitions 
+
+This appendix gives the formal definition of each filter used by the deterministic selection gate of Sec. 2 (Pool-Level Natural Selection). Let fires (ℓ) ⊆ D val denote the set of validation ex-amples on which annotator ℓ emits a non-abstain prediction. 
+
+Niche redundancy (deduplication). A candi-date annotator ℓ is dropped if its firing pattern over-laps an existing pool member ℓ′ ∈ Pk−1 above a Jaccard threshold τjac :
+
+max 
+
+> ℓ′∈Pk−1
+
+|fires (ℓ) ∩ fires (ℓ′)||fires (ℓ) ∪ fires (ℓ′)| > τ jac . (1) 
+
+Minimum competence (precision floor). Define the validation precision of annotator ℓ as prec (ℓ) = Px∼D val 
+
+ℓ(x)= y(x) | ℓ fires on x.
+
+(2) A candidate is dropped if prec (ℓ) < τprec or 
+
+|fires (ℓ)| < τ fires .
+
+Marginal contribution (post-iteration ablation). 
+
+At the end of each generation we greedily drop a newly-added annotator ℓ ∈ ∆Pimp ∪ ∆Pref when its removal strictly improves the pool’s aggregated validation macro-F1 F by at least the ablation tol-erance: 
+
+F  P \ { ℓ}; Dval 
+
+ > F  P ; Dval 
+
+ + τabl . (3) This step only considers newly-proposed annota-tors as drop candidates. Parent-pool annotators that survived earlier generations are never re-evaluated. The aggregator F is majority vote by default, and the aggregator-aware variant substitutes EvoAgg. 
+
+Threshold values. We use τjac =0 .95 ,
+
+τprec =0 .25 , τfires =5 , τabl =0 .001 across all main-paper experiments. Full pipeline hyperparameters are listed in App. G. 
+
+Framework guarantee. The strict-improvement form of Eq. 3 gives the ablation phase a clean mono-tonicity property: every drop strictly improves the pool’s validation macro-F1. 
+
+Proposition 1 (Ablation-phase monotonicity) . Let 
+
+F (A) denote the pool’s aggregated validation macro-F1 under the default aggregator. Write a generation as a two-phase update A(t) → A (t)+ →A(t+1) , where A(t)+ = A(t)∪∆A is the gate-filtered union of the parent pool and the new candidates passing Eqs. 1–2, and A(t+1) ⊆ A (t)+ is the post-ablation pool under Eq. 3. The ablation phase is strictly non-decreasing in F :
+
+F (A(t+1) ) ≥ F (A(t)+ ),
+
+with each drop contributing a gain of at least τabl .Proof. The ablation phase removes annotators se-quentially. At each step, the greedy rule of Eq. 3 drops ℓ from the current intermediate pool P only when F (P \ { ℓ}) > F (P) + τabl , so F strictly increases by at least τabl on every drop. The phase terminates when no remaining candidate passes the strict-improvement condition. Telescoping over the 
+
+T accepted drops gives 
+
+F (A(t+1) ) = F (A(t)+ ) + 
+
+> T
+
+X
+
+> i=1
+
+∆i
+
+≥ F (A(t)+ ) + T · τabl ,
+
+where each ∆i > τ abl .The addition phase A(t) → A (t)+ has no compa-rable formal guarantee: under majority vote and macro-F1, an admitted annotator with precision above τprec may still tip individual votes the wrong way or shift per-class precision-recall balance, so 
+
+F (A(t)+ ) can fall below F (A(t)) in principle. The strict-improvement ablation step then claws back any such losses by removing the offending newly-added annotators, and we observe empirically across all main-paper experiments that the end-of-generation macro-F1 F (A(t+1) ) is monotone non-decreasing across t (cf. Fig. 7 in App. H.7). Prop. 1 formally guarantees the ablation half of this empirical monotonicity. 
+
+E Query Selection: BatchBALD 
+
+Sec. 2.4 introduces BatchBALD as the small example-selection tool used inside each EvoPool iteration. This appendix gives its definition, the per-example weighting used in our implementa-tion, and three short propositions that justify the choice. The selector is not a paper contribution and we describe it only for reproducibility. 
+
+Setup. At each iteration t the Improver and Re-finer need a small batch S ⊂ X of training ex-amples to reason over. We treat the current an-notator pool A(t) = {a1, . . . , a K } as an ensem-ble of K hypotheses with smoothed predictives 
+
+pk(y | x) ∈ ∆|C|− 1, uniform when ak abstains and Laplace-smoothed indicator otherwise. The marginal predictive is ¯p(y | x) = 1
+
+> K
+
+P 
+
+> k
+
+pk(y | x).
+
+Batch mutual information. The BatchBALD (Kirsch et al., 2019) acquisition score for a candi-date batch S is 
+
+I(S) = H YS | XS
+
+ − 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+H YS | XS , a k
+
+,
+
+(4) where YS = ( Yi)i∈S and H is the Shannon en-tropy of ¯p over joint label configurations on S. The first term is the ensemble’s predictive entropy on 
+
+S. The second is the expected per-hypothesis en-tropy. Their difference is the information YS would give about which hypothesis explains the data, i.e. which rule structure the pool is missing. The joint-entropy term enforces batch-level non-redundancy: a second example near-duplicating one already in S
+
+adds little marginal MI. Exact evaluation of H(YS )
+
+scales as |C| |S| and we approximate it by Monte-Carlo sampling under ¯p, matching the original im-plementation. 
+
+Per-example importance weights. Greedy selec-tion is biased by a per-example weight wi = ui · αi
+
+that decomposes into label uncertainty ui and class priority αi. With vote depth di = |{ j : Lij ̸ = ⊥}| 
+
+and normalized vote distribution vi ∈ ∆|C|− 1,
+
+ui =
+
+
+
+1 di = 0 ,H(vi)/ log |C| di > 0, votes disagree ,
+
+1/(di + 1) di > 0, votes agree .
+
+(5) Class priority αi is normalized inverse per-class validation recall, αc ∝ bR−γc , assigned per example via the aggregated pool label. 
+
+Algorithm and complexity. We use standard greedy maximization. Starting from S0 = ∅, we iteratively add the example with largest marginal MI gain 
+
+x∗ = arg max 
+
+> x / ∈St
+
+wx · I(St ∪ { x}) − I (St)
+
+until |S| = kmax . One round costs O(nKC ) for marginal entropies plus O(k n M K ) for the joint-entropy MC updates, with K ≤ 300 , C ≤ 10 ,
+
+M = 500 , n the candidate pool size. Wall-clock is well under a minute on a single CPU and the LLM calls dominate iteration cost. 
+
+E.1 Theoretical Properties Proposition 2 (Monotone submodularity and greedy guarantee) . For any finite candidate set and finite ensemble, I : 2 X → R≥0 in Eq. (4) is monotone non-decreasing and submodular. Greedy Table 5: Dataset statistics across the 10 datasets. #C is the number of label classes. Type is single-label (S) or multi-label (M). Val is the post-cap validation budget used in all experiments.                                                                                  
+
+> Dataset Category #C Type Train Val Test Task description AGNews General classification 4S9,000 500 7,600 News topic classification across World, Sports, Busi-ness, and Sci/Tech Banking77 General classification 77 S9,003 500 3,080 Fine-grained intent classification in retail-banking customer service ChemProt High-stakes specialized 10 S12,861 500 1,607 Biomedical chemical-protein relation extraction over PubMed abstracts DDI High-stakes specialized 5S32,670 500 8,673 Drug-drug interaction relation extraction over Drug-Bank and MedLine sentences Claude9 High-stakes specialized 9S5,937 225 1,564 Unfair-clause classification in consumer Terms-of-Service contracts FEVER Complex reasoning 3S10,000 500 7,600 Open-domain claim verification against Wikipedia evidence VitaminC Complex reasoning 3S10,000 500 7,600 Counterfactual claim verification under contrastive evidence pairs SciFact Complex reasoning 3S809 210 90 Scientific claim verification against biomedical re-search abstracts Ohsumed Multi-label biomedical 23 M24,074 500 6,877 MeSH disease-topic tagging on cardiovascular biomedical abstracts PubMed Multi-label biomedical 14 M40,000 500 5,000 Topic tagging on biomedical literature abstracts
+
+maximization achieves, after k steps, 
+
+I(Sgreedy ) ≥ (1 − 1/e ) max  
+
+> |S|≤ k
+
+I(S).
+
+Proof. Let A ∈ {a1, . . . , a K } be a uniform-random ensemble index, so that I(S) = I(YS ; A |
+
+XS ) rewrites Eq. (4) . Conditional on a specific hypothesis A = ak, distinct annotators label exam-ples independently, so {Yi}i∈S are conditionally independent given A. This gives the key decompo-sition 
+
+H(YS | XS , A ) = X
+
+> i∈S
+
+H(Yi | Xi, A ).
+
+Monotonicity. For any S and x / ∈ S, the chain rule yields 
+
+I(S∪{ x})−I (S) = I(Yx; A | Xx, Y S , X S ) ≥ 0,
+
+since conditional mutual information is non-negative. 
+
+Submodularity. For any T ⊆ S and x / ∈ S, write the marginal gain at T as 
+
+I(T ∪ { x}) − I (T ) = H(Yx | Xx, Y T )
+
+− H(Yx | Xx, A ),
+
+where the conditional-independence decomposi-tion drops YT from the second term. Similarly, 
+
+I(S ∪ { x}) − I (S) = H(Yx | Xx, Y S )
+
+− H(Yx | Xx, A ).
+
+Conditioning on a superset cannot increase entropy, so H(Yx | Xx, Y T ) ≥ H(Yx | Xx, Y S ) for T ⊆ S.Subtracting the two marginal gains, 
+
+I(T ∪ { x}) − I (T ) ≥ I (S ∪ { x}) − I (S),
+
+which is the diminishing-returns property defining submodularity. 
+
+Greedy bound. I is monotone submodular and non-negative, so Nemhauser–Wolsey–Fisher (Nemhauser et al., 1978) directly gives 
+
+I(Sgreedy ) ≥ (1 − 1/e ) max  
+
+> |S|≤ k
+
+I(S).
+
+F Feature Enrichment for Complex-Reasoning Tasks 
+
+Text-classification tasks like ChemProt give an an-notator everything it needs in the raw input. Claim-verification tasks like FEVER, SciFact, and Vita-minC do not. What actually matters there is the relationship between a claim and a piece of evi-dence, and a regex over either side alone cannot recover that relationship. In an early FEVER pilot the agent loop saw only the raw text and produced a pool that always predicted NotEnoughInfo. We extend EvoPool to these tasks without chang-ing the agent loop. For every claim and evidence pair we precompute a small set of comparison fea-tures once at dataset preparation and attach them to the example metadata. The agents then write annotators that combine these ready-made features instead of trying to reconstruct them from text. The simplest features need no model and capture what a careful reader would check by eye. They include the share of vocabulary the claim and evi-dence have in common, whether they mention the same named entities, whether one side carries a negation that the other does not, whether the num-bers agree, and the length ratio between the two. Three model-backed signals are added on top at a one-time preprocessing cost. A small MiniLM sen-tence encoder (Reimers and Gurevych, 2019) gives a semantic similarity score. A DeBERTa-v3-base NLI model (He et al., 2023) pretrained on MNLI and FEVER-NLI gives entail, neutral, and contra-dict probabilities. A small English dependency parser pulls out the subject, verb, and object of the claim and checks each one inside the evidence, and a WordNet lookup extends the antonym table. The lexical features alone are already enough for the agent loop to author non-trivial Supports, Re-futes, and NotEnoughInfo annotators on FEVER as reported in Table 24. The model-backed signals are added on top for FEVER and SciFact in the main table. Because the enriched data is a strict superset of the original, annotators written against the base schema stay valid, and the enrichment models are all publicly available pretrained checkpoints with no recurring cost at training or deployment. 
+
+Fair access across methods. All baselines (Al-chemist, DataSculpt, LLM-Annotation, LLM-Eval) and EvoPool receive identical pre-computed fea-tures through the example metadata, so differ-ences in performance reflect each method’s abil-ity to compose those features into rules rather than differential feature access. On FEVER, Al-chemist and DataSculpt reach only 0.167 and 0.034 
+
+test macro-F1 with the same enriched metadata, while EvoPool reaches 0.812 and LLM-Annotation 
+
+0.760 , isolating compositional multi-agent author-ing as the source of EvoPool’s lift on complex-reasoning tasks. 
+
+G Experiment Details 
+
+This appendix consolidates the practical details needed to reproduce EvoPool: dataset statis-tics, training configuration for both the EvoPool training-time loop and the downstream models, compute resources, and the evaluation protocol. 
+
+G.1 Dataset Statistics 
+
+Table 5 reports the per-dataset statistics across the 10 evaluation datasets organized into the four task categories of Sec. 3. 
+
+Train and test splits. Train uses the full pro-cessed train split with labels removed. Test uses the full test split with no subsampling. For multi-label datasets (Ohsumed, PubMed) we evaluate against the multi-hot ground-truth target. 
+
+Validation budget. We standardize the valida-tion split to a fixed budget of |D val | = 500 exam-ples across all datasets. Two datasets have a valida-tion set smaller than 500 (SciFact = 210 , Claude9 
+
+= 225 ). The same fixed Dval is reused across the EvoPool selection gate, EvoAgg’s LR-CV fitting, and CFT clean-label refinement. 
+
+Licenses and terms of use. All datasets and pre-trained models we use are publicly released for research, and we access each LLM API under its standard terms of service. Our use is consistent with each artifact’s intended research purpose, and any code and annotator pools we release are for research use only. 
+
+G.2 Training Details EvoPool training-time loop. The loop runs for 
+
+K = 12 generations with gpt-4o-mini as the primary agent backbone, decoding temperature 
+
+0.5, and single run with fixed seed 42 . Cross-backbone variants such as gpt-5-mini, gemini-3.1-pro-preview, and deepseek-v4-flash hold ev-ery other configuration constant and only swap the LLM author. The Generator, Improver, and Refiner agents are re-invoked from scratch every genera-tion with no persistent state. All LLM calls go through the OpenAI, Google, and DeepSeek APIs, and we cache responses by prompt hash so that resumed runs do not re-pay for already-computed calls. Table 6 lists the full configuration. 
+
+Downstream models. We fine-tune three down-stream models on the EvoAgg pseudo-labels: RoBERTa-large with full fine-tuning, Qwen3-1.7B and Llama-3.1-8B with LoRA (Hu et al., 2022). Table 7 summarizes the per-model training con-figuration. All three use AdamW with a linear warmup followed by linear decay schedule. The classification head is a single [CLS] representation for RoBERTa and a last-token representation for the decoder LoRA models, mapped through a soft-Table 6: Default EvoPool framework hyperparameters used for all experiments.                                          
+
+> Block Hyperparameter Value LLM Primary backbone gpt-4o-mini Decoding temperature 0.5 Seed 42 Loop # generations K12 Generator # calls per generation 18 Min val precision 0.30 Min fires 5Improver # calls per generation 6Min val precision 0.25 Min fires 5Per-class F1 target <0.40
+> # pos examples/class 8Refiner Min precision to refine 0.55 Min iter to activate 3Max Jaccard overlap 0.95 Selection gate
+> τjac (Jaccard) 0.95
+> τprec (precision) 0.25
+> τfires (fires) 5
+> τabl (ablation) 0.001 BatchBALD Batch size kmax 60 MC samples M500 Class-priority exp. γ1.0 EvoAgg Text embedder all-MiniLM-L6-v2 LR-CV Cs {0.01 ,0.1,1,10 }
+> CV folds 5 (stratified)
+
+max over |C| classes. Multi-label datasets replace the softmax with |C| independent sigmoid heads trained with binary cross-entropy on the multi-hot EvoAgg pseudo-target. 
+
+Multi-label setting. For Ohsumed and PubMed, we replace the softmax classification head with 
+
+|C| independent sigmoid heads trained with binary cross-entropy on the multi-hot EvoAgg pseudo-target. Per-class decision threshold defaults to 0.5,with no threshold tuning on validation. 
+
+Self-Training baseline. Following Noisy Stu-dent (Xie et al., 2020), Self-Training is a two-stage procedure. We first train the downstream model on the available validation set with clean labels, then use that teacher model to pseudo-label the unla-beled train set, and finally re-train the same down-stream architecture on the pseudo-labeled train set. We pair this with a separate Golden cell (sometimes shown as Golden only ) that trains on the validation labels alone and serves as the validation-only super-vised reference. Both cells use the same optimizer, learning rate, and epoch schedule as the pseudo-label pre-train configuration in Table 7. 
+
+Table 7: Downstream model training hyperparameters. RoBERTa-large is fully fine-tuned. Qwen3-1.7B and Llama-3.1-8B use LoRA with the listed adapter config-uration. Effective batch size for the LoRA models is batch_size × grad_accum.                                                         
+
+> Hyperparameter RoBERTa-large Qwen3-1.7B Llama-3.1-8B Tuning method Full FT LoRA LoRA LoRA rank r—16 16 LoRA α—32 32 LoRA dropout —0.05 0.05 LoRA targets —q/k/v/o_proj q/k/v/o_proj Optimizer AdamW AdamW AdamW Pre-train LR 2e-5 1e-4 1e-4 CFT LR 2e-5 5e-5 5e-5 Weight decay 0.01 0.0 0.0 Batch size 32 88Grad accum. steps 122Warmup ratio 0.10 0.06 0.06 Pre-train epochs 333CFT epochs 555Max seq. length 128 256 256 Precision FP16 BF16 BF16 Seed 42 42 42
+
+Continued fine-tuning. After pseudo-label pre-training, we additionally fine-tune the downstream model on the full available validation set following the protocol of Zhang et al. (2024). CFT uses the same optimizer and schedule as the pre-training stage but with the listed cft_epochs and CFT learn-ing rate. 
+
+G.3 Compute Resources 
+
+All downstream training and Self-Training experi-ments run on a single NVIDIA A100 80GB GPU. The EvoPool training-time loop itself is CPU-only: agents call the LLM API, and BatchBALD query selection runs in well under a minute per generation on a single CPU (see App. E). 
+
+G.4 Evaluation Details Annotator-level metrics. We report five met-rics on both validation and test for the authored pool’s predictions: coverage, accuracy, accuracy-on-covered, sample-F1, and macro-F1. Coverage is the fraction of rows on which at least one an-notator fires. Accuracy is computed over the full split with abstention treated as an incorrect predic-tion. Accuracy-on-covered is the same accuracy restricted to the covered subset and is reported as a diagnostic only. All F1 metrics are abstain-aware: when an annotator pool abstains on an example, that example still contributes to the denominator of recall for its ground-truth class, so a high-coverage pool with moderate accuracy can outperform a low-coverage pool with high accuracy-on-covered. EvoAgg by design has coverage = 1 .0 and so the abstain-aware and abstain-naive macro-F1 coincide for our headline cells. 
+
+Downstream metrics. For downstream models we report accuracy, sample-F1, and macro-F1 on test, with macro-F1 as the headline metric used throughout the main tables. For multi-label datasets we additionally report sample-F1, the average per-example F1 across all label positions, since clas-sical accuracy degenerates to exact-match subset accuracy under multi-hot targets. 
+
+Macro-F1 reporting convention. Throughout the paper we report macro-F1, i.e. the unweighted mean of per-class F1, as the primary metric since the high-stakes specialized and multi-label datasets exhibit strong class imbalance. Weighted-F1 columns are reported only in App. H.10 and App. H.11. 
+
+H Additional Results           
+
+> Table 8: Darwinian vs. two Lamarckian variants. Ex-periment done on ChemProt with gpt-4o-mini backbone. We report annotator-level macro-F1 on test set.
+> Variant Test macro-F1 ∆
+> Darwinian (EvoPool) 0.5826 —Lamarckian (Reflector memory) 0.5688 −0.014
+> Lamarckian (Full memory) 0.5428 −0.040
+
+H.1 Darwinian vs. Lamarckian Agents 
+
+The default EvoPool configuration is Darwinian: each agent (Generator, Improver, Refiner) is re-invoked from scratch every generation, with the annotator pool Pk as the only inheritance channel. The multi-agent literature (Shinn et al., 2023; Wang et al., 2024; Packer et al., 2024) has converged on cross-iteration agent state (verbal lessons, per-class personas, hard-negative caches) as a Lamarckian alternative. We ablate our Darwinian configuration against two Lamarckian variants on ChemProt: • Darwinian , ours: no cross-iteration agent state. The pool itself carries all information across generations. • Lamarckian, Reflector memory : after each generation, a separate Reflector agent summa-rizes the pool’s per-class performance into a short verbal “lessons” note such as “class 4 is under-served, add Agonist patterns”, which is appended to the next generation’s Generator and Improver prompts. • Lamarckian, Full memory : per-class persona for the Improver, a verified-rule cache across iterations, competence streaks counting consec-utive generations a class was below threshold, and hard-negative examples surfaced from prior generations. Table 8 reports the empirical comparison. The Darwinian configuration achieves the best macro-F1 of the three, with a modest gap of +0 .014 over Reflector and +0 .040 over Full memory. It is also materially cheaper at training time. Because the agent prompt does not grow with iteration count, each later-generation call costs the same number of input tokens as the first, while the Lamarckian vari-ants accumulate verbal state and pay an input-token premium that scales linearly with K. Along both axes of slightly higher macro-F1 and lower per-call cost, the Darwinian framing is the default choice. The mechanism that explains both observations is the same: pool-level selection already provides the per-class feedback signal directly, so additional agent state mostly amplifies what selection has al-ready conditioned on, rather than introducing new information. 
+
+H.2 Query Selector Ablation 
+
+The Improver and Refiner act on a small batch of training examples picked by a query selector each generation. EvoPool uses BatchBALD by default (App. E). Here we ablate the selector while hold-ing every other component of the pipeline fixed. Table 9 reports the ChemProt majority-vote macro-F1 for BatchBALD against two natural baselines, classical uncertainty sampling and uniform ran-dom sampling. BatchBALD leads by roughly 0.04 –
+
+0.05 , comparable in magnitude to the EvoAgg-vs-MV gap reported in the main paper, indicating that selector quality is a load-bearing component rather than a free choice. Random performs comparably to uncertainty, consistent with the observation that margin-based uncertainty alone tends to collapse on already-covered easy regions and provides little signal beyond a uniform draw. 
+
+H.3 Pool Co-evolution Signals on FEVER 
+
+Figure 5 reproduces the four-panel co-evolution analysis of Figure 4 on FEVER with the gpt-4o-mini backbone. The story is qualitatively sim-ilar but quantitatively softer than on ChemProt. Because FEVER has only three classes and the initial pool already covers all three, the agent niches in panel (a) are less differentiated: the Table 9: Selector ablation . All experiments are done on ChemProt using gpt-4o-mini backbone and share the default EvoPool configuration with the Generator, Improver, Refiner, and selection gate held fixed, and differ only in the query selector. We report majority-vote test set macro-F1.         
+
+> Selector MV macro-F1 ∆
+> BatchBALD (EvoPool) 0.4787 —Uncertainty sampling 0.4300 −0.049
+> Random 0.4336 −0.045
+
+Generator authors 19 /34 /32 surviving annotators across Supports/Refutes/NEI rather than leaving any class empty, and the Improver is a balanced rebalancer ( 25 /14 /16 ) rather than a niche-filler. Panel (b) shows the same staircase activation tim-ing as on ChemProt, but the Refiner is more pro-ductive on FEVER, contributing 11 surviving anno-tators versus 2 on ChemProt because the broadened verification-rule variants pass the Jaccard floor more easily on a 3-class label space. Panel (c)’s stacked bars show the Improver’s per-generation target distribution shifting from a Supports-heavy mix at k=1 –2 toward more balanced Refutes/NEI contributions in later generations as the gate con-sumes the easy Supports patterns first. Panel (d) shows broadly similar gate behavior, with 40 –60 %of Improver candidates killed and a higher Refiner kill rate. 
+
+H.4 Continued Fine-Tuning (CFT) 
+
+After fitting each method’s downstream model on its train-set pseudo-labels, we additionally con-tinue fine-tuning the downstream model on the validation set, following the protocol of Zhang et al. (2024). Table 10 reports test macro-F1 with CFT applied across the three downstream mod-els. EvoPool+CFT achieves the best or tied-best macro-F1 across the majority of model-dataset cells. SciFact and Claude9 are the boundary cases where LLM annotation+CFT retains the edge, con-sistent with the pre-CFT ordering. CFT closes a larger fraction of the gap for the weaker one-shot baselines such as Alchemist and DataSculpt than for EvoPool, since EvoPool’s pseudo-labels are already close to oracle quality and leave less head-room for clean-label refinement. 
+
+H.5 Comparison to Hand-Crafted Human LFs 
+
+WRENCH (Zhang et al., 2021) provides a hand-authored labeling-function pool for AGNews with 9 LFs. Zhang et al. (2024) provide hand-authored pools for ChemProt with 25 LFs, Claude9 with 41 LFs, and Banking77 with 335 LFs covering all 77 intents. These pools represent expert manual effort to author labeling rules by inspection. 
+
+Annotator-level. Table 12 compares EvoPool to the hand-crafted pools on test macro-F1. EvoPool beats the human pool on AGNews by +0 .203 ,on ChemProt by +0 .110 , and on Banking77 by 
+
++0 .398 . On Claude9 the human pool leads EvoPool by 0.191 . The Claude9 boundary case reflects ex-pert legal-text reading that our machine-authored pool does not match. 
+
+Downstream model. Table 11 compares the same pools on downstream-model test macro-F1. EvoPool beats the human pool on AGNews by 
+
++0 .057 to +0 .091 before CFT and by up to +0 .034 
+
+on the LoRA models after CFT, while essen-tially tying on RoBERTa-large, since clean-label fine-tuning compensates for differences in pseudo-label quality. EvoPool beats the human pool on ChemProt by +0 .067 to +0 .123 before CFT and 
+
++0 .020 to +0 .039 after CFT, and on Banking77 by 
+
++0 .33 to +0 .36 before CFT and +0 .15 to +0 .28 
+
+after CFT. On Claude9, EvoPool beats the human pool on RoBERTa-large by +0 .15 before CFT but loses on the LoRA-tuned models by −0.13 
+
+to −0.14 before CFT. After CFT, EvoPool over-takes Human on Qwen by +0 .014 while Llama remains −0.149 behind. Across the LLM-weak datasets EvoPool reliably beats the human pool on RoBERTa-large and on the long-tail multi-class tasks. Specialist human LFs hold their own on extreme long-tail legal classification under LoRA-tuned models. 
+
+H.6 Deployment Latency and Cost at Scale 
+
+A trained EvoPool decision rule is a self-contained Python program that runs on CPU at sub-millisecond per-example latency, so the marginal cost of labeling additional examples is effectively zero. Direct LLM annotation, in contrast, must is-sue a fresh API call per example, paying both wall time and dollar cost at every inference. We quantify this gap on ChemProt by measuring per-example latency and dollar cost over a target deployment Supports Refutes NEI                             
+
+> Generator
+> Improver
+> Refiner
+> 19 34 32
+> 25 14 16
+> 29
+> (a) Agent × class niche: surviving LFs
+> 0246810 12
+> Generation k
+> 0
+> 20
+> 40
+> 60
+> 80
+> Cumulative surviving LFs
+> (b) Cumulative LF contribution per agent
+> Generator
+> Improver
+> Refiner
+> 0246810 12
+> Generation k
+> 0.0
+> 2.5
+> 5.0
+> 7.5
+> 10.0
+> 12.5
+> 15.0
+> Improver LFs (passed gate)
+> (c) Improver class-focus per generation
+> Supports Refutes NEI
+> 0246810 12
+> Generation k
+> 0
+> 5
+> 10
+> 15
+> 20
+> 25
+> 30
+> LFs proposed per generation
+> (d) Selection gate: proposed vs killed
+> Improver kept
+> Improver killed
+> Refiner kept
+> Refiner killed
+
+Figure 5: Pool co-evolution signals on FEVER. Experiment done with gpt-4o-mini backbone. Same panel layout as Figure 4: (a) agent × class niche of surviving annotators, (b) cumulative annotator contribution per agent, (c) Improver class-focus per generation (stacked by class since FEVER has only three classes), (d) selection gate proposed vs. killed per generation. With only three classes the initial pool already covers all of them, so the agent niches in (a) are less differentiated than on ChemProt. The Refiner is more productive ( 11 surviving annotators vs. 2
+
+on ChemProt). Table 10: Downstream test macro-F1 after continued fine-tuning on the full validation set, across 10 datasets ×
+
+3 downstream models, organized into 4 task categories. Each method’s pool first produces pseudo-labels for the train set. The downstream model is then further fine-tuned on the clean validation labels. Models: RoB =RoBERTa-large, Qwen =Qwen3-1.7B, Llama =Llama-3.1-8B. All pools constructed using gpt-4o-mini backbone. 
+
+(1) General classification 
+
+Dataset Method RoB Qwen Llama AGNews Alchemist 0.8579 0.8307 0.8705 DataSculpt 0.8927 0.8765 0.8711 LLM-Annotation 0.8948 0.8926 0.8956 EvoPool 0.8842 0.8955 0.8899 Banking77 Alchemist 0.2759 0.0682 0.2678 DataSculpt 0.3515 0.0787 0.3715 LLM-Annotation 0.7376 0.7398 0.7915 
+
+EvoPool 0.7520 0.7661 0.7962 (3) Complex reasoning 
+
+Dataset Method RoB Qwen Llama FEVER Alchemist 0.2969 0.7109 0.6390 DataSculpt 0.3672 0.6283 0.5083 LLM-Annotation 0.7767 0.7988 0.8236 
+
+EvoPool 0.8227 0.8360 0.8518 
+
+VitaminC Alchemist 0.1667 0.7267 0.4642 DataSculpt 0.3997 0.5366 0.4319 LLM-Annotation 0.7097 0.7411 0.7805 
+
+EvoPool 0.7038 0.7383 0.7840 
+
+SciFact Alchemist 0.2051 0.2613 0.3248 DataSculpt 0.2112 0.2901 0.3609 LLM-Annotation 0.5134 0.4697 0.4647 
+
+EvoPool 0.2981 0.3871 0.5088 (2) High-stakes specialized 
+
+Dataset Method RoB Qwen Llama ChemProt Alchemist 0.2576 0.3262 0.3803 DataSculpt 0.3877 0.3177 0.4082 LLM-Annotation 0.4366 0.3725 0.3993 
+
+EvoPool 0.5557 0.5394 0.5432 
+
+DDI Alchemist 0.2687 0.2671 0.2716 DataSculpt 0.1746 0.2955 0.3463 LLM-Annotation 0.2707 0.3946 0.4549 
+
+EvoPool 0.5974 0.5745 0.6112 
+
+Claude9 Alchemist 0.2160 0.3240 0.2526 DataSculpt 0.1057 0.1203 0.1610 LLM-Annotation 0.5031 0.4890 0.4660 EvoPool 0.3528 0.4500 0.4259 
+
+(4) Multi-label biomedical 
+
+Dataset Method RoB Qwen Llama Ohsumed Alchemist 0.2012 0.2071 0.2335 DataSculpt 0.2002 0.2051 0.2661 LLM-Annotation 0.5442 0.5316 0.5636 
+
+EvoPool 0.6131 0.6111 0.6375 
+
+PubMed Alchemist 0.4967 0.4706 0.5684 DataSculpt 0.3774 0.4824 0.5431 LLM-Annotation 0.6561 0.6622 0.6727 
+
+EvoPool 0.7346 0.7265 0.7354 Table 11: Downstream test macro-F1 of EvoPool with gpt-4o-mini backbone vs. human-LF pseudo-labels across three downstream models on AGNews, ChemProt, Claude9, and Banking77. Bold marks the higher of Human and EvoPool at each no CFT vs. CFT pairing per model per task. 
+
+Method AGNews ChemProt Claude9 Banking77 
+
+RoB Qwen Llama RoB Qwen Llama RoB Qwen Llama RoB Qwen Llama Human 0.8280 0.8383 0.7952 0.4679 0.4718 0.4679 0.1945 0.5203 0.5190 0.3986 0.3520 0.3941 Human + CFT 0.8852 0.8612 0.8640 0.5170 0.5192 0.5170 0.3773 0.4358 0.5750 0.5696 0.4831 0.6471 EvoPool (ours) 0.8860 0.8951 0.8859 0.5396 0.5383 0.5909 0.3413 0.3827 0.3908 0.7332 0.7150 0.7241 
+
+EvoPool + CFT 0.8842 0.8955 0.8899 0.5557 0.5394 0.5432 0.3528 0.4500 0.4259 0.7520 0.7661 0.7962 
+
+Table 12: Annotator-level test macro-F1 of hand-crafted human annotators vs. EvoPool with gpt-4o-mini back-bone. Bold marks the higher of the two per dataset. 
+
+Method AGNews ChemProt Banking77 Claude9 Human Annotators 0.6610 0.4722 0.3039 0.5551 
+
+EvoPool (ours) 0.8642 0.5826 0.7023 0.3645 
+
+workload of 100K examples. 
+
+Setup. We compare the ChemProt EvoPool an-notator pool against direct annotation by four LLM APIs: gpt-4o-mini, gpt-5-mini, gemini-3.1-pro-preview, and deepseek-v4-flash. EvoPool wall time is measured by running the final pool.py over the ChemProt test split (1607 examples) on a single CPU thread and extrapolating to 100K. For the LLM APIs we issue 50 sequential single-thread calls per provider on real ChemProt test prompts, measuring per-call wall time directly from the HTTPS round trip with no concurrency and no warm-cache reuse, and extrapolate to 100K. Token cost per call is computed from the median input and output token counts reported by each provider, multiplied by published per-million-token rates. 
+
+Results. Figure 6 reports wall time and dollar cost on a log scale. EvoPool annotates 100K exam-ples in 17 .2 seconds at zero dollar cost. The cheap-est LLM option, gpt-4o-mini, takes 21 .9 hours and $2.95 , ≈ 4500 × slower at non-zero recurring cost. The reasoning-class APIs are slower still: gemini-3.1-pro-preview costs $ 22 .38 over 147 .6 hours and deepseek-v4-flash costs $ 31 .51 over 137 .2 hours, because both APIs return long reasoning chains that inflate the per-call wall time and output-token spend. Across all four providers EvoPool’s per-example latency advantage is between 4,500 × and 
+
+31 ,000 ×, and its marginal dollar cost advantage is unbounded since CPU inference of a static Python program is free at the margin. The one-time LLM cost of synthesizing the pool was $ 0.21 (see Fig-ure 3), which amortizes against direct gpt-4o-mini annotation in under 7,500 examples. For deploy-ment scales beyond a few thousand examples pro-grammatic supervision dominates both axes by or-ders of magnitude. EvoPool         
+
+> (pool.py, CPU)
+> gpt-4o-mini gpt-5-mini gemini-3.1-pro deepseek-v4-flash
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> Wall time to annotate 100K examples (seconds, log)
+> 17.2 s
+> 21.9 hr 22.4 hr
+> 147.6 hr 137.2 hr
+> Annotating 100K ChemProt examples: EvoPool pool.py vs LLM APIs (sequential, single thread)
+> Wall time
+> USD cost
+> 10 2
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> USD cost per 100K examples (log)
+> $0
+> $2.95
+> $7.50
+> $22.38 $31.51
+
+Figure 6: Deployment latency and cost. Experiment runs over 100K ChemProt examples. Bars show wall time (solid, left axis, log scale) and dollar cost (hatched, right axis, log scale) for EvoPool versus four LLM an-notation APIs. EvoPool finishes in 17 .2 seconds at zero recurring cost. The cheapest LLM option, gpt-4o-mini, costs 21 .9 hours and $ 2.95 , and the reasoning-class APIs, gemini-3.1-pro-preview and deepseek-v4-flash, approach 150 hours and $ 22 –32 .
+
+H.7 Pool-Size Efficiency of the Selection Gate 
+
+The leave-one-out ablation in Table 3 reports ap-proximately a 0.04 drop in MV macro-F1 when the selection gate is disabled, but it does not say where that drop comes from. We unpack the gate’s contri-bution by plotting test macro-F1 against pool size across all 12 generations for the full pipeline with selection gate on and for the −Selection ablation with selection gate off, with precision floor, dedu-plication, post-iteration ablation, and pool prune all disabled. Figure 7 shows the resulting trajectories. The gated configuration reaches 0.470 macro-F1 at 163 annotators by the first generation and gains a further 0.009 at k=12 when the Refiner is admitted, ending at 193 annotators. The ungated configura-tion adds candidates every generation, growing to 
+
+267 annotators by k=12 , yet its macro-F1 satu-rates at 0.439 from k=2 onward and never reaches 100 125 150 175 200 225 250 275 
+
+> Pool size (number of LFs)
+> 0.32
+> 0.34
+> 0.36
+> 0.38
+> 0.40
+> 0.42
+> 0.44
+> 0.46
+> 0.48
+> 0.50
+> Test macro-F1 (MV)
+> Selection ON
+> Selection OFF
+
+Figure 7: Selection gate Pareto-dominates on pool size and F1. Experiment done on ChemProt using gpt-4o-mini backbone. Each marker is one generation, and the star marks the final ( k=12 ) iteration for each configuration. EvoPool with selection on reaches 193 
+
+surviving annotators at test MV macro-F1 0.479 , with the bulk of the F1 captured by k=1 at 163 annotators. The −selection ablation grows to 267 annotators but never exceeds 0.439 . Every point on the red trajectory is strictly to the lower-right of a corresponding point on the blue trajectory. 
+
+the gated trajectory’s level. Every iteration of the gate-off trajectory is Pareto-dominated by the cor-responding iteration of the gated trajectory: more annotators, lower F1. The gate is therefore doing two jobs simultaneously, pruning low-value candi-dates so that the pool grows leaner ( −28% in size, 
+
+193 vs 267 annotators), and concentrating selec-tion pressure on high-precision candidates so that the surviving pool also achieves +0 .039 higher F1. The leaner pool also amortizes into the per-example deployment cost reported in Appendix H.6, since each query at inference time executes every anno-tator in the pool. 
+
+H.8 Hyperparameter Ablation 
+
+We sweep five hyperparameter axes around the de-fault ChemProt configuration, perturbing one axis at a time while holding all others at their default values, and re-running the full pipeline. Table 13 reports annotator-level EvoAgg test macro-F1 and Llama-3.1-8B downstream test macro-F1 for each cell. The top row is the default configuration. The default value within each axis is omitted from the rows since it matches the top row by construction. Across all five axes the test macro-F1 stays within a narrow band of single-seed variance around the default, indicating that EvoPool is insen-sitive to these hyperparameter choices. We keep the default values for all main-paper results to preserve 
+
+Table 13: Hyperparameter ablation. Experiment done on ChemProt using gpt-4o-mini backbone. Annotator column is EvoAgg test macro-F1. Downstream column is Llama-3.1-8B test macro-F1 fine-tuned on the cell’s EvoAgg pseudo-labels.                                           
+
+> Configuration Annotator Downstream Default 0.5826 0.5909
+> Number of generations K, default K=12
+> K=3 0.5885 0.5948
+> K=6 0.5574 0.5647
+> K=20 0.5602 0.5698
+> Generator minimum precision, default 0.30 0.15 0.5391 0.5404
+> 0.25 0.5407 0.5494
+> 0.35 0.5837 0.5768
+> 0.55 0.5728 0.5733
+> Improver ncalls per generation, default 610.5420 0.5437
+> 20.5952 0.6029
+> 40.5668 0.5627
+> Sampling temperature, default 0.50.00.5879 0.5893
+> 1.00.5563 0.5629
+> Improver positive examples per class, default 800.5771 0.5767
+> 20.5398 0.5426
+> 40.5642 0.5674
+
+cross-experiment comparability. 
+
+H.9 Aggregator on Baseline Pools 
+
+The +0 .104 EvoAgg-vs-MV lift on EvoPool from Table 3 raises a concern: would baseline pools benefit equally from EvoAgg, in which case our gain would be largely the aggregator? We apply the same EvoAgg LR-CV model to the Alchemist and DataSculpt pools on ChemProt while holding the pool fixed, and add a text-only logistic regression on sentence-BERT features with no annotator votes as a reference. Results are in Table 14. EvoAgg is genuinely a strong aggregator. It lifts Alchemist from 0.224 to 0.515 , a +0 .291 gain, and DataSculpt from 0.181 to 0.516 , a +0 .335 gain, both substantially larger than its +0 .104 lift on EvoPool. A weak pool whose votes carry mostly noise benefits more from the semantic features EvoAgg adds on top of the votes, so the aggregator does compensate for low-quality input. EvoAgg is not narrowly co-designed with EvoPool’s pool. Pool composition still matters. At fixed EvoAgg, EvoPool reaches 0.583 versus Alchemist’s 0.515 
+
+and DataSculpt’s 0.516 , a +0 .067 gap attributable entirely to pool. The text-only baseline at 0.464 is below EvoPool with MV at 0.479 , which uses only Table 14: EvoAgg applied to each method’s ChemProt annotator pool . Experiment done with gpt-4o-mini backbone. MV is majority-vote test macro-F1, EvoAgg is the text-aware aggregator’s test macro-F1,                        
+
+> ∆is the within-pool lift over MV. Llama column is the downstream test macro-F1 of Llama-3.1-8B fine-tuned on each pool’s EvoAgg pseudo-labels. The first row re-ports a text-only logistic regression on sentence-BERT features with no annotator votes. Its MV cell shows EvoPool with MV as the no-text reference and ∆is the text-only EvoAgg lift over that reference.
+> Pool MV EvoAgg ∆Llama Text-only (no pool) 0.479 0.464 −0.015 0.466 Alchemist 0.224 0.515 +0 .291 0.522 DataSculpt 0.181 0.516 +0 .335 0.518
+> EvoPool (ours) 0.479 0.583 +0 .104 0.591
+
+annotator votes with no text features, ruling out the alternative explanation that semantic features alone drive the result. The validation-test gap sharpens the picture: Alchemist reaches 0.861 on validation but only 0.515 on test, DataSculpt 0.822 versus 
+
+0.516 , while EvoPool’s validation and test agree within 0.01 . This 0.30 to 0.34 gap on the baselines reflects EvoAgg’s LR-CV overfitting a small vali-dation set when only a handful of useful annotators fire. EvoPool’s larger pool of high-precision anno-tators carries enough independent signal that the cross-validated regressor generalizes. EvoAgg and the pool are complementary: a stronger pool ex-tends EvoAgg’s ceiling, and a stronger aggregator extends the floor for any pool. 
+
+H.10 Full Annotator-Level Metrics (by Category) 
+
+The full 5-metric breakdown (Coverage, Accuracy, Accuracy-on-covered, F1, macro-F1 on both vali-dation and test) expanding Table 1 is split into four per-category tables for readability: general clas-sification (Table 15), high-stakes specialized (Ta-ble 16), complex reasoning / verification (Table 17), and multi-label biomedical (Table 18). Macro-F1 columns reproduce the main table, and the addi-tional columns make Coverage gaps and Accuracy on the covered subset visible. 
+
+H.11 Full Downstream Metrics (by Category) 
+
+The full 3-metric breakdown (Accuracy, F1, macro-F1) on test for each method on each (model, dataset) pair, expanding Table 2, is split into four per-category tables: general classification (Ta-ble 19), high-stakes specialized (Table 20), com-plex reasoning / verification (Table 21), and multi-label biomedical (Table 22). Macro-F1 columns re-produce the main table. Accuracy and F1 columns expose dominant-class collapse, with signature high Accuracy and low macro-F1. Table 15: Annotator-level metrics: General classification. Topic classification on AGNews and intent classification on Banking77, gpt-4o-mini backbone. 
+
+Method Validation Test 
+
+Cov Acc Acc-c F1 macF1 Cov Acc Acc-c F1 macF1 
+
+AGNews, 4 classes, news topic classification 
+
+Alchemist 0.6900 0.4150 0.6014 0.4724 0.4724 0.6708 0.4072 0.6071 0.4668 0.4668 DataSculpt 0.4530 0.3820 0.8433 0.5151 0.5151 0.4597 0.3754 0.8165 0.4994 0.4994 LLM annotation (gpt-4o-mini) 1.0000 0.8570 0.8570 0.8560 0.8560 1.0000 0.8633 0.8633 0.8628 0.8628 EvoPool + MV (ours) 0.8410 0.6100 0.7253 0.6600 0.6600 0.8550 0.6322 0.7395 0.6792 0.6792 
+
+EvoPool (ours) 1.0000 0.8600 0.8600 0.8599 0.8599 1.0000 0.8645 0.8645 0.8642 0.8642 
+
+Banking77, 77 classes, customer-service intent classification 
+
+Alchemist 0.2700 0.0450 0.1667 0.0389 0.0356 0.2656 0.0468 0.1760 0.0382 0.0382 DataSculpt 0.0870 0.0720 0.8276 0.0873 0.0871 0.1153 0.0714 0.6197 0.0824 0.0824 LLM annotation (gpt-4o-mini) 0.9880 0.5960 0.6032 0.5889 0.6086 0.9890 0.6409 0.6481 0.6261 0.6261 EvoPool + MV (ours) 0.4370 0.2660 0.6087 0.3409 0.3466 0.4013 0.2321 0.5785 0.2966 0.2966 
+
+EvoPool (ours) 1.0000 0.9000 0.9000 0.8982 0.8720 1.0000 0.7130 0.7130 0.7023 0.7023 
+
+Table 16: Annotator-level metrics: High-stakes specialized. Biomedical relation extraction on ChemProt and DDI, and legal clause classification on Claude9, gpt-4o-mini backbone. On Claude9, EvoPool reports MV due to the small validation budget (see Limitations). 
+
+Method Validation Test 
+
+Cov Acc Acc-c F1 macF1 Cov Acc Acc-c F1 macF1 
+
+ChemProt, 10 classes, biomedical chemical-protein relation 
+
+Alchemist 0.8258 0.3447 0.4175 0.3565 0.2447 0.8289 0.3578 0.4317 0.3691 0.2204 DataSculpt 0.4138 0.2931 0.7083 0.3093 0.2035 0.4281 0.2819 0.6584 0.2875 0.1965 LLM annotation (gpt-4o-mini) 1.0000 0.3559 0.3559 0.3697 0.3212 1.0000 0.3211 0.3211 0.3377 0.2817 EvoPool + MV (ours) 0.9515 0.5818 0.6115 0.5804 0.4684 0.9558 0.5744 0.6009 0.5697 0.4787 
+
+EvoPool (ours) 1.0000 0.6385 0.6385 0.6416 0.6059 1.0000 0.6360 0.6360 0.6395 0.5826 
+
+DDI, 5 classes, biomedical drug-drug interaction 
+
+Alchemist 0.5186 0.0670 0.1291 0.0656 0.1239 0.5302 0.0618 0.1166 0.0547 0.1189 DataSculpt 0.4775 0.3894 0.8153 0.4844 0.1249 0.4067 0.3347 0.8231 0.4389 0.1134 LLM annotation (gpt-4o-mini) 1.0000 0.2607 0.2607 0.2692 0.2059 1.0000 0.2960 0.2960 0.3148 0.2345 EvoPool + MV (ours) 0.9956 0.3987 0.4005 0.4579 0.2810 0.9949 0.4323 0.4345 0.4866 0.3069 
+
+EvoPool (ours) 1.0000 0.6699 0.6699 0.6989 0.5827 1.0000 0.6310 0.6310 0.6658 0.4539 
+
+Claude9, 9 classes, legal Terms-of-Service clauses 
+
+Alchemist 1.0000 0.4350 0.4350 0.5514 0.1607 1.0000 0.4171 0.4171 0.5376 0.1633 DataSculpt 0.8600 0.7700 0.8953 0.7896 0.2338 0.8731 0.7871 0.9014 0.8053 0.1458 LLM annotation (gpt-4o-mini) 1.0000 0.4250 0.4250 0.5200 0.4409 1.0000 0.4016 0.4016 0.5072 0.3320 
+
+EvoPool (ours) 0.9950 0.8250 0.8291 0.8368 0.3461 0.9844 0.7944 0.8069 0.8326 0.3645 Table 17: Annotator-level metrics: Complex reasoning. Claim verification on FEVER, SciFact, and VitaminC, gpt-4o-mini backbone. 
+
+Method Validation Test 
+
+Cov Acc Acc-c F1 macF1 Cov Acc Acc-c F1 macF1 
+
+FEVER, 3 classes, claim verification 
+
+Alchemist 1.0000 0.3330 0.3330 0.1664 0.1665 1.0000 0.3334 0.3334 0.1667 0.1667 DataSculpt 0.0310 0.0240 0.7742 0.0464 0.0464 0.0524 0.0179 0.3417 0.0339 0.0339 LLM annotation (gpt-4o-mini) 1.0000 0.7980 0.7980 0.7932 0.7932 1.0000 0.7653 0.7653 0.7599 0.7599 EvoPool + MV (ours) 0.9930 0.6550 0.6596 0.6527 0.6528 0.9912 0.6717 0.6777 0.6696 0.6696 
+
+EvoPool (ours) 1.0000 0.8460 0.8460 0.8467 0.8467 1.0000 0.8109 0.8109 0.8117 0.8117 
+
+SciFact, 3 classes, scientific claim verification 
+
+Alchemist 1.0000 0.4429 0.4429 0.3985 0.3438 1.0000 0.4333 0.4333 0.3356 0.2855 DataSculpt 0.3048 0.2190 0.7188 0.3185 0.2609 0.4222 0.1667 0.3947 0.2187 0.2000 LLM annotation (gpt-4o-mini) 1.0000 0.7238 0.7238 0.7383 0.7040 1.0000 0.7667 0.7667 0.7697 0.7617 
+
+EvoPool + MV (ours) 0.9619 0.5857 0.6089 0.5342 0.4371 0.9667 0.4778 0.4943 0.4109 0.3780 
+
+EvoPool (ours) 1.0000 0.7286 0.7286 0.7258 0.7115 1.0000 0.6000 0.6000 0.5956 0.5890 
+
+VitaminC, 3 classes, counterfactual claim verification 
+
+Alchemist 1.0000 0.3350 0.3350 0.1695 0.1692 0.9970 0.3341 0.3342 0.1682 0.1681 DataSculpt 0.0410 0.0320 0.7805 0.0603 0.0603 0.0675 0.0262 0.3879 0.0473 0.0473 LLM annotation (gpt-4o-mini) 1.0000 0.6190 0.6190 0.5993 0.5993 1.0000 0.6611 0.6611 0.6482 0.6482 EvoPool + MV (ours) 0.9890 0.4850 0.4904 0.4597 0.4596 0.9871 0.5009 0.5075 0.4788 0.4788 
+
+EvoPool (ours) 1.0000 0.6990 0.6990 0.7000 0.6999 1.0000 0.6649 0.6649 0.6667 0.6667 
+
+Table 18: Annotator-level metrics: Multi-label biomedical. MeSH disease tagging on Ohsumed and topic tagging on PubMed, gpt-4o-mini backbone. 
+
+Method Validation Test 
+
+Cov Acc Acc-c F1 macF1 Cov Acc Acc-c F1 macF1 
+
+Ohsumed, 23 classes, multi-label, biomedical MeSH disease 
+
+Alchemist 0.6774 0.0826 0.1219 0.1950 0.1872 0.6672 0.0894 0.1340 0.1932 0.1901 DataSculpt 0.2132 0.0742 0.3479 0.1401 0.0722 0.2197 0.0826 0.3759 0.1430 0.0738 LLM annotation (gpt-4o-mini) 0.9346 0.0858 0.0918 0.4567 0.4264 0.9292 0.0929 0.1000 0.4620 0.4433 EvoPool + MV (ours) 0.8685 0.1038 0.1196 0.3943 0.3555 0.8709 0.1006 0.1155 0.3813 0.3469 
+
+EvoPool (ours) 0.8883 0.5017 0.5648 0.7726 0.8086 0.8377 0.2946 0.3517 0.5810 0.5420 
+
+PubMed, 14 classes, multi-label, PubMed biomedical literature topic 
+
+Alchemist 0.8450 0.0014 0.0005 0.2199 0.1498 0.8314 0.0024 0.0005 0.2137 0.1461 DataSculpt 0.0452 0.0054 0.0000 0.0146 0.0064 0.0458 0.0072 0.0000 0.0146 0.0069 LLM annotation (gpt-4o-mini) 0.9938 0.0128 0.0129 0.6306 0.4410 0.9916 0.0128 0.0129 0.6273 0.4375 EvoPool + MV (ours) 0.9820 0.0038 0.0033 0.4312 0.2716 0.9784 0.0026 0.0027 0.4278 0.2687 
+
+EvoPool (ours) 1.0000 0.1714 0.1714 0.8486 0.7587 1.0000 0.1190 0.1190 0.8153 0.7026 Table 19: Downstream metrics: General classification. Topic classification on AGNews and intent classification on Banking77. Pools constructed using gpt-4o-mini backbone. 
+
+Method RoBERTa-large Qwen3-1.7B Llama-3.1-8B 
+
+Acc F1 mac-F1 Acc F1 mac-F1 Acc F1 mac-F1 
+
+AGNews, 4 classes, news topic classification 
+
+Alchemist 0.5891 0.5732 0.5732 0.5730 0.5541 0.5541 0.5488 0.5298 0.5298 DataSculpt 0.8253 0.8222 0.8222 0.7980 0.7922 0.7922 0.7336 0.7248 0.7248 LLM Eval (zero-shot) 0.8633 0.8628 0.8628 0.8633 0.8628 0.8628 0.8633 0.8628 0.8628 LLM Annotate 0.8743 0.8746 0.8746 0.8704 0.8701 0.8701 0.8738 0.8735 0.8735 Self-Training 0.8928 0.8925 0.8925 0.8591 0.8588 0.8588 0.8809 0.8803 0.8803 Golden only 0.9020 0.9016 0.9016 0.8424 0.8422 0.8422 0.8662 0.8658 0.8658 
+
+EvoPool (ours) 0.8864 0.8860 0.8860 0.8954 0.8951 0.8951 0.8862 0.8859 0.8859 
+
+Banking77, 77 classes, customer-service intent classification 
+
+Alchemist 0.0864 0.0491 0.0491 0.0795 0.0443 0.0443 0.0870 0.0476 0.0476 DataSculpt 0.1545 0.0929 0.0929 0.1425 0.0540 0.0540 0.1623 0.0713 0.0713 LLM Eval (zero-shot) 0.6409 0.6261 0.6261 0.6409 0.6261 0.6261 0.6409 0.6261 0.6261 LLM Annotate 0.6672 0.6550 0.6550 0.6519 0.6361 0.6361 0.6591 0.6410 0.6410 Self-Training 0.7695 0.7607 0.7607 0.1338 0.1220 0.1220 0.6453 0.6371 0.6371 Golden only 0.4873 0.4330 0.4330 0.0799 0.0679 0.0679 0.5166 0.5117 0.5117 
+
+EvoPool (ours) 0.7425 0.7332 0.7332 0.7253 0.7150 0.7150 0.7347 0.7241 0.7241 Table 20: Downstream metrics: High-stakes specialized. Biomedical relation extraction on ChemProt and DDI, and legal clause classification on Claude9. Pools constructed using gpt-4o-mini backbone. 
+
+Method RoBERTa-large Qwen3-1.7B Llama-3.1-8B 
+
+Acc F1 mac-F1 Acc F1 mac-F1 Acc F1 mac-F1 
+
+ChemProt, 10 classes, biomedical chemical-protein relation 
+
+Alchemist 0.3634 0.3700 0.2193 0.3622 0.3693 0.2194 0.3634 0.3692 0.2129 DataSculpt 0.5264 0.4575 0.2267 0.4984 0.4224 0.2084 0.4848 0.4039 0.1994 LLM Eval (zero-shot) 0.3211 0.3377 0.2817 0.3211 0.3377 0.2817 0.3211 0.3377 0.2817 LLM Annotate 0.3255 0.3381 0.2840 0.3242 0.3394 0.2945 0.3217 0.3371 0.2809 Self-Training 0.6117 0.6110 0.5535 0.3603 0.3591 0.3049 0.3715 0.3741 0.3253 Golden only 0.6123 0.6111 0.5194 0.3497 0.3481 0.2775 0.3628 0.3698 0.3178 
+
+EvoPool (ours) 0.6049 0.6051 0.5396 0.6067 0.6070 0.5383 0.6459 0.6498 0.5909 
+
+DDI, 5 classes, biomedical drug-drug interaction 
+
+Alchemist 0.1522 0.1607 0.1806 0.2223 0.2601 0.2155 0.2118 0.2494 0.2121 DataSculpt 0.7742 0.6757 0.1746 0.7738 0.6759 0.1756 0.7744 0.6772 0.1778 LLM Eval (zero-shot) 0.2960 0.3148 0.2345 0.2960 0.3148 0.2345 0.2960 0.3148 0.2345 LLM Annotate 0.2796 0.2975 0.2234 0.2669 0.2763 0.2206 0.2768 0.2908 0.2305 Self-Training 0.7221 0.7504 0.5782 0.5869 0.6314 0.4592 0.5374 0.5826 0.4581 Golden only 0.7259 0.7532 0.5774 0.5434 0.5856 0.4491 0.4687 0.5140 0.3863 
+
+EvoPool (ours) 0.6955 0.7238 0.5340 0.6630 0.6968 0.5293 0.6587 0.6941 0.5379 
+
+Claude9, 9 classes, legal Terms-of-Service clauses 
+
+Alchemist 0.4516 0.5709 0.1867 0.4609 0.5765 0.2207 0.4497 0.5692 0.1941 DataSculpt 0.9076 0.8637 0.1057 0.9110 0.8707 0.1909 0.9052 0.8654 0.1500 LLM Eval (zero-shot) 0.4016 0.5072 0.3320 0.4016 0.5072 0.3320 0.4016 0.5072 0.3320 LLM Annotate 0.4171 0.5252 0.3469 0.4356 0.5451 0.3579 0.4288 0.5365 0.3639 Self-Training 0.9076 0.8637 0.1057 0.3578 0.5041 0.0765 0.4964 0.6116 0.1131 Golden only 0.9076 0.8637 0.1057 0.8994 0.8598 0.1053 0.9047 0.8761 0.2111 
+
+EvoPool (ours) 0.8007 0.8331 0.3413 0.8600 0.9005 0.3827 0.8128 0.8438 0.3908 Table 21: Downstream metrics: Complex reasoning. Claim verification on FEVER, SciFact, and VitaminC. Pools constructed using gpt-4o-mini backbone. 
+
+Method RoBERTa-large Qwen3-1.7B Llama-3.1-8B 
+
+Acc F1 mac-F1 Acc F1 mac-F1 Acc F1 mac-F1 
+
+FEVER, 3 classes, claim verification 
+
+Alchemist 0.3334 0.1667 0.1667 0.3334 0.1667 0.1667 0.3334 0.1667 0.1667 DataSculpt 0.3489 0.3286 0.3285 0.3645 0.3541 0.3541 0.3579 0.3434 0.3434 LLM Eval (zero-shot) 0.7653 0.7599 0.7599 0.7653 0.7599 0.7599 0.7653 0.7599 0.7599 LLM Annotate 0.7499 0.7428 0.7428 0.7670 0.7625 0.7626 0.7705 0.7645 0.7645 Self-Training 0.7596 0.7555 0.7556 0.7113 0.7099 0.7099 0.6889 0.6879 0.6879 Golden only 0.7809 0.7805 0.7805 0.6492 0.6477 0.6477 0.6062 0.6042 0.6042 
+
+EvoPool (ours) 0.8133 0.8132 0.8132 0.8254 0.8262 0.8262 0.8433 0.8435 0.8435 
+
+SciFact, 3 classes, scientific claim verification 
+
+Alchemist 0.4444 0.2735 0.2051 0.4556 0.3299 0.2743 0.4444 0.3408 0.2903 DataSculpt 0.3667 0.3399 0.3159 0.3556 0.3370 0.3111 0.3667 0.3123 0.2759 LLM Eval (zero-shot) 0.7667 0.7697 0.7617 0.7667 0.7697 0.7617 0.7667 0.7697 0.7617 LLM Annotate 0.6222 0.6019 0.5919 0.4444 0.4443 0.4355 0.4778 0.4803 0.4788 
+
+Self-Training 0.3556 0.3596 0.3553 0.4222 0.4012 0.4205 0.4111 0.4129 0.4060 Golden only 0.3778 0.3184 0.2864 0.3000 0.2943 0.2929 0.4222 0.4225 0.4096 
+
+EvoPool (ours) 0.3778 0.3252 0.2890 0.4111 0.3905 0.3797 0.4667 0.4512 0.4442 
+
+VitaminC, 3 classes, counterfactual claim verification 
+
+Alchemist 0.3334 0.1667 0.1667 0.3334 0.1667 0.1667 0.3334 0.1667 0.1667 DataSculpt 0.3693 0.2645 0.2646 0.3533 0.2257 0.2257 0.3626 0.2600 0.2600 LLM Eval (zero-shot) 0.6611 0.6482 0.6482 0.6611 0.6482 0.6482 0.6611 0.6482 0.6482 LLM Annotate 0.6167 0.5920 0.5919 0.6686 0.6562 0.6562 0.6637 0.6508 0.6508 Self-Training 0.5284 0.5281 0.5282 0.5178 0.5174 0.5174 0.4772 0.4784 0.4784 Golden (clean only) 0.4570 0.4543 0.4543 0.5072 0.5065 0.5065 0.4471 0.4481 0.4481 
+
+EvoPool (ours) 0.6461 0.6476 0.6476 0.6639 0.6659 0.6659 0.6778 0.6797 0.6797 Table 22: Downstream metrics: Multi-label biomedical. MeSH disease tagging on Ohsumed and topic tagging on PubMed. Pools constructed using gpt-4o-mini backbone. 
+
+# Method RoBERTa-large Qwen3-1.7B Llama-3.1-8B 
+
+# F1 mac-F1 F1 mac-F1 F1 mac-F1 
+
+# Ohsumed, 23 classes, multi-label, biomedical MeSH disease 
+
+# Alchemist 0.3025 0.1940 0.2527 0.2012 0.2519 0.2006 DataSculpt 0.1796 0.0713 0.1294 0.0685 0.1313 0.0692 LLM Annotate 0.4869 0.4566 0.4921 0.4634 0.4935 0.4726 Self-Training 0.4747 0.2526 0.1400 0.0652 0.3031 0.1869 Golden only 0.2657 0.0671 0.0073 0.0042 0.1189 0.0530 
+
+# EvoPool (ours) 0.6100 0.5565 0.5679 0.5473 0.5684 0.5566 
+
+# PubMed, 14 classes, multi-label, biomedical literature topic 
+
+# Alchemist 0.2659 0.1399 0.2473 0.1390 0.2490 0.1397 DataSculpt 0.0101 0.0043 0.0165 0.0047 0.0177 0.0053 LLM Annotate 0.6331 0.4396 0.6331 0.4313 0.6328 0.4353 Self-Training 0.8254 0.6975 0.7276 0.4566 0.7402 0.5618 Golden only 0.8159 0.6229 0.7081 0.4477 0.7327 0.5593 
+
+# EvoPool (ours) 0.8349 0.7126 0.8279 0.7095 0.8263 0.7110 I Qualitative Examples 
+
+This section gathers prompt structures, interme-diate agent outputs, and the highest-F1 surviving annotators per method on ChemProt and FEVER. The goal is to make concrete what the prompt tem-plates, the per-iteration agent communication, and the final annotator code actually look like across EvoPool, Alchemist, and DataSculpt. All experi-ments done with gpt-4o-mini backbone. 
+
+I.1 Prompt Template Comparison 
+
+EvoPool, Alchemist, and DataSculpt all prompt the LLM to author annotators, but they differ markedly in what context they supply, how they decompose the task, and how the output is parsed. We summa-rize each prompt’s structure on ChemProt below. 
+
+Alchemist 
+
+Stage: Single LLM call per annotator, no feedback. 
+
+System: “You are a helpful assistant to write annotator for biomedical chemical-protein relation extraction. Be creative and original. Annotator should consider condi-tions globally and wisely.” 
+
+User: mission_statement → labeling_instruction 
+
+(10 lines listing return value for each class) →
+
+function_signature .
+
+Output: a single Python function 
+
+label_function(sentence) returning a class id or −1.
+
+Key limitations: no error signal, no class-balancing, no awareness of which examples are uncovered, no helpers, no pool. The LLM tends to emit one monolithic func-tion attempting to classify all classes simultaneously (see App. I.3 for the resulting style). 
+
+DataSculpt 
+
+Stage: Two-stage: per-example LLM annotation, then keyword aggregation across examples to form annotators. 
+
+System: “TASK DESCRIPTION: You are a help-ful assistant in a biomedical relation extraction task. . . . INTERACTION FORMAT: After the user provides in-put, explain your reasoning step by step. Then identify a list of keywords that helps making prediction. Finally, provide the class label.” 
+
+User (per training example): the sentence text with the entity pair, then the LLM is asked to emit 
+
+EXPLANATION: . . . , KEYWORDS: . . . , LABEL: . . . . 
+
+Output: the keywords are aggregated across many ex-amples and turned into single-substring annotators of the form if keyword in text: return label .
+
+Key limitations: the resulting annotators are atomic key-word checks with no compositional structure or negative guards. Many fail the minimum-fires gate, with only 15 
+
+of 67 passing on ChemProt validation and only 2 of 88 on FEVER validation. 
+
+EvoPool Generator 
+
+Stage: Authors the initial pool. One-shot per call, but the prompt mandates a compositional grammar. 
+
+Instruction: “Each annotator should be a composi-tional Python program rather than a flat if-else. De-fine helper boolean predicates as module-level func-tions such as has_inhibition_keywords(text) or 
+
+has_chemical_target(meta) . Each annotator_* 
+
+must call at least two helper predicates and combine with at least one direct check. Use only metadata fields enu-merated above.” 
+
+Includes: a worked ChemProt example show-ing a helper-stack pattern (INHIBITION_KW 
+
+bank → has_inhibition_keywords →
+
+lf_downregulator_inhibition_compositional ), stratified seed examples from train, and the task’s full label-name ↔ id mapping. Output: a Python block of helpers + several lf_* . The instruction’s worked example is what later iterations build on, and the helper-stack convention propagates into Im-prover and Refiner output. 
+
+EvoPool Improver 
+
+Stage: Per-iteration feedback loop. Reads the analysis brief improvement_brief.json (App. I.2) and authors new compositional annotators targeting the underserved clusters. 
+
+Each Improver call receives: 
+
+• Failure-cluster context: top-6 underserved clusters with target class, distinctive keywords, and 3–6 repre-sentative example texts. • Per-class budget: dedicated batches for low-F1 target classes, each with 8 positive train examples and explicit confusable-class guardrails. • Anti-pattern memory: the last 10 annotators the gate dropped, with reason. • Quality clause: “an absent annotator is far better than a low-precision one”, which mandates ABSTAIN on uncertainty rather than guessing. 
+
+Output: a Python block with reusable helpers + multi-ple lf_* , each targeting a specific cluster’s target class. Names that collide are auto-renamed under a per-iteration prefix, and helpers are namespaced to prevent cross-iteration shadowing. 
+
+Key delta vs. Alchemist: (i) feedback loop conditioned on the actual validation errors of the pool at k−1, (ii) class-balanced supervision pressure, (iii) explicit confusable-class guardrails, and (iv) anti-pattern memory of past gate rejections. 
+
+EvoPool Refiner 
+
+Stage: Activates from iteration 3 once the gated pool has stabilized. Picks annotators with validation precision 
+
+≥ 0.65 AND coverage ∈ [0 .005 , 0.05] (= narrow-but-correct annotators) and asks the LLM for 2–3 broader variants of each. 
+
+Instruction (per-annotator prompt): “Original annota-tor (precision P , coverage C): <source> . Target class: 
+
+c. Write 2–3 broader variants using a different strategy per variant.” Strategies presented: • Keyword-bank expansion: replace a single if ’inhibit’ in text with a 5–10 word bank INHIB_KW = [. . . ] routed through a helper. • Relaxed conditions: drop one AND-condition in the original. • Structural variant: rewrite using a different metadata-comparison primitive. 
+
+Output: broader variants that retain the original’s pre-cision target while typically 3–5×-ing coverage. Each variant goes through the same selection gate as the Im-prover’s output. 
+
+Why a separate agent: the Improver works from clus-ter failure signals (forward search), the Refiner works from the existing pool’s high-quality but narrow annota-tors (lateral broadening). The two together cover the two failure modes of a programmatic pool: missing classes (Improver) and over-narrow precision-coverage trade-offs within a class (Refiner). 
+
+I.2 Agent Output Examples 
+
+We trace one generation on the canonical ChemProt run. The analysis step is determin-istic: it evaluates the current pool on valida-tion, runs the query selector, and packages per-class weakness and the selected examples into an improvement_brief.json . The three agents (Generator, Improver, Refiner) then read this brief and produce executable annotators following the role they were prompted for. 
+
+Analysis brief at k=3 
+
+Class weights (priority for next iteration, sums to 1.0): 
+
+Modulator 0.172 Part-of 0.111 Regulator 0.097 Substrate/Product 0.096 Upregulator 0.092 Downregulator 0.088 Agonist, Antagonist, Cofactor, NOT 0.086 each 
+
+Top-3 improvement targets (segment =
+
+target_type_class_length , value-scored by 
+
+nexamples · class_weight): 1. uncovered_Regulator_medium → 238 validation examples uncovered, value 23 .1. Keywords: 
+
+[documented, esbl, pneumoniae, kpcs, carbapenemases, ampc, klebsiella] .2. uncovered_Regulator_long → 134 examples, value 13 .0. Keywords: [weakened, isobutyl, methylxanthine, ibmx, thromboembolic, transplant, methylenetetrahydrofolate] .3. uncovered_Substrate/Product_medium → 117 ex-amples, value 11 .3. Keywords: [decarboxylase, catalyses, putrescine, acetylated, ssat, spermidine, pao] .
+
+BatchBALD-selected cluster center (top cluster by ac-quisition score 1.10 , target class 2 Upregulator, clus-ter size 1638 ): “The 5-HT(1/2/5/7)-receptor antagonist methysergide and the 5-HT(2A/2B/2C)-receptor antago-nist LY 53857 enhanced clomipramine-induced hyper-glycemia, while the 5-HT(1A/1B)-receptor antagonist (-)-propranolol and the 5-HT(3/4)-receptor antagonist tropisetron did not affect it.” This center is the example the agents see verbatim through the cluster block. It il-lustrates a Modulator/Upregulator/Antagonist confusion where the compositional gate against Up/Downregulator signals is necessary. 
+
+Generator output at k=0 
+
+The Generator seeds the pool with broad lexical templates spanning the label space. Each annotator composes a small keyword bank with the entity-pair structural check that all later agents reuse. One representative is the Regu-lator annotator below.                           
+
+> _b1_REGULATOR_KW = [ 'bind ','interact ','affinity ',
+> 'target ','receptor ','ligand ','associate ',
+> 'complex ','recognize ']
+> def _b1_has_keywords(text, keywords):
+> return any (k in text for kin keywords)
+> def _b1_has_named_entities(meta): e1, e2 = meta.get( 'entity1 ','' ), meta.get( 'entity2 ',''
+> )
+> return (bool (e1) and bool (e2)
+> and len (e1) > 1 and len (e2) > 1)
+> def annotator_regulator(ex): meta = ex.get( 'metadata ', {}) or {} text = (ex.get( 'text ')or '' ).lower()
+> if (_b1_has_keywords(text, _b1_REGULATOR_KW)
+> and _b1_has_named_entities(meta)):
+> return 1
+> return ABSTAIN
+
+The Generator authors one such two-helper annotator per class to establish the initial pool. It has no per-class tar-geting and no confusable-class guard. Both gaps are ad-dressed by the Improver and Refiner that come next. 
+
+Improver output at k=4 
+
+The Improver receives the analysis brief above plus an anti-pattern list of the last 10 dropped annotators and pos-itive train examples drawn for each target class. It emits compositional annotators with explicit guards against the most confusable classes. One representative is the Mod-ulator annotator below, generated because the analysis flagged Modulator as the highest-weight class.                                                
+
+> _i04c6_MODULATE_KW = [ 'modulate ','modulator ',
+> 'allosteric ','potentiate ',
+> 'positive allosteric modulator ',
+> 'negative modulator ','non-competitive ']_i04c6_INHIBIT_KW = [ 'inhibit ','reduce ','decrease ','
+> suppress ']_i04c6_ACTIVATE_KW = [ 'activate ','increase ','enhance ','
+> induce ']
+> def _i04c6_has_modulation_signal(text):
+> return any (k in text for kin _i04c6_MODULATE_KW)
+> def _i04c6_has_inhibition_signal(text):
+> return any (k in text for kin _i04c6_INHIBIT_KW)
+> def _i04c6_has_activation_signal(text):
+> return any (k in text for kin _i04c6_ACTIVATE_KW)
+> def _i04c6_has_named_pair(meta): e1 = (meta.get( 'entity1 ')or '' ).strip() e2 = (meta.get( 'entity2 ')or '' ).strip()
+> return bool (e1) and bool (e2)
+> def annotator_modulator_compositional(ex): text = (ex.get( 'text ')or '' ).lower() meta = ex.get( 'metadata ')or dict ()
+> if (_i04c6_has_named_pair(meta)
+> and _i04c6_has_modulation_signal(text)):
+> if (not _i04c6_has_inhibition_signal(text)
+> and not _i04c6_has_activation_signal(text)):
+> return 6
+> return ABSTAIN
+
+Three keyword banks plus two negative guards: the anno-tator fires on Modulator only when neither the Downreg-ulator nor the Upregulator keyword bank matches. The negative guards explicitly disambiguate the three confus-able regulation classes, which is what the Generator’s single-bank Regulator annotator above could not do. 
+
+Refiner output at k=5 
+
+The Refiner picks high-precision low-coverage annotators from the current pool and asks the agent for 2 to 3 broader variants using a keyword-bank-expansion strategy. The expanded annotator inherits the entity-pair check from the original and replaces the narrow keyword set with a richer synonym bank.                          
+
+> _r05t6_INHIB_KW = [ 'inhibit ','suppress ','block ',
+> 'reduce ','attenuate ','downregulate ']
+> def _r05t6_has_inhibition(text):
+> return any (k in text for kin _r05t6_INHIB_KW)
+> def _r05t6_has_named_pair(meta): e1 = (meta.get( 'entity1 ')or '' ).strip() e2 = (meta.get( 'entity2 ')or '' ).strip()
+> return bool (e1) and bool (e2)
+> def annotator_inhibition_expanded(ex): text = (ex.get( 'text ')or '' ).lower() meta = ex.get( 'metadata ')or dict ()
+> if (_r05t6_has_inhibition(text)
+> and _r05t6_has_named_pair(meta)):
+> return 3
+> return ABSTAIN
+
+The original annotator the Refiner broadened used a single keyword inhibit . The variant adds suppress, block, reduce, attenuate, downregulate and triples cover-age without losing precision. The named-pair helper is reused from an earlier Improver iteration through the Re-finer’s namespace, illustrating that helpers are first-class units of inheritance alongside the annotators themselves. 
+
+I.3 Top Annotator Function Comparison 
+
+We pick the highest-F1 surviving annotator per class from each method’s final pool, evaluated on validation. Table 23 reports ChemProt, Table 24 reports FEVER. EvoPool covers all classes, and the baselines leave large gaps. 
+
+Table 23: ChemProt per-class best-annotator F1 on vali-dation. “–” indicates no annotator in the pool passes the minimum-fires gate ( ≥ 5 validation fires) for that class. Class coverage shown at bottom. 
+
+Class EvoPool Alchemist DataSculpt Part-of 0.358 – –Regulator 0.516 – 0.049 Upregulator 0.471 0.224 –Downregulator 0.767 0.694 0.681 Agonist 0.405 – –Antagonist 0.701 0.481 0.475 Modulator 0.316 – –Cofactor 0.556 – 0.588 
+
+Substrate/Product 0.498 – 0.084 NOT 0.376 0.353 –
+
+Classes covered 10/10 4/10 5/10 
+
+Pool size 193 49 67 
+
+Pool passing gate 181 49 15 
+
+Table 24: FEVER per-class best-annotator F1 on valida-tion. 
+
+Class EvoPool Alchemist DataSculpt Supports 0.508 0.018 0.018 Refutes 0.414 – 0.029 NEI 0.455 0.500 –
+
+Classes covered 3/3 2/3 2/3 
+
+Pool size 177 50 88 
+
+Pool passing gate 100 6 2
+
+ChemProt code-style comparison. We show the top surviving annotators per method, picked as the highest-F1 surviving annotator per target class. Al-chemist covers only 4 of 10 ChemProt classes, so its card lists 4 annotators. The three cards below illustrate how the same task surface gets compiled into very different code architectures. EvoPool: top-5 surviving annotators by validation F1 
+
+All five top-F1 annotators target the Downregulator class (the highest-signal class on ChemProt). They share the same compositional template (per-iteration keyword bank 
+
++ reusable entity-pair check) and differ in the keyword bank composition and in which confusable class they explicitly guard against. The five are Refiner-generated variants of the same Improver-authored seed annotator, each exploring a different boundary heuristic. 
+
+# shared helpers (namespaced per Refiner iter; b12/b13/b14 /b16/b17 each # have their own copy of these two helpers with identical bodies) _b12_DOWNREGULATOR_KW = [ 'inhibit ','reduce ','decrease ','
+
+suppress ',
+
+'downregulate ','down-regulate ','block ','attenuate ','
+
+abolish ',
+
+'prevent ','impair ','diminish ']_b13_DOWNREGULATOR_KW = [ 'inhibit ','reduce ','decrease ','
+
+suppress ',
+
+'downregulate ','block ','attenuate ','abolish ','prevent ','
+
+impair ',
+
+'diminish '] # (b13/b14 share same 11-word bank) _b14_DOWNREGULATOR_KW = _b13_DOWNREGULATOR_KW _b16_DOWNREGULATOR_KW = _b12_DOWNREGULATOR_KW _b17_DOWNREGULATOR_KW = _b12_DOWNREGULATOR_KW # (b12/b16/ b17 share same 12-word bank with 'down-regulate '
+
+hyphen variant) 
+
+def _bN_has_keywords(text, kws): 
+
+return any (k in text for k in kws) 
+
+def _bN_has_named_entities(meta): e1, e2 = meta.get( 'entity1 ','' ), meta.get( 'entity2 ','' 
+
+)
+
+return (bool (e1) and bool (e2) 
+
+and len (e1) > 1 and len (e2) > 1) # (1) Downregulator, F1 = 0.767 (12-word bank + antagonist guard) 
+
+def annotator_downregulator_inhibition_b12(ex): meta = ex.get( 'metadata ', {}) or {} text = (ex.get( 'text ') or '' ).lower() 
+
+if (_b12_has_keywords(text, _b12_DOWNREGULATOR_KW) 
+
+and _b12_has_named_entities(meta)): 
+
+if 'antagonist ' not in text: 
+
+return 3
+
+return ABSTAIN # (2) Downregulator, F1 = 0.756 (12-word bank, no guard) 
+
+def annotator_downregulator_inhibition_b16(ex): meta = ex.get( 'metadata ', {}) or {} text = (ex.get( 'text ') or '' ).lower() 
+
+if (_b16_has_keywords(text, _b16_DOWNREGULATOR_KW) 
+
+and _b16_has_named_entities(meta)): 
+
+return 3
+
+return ABSTAIN # (3) Downregulator, F1 = 0.755 (11-word bank, original Improver seed) 
+
+def annotator_downregulator(ex): meta = ex.get( 'metadata ', {}) or {} text = (ex.get( 'text ') or '' ).lower() 
+
+if (_b13_has_keywords(text, _b13_DOWNREGULATOR_KW) 
+
+and _b13_has_named_entities(meta)): 
+
+return 3
+
+return ABSTAIN # (4) Downregulator, F1 = 0.755 (11-word bank, identical to (3) up to namespace) 
+
+def annotator_downregulator_inhibition_b14(ex): meta = ex.get( 'metadata ', {}) or {} text = (ex.get( 'text ') or '' ).lower() 
+
+if (_b14_has_keywords(text, _b14_DOWNREGULATOR_KW) 
+
+and _b14_has_named_entities(meta)): 
+
+return 3
+
+return ABSTAIN # (5) Downregulator, F1 = 0.752 (12-word bank + metabolism guard against Substrate/Product) 
+
+def annotator_downregulator_inhibition_b17(ex): meta = ex.get( 'metadata ', {}) or {} text = (ex.get( 'text ') or '' ).lower() 
+
+if (_b17_has_keywords(text, _b17_DOWNREGULATOR_KW) 
+
+and _b17_has_named_entities(meta)): 
+
+if 'metabolism ' not in text and 'metabolize ' not in 
+
+text: 
+
+return 3
+
+return ABSTAIN 
+
+The five annotators are Refiner-generated keyword-bank-expansion variants of one Improver-authored seed. They explore an 11 vs. 12 keyword bank and three guard vari-ants (no guard / antagonist guard / metabolism guard). The five guard-and-bank choices produce a precision-recall trade-off cluster around F1 ≈ 0.76 , and the selection gate retains all five because their firing patterns differ enough to land below Jaccard threshold 0.95 . Compare to Alchemist’s near-identical monolithic copies and DataS-culpt’s atomic single-keyword annotators below. Top-1 annotators from the other nine ChemProt classes are re-ported in Table 23. 
+
+Alchemist: top-5 surviving annotators by validation F1 
+
+All five top-F1 annotators target the Downregulator class. Each is a stochastically sampled re-write of the same monolithic 10-class classifier prompt, so the five differ only in control-flow trivia (which Python construct is used to iterate the keyword dict). Full code shown verbatim below to make the redundancy explicit. 
+
+# (1) Downregulator, F1 = 0.694 (lf_alchemist_05) 
+
+def lf_alchemist_05(ex): sentence = ex.get("text", "") sentence = sentence.lower() keywords = { 0: ["part of","component of","included in"," essential for"], 1: ["regulate","influence","affect","modulate"], 2: ["increase","enhance","boost","stimulate"," promote"], 3: ["decrease","reduce","inhibit","suppress"," diminish"], 4: ["activate","mimic","stimulate action"], 5: ["block","inhibit","prevent","antagonize"], 6: ["modulate","alter","change activity"], 7: ["cofactor","coenzyme","necessary for"], 8: ["substrate","product","converted into","reacts with"], 9: ["not related","no effect","no interaction"," independent of"]} 
+
+for non_relation in keywords[9]: 
+
+if non_relation in sentence: 
+
+return 9
+
+for label, phrases in keywords.items(): 
+
+if label != 9: 
+
+for phrase in phrases: 
+
+if phrase in sentence: 
+
+if label in (0, 1, 4, 5): 
+
+return label 
+
+elif label in (2, 3, 6): 
+
+if label == 2 and "inhibition" in 
+
+sentence or "suppress" in 
+
+sentence: 
+
+return 3
+
+if label == 3 and "stimulate" in 
+
+sentence or "promote" in 
+
+sentence: 
+
+return 2
+
+return label 
+
+elif label in (7, 8): 
+
+return label 
+
+return ABSTAIN # (2) Downregulator, F1 = 0.690 (lf_alchemist_09) 
+
+def lf_alchemist_09(ex): sentence = ex.get("text", "") sentence = sentence.lower() 
+
+if any (p in sentence for p in ["part of","component of ","included in","essential for"]): 
+
+return 0
+
+if any (p in sentence for p in ["regulates","influence", "affect","modulates","affecting"]): 
+
+return 1if any (p in sentence for p in ["increase","enhance"," boost","stimulate","promote","upregulates"," activates"]): 
+
+return 2
+
+if any (p in sentence for p in ["decrease","reduce"," inhibit","suppress","diminish","downregulates"," blocks"]): 
+
+return 3
+
+if any (p in sentence for p in ["activate","mimic"," stimulate action","acts as an agonist"]): 
+
+return 4
+
+if any (p in sentence for p in ["block","prevent"," inhibit","acts as an antagonist"]): 
+
+return 5
+
+if any (p in sentence for p in ["modulate","alter"," change activity","depends on concentration"]): 
+
+return 6
+
+if (any (p in sentence for p in ["cofactor","coenzyme", "necessary for activity"]) 
+
+or any (p in sentence for p in ["requires"," essential for proper function"])): 
+
+return 7
+
+if any (p in sentence for p in ["substrate","product"," converted into","reacts with"]): 
+
+return 8
+
+if any (p in sentence for p in ["not related","no effect","no interaction","independent of","did not find a link"]): 
+
+return 9
+
+return ABSTAIN # (3) Downregulator, F1 = 0.687 (lf_alchemist_32) 
+
+def lf_alchemist_32(ex): sentence = ex.get("text", "") sentence = sentence.lower() part_of_keywords = ["part of","component of","included in","essential for"] regulator_keywords = ["regulate","influence","affect", "modulate"] upregulator_keywords = ["increase","enhance","boost"," stimulate","promote"] downregulator_keywords = ["decrease","reduce","inhibit ","suppress","diminish"] agonist_keywords = ["activate","mimic","stimulate action"] antagonist_keywords = ["block","inhibit","prevent"," antagonize"] modulator_keywords = ["modulate","alter","change activity"] cofactor_keywords = ["cofactor","coenzyme","necessary for"] substrate_product_keywords = ["substrate","product"," converted into","reacts with"] not_keywords = ["not related","no effect","no interaction","independent of"] 
+
+if any (neg in sentence for neg in not_keywords): 
+
+return 9
+
+if any (k in sentence for k in part_of_keywords): 
+
+return 0
+
+elif any (k in sentence for k in upregulator_keywords): 
+
+return 2
+
+elif any (k in sentence for k in downregulator_keywords ): return 3
+
+elif any (k in sentence for k in agonist_keywords): 
+
+return 4
+
+elif any (k in sentence for k in antagonist_keywords): 
+
+return 5
+
+elif any (k in sentence for k in modulator_keywords): 
+
+return 6
+
+elif any (k in sentence for k in cofactor_keywords): 
+
+return 7
+
+elif any (k in sentence for k in 
+
+substrate_product_keywords): return 8
+
+return ABSTAIN # (4) Downregulator, F1 = 0.686 (lf_alchemist_01) 
+
+def lf_alchemist_01(ex): sentence = ex.get("text", "") sentence = sentence.lower() part_of_keywords = ["part of","component of","included in","essential for"] regulator_keywords = ["regulates","influence","affect", "modulate"] upregulator_keywords = ["increase","enhance","boost"," stimulate","promote"] 
+
+downregulator_keywords = ["decrease","reduce","inhibit ","suppress","diminish"] agonist_keywords = ["activate","mimic","stimulate action"] antagonist_keywords = ["block","inhibit","prevent"," antagonize"] modulator_keywords = ["modulate","alter","change activity"] cofactor_keywords = ["cofactor","coenzyme","required for activity"] substrate_product_keywords = ["substrate","product"," converted into","reacts with"] not_related_keywords = ["not related","no effect","no interaction","independent of"] 
+
+for k in part_of_keywords: 
+
+if k in sentence: return 0
+
+for k in regulator_keywords: 
+
+if k in sentence: return 1
+
+for k in upregulator_keywords: 
+
+if k in sentence: return 2
+
+for k in downregulator_keywords: 
+
+if k in sentence: return 3
+
+for k in agonist_keywords: 
+
+if k in sentence: return 4
+
+for k in antagonist_keywords: 
+
+if k in sentence: return 5
+
+for k in modulator_keywords: 
+
+if k in sentence: return 6
+
+for k in cofactor_keywords: 
+
+if k in sentence: return 7
+
+for k in substrate_product_keywords: 
+
+if k in sentence: return 8
+
+for k in not_related_keywords: 
+
+if k in sentence: return 9
+
+return ABSTAIN # (5) Downregulator, F1 = 0.682 (lf_alchemist_06) 
+
+def lf_alchemist_06(ex): sentence = ex.get("text", "") sentence = sentence.lower() cues = { 
+
+'Part-of ': [ 'part of ','component of ','included in ',
+
+'essential for '], 
+
+'Regulator ': [ 'regulate ','influence ','affect ','
+
+modulate '], 
+
+'Upregulator ': [ 'increase ','enhance ','boost ','
+
+stimulate ','promote '], 
+
+'Downregulator ': [ 'decrease ','reduce ','inhibit ','
+
+suppress ','diminish '], 
+
+'Agonist ': [ 'activate ','mimic ','stimulate action '], 
+
+'Antagonist ': [ 'block ','inhibit ','prevent ','
+
+antagonize '], 
+
+'Modulator ': [ 'modulate ','alter ','change activity '
+
+], 
+
+'Cofactor ': [ 'cofactor ','coenzyme ','necessary ','
+
+required for '], 
+
+'Substrate/Product ': [ 'substrate ','product ','
+
+converted into ','reacts with '], 
+
+'NOT ': [ 'not related ','no effect ','no interaction ',
+
+'independent of ']} 
+
+for category, keywords in cues.items(): 
+
+for keyword in keywords: 
+
+if keyword in sentence: 
+
+if category == 'Part-of ': return 0
+
+elif category == 'Regulator ': return 1
+
+elif category == 'Upregulator ': return 2
+
+elif category == 'Downregulator ': return 3
+
+elif category == 'Agonist ': return 4
+
+elif category == 'Antagonist ': return 5
+
+elif category == 'Modulator ': return 6
+
+elif category == 'Cofactor ': return 7
+
+elif category == 'Substrate/Product ':
+
+return 8
+
+elif category == 'NOT ': return 9
+
+return ABSTAIN 
+
+All five annotators target Downregulator and re-implement the same 10-class keyword classifier with slightly dif-ferent control flow. Annotator (1) iterates a single 
+
+dict[int][list] with hand-coded Up/Down disam-biguation that contains a Python-operator-precedence bug, where "inhibition" in sentence or "suppress" in sentence parses as ("inhibition" in sentence) or "suppress" so the second branch is always truthy. Anno-tator (2) inlines 10 if any(. . . ) blocks. Annotator (3) declares 10 *_keywords variables and uses if/elif after a negation early-return that skips the Regulator branch entirely. Annotator (4) uses sequential for k in list: if . . . return . Annotator (5) wraps everything in a string-keyed dict and a redundant string-to-int dispatch. All five route to label 3 on the same Downregulator key-word bank, which is why their precision-recall numbers cluster within 0.01 . The selection gate keeps all five be-cause their firing patterns differ by a few examples each, with pairwise Jaccard below the 0.95 threshold, but they contribute essentially the same signal. 
+
+DataSculpt: top-5 surviving annotators 
+
+Every annotator is a single-keyword check, generated by aggregating per-example keywords across the training set and emitting one annotator per keyword. 
+
+# (1) Downregulator, F1 = 0.681 
+
+def lf_ds_inhibit_3(ex): text = (ex.get("text") or "").lower() 
+
+if "inhibit" in text: 
+
+return 3
+
+return ABSTAIN # (2) Cofactor, F1 = 0.588 
+
+def lf_ds_cofactor_7(ex): text = (ex.get("text") or "").lower() 
+
+if "cofactor" in text: 
+
+return 7
+
+return ABSTAIN # (3) Antagonist, F1 = 0.475 
+
+def lf_ds_antagonists_5(ex): text = (ex.get("text") or "").lower() 
+
+if "antagonists" in text: 
+
+return 5
+
+return ABSTAIN # (4) Substrate/Product, F1 = 0.084 
+
+def lf_ds_spermine_8(ex): text = (ex.get("text") or "").lower() 
+
+if "spermine" in text: 
+
+return 8
+
+return ABSTAIN # (5) Regulator, F1 = 0.049 
+
+def lf_ds_binds_1(ex): text = (ex.get("text") or "").lower() 
+
+if "binds" in text: 
+
+return 1
+
+return ABSTAIN 
+
+Same atomic shape across all annotators: a single sub-string check on raw text, no helpers, no entity check, no negative guards, no class-confusion handling. Coverage of long-tail classes (4, 5) drops to under 1% since a single rare keyword fires very rarely. 
+
+FEVER code-style comparison. FEVER is a complex-reasoning task: each example is a claim plus a Wikipedia evidence passage, and the right primitive is the comparison between them, not the raw text. The Generator’s FEVER instruction explicitly tells the LLM “do not regex the raw 
+
+Claim:/Evidence: text — the metadata IS your primitive” and supplies pre-computed comparison features ( token_overlap , claim_in_evidence ,
+
+negation_mismatch , entity_overlap ,
+
+num_shared_entities , length_ratio ,
+
+nli_contradict , antonym_present ). The three methods diverge sharply in how they use this signal space. 
+
+EvoPool on FEVER: top-5 surviving annotators by validation F1 
+
+The top-F1 annotators span Supports and NEI, the two most-actionable FEVER classes. Refutes ranks just out-side the top-5 at F1 ≈ 0.41 (Table 24). All five compose pre-computed metadata-comparison features. 
+
+# helpers (namespaced per iter) 
+
+def _i05c0_has_no_negation_mismatch(meta): 
+
+return not meta.get( 'negation_mismatch ', False) 
+
+def _i05c0_is_high_claim_in_evidence(meta): 
+
+return meta.get( 'claim_in_evidence ', 0.0) > 0.5 
+
+def _i01b4_has_high_entity_overlap(meta): 
+
+return meta.get( 'entity_overlap ', 0.0) > 0.5 
+
+def _i03b6_has_low_token_overlap(meta): 
+
+return meta.get( 'token_overlap ', 0.0) < 0.2 
+
+def _i03b6_has_high_claim_in_evidence(meta): 
+
+return meta.get( 'claim_in_evidence ', 0.0) > 0.5 # (1) Supports, F1 = 0.508 
+
+def annotator_supports_high_length_ratio(ex): meta = ex.get( 'metadata ', {}) 
+
+if (meta.get( 'length_ratio ', 0.0) > 1.0 
+
+and _i05c0_is_high_claim_in_evidence(meta) 
+
+and _i05c0_has_no_negation_mismatch(meta)): 
+
+return 0
+
+return ABSTAIN # (2) NEI, F1 = 0.455 
+
+def annotator_nei_low_overlap_no_neg(ex): meta = ex.get( 'metadata ', {}) or {} 
+
+if (meta.get( 'token_overlap ', 0.0) < 0.2 
+
+and not meta.get( 'negation_mismatch ', False)): 
+
+return 2
+
+return ABSTAIN # (3) NEI, F1 = 0.455 (Refiner-variant of (2), same firing pattern) 
+
+def annotator_nei_low_overlap_no_neg_b8(ex): meta = ex.get( 'metadata ', {}) or {} 
+
+if (meta.get( 'token_overlap ', 0.0) < 0.2 
+
+and not meta.get( 'negation_mismatch ', False)): 
+
+return 2
+
+return ABSTAIN # (4) NEI, F1 = 0.453 (Improver variant with entity-overlap guard) 
+
+def annotator_not_enough_info_low_overlap(ex): meta = ex.get( 'metadata ') or dict () 
+
+if (meta.get( 'token_overlap ', 0.0) < 0.2 
+
+and not _i01b4_has_high_entity_overlap(meta)): 
+
+return 2
+
+return ABSTAIN # (5) NEI, F1 = 0.445 (Improver variant with claim-in-evidence guard) 
+
+def annotator_not_enough_info_low_token_overlap_i03_b6(ex) :meta = ex.get( 'metadata ') or dict () 
+
+if (_i03b6_has_low_token_overlap(meta) 
+
+and not _i03b6_has_high_claim_in_evidence(meta)): 
+
+return 2
+
+return ABSTAIN 
+
+All five annotators compose pre-computed metadata fea-tures. Annotators (2)/(3) are byte-identical Refiner vari-ants that survive the Jaccard gate because they were pro-posed in different iterations and the gate compares NEW annotators against the pool at submission time (not pair-wise after the fact). Annotators (4)/(5) are Improver vari-ants that add a second metadata guard (entity-overlap or claim-in-evidence) to the same low-token-overlap base. Annotator (1) targets Supports via a different feature stack (length ratio + content overlap + no negation). 
+
+Alchemist on FEVER: top-5 surviving annotators by validation F1 
+
+All five top-F1 Alchemist annotators return NEI on ≈
+
+100% of validation examples, acting as constant predic-tors. Their coverage ≈ 1.000 and precision ≈ 0.333 (=
+
+NEI class prior). The pool contains only 6 annotators that fire on validation at all, so the top-5 by F1 effectively span the entire useful pool. 
+
+# (1) NEI, F1 = 0.500 cov = 1.000 (lf_alchemist_11) 
+
+def lf_alchemist_11(ex): claim_evidence = ex.get("text", "") claim_part = claim_evidence.split( 'Evidence: ')[0]. replace( 'Claim: ', '' ).strip() evidence_part = claim_evidence.split( 'Evidence: ')[1]. strip() if 'Evidence: ' in claim_evidence else '' 
+
+claim_part_lower = claim_part.lower() evidence_part_lower = evidence_part.lower() supports_keywords = [ 'supports ','confirms ','
+
+demonstrates ','shows ','evidence for ','proves ']refutes_keywords = [ 'refutes ','contradicts ','disproves 
+
+','denies ','opposes ']
+
+if any (kw in evidence_part_lower for kw in 
+
+supports_keywords): 
+
+if claim_part_lower in evidence_part_lower: 
+
+return 0 # Supports 
+
+if any (kw in evidence_part_lower for kw in 
+
+refutes_keywords): 
+
+if claim_part_lower in evidence_part_lower: 
+
+return 1 # Refutes 
+
+if 'not enough information ' in evidence_part_lower or 
+
+'insufficient data ' in evidence_part_lower: 
+
+return 2
+
+if not evidence_part: 
+
+return 2
+
+return 2 # default fallback fires on every example # (2) NEI, F1 = 0.500 cov = 1.000 (lf_alchemist_30) --byte-identical to (1) 
+
+def lf_alchemist_30(ex): claim_evidence = ex.get("text", "") claim_part = claim_evidence.split( 'Evidence: ')[0]. replace( 'Claim: ', '' ).strip() evidence_part = claim_evidence.split( 'Evidence: ')[1]. strip() if 'Evidence: ' in claim_evidence else '' 
+
+claim_part_lower = claim_part.lower() evidence_part_lower = evidence_part.lower() supports_keywords = [ 'supports ','confirms ','
+
+demonstrates ','shows ','evidence for ','proves ']refutes_keywords = [ 'refutes ','contradicts ','disproves 
+
+','denies ','opposes ']
+
+if any (kw in evidence_part_lower for kw in 
+
+supports_keywords): 
+
+if claim_part_lower in evidence_part_lower: 
+
+return 0
+
+if any (kw in evidence_part_lower for kw in 
+
+refutes_keywords): 
+
+if claim_part_lower in evidence_part_lower: 
+
+return 1
+
+if 'not enough information ' in evidence_part_lower or 
+
+'insufficient data ' in evidence_part_lower: 
+
+return 2
+
+if not evidence_part: 
+
+return 2
+
+return 2# (3) NEI, F1 = 0.500 cov = 0.994 (lf_alchemist_44) --adds ABSTAIN branch on ambiguous evidence 
+
+def lf_alchemist_44(ex): claim_evidence = ex.get("text", "") claim_part = claim_evidence.split( 'Evidence: ')[0]. replace( 'Claim: ', '' ).strip() evidence_part = claim_evidence.split( 'Evidence: ')[1]. strip() if 'Evidence: ' in claim_evidence else '' 
+
+claim_part_lower = claim_part.lower() evidence_part_lower = evidence_part.lower() supports_keywords = [ 'supports ','confirms ','
+
+demonstrates ','shows ','evidence for ','proves ']refutes_keywords = [ 'refutes ','contradicts ','disproves 
+
+','denies ','opposes ']
+
+if any (kw in evidence_part_lower for kw in 
+
+supports_keywords): 
+
+if claim_part_lower in evidence_part_lower: return 
+
+0
+
+if any (kw in evidence_part_lower for kw in 
+
+refutes_keywords): 
+
+if claim_part_lower in evidence_part_lower: return 
+
+1
+
+if 'not enough information ' in evidence_part_lower or 
+
+'insufficient data ' in evidence_part_lower: 
+
+return 2
+
+if not evidence_part: 
+
+return 2
+
+if claim_part_lower in evidence_part_lower or any (kw 
+
+in evidence_part_lower for kw in 
+
+supports_keywords + refutes_keywords): 
+
+return ABSTAIN 
+
+return 2# (4) NEI, F1 = 0.500 cov = 1.000 (lf_alchemist_46) --byte-identical to (1)/(2) 
+
+def lf_alchemist_46(ex): # identical body to lf_alchemist_11; omitted for space 
+
+return 2 # constant predictor # (5) NEI, F1 = 0.500 cov = 1.000 (lf_alchemist_48) --byte-identical to (1)/(2) 
+
+def lf_alchemist_48(ex): # identical body to lf_alchemist_11; omitted for space 
+
+return 2 # constant predictor 
+
+The five annotators are stochastic re-emissions of the same Claim/Evidence parser + English meta-language keyword matcher. The early-return branches almost never trigger (Wikipedia evidence does not literally say “supports” or “refutes”), so all five annotators end up returning 2 (NEI) on essentially every example. Adding more calls pro-duces more constant predictors, and Refutes never gets a covering annotator. 
+
+DataSculpt on FEVER: top-5 surviving annotators by validation F1 
+
+The top-5 annotators each fire on 2 to 7 validation exam-ples ( 0.2% to 0.7% coverage). Each is a single-keyword check on a surface noun extracted from per-example evi-dence text. 
+
+# (1) Refutes, F1 = 0.029 fires = 7 
+
+def lf_ds_wrestler_1(ex): text = (ex.get("text") or "").lower() 
+
+if "wrestler" in text: 
+
+return 1
+
+return ABSTAIN # (2) Refutes, F1 = 0.018 fires = 4 
+
+def lf_ds_populous_1(ex): text = (ex.get("text") or "").lower() 
+
+if "populous" in text: 
+
+return 1
+
+return ABSTAIN # (3) Supports, F1 = 0.018 fires = 5 
+
+def lf_ds_american_record_label_0(ex): text = (ex.get("text") or "").lower() 
+
+if "american record label" in text: 
+
+return 0
+
+return ABSTAIN # (4) Supports, F1 = 0.018 fires = 4 
+
+def lf_ds_singer_songwriter_0(ex): text = (ex.get("text") or "").lower() 
+
+if "singer-songwriter" in text: 
+
+return 0
+
+return ABSTAIN # (5) NEI, F1 = 0.012 fires = 2 
+
+def lf_ds_irish_2(ex): text = (ex.get("text") or "").lower() 
+
+if "irish" in text: 
+
+return 2
+
+return ABSTAIN 
+
+The five annotators are atomic single-keyword checks on surface terms that happen to occur in a handful of train-ing evidence passages ( wrestler , populous , american record label , singer-songwriter , irish ). The key-words have no semantic connection to verification labels. They are artifacts of DataSculpt’s per-example keyword extraction and aggregation pipeline. Out of 88 annotators in the pool, only 10 fire on ≥ 1 validation example. 
+
+Why EvoPool wins. On ChemProt, EvoPool’s an-notators share a single compositional template of keyword bank + entity check + confusable-class guard that ports across all 10 classes. Alchemist re-emits a ∼50-line monolithic 10-class classifier on every call and plateaus at 4 covered classes regard-less of call count. DataSculpt extracts atomic key-words that are individually high-precision but cu-mulatively too narrow. On FEVER the same archi-tectural gap takes a different surface form: EvoPool composes pre-computed metadata-comparison fea-tures (the correct primitive for claim verification), Alchemist falls back to raw-text English keyword matching (the wrong primitive, since Wikipedia evidence rarely uses verification meta-language), and DataSculpt’s per-example keyword aggrega-tion extracts overfit surface nouns ( 88 annotators 
+
+→ 2 pass the gate). The per-class coverage gaps in Tables 23 and 24 are the population-level signature of these architectural differences.

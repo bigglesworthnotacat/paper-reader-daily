@@ -1,48 +1,317 @@
 {
-  "generated_at": "2026-06-03T23:04:40.255012+00:00",
-  "updated_date": "20260603",
+  "generated_at": "2026-06-06T20:22:14.800740+00:00",
+  "updated_date": "20260606",
   "carryover_days": 9,
   "tag_states": {
     "llm-agent": {
-      "updated_date": "20260603",
-      "carryover_days": 9,
-      "items": []
-    },
-    "llm-security": {
-      "updated_date": "20260603",
+      "updated_date": "20260606",
       "carryover_days": 9,
       "items": [
         {
-          "id": "2606.03648v1",
+          "id": "2606.05658v1",
           "source": "arxiv",
-          "title": "Safety Measurements for Fine-tuned LLMs Should be Grounded in Capability",
-          "abstract": "Adapting foundation large language models to a user's task or preferred style through fine-tuning can result in compromising the model's safety. Previous works examined the effects of fine-tuning on model safety in limited and seemingly random experimental settings. We argue that anchoring fine-tuning to a specific capability goal is essential for avoiding arbitrary empirical choices, allowing us to draw meaningful conclusions about safety impacts, and to compare mitigation methods on a consistent basis. We conduct a multi-dimensional evaluation of the effects of fine-tuning on model behavior by focusing on capability as well as safety. Our results surface important issues that (1) fine-tuned models can produce incoherent generations in response to safety prompts, (2) automated safety judgments are unreliable for such incoherent outputs, and (3) the conclusions about the effects of fine-tuning can change depending on the choice of safety benchmark as well as the safety evaluator.",
+          "title": "Agent-Orchestrated Adaptive RAG: A Comparative Study on Structured and Multi-Hop Retrieval",
+          "abstract": "Retrieval-Augmented Generation (RAG) enhances Large Language Models (LLMs) by grounding their responses in external knowledge, but conventional pipelines rely on static, single-step retrieval that limits performance on complex queries. This paper presents an Agent-Orchestrated Adaptive RAG framework that introduces dynamic query decomposition, iterative retrieval, and a bounded self-reflective evaluation loop. We evaluate the system across two complementary datasets: a domain-specific DevOps knowledge base and the multi-hop reasoning benchmark MuSiQue. Using metrics that include overall score, citation accuracy, mean reciprocal rank, and topic coverage, we find that query decomposition yields consistent gains in the structured domain (overall score $+0.04$, MRR $+0.17$ on DevOps) but degrades ranking precision on the multi-hop benchmark, while the reflection mechanism improves citation accuracy at a substantial latency cost. These contrasting results show that agentic enhancements are not universally beneficial and must be applied selectively according to query and domain characteristics. Our findings argue for adaptive, cost-aware orchestration rather than uniformly aggressive reasoning pipelines.",
           "authors": [
-            "Krishnapriya Vishnubhotla",
-            "Hillary Dawkins",
-            "Isar Nejadgholi",
-            "Svetlana Kiritchenko"
+            "Anuj Maharjan",
+            "Devinder Kaur",
+            "Richard Molyet"
+          ],
+          "primary_category": "cs.IR",
+          "categories": [
+            "cs.IR",
+            "cs.AI"
+          ],
+          "published": "2026-06-04T03:38:46+00:00",
+          "link": "https://arxiv.org/pdf/2606.05658v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "agent-orchestrated adaptive RAG with dynamic query decomposition",
+          "llm_evidence_cn": "智能体编排的自适应RAG，具有动态查询分解",
+          "llm_evidence": "智能体编排的自适应RAG，具有动态查询分解",
+          "canonical_evidence": "智能体编排的自适应RAG，具有动态查询分解",
+          "llm_tldr_en": "We present an agent-orchestrated adaptive RAG with dynamic decomposition, iterative retrieval, and self-reflection, showing gains on structured and multi-hop QA.",
+          "llm_tldr_cn": "检索增强生成依赖外部知识，但静态单步检索无法处理复杂查询。本文提出由智能体编排的自适应RAG系统，动态分解查询、迭代检索并配备自反思评估环。在结构化领域和多跳推理基准上，该方法在综合得分、引用准确率等指标上取得显著提升。研究展示了智能体驱动流程在知识检索中实现自适应和可解释性的优势，为构建更强大的知识获取智能体提供了经验。",
+          "llm_tldr": "检索增强生成依赖外部知识，但静态单步检索无法处理复杂查询。本文提出由智能体编排的自适应RAG系统，动态分解查询、迭代检索并配备自反思评估环。在结构化领域和多跳推理基准上，该方法在综合得分、引用准确率等指标上取得显著提升。研究展示了智能体驱动流程在知识检索中实现自适应和可解释性的优势，为构建更强大的知识获取智能体提供了经验。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "agent framework for LLM",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.05658v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.05761v1",
+          "source": "arxiv",
+          "title": "SubtleMemory: A Benchmark for Fine-Grained Relational Memory Discrimination in Long-Horizon AI Agents",
+          "abstract": "Persistent AI assistants, such as OpenClaw, accumulate large collections of related memories over long-term interactions. As these memories grow, they may reinforce one another, diverge across contexts, or directly conflict, making correct assistance depend on memory relations rather than isolated recall. Existing long-term memory benchmarks rarely probe how agents preserve and utilize such relations during downstream tasks. To address this gap, we introduce SubtleMemory, a benchmark for fine-grained relational memory discrimination in long-running AI agents. SubtleMemory constructs relation-controlled latent semantic artifacts whose variants instantiate complementary, nuanced, or contradictory relations, and embeds them into realistic user-agent histories, requiring agents to recover distributed relational structures during later queries and instructions. The benchmark contains 1,522 evaluation instances over 10 long histories, grounded in 1,090 relation-controlled memory-variant sets and spanning user-related and non-user-related queries. Evaluating six standalone memory systems, two Claw-style agents with native memory modules, and three Claw-style agents with plugin memory modules, we find that current systems remain weak on fine-grained relational memory discrimination. We further introduce diagnostic protocols that reveal distinct capability profiles across memory preservation, retrieval, and downstream reasoning stages.",
+          "authors": [
+            "Wenxuan Wang",
+            "Haoyu Sun",
+            "Fukuan Hou",
+            "Mingyang Song",
+            "Weinan Zhang",
+            "Yu Cheng",
+            "Yang Yang"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL"
+          ],
+          "published": "2026-06-04T06:43:11+00:00",
+          "link": "https://arxiv.org/pdf/2606.05761v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "SubtleMemory benchmark evaluates relational memory in AI agents",
+          "llm_evidence_cn": "SubtleMemory基准评估AI智能体的关系记忆",
+          "llm_evidence": "SubtleMemory基准评估AI智能体的关系记忆",
+          "canonical_evidence": "SubtleMemory基准评估AI智能体的关系记忆",
+          "llm_tldr_en": "SubtleMemory constructs relation-controlled memories to benchmark how well long-running AI agents discriminate and utilize complementary, nuanced, or contradictory relations for accurate assistance.",
+          "llm_tldr_cn": "针对长程AI智能体如何保持和利用记忆间关系的不足，提出SubtleMemory基准，通过构造互补、细微、矛盾等关系记忆，检验智能体在下游任务中区分和运用这些关系的能力。",
+          "llm_tldr": "针对长程AI智能体如何保持和利用记忆间关系的不足，提出SubtleMemory基准，通过构造互补、细微、矛盾等关系记忆，检验智能体在下游任务中区分和运用这些关系的能力。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "large language model agent architecture",
+          "matched_requirement_id": "req-19",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.05761v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.05828v1",
+          "source": "arxiv",
+          "title": "Statistical Priors for Implicit Preferences: Decoupling Skill Selection as a Local Harness in Personal Agents",
+          "abstract": "As Large Language Model (LLM) capabilities advance, locally deployed personal agents relying on API-based remote models and external skills have emerged as a novel paradigm. With the rapid expansion of available skills, enabling personal agents to learn and adapt to implicit user preferences becomes a critical challenge. However, local deployment constraints preclude complex centralized selection algorithms, creating an urgent need for a lightweight local preference harness. This paper explores the implementation of such a harness through a novel architecture that strictly decouples statistical preference learning from semantic intent parsing. Specifically, we leverage localized statistical results to influence and modulate the selection decisions of the remote LLM. Extensive evaluations demonstrate that our decoupled approach achieves the lowest cumulative regret and highest test accuracy, significantly outperforming traditional memory-augmented agents.",
+          "authors": [
+            "Zeyu Gan",
+            "Huayi Tang",
+            "Yong Liu"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL"
+          ],
+          "published": "2026-06-04T08:07:10+00:00",
+          "link": "https://arxiv.org/pdf/2606.05828v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "novel architecture decoupling statistical preference learning from semantic parsing for personal agents",
+          "llm_evidence_cn": "在个人智能体中解耦统计偏好学习与语义解析的新架构",
+          "llm_evidence": "在个人智能体中解耦统计偏好学习与语义解析的新架构",
+          "canonical_evidence": "在个人智能体中解耦统计偏好学习与语义解析的新架构",
+          "llm_tldr_en": "This paper presents a lightweight local preference harness that decouples statistical preference learning from semantic intent parsing, enabling personal agents to adapt to implicit user preferences with low overhead.",
+          "llm_tldr_cn": "本地部署的个人智能体面临技能选择中用户隐式偏好的学习挑战，本文提出一种将统计偏好学习与语义意图解析严格解耦的本地框架，通过轻量统计结果影响技能选择。实验表明该架构能有效适应隐式偏好且计算成本低，为资源受限环境中个人智能体的个性化提供了可行方案。",
+          "llm_tldr": "本地部署的个人智能体面临技能选择中用户隐式偏好的学习挑战，本文提出一种将统计偏好学习与语义意图解析严格解耦的本地框架，通过轻量统计结果影响技能选择。实验表明该架构能有效适应隐式偏好且计算成本低，为资源受限环境中个人智能体的个性化提供了可行方案。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "agent framework for LLM",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.05828v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.05749v1",
+          "source": "arxiv",
+          "title": "MARDoc: A Memory-Aware Refinement Agent Framework for Multimodal Long Document QA",
+          "abstract": "Iterative retrieval-reasoning agents have recently shown promise for multimodal long-document question answering. However, most existing systems maintain a single growing context that mixes retrieval traces, observations, and intermediate reasoning. As interactions accumulate, key evidence becomes scattered and diluted, making multi-hop reasoning noisy. We propose MARDoc, a Memory-Aware Refinement Agent framework that decouples long-document QA into three specialized agents: an Explorer for multi-granularity multimodal retrieval, a Refiner for distilling interaction traces into structured evidence and reasoning memories, and a Reflector for checking evidence sufficiency and providing targeted feedback. Across iterations, the agents rely on a dynamically updated structured memory rather than a full accumulated interaction history. This design reduces context noise while preserving answer-critical facts and their logical dependencies. Experiments on MMLongBench-Doc and DocBench show that MARDoc achieves strong results, outperforming same-backbone baselines and demonstrating the effectiveness of structured memory for agentic document QA.",
+          "authors": [
+            "Kaifeng Chen",
+            "Hongtao Liu",
+            "Qiyao Peng",
+            "Jian Yang",
+            "Yongqiang Liu",
+            "Xiaochen Zhang",
+            "Qing Yang"
           ],
           "primary_category": "cs.CL",
           "categories": [
             "cs.CL",
             "cs.AI"
           ],
-          "published": "2026-06-02T13:39:17+00:00",
-          "link": "https://arxiv.org/pdf/2606.03648v1",
+          "published": "2026-06-04T06:23:01+00:00",
+          "link": "https://arxiv.org/pdf/2606.05749v1",
           "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "multi-agent framework with explorer, refiner, reflector for document QA",
+          "llm_evidence_cn": "用于文档问答的多智能体框架，包含探索者、精炼器、反思者",
+          "llm_evidence": "用于文档问答的多智能体框架，包含探索者、精炼器、反思者",
+          "canonical_evidence": "用于文档问答的多智能体框架，包含探索者、精炼器、反思者",
+          "llm_tldr_en": "MARDoc decouples multimodal long-document QA into three agents that manage retrieval, memory refinement, and evidence sufficiency checking, reducing noise in multi-hop reasoning.",
+          "llm_tldr_cn": "长久以来，迭代式文档问答智能体因上下文混杂导致证据稀释，MARDoc提出记忆感知的精炼框架，将任务解构为探索者、精炼器和反思者三个代理，分别处理多粒度检索、交互记忆蒸馏和证据充分性反馈。实验表明该分工显著提升多跳推理的准确性与效率，为复杂文档理解提供了可扩展的多智能体协作方案。",
+          "llm_tldr": "长久以来，迭代式文档问答智能体因上下文混杂导致证据稀释，MARDoc提出记忆感知的精炼框架，将任务解构为探索者、精炼器和反思者三个代理，分别处理多粒度检索、交互记忆蒸馏和证据充分性反馈。实验表明该分工显著提升多跳推理的准确性与效率，为复杂文档理解提供了可扩展的多智能体协作方案。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "multi-agent system coordination",
+          "matched_requirement_id": "req-16",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.05749v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.05558v1",
+          "source": "arxiv",
+          "title": "Autoregressive Diffusion World Models for Off-Policy Evaluation of LLM Agents",
+          "abstract": "Evaluating large language model (LLM) agents in multi-turn interactive environments is expensive and risky, as it requires online environment interaction. We propose ADWM (Autoregressive Diffusion World Model), an evaluation framework that estimates the performance of a new LLM agent policy purely from pre-collected trajectories. The core idea is to learn a latent diffusion world model that simulates how the environment responds to the evaluation policy, without ever executing it in the real environment. Existing diffusion-based OPE methods guide full trajectories in a single pass by jointly diffusing states and actions, an assumption that breaks down for LLM agents whose actions are discrete text that must be sampled from the policy after observing the environment. Unlike autoregressive world models that suffer from compounding errors, ADWM models each transition as an independent denoising process, enabling reliable step-by-step rollouts where the world model and agent alternate in causal order. Crucially, the LLM agent under evaluation directly guides the diffusion generation at each step via a policy-conditioned score function, ensuring that simulated trajectories accurately reflect its decision-making patterns. Empirically, ADWM achieves accurate value estimates and evaluation reliability across diverse multi-turn agent tasks, demonstrating its promise as a practical framework for offline LLM agent evaluation.",
+          "authors": [
+            "Kaixuan Liu",
+            "Guojun Xiong",
+            "Weinan Zhang",
+            "Shengpu Tang"
+          ],
+          "primary_category": "cs.LG",
+          "categories": [
+            "cs.LG"
+          ],
+          "published": "2026-06-04T01:13:24+00:00",
+          "link": "https://arxiv.org/pdf/2606.05558v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "an evaluation framework that estimates LLM agent performance off-policy using autoregressive diffusion world models",
+          "llm_evidence_cn": "一种利用自回归扩散世界模型离线评估LLM智能体性能的框架",
+          "llm_evidence": "一种利用自回归扩散世界模型离线评估LLM智能体性能的框架",
+          "canonical_evidence": "一种利用自回归扩散世界模型离线评估LLM智能体性能的框架",
+          "llm_tldr_en": "ADWM is an offline evaluation framework that learns a latent diffusion world model from pre-collected trajectories to estimate new LLM agent policies without online interaction, addressing cost and risk in multi-turn environments.",
+          "llm_tldr_cn": "针对LLM智能体在多轮交互环境中在线评估成本高且风险大的问题，本文提出ADWM框架，通过预收集轨迹学习潜在扩散世界模型来模拟环境响应，从而无需实际执行即可估计新策略的性能。该方法将扩散模型适配到LLM智能体的离散文本动作空间，实现了高效且安全的离线策略评估。",
+          "llm_tldr": "针对LLM智能体在多轮交互环境中在线评估成本高且风险大的问题，本文提出ADWM框架，通过预收集轨迹学习潜在扩散世界模型来模拟环境响应，从而无需实际执行即可估计新策略的性能。该方法将扩散模型适配到LLM智能体的离散文本动作空间，实现了高效且安全的离线策略评估。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "agent framework for LLM",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.05558v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.05671v1",
+          "source": "arxiv",
+          "title": "QueryAgent-R1: Bridging Query Generation and Product Retrieval for E-Commerce Query Recommendation",
+          "abstract": "Query recommendation in e-commerce search aims to proactively suggest queries that match users' potential interests. However, existing methods mainly optimize query-level relevance, while neglecting whether the retrieved products align with users' downstream preferences. This mismatch often leads to high query click through rates (CTR) but low product conversion rates (CVR). To bridge this gap, we propose QueryAgent-R1, a memory-augmented agentic framework that improves end-to-end alignment via chain-of-retrieval optimization. Our QueryAgent-R1 grounds query generation in real inventory retrieval, allowing the agent to validate and refine queries based on retrieved products. We also design a consistency reward in the agentic reinforcement learning (RL) process to jointly optimize query relevance and downstream engagement. In addition, we construct a memory abstraction module for efficient user profiling. To support offline evaluation, we construct two datasets based on both proprietary industrial data and public datasets, on which QueryAgent-R1 consistently outperforms strong baselines. Moreover, on a large scale production platform, QueryAgent-R1 improves Query CTR by 2.9% and guided CVR by 3.1% in online A/B tests.",
+          "authors": [
+            "Dike Sun",
+            "Zheng Zou",
+            "Jingtong Zang",
+            "Qi Sun",
+            "Huaipeng Zhaoand Tao Luo",
+            "Xiaoyi Zeng"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-06-04T03:51:21+00:00",
+          "link": "https://arxiv.org/pdf/2606.05671v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "a memory-augmented agentic framework for query recommendation that automates query generation aligned with product retrieval",
+          "llm_evidence_cn": "一种记忆增强的智能体框架，用于自动化查询推荐，并使查询生成与商品检索对齐",
+          "llm_evidence": "一种记忆增强的智能体框架，用于自动化查询推荐，并使查询生成与商品检索对齐",
+          "canonical_evidence": "一种记忆增强的智能体框架，用于自动化查询推荐，并使查询生成与商品检索对齐",
+          "llm_tldr_en": "QueryAgent-R1 is an agentic framework that uses chain-of-retrieval optimization and memory to generate e-commerce queries grounded in real inventory retrieval, improving both click-through and conversion rates.",
+          "llm_tldr_cn": "针对电商查询推荐中查询点击率高但商品转化率低的问题，本文提出QueryAgent-R1，一个记忆增强的智能体框架，通过检索链优化将查询生成与实际商品检索对齐。智能体在生成查询后验证检索结果并优化查询，同时设计一致性奖励，在保证查询相关性的同时提升下游转化率。",
+          "llm_tldr": "针对电商查询推荐中查询点击率高但商品转化率低的问题，本文提出QueryAgent-R1，一个记忆增强的智能体框架，通过检索链优化将查询生成与实际商品检索对齐。智能体在生成查询后验证检索结果并优化查询，同时设计一致性奖励，在保证查询相关性的同时提升下游转化率。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "language agent for task automation",
+          "matched_requirement_id": "req-15",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.05671v1",
+          "carry_days": 1
+        }
+      ]
+    },
+    "llm-security": {
+      "updated_date": "20260606",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2606.06037v1",
+          "source": "arxiv",
+          "title": "SpeechJBB: Probing Safety Alignment and Comprehension in Large Audio Language Models under Code-Switched Speech",
+          "abstract": "Large audio language models (LALMs) are increasingly deployed in real-world applications, yet their safety alignment is still primarily evaluated on monolingual, text-based harmful prompts. This leaves their generalizability under multilingual and spoken settings, particularly code-switched speech, largely underexplored. To address this gap, we introduce SpeechJBB, an audio jailbreak dataset for benchmarking across multiple state-of-the-art LALMs. The extent of safety weaknesses is further probed by introducing an augmented setting where phonologically plausible pseudo-words are inserted around safety-critical terms to simulate localized obfuscation. Across models, code-switched harmful audio yields substantially high jailbreak success rates (JSR), with non-English monolingual and non-English code-switched pairs exhibiting the highest attack success. Pseudo-word insertion further reduces refusal rates, which demonstrates that natural-sounding obfuscation can effectively bypass safety policies.",
+          "authors": [
+            "Virginia Ceccatelli",
+            "Yejin Jeon",
+            "David Ifeoluwa Adelani"
+          ],
+          "primary_category": "cs.SD",
+          "categories": [
+            "cs.SD",
+            "eess.AS"
+          ],
+          "published": "2026-06-04T11:31:38+00:00",
+          "link": "https://arxiv.org/pdf/2606.06037v1",
+          "tags": [
+            "keyword:agent-evol",
             "keyword:llm-agent",
             "keyword:llm-security",
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "examines fine-tuning effects on LLM safety and advocates for capability-grounded safety measurements",
-          "llm_evidence_cn": "检查微调对LLM安全的影响，主张以能力为基础的安全度量",
-          "llm_evidence": "检查微调对LLM安全的影响，主张以能力为基础的安全度量",
-          "canonical_evidence": "检查微调对LLM安全的影响，主张以能力为基础的安全度量",
-          "llm_tldr_en": "This paper shows that fine-tuning can compromise LLM safety, and proposes that safety evaluations should be anchored to specific capability improvements to yield consistent and meaningful comparisons.",
-          "llm_tldr_cn": "针对微调可能损害基础LLM安全性的问题，本文指出安全评估应锚定特定能力目标，以避免武断的实验选择。通过在能力和安全维度上进行多维度评估，发现微调模型可能对安全提示产生不连贯生成，且安全影响与能力提升相关。该工作为系统比较安全缓解方法提供了统一基础，强调了能力锚定对得出有意义安全结论的重要性。",
-          "llm_tldr": "针对微调可能损害基础LLM安全性的问题，本文指出安全评估应锚定特定能力目标，以避免武断的实验选择。通过在能力和安全维度上进行多维度评估，发现微调模型可能对安全提示产生不连贯生成，且安全影响与能力提升相关。该工作为系统比较安全缓解方法提供了统一基础，强调了能力锚定对得出有意义安全结论的重要性。",
+          "llm_evidence_en": "audio jailbreak dataset for evaluating safety alignment under code-switched speech",
+          "llm_evidence_cn": "语码转换语音下评估安全对齐的音频越狱数据集",
+          "llm_evidence": "语码转换语音下评估安全对齐的音频越狱数据集",
+          "canonical_evidence": "语码转换语音下评估安全对齐的音频越狱数据集",
+          "llm_tldr_en": "We create SpeechJBB, an audio jailbreak benchmark for code-switched speech, revealing substantial safety weaknesses in large audio language models, especially under lexical obfuscation.",
+          "llm_tldr_cn": "大音频语言模型日益应用于现实场景，但其安全对齐评估局限于单语文本。本文创建SpeechJBB，首个针对语码转换语音的音频越狱数据集，并在多个顶尖LALM上基准测试。通过插入音系伪装词进一步探测安全漏洞。实验表明，语码转换和词汇混淆使模型安全率大幅下降，暴露了当前对齐的跨语言泛化缺陷。该基准为多语种语音模型安全研究奠定基础，具有重要实践意义。",
+          "llm_tldr": "大音频语言模型日益应用于现实场景，但其安全对齐评估局限于单语文本。本文创建SpeechJBB，首个针对语码转换语音的音频越狱数据集，并在多个顶尖LALM上基准测试。通过插入音系伪装词进一步探测安全漏洞。实验表明，语码转换和词汇混淆使模型安全率大幅下降，暴露了当前对齐的跨语言泛化缺陷。该基准为多语种语音模型安全研究奠定基础，具有重要实践意义。",
           "llm_tags": [
             "query:llm-security"
           ],
@@ -50,35 +319,34 @@
           "matched_query_text": "safety mechanisms for language models",
           "matched_requirement_id": "req-4",
           "selection_source": "carryover_cache",
-          "paper_id": "2606.03648v1",
+          "paper_id": "2606.06037v1",
           "carry_days": 1
         }
       ]
     },
     "agent-evol": {
-      "updated_date": "20260603",
+      "updated_date": "20260606",
       "carryover_days": 9,
       "items": [
         {
-          "id": "2606.03678v1",
+          "id": "2606.06324v1",
           "source": "arxiv",
-          "title": "EvoDrive: Pareto Evolution for Safety-Critical Autonomous Driving via Self-Improving LLM Agents",
-          "abstract": "Generating safety-critical scenarios is essential for validating and improving autonomous driving systems, yet it inherently requires maximizing adversariality to expose failures while preserving realism. Existing methods usually manage this trade-off with handcrafted heuristics, confining generation to known priors and overlooking underexplored patterns. While recent open-ended agentic evolution can push this limit, unconstrained general agents lack strict simulator grounding and tend to collapse the multi-objective tension into single-scalar maximization. Here we present EvoDrive, the first automated, LLM-based agentic evolution framework for multi-objective scenario generation. EvoDrive employs a simulator-grounded actor-critic architecture where a memory-driven actor iteratively proposes improvements to the generators and critics filter out implausible candidates, and a self-evolving world evaluator routes promising proposals to optimize simulation budgets. EvoDrive further maintains a Pareto archive of evaluated candidates to preserve diverse attack-realism trade-offs and guide future evolution via simulation feedback. Benchmark results on MetaDrive and CARLA show that EvoDrive not only significantly expands the Pareto frontier across various generators, but also produces valuable scenarios for policy training.",
+          "title": "From Failed Trajectories to Reliable LLM Agents: Diagnosing and Repairing Harness Flaws",
+          "abstract": "LLM-based agents increasingly rely on harnesses that provide execution environments, tool interfaces, context, lifecycle orchestration, observability, verification, and governance. Existing self-improving agents and automatic harness evolution methods mainly improve agents through runtime supervision, prompt optimization, workflow search, or harness modification based on final outcomes. However, they often fail to diagnose where the responsible evidence lies in failed trajectories and which harness layer causes the unreliable behavior, resulting in broad, indirect, or poorly scoped changes. This paper proposes HarnessFix, a trace-guided framework for diagnosing agent failures and repairing agent harnesses. HarnessFix compiles raw execution traces and harness code into a Harness-aware Trace Intermediate Representation (HTIR), which normalizes fragmented trajectory evidence and captures step-level provenance and control-flow relations. It then attributes failures to responsible trajectory steps and harness layers, consolidates recurring diagnoses into actionable flaw records, and maps them to scoped repair operators. Finally, HarnessFix generates and validates harness patches under flaw-specific repair specifications to reduce target flaws without introducing unacceptable regressions. We evaluate HarnessFix on SWE-Bench Verified, Terminal-Bench 2.0 Verified, GAIA and AppWorld. Across these benchmarks, HarnessFix improves held-out test performance over the initial harnesses by 15.2%--50.0%, outperforms human-designed and self-evolution baselines, and reveals recurring harness-flaw patterns across ETCLOVG layers.",
           "authors": [
-            "Tong Nie",
-            "Yuewen Mei",
-            "Yihong Tang",
-            "Junlin He",
-            "Jie Deng",
-            "Jian Sun",
-            "Wei Ma"
+            "Mengzhuo Chen",
+            "Junjie Wang",
+            "Zhe Liu",
+            "Yawen Wang",
+            "Qing Wang"
           ],
-          "primary_category": "cs.AI",
+          "primary_category": "cs.SE",
           "categories": [
-            "cs.AI"
+            "cs.SE",
+            "cs.MA"
           ],
-          "published": "2026-06-02T14:01:23+00:00",
-          "link": "https://arxiv.org/pdf/2606.03678v1",
+          "published": "2026-06-04T15:58:30+00:00",
+          "link": "https://arxiv.org/pdf/2606.06324v1",
           "tags": [
             "keyword:agent-evol",
             "keyword:llm-agent",
@@ -87,21 +355,21 @@
             "query:llm-agent"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "LLM-based agentic evolution for multi-objective scenario generation, self-improving agents",
-          "llm_evidence_cn": "基于LLM的智能体进化用于多目标场景生成，自我改进的智能体",
-          "llm_evidence": "基于LLM的智能体进化用于多目标场景生成，自我改进的智能体",
-          "canonical_evidence": "基于LLM的智能体进化用于多目标场景生成，自我改进的智能体",
-          "llm_tldr_en": "This paper proposes EvoDrive, an LLM-based agentic evolution framework that uses simulator-grounded actor-critic to generate safety-critical driving scenarios while balancing adversariality and realism through Pareto optimization.",
-          "llm_tldr_cn": "为解决自动驾驶安全关键场景生成中对抗性与现实性的多目标权衡，提出EvoDrive框架，利用模拟器锚定的LLM智能体演化进行帕累托多目标场景生成；相比单标量最大化方法避免了模式坍缩，生成的场景在对抗性和现实性上均优于基线，揭示了更多故障模式。",
-          "llm_tldr": "为解决自动驾驶安全关键场景生成中对抗性与现实性的多目标权衡，提出EvoDrive框架，利用模拟器锚定的LLM智能体演化进行帕累托多目标场景生成；相比单标量最大化方法避免了模式坍缩，生成的场景在对抗性和现实性上均优于基线，揭示了更多故障模式。",
+          "llm_evidence_en": "trace-guided framework for diagnosing and repairing agent harnesses",
+          "llm_evidence_cn": "轨迹引导的智能体框架诊断与修复框架",
+          "llm_evidence": "轨迹引导的智能体框架诊断与修复框架",
+          "canonical_evidence": "轨迹引导的智能体框架诊断与修复框架",
+          "llm_tldr_en": "HarnessFix proposes a trace-guided method to localize harness flaws in failed LLM agent trajectories and automatically repair them, improving reliability without broad retraining.",
+          "llm_tldr_cn": "现有LLM智能体自改进方法难以精确定位失败轨迹中具体框架层的缺陷，HarnessFix提出一种轨迹引导的框架诊断与修复方法，通过编译原始执行追踪来定位并修复引发不可靠行为的框架层。实验表明该方法能有效提升智能体在复杂环境中的可靠性，为自主智能体系统的鲁棒性提供了精细化的修复机制。",
+          "llm_tldr": "现有LLM智能体自改进方法难以精确定位失败轨迹中具体框架层的缺陷，HarnessFix提出一种轨迹引导的框架诊断与修复方法，通过编译原始执行追踪来定位并修复引发不可靠行为的框架层。实验表明该方法能有效提升智能体在复杂环境中的可靠性，为自主智能体系统的鲁棒性提供了精细化的修复机制。",
           "llm_tags": [
             "query:agent-evol"
           ],
           "matched_query_tag": "query:agent-evol",
-          "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
-          "matched_requirement_id": "req-9",
+          "matched_query_text": "Mechanisms for self evolving agents",
+          "matched_requirement_id": "req-13",
           "selection_source": "carryover_cache",
-          "paper_id": "2606.03678v1",
+          "paper_id": "2606.06324v1",
           "carry_days": 1
         }
       ]

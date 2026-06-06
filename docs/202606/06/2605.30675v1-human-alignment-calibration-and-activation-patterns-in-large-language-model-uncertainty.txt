@@ -1,0 +1,2036 @@
+Title: Human-Alignment, Calibration, and Activation Patterns in Large Language Model Uncertainty
+
+URL Source: https://arxiv.org/pdf/2605.30675v1
+
+Published Time: Mon, 01 Jun 2026 00:22:37 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+Human-Alignment, Calibration, and Activation Patterns in Large Language Model Uncertainty 
+
+Kyle Moore 1, Jesse Roberts 2, Daryl Watson 2, William Ward 2, Grayson Heyboer 2
+
+> 1
+
+Vanderbilt University 
+
+> 2
+
+Tennessee Technological University  
+
+> Correspondence: kyle.a.moore@vanderbilt.edu / jtroberts@tntech.edu
+
+Abstract 
+
+Uncertainty Quantification is a large and grow-ing subfield of large language model behavioral analysis. Primarily to recognize and combat hallucination, the field has largely focused on measuring and improving calibration, the ac-curacy of uncertainty judgments to task effi-cacy. In this work, we investigate the relatively underexplored question of how similar large language model uncertainty is to human uncer-tainty. We investigate the presence and strength of human-similar uncertainty signals, deemed uncertainty alignment, in large language model overt behavior and internal activation patterns. We identify whether the models show evidence of simultaneous alignment and calibration on a variety of datasets covering both multiple choice and open ended factual recall. And we characterize the effect of instruct fine-tuning on each of these facets. 
+
+1 Introduction 
+
+Quantification and characterization of the uncer-tainty of transformer-based large language models (LLMs) has emerged as a major research focus. Accurate uncertainty quantification (UQ) is an im-portant factor in the recognition and mitigation of model hallucinations (Farquhar et al., 2024) and the building and maintenance of user trust in LLM-based applications under threat of hallucination. While much research has been dedicated to the development of UQ methods and models that are well-calibrated, meaning that the uncertainty accu-rately indicates model efficacy (Guo et al., 2017; Shorinwa et al., 2025), very little work has inves-tigated the related question of whether LLMs are human-like in their uncertainty behavior. We believe the question of human-similarity in LLMs may have significant implications for human-AI collaboration. Greater levels of similarity in  
+
+> All code available under permissive license at https:// github.com/KyleAMoore/LLM-UQ-Align-and-Calibrate
+
+how uncertainty occurs and presents may foster greater rapport between LLMs and users when un-certainty judgments are provided, as human users might safely transfer their intuitive expectations of behavior under uncertainty from human-human in-terpersonal interaction to human-AI collaboration. Conversely, dissimilar uncertainty incidence may benefit human-AI collaboration by allowing each to cover for the other’s weaknesses. Beyond strict utility, human-similarity (or dis-similarity) in LLM uncertainty may have signifi-cant implications for the transferability of human research on behavior under uncertainty to expecta-tions of AI behavior and vice versa. Both similarity and dissimilarity may also yield further questions about the mechanisms that underlie either, includ-ing comparisons in memory organization and infor-mation availability during learning. In this work, we expand on the existing liter-ature in both breadth and depth to better under-stand the incidence, presentation, and source of hu-man aligned uncertainty across a diverse variety of LLMs. We start by expanding the work of Moore et al. (2026) to a larger breadth of model cover-age and a set of larger and more diverse datasets. We make a first foray into measuring uncertainty alignment in a free response context. Uncertainty alignment and calibration are then tied together by measuring simultaneous alignment and calibration in identical contexts. Finally, we probe LLM acti-vations to characterize how and where uncertainty alignment arises internally. We identify, in short, the following primary findings: 1. LLM uncertainty is generally weakly-to-moderately positively correlated with human uncertainty, mediated by task and model. 2. Both uncertainty alignment and calibration are significantly degraded by instruct-finetuning. 3. Human-aligned uncertainty is more strongly detectable in internal activations than in out-1
+
+> arXiv:2605.30675v1 [cs.CL] 29 May 2026
+
+put logits, with qualitative differences be-tween group-level and individual-level align-ment. 
+
+2 Uncertainty Quantification 
+
+Uncertainty quantification in LLMs has been ex-tensively studied, typically with the stated goal of detecting and reducing model hallucination. In this section, we briefly survey the existing UQ research and how calibration, the typical target of UQ re-search, is measured. 
+
+2.1 Prior Work 
+
+Uncertainty quantification in the general sense has grown rapidly as a subfield of LLM research. The techniques employed have grown numerous and have been well-surveyed (Shorinwa et al., 2025; Liu et al., 2025). Research in this field is typ-ically targeted towards identifying and fostering uncertainty calibration, with relatively little work focusing on establishing human similarity. Existing work has investigated how similar the calibration of LLMs is to that of humans (Sun et al., 2025), how human estimations of LLM certainty differ from true uncertainty (Steyvers et al., 2025), and whether uncertainty-modulated human-like behaviors are also exhibited by LLMs (Xu et al., 2025; Roberts et al., 2024; Moore et al., 2025). To our knowl-edge, the only existing work that investigates un-certainty alignment directly is Moore et al. (2026), which found initial but weak evidence of uncer-tainty alignment in LLaMa and Mistral models using a small subset of the measures we here em-ploy. Additionally, they did not investigate model activations or open response. 
+
+2.2 Expected Calibration Error 
+
+Model calibration is most commonly measured in terms of expected calibration error (ECE), de-fined as the expected absolute difference between a model’s confidence (generally taken as the additive inverse of uncertainty) and the model’s accuracy given that confidence level (Guo et al., 2017). Because model correctness is binary per instance, this measure is typically estimated using a binned approximation. Each of the n instances are sep-arated into a set of m bins based on confidence level, giving each bin an associated within-bin accuracy, acc (Bi), and within-bin average confi-dence, conf (Bi). The ECE is then taken to be the weighted average absolute difference between these two quantities across all bins (Equation 1).       
+
+> ECE ≈
+> MX
+> m=1
+> |Bm|
+> n|acc (Bm)−conf (B)m)|(1)
+
+ECE is known to be sensitive to the choice of bin-ning procedure with both the number of bins and the across-bin probability mass distribution impact-ing how successfully ECE captures true calibration (Wang, 2023). In this work, all LLM calibration measurements use a technique called ECESweep (Roelofs et al., 2022). This method dynamically determines bin count such that the number of bins, 
+
+m, is maximized while maintaining monotonicity of acc (Bi) with increasing i for all bin counts in the range [2 , m ]. The authors find that this method effectively reduces binning bias and better detects miscalibration. 
+
+3 Methods 
+
+In this section, we describe the experimental de-tails, covering the variety of LLMs tested (Sec-tion 3.1), the datasets used (Section 3.2), the meth-ods used for quantifying LLM uncertainty (Sec-tion 3.3), model inference and query construction (Section 3.4), and activation probing techniques employed (Section 3.5). 
+
+3.1 Model Choice 
+
+We use 30 open-weight text-only LLMs represent-ing a variety of model families (covering LLaMa, Mistral, Gemma, and Falcon) and models sizes (ranging from 1B to 13B parameters per model). Specifically, we tested LLaMa 2 (7B and 13B) (Touvron et al., 2023), LLaMa 3 (1B, 3B, and 8B) (Grattafiori et al., 2024), Mistral (0.1 and 0.3, both 7B) (Jiang et al., 2023), Gemma (2B and 7B) (Team et al., 2024a), Gemma (2B and 9B) (Team et al., 2024b), and Falcon 3 (1B, 3B, 7B, and 10B) (Team, 2024). In all cases, we tested both the instruct-finetuned and base versions of every model. 
+
+3.2 Datasets 
+
+All non-probing experiments were performed iden-tically over four datasets. All datasets are question answering tasks with substantial variation in topic coverage and question format. Our first dataset is the commonly employed mul-tiple choice question answering (MCQA) MMLU dataset (Hendrycks et al., 2020). This dataset con-sists of more than 14 K multiple choice questions drawn from a wide variety of factual subjects. As 2this dataset provides no information regarding per-question human uncertainty response, it is included primarily as an established baseline when measur-ing ECE for the remaining datasets. Each of the remaining datasets provide human re-sponse data from which we derive estimates of per-question human uncertainty. The first is ProtoQA (Boratko et al., 2020), which is a Family Feud in-spired dataset consisting of 8724 crowd-sourced purely preference or opinion-based questions. Each question has a variable-size set of answers provided by human survey respondents. On average, each question is associated with 5.033 answer choices and 89 .407 independent human respondents. The second dataset, CamChoice (Mullooly et al., 2023) comprises 504 reading comprehension questions where each question is associated with a passage on which the question is based. All questions in this dataset have exactly 4 available answer choices and each passage is associated with an average of 
+
+6.46 questions. During inference, passages are prepended to questions such that each question and its associated passage are presented to the model in isolation. For both the CamChoice and ProtoQA datasets, we have access to the percentage of hu-man respondents that selected each of the available answer choices. For these datasets, we took the hu-man uncertainty to be the normalized entropy over these response percentages, which we consider a measure of group uncertainty .The final dataset is named herein the Coane dataset, after the first author of Coane and Umanath (2021). This dataset consists of 421 general knowl-edge questions that were presented to older adult subjects. Like ProtoQA and CamChoice, the Coane dataset provides the percent of subjects who se-lected each of 4 answer choices per question, al-lowing the computation of entropy over these re-sponses as well. In addition, Coane also provides the average response time. They separate response times based on correctness, but provide sufficient information to reconstruct the average response time across all subjects, which we consider a mea-sure of average individual uncertainty following the established interpretation in cognitive science (Hick, 1952). In addition to the MCQA task, Coane also provides human response data on an open ended question answering (OEQA) variant over the same question set. This allows us to investigate uncertainty alignment in both MCQA and OEQA contexts without substantial differences in context. The human data provided allows us to calculate the average response time over all respondents, which we interpret as the average individual uncertainty in a OEQA setting. 
+
+3.3 Uncertainty Measures 
+
+Our experiments are limited to a wide selection of inference-time LLM UQ measures that can be calculated from the instantaneous model logits and activations at each inference timestep. Such per-iteration uncertainty signals, in addition to being computationally cheaper than multi-inference UQ methods, are more conducive to signal utilization in downstrean applications and analysis. For exam-ple, future analysis regarding uncertainty incidence throughout generation would be difficult or impos-sible with only access to sequence-level uncertainty values. To facilitate broad coverage under possi-bility of measure choice-senstivity and coverage of both MCQA and OEQA tasks, we experiment with 4 broad but interconnected categories of UQ measures: MCQA measures, Free Response (FR), Bracketed FR (BFR), and 1st token FR (1TFR). 
+
+3.3.1 MCQA measures 
+
+The basic set of uncertainty measures are defined for MCQA and are largely adapted from those used in Moore et al. (2026). These measures fall into 5 subcategories: full distribution measures, cloze measures, top-k entropies, top-p entropies, and top-p sizes. There are two full distribution measures: top-1-prob and total-ent. The former is simply the additive inverse of the highest prob-ability token across the entire vocabulary, that is 
+
+1 −max v∈V (P (v|CM C ) where CM C is a multiple-choice formatted context and V is the full model vocabulary. The additive inverse is taken because higher probability mass on the top token suggests higher certainty, therefore lower uncertainty. The other measure, total-ent, is the normalized entropy over the full vocabulary set (Equation 2). As proba-bility mass becomes more diffuse across the vocab-ulary, suggesting that either more tokens are taken as valid alternatives or the most preferred token(s) become less clearly preferred, the entropy of the distribution will rise. This intuitively suggests en-tropy over outcomes (vocabulary tokens) as a valid measure of model uncertainty. This is established in the literature (Huang et al., 2025b), but is rela-tively uncommonly used in favor of more complex methods. 3− 1ln |V |
+
+X
+
+> v∈V
+
+P (v|CM C ) ln( P (v|CM C ) (2) All remaining measures are calculated based on various focused subsets of the total probability dis-tribution. These are chosen based on expectation that the probability mass and the meaningful un-certainty signal will typically be concentrated in a small portion of the overall vocabulary. Focus-ing exclusively on these vocabulary subsets may allow identification of signals that would otherwise be lost in the full distribution measures or better discernment between uncertainty and low entropy caused by task-irrelevant syntactic or semantic re-striction of the probable token set. Most of these remaining measures are defined as the entropy over three focus subsets: cloze, top-k, and top-p. In all cases, the entropy is calculated exactly as in Equation 2 with two major changes. First, the vocabulary, V , is replaced by a strict subset Vk, Vp, or Vc. Vk represents the k high-est probability tokens from P (V |CM C ). Vp is the top-p tokens, meaning the minimum set of tokens such that P 
+
+> v∈Vp
+
+P (v) ≥ p. Vc is a pre-defined set of tokens that represent the set of valid cloze test completions for the MCQA context. To handle semantically equivalent variations, probabilities are summed across variations of valid cloze tokens. For example, the probability of the cloze target ‘A’ is P (A ∈ Vc) = P (‘A’) + 
+
+P (‘A)’)+ P (‘A. ’)+ P (‘a’)+ . . . ). The probability of the tokens within the subsets are renormalized to sum to 1 by dividing by the total subset probability, that is P (vi ∈ Vi) = P (v ∈ V )/  P  
+
+> v∈Vi
+
+P (v).For top-k and top-p entropies, uncertainty is measured across a range of reasonable subset sizes, specifically k ∈ {5, 10 , 25 , 50 , 100 } and 
+
+p ∈ { 0.95 , 0.90 , 0.75 , 0.50 }.The remaining measures are not entropy based. The first is the top-1 probability over the cloze to-ken set, Vc (after the previously described semantic grouping). Ideally, but not necessarily, the most likely token given an MCQA-formatted context will be one of the valid tokens within the cloze to-ken target set. This yields an expectation, but not a guarantee, that top-1-prob is less than but nearly equal or proportional to choice-prob. The remain-ing measures are derived from the top-p subset, Vp.We take the number of tokens that fall into this set 
+
+|Vp| to be a measure of uncertainty intuitively rep-resenting the number of valid completion tokens given CM C . This measure is alternatively known in the literature as the nucleus size and is connected to the credible interval, which is the Bayesian analog of the commonly employed confidence interval. 
+
+3.3.2 FR, BFR, and 1TFR Measures 
+
+The various free response uncertainty measures are largely derived directly from the MC measures described in the previous section. The only signifi-cant exception to this is sequence perplexity (PPL). Perplexity, defined as used herein in Equation 3 where N is the number of generated tokens and 
+
+W is the generated token sequence, is a common metric of sequence probability and surprisal. While PPL is typically defined over the entire sequence, including both starting context and model response, we take the perplexity over only the generated se-quence to avoid confounding effects from relative likelihood across varying contexts. Being analo-gous to sequence-level probability, this measure was also converted to uncertainty by taking its ad-ditive inverse, 1 − P P L (W |CF R ).
+
+P P L (W |CF R ) = 
+
+exp (− 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+ln P (wi|CF R , w 1, . . . , w i−1)) 
+
+(3) The remaining FR measures are simple averages over all generation steps of the non-cloze measures as defined in the previous section. This includes the generated sequence average total entropy, top-k entropy, top-p entropy, and top-p size. The entropy measures deserve some additional justification for this choice. Entropy over the probability distribu-tion is defined as the expected log surprisal of each outcome. Because the resulting value is therefore in logspace, the arithmetic mean of entropy is equiva-lent to the geometric mean of the expected surprisal. As surprisal is itself in probability-space, this re-sults in the surprisal that, if held constant across all timesteps, would yield the observed sequence surprisal, making it an effective length-normalized measure of total sequence surprisal. The remaining BFR and 1TFR uncertainty mea-sures are simple to define in terms of MC and FR measures. As described in further detail in Section 3.4, our OEQA prompts are designed to encourage the model to output the selected answer immedi-ately and mark the end of the chosen answer with a closing ‘}’ brace. The intention is to identify 4the most relevant answer segment so that further model explanation or otherwise over-generation can be excluded from UQ measurement. This is an especially important consideration for models that have not been instruct finetuned, as they of-ten fail to generate a stop token, opting instead to generate additional questions until the maximum generation length is reached. BFR is exactly the base FR measures applied exclusively to the se-quence segment that the model generated before the closing brace. We also hypothesized that most of the alignment signal may be further concentrated in the first generated token. We test this by measur-ing 1TFR measures, which is exactly the non-cloze MC measures applied to the first token generated by the model during OEQA. All three FR measure sets are calculated on the same generated output without regeneration. 
+
+3.4 Model Inference 
+
+MCQA and OEQA prompts were designed simi-larly. The models were presented with two ICL examples, structured appropriately for MCQA or OEQA as necessary. Prior to the ICL examples, both templates also included a short system prompt, either in the designated system prompt location for supporting models or at the beginning of the con-text window, with instructional content to encour-age models to answer the question immediately, without explanation, and ending with a closing brace to facilitate the BFR measures. After present-ing the question, and answer choices for MCQA, the model’s answer was artificially started with ap-propriate formatting for chat-finetuned models such that the first generated token is expected to con-tribute directly towards the intended answer rather than superfluous formatting. While this nudging might limit the generalization of the results herein to more complex tasks, it has the added benefit of better isolating to the uncertainty behavior on specifically the tokens that contribute to the answer without noise from framing tokens. Model inference was performed using 5 A100 GPU hours in a container with identical methods across all MCQA datasets with minimal adapta-tion to accommodate OEQA for the Coane dataset. Where possible, each model’s starting context was formatted in line with trained expectations as de-fined in the associated tokenizer chat template as provided by the huggingface apply_chat_template method. For models that support system prompts, the instructional content portion of the chat tem-plate was instead included in the system prompt rather than the main prompt body. Model-specific template preparations were also applied the ICL examples to maximize consistency. All contexts were dynamically batched after for-matting such that all contexts within a given batch were identical in terms of tokenized length. This ensured that no contexts included padding tokens which might have affected absolute token probabil-ities. For OEQA tasks, padding tokens may have been generated with batches yielded differing gen-eration lengths, but padding tokens were stripped before UQ measure calculation. Model correctness, necessary for downstream ECE calculation, required substantially different methods between the MCQA and OEQA tasks. MCQA correctness was readily obtainable with the model’s chosen answer is taken to be the an-swer choice to which the highest total probability is assigned among the available answer choices. This chosen answer label is then compared against the expected answer label to determine correctness. To account for synonymous variations in label (e.g. “A” vs. “A.”, “A)”, “a”, etc.), we sum across a col-lection of reasonable synonymous variants such that the probability of answer A is taken the be 
+
+P (‘A’) + P (‘A. ’) + P (‘A)’) + P (‘a. ’) + . . . and similarly for all MCQA answer labels. OEQA correctness was instead judged manually for correctness individually by two human annota-tors by comparing model generations against the expected answer, with disagreements between an-notators being resolved by a third annotator. Rea-sonable allowances were made for spelling, gram-mar, synonymy, and correct alternatives for under-specific questions. During this process, two ques-tions in the Coane dataset were identified as unsuit-able for inclusion. Details and justification on these two are briefly presented in Appendix A. These two questions were excluded from all downstream analysis, with the exception of the model probing described in Section 3.5, due to the late discovery. The small number of affected questions is unlikely to have substantially affected the final results, how-ever. 
+
+3.5 Model Probing 
+
+To investigate where and how uncertainty align-ment presents in the LLM internals, we use a prob-ing method inspired by Bürger et al. (2024), in which we train linear regression models that at-tempt to predict human uncertainty from LLM acti-5Gemma2_2B                                                                                                                                                                                                                                                                                                   
+
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Wilcoxon r (IFT Pairs)
+> mc_choice-ent
+> mc_choice-prob
+> mc_total-ent
+> mc_top-1-prob
+> mc_top-k-ent-5
+> mc_top-k-ent-10
+> mc_top-k-ent-25
+> mc_top-k-ent-50
+> mc_top-k-ent-100
+> mc_top-p-len-0.95
+> mc_top-p-len-0.9
+> mc_top-p-len-0.75
+> mc_top-p-len-0.5
+> mc_top-p-ent-0.95
+> mc_top-p-ent-0.9
+> mc_top-p-ent-0.75
+> mc_top-p-ent-0.5
+> 0.32 0.28 0.32 0.25 0.39 0.38 0.26 0.38 0.33 0.25 0.32 0.30 0.33 0.21 0.30 0.29 0.37 0.28 0.31 0.25 0.35 0.21 0.27 0.32 0.33 0.900
+> 0.31 0.27 0.31 0.39 0.26 0.37 0.37 0.33 0.25 0.32 0.33 0.30 0.30 0.37 0.23 0.29 0.35 0.26 0.30 0.31 0.950
+> 0.31 0.28 0.30 0.21 0.39 0.38 0.37 0.33 0.32 0.33 0.30 0.24 0.37 0.21 0.31 0.35 0.22 0.30 0.32 0.983
+> 0.30 0.27 0.30 0.39 0.37 0.37 0.33 0.32 0.33 0.30 0.28 0.37 0.22 0.29 0.21 0.35 0.26 0.30 0.32 0.983
+> 0.32 0.26 0.31 0.39 0.38 0.37 0.33 0.32 0.33 0.30 0.29 0.37 0.23 0.31 0.22 0.35 0.26 0.31 0.32 0.983
+> 0.31 0.27 0.31 0.39 0.38 0.37 0.33 0.32 0.33 0.30 0.30 0.37 0.23 0.31 0.22 0.35 0.25 0.30 0.32 0.967
+> 0.31 0.28 0.30 0.39 0.38 0.37 0.33 0.32 0.33 0.30 0.29 0.37 0.23 0.31 0.21 0.35 0.24 0.31 0.32 0.967
+> 0.31 0.28 0.30 0.39 0.38 0.37 0.33 0.32 0.33 0.30 0.29 0.37 0.23 0.31 0.21 0.35 0.24 0.31 0.32 0.983
+> 0.31 0.28 0.30 0.39 0.38 0.37 0.33 0.32 0.33 0.30 0.28 0.37 0.23 0.31 0.21 0.35 0.24 0.31 0.32 0.983
+> 0.29 0.29 0.30 0.38 -0.21 0.38 0.31 0.33 0.27 0.28 0.33 0.31 0.30 0.21 0.31 0.22 0.27 0.29 0.967
+> 0.28 0.28 0.28 0.37 0.36 0.27 0.31 0.29 0.27 0.27 0.29 0.23 0.25 0.32 0.21 0.23 0.29 0.967
+> 0.23 0.22 0.31 0.35 0.26 0.24 0.23 0.22 0.27 0.20 0.27 0.31 0.27 0.22 0.950
+> 0.21 0.27 0.22 0.21 0.30 0.25 0.22 0.27 0.23
+> 0.29 0.27 0.28 0.38 0.34 0.29 0.33 0.27 0.27 0.31 0.30 0.31 0.28 0.31 0.26 0.25 0.29 0.950
+> 0.26 0.25 0.27 0.37 0.34 0.26 0.31 0.28 0.21 0.27 0.25 0.30 0.30 0.21 0.25 0.32 0.27 0.21 0.29 0.917
+> 0.22 0.21 0.30 0.33 0.26 0.24 0.23 0.30 0.28 0.24 0.31 0.22 0.21
+> 0.27 0.22 0.21 0.31 0.25 0.21 0.26 0.23
+
+Spearman Correlation 
+
+Coane (MCQA) 
+
+human uncertainty (Human Ent.) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 1: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the MCQA version of the Coane dataset. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+vation at each layer. For a given LLM, we presented the Coane MCQA formatted contexts to the LLM and extracted the last-token activations for each context. We used the resulting activations, to train a simple linear regression model for each layer of the LLM with human uncertainty as the regression target. A separate model was trained for each of three measures of human MCQA uncertainty: re-sponse distribution entropy, average response time when correct, and average overall response time. We employed 10-fold cross validation when train-ing each layer’s linear regressors and evaluated the regressors using Pearson r correlation. 
+
+4 Results 
+
+In this section we present the results of our various analyses. 
+
+4.1 Agreement and Correctness 
+
+As an initial surface-level analysis, we calculated for each model, the model’s correctness on fac-tual datasets (Coane, CamChoice, MMLU) and the model’s agreement with human answer preference for datasets with human response distribution data (Coane, CamChoice, ProtoQA). Model correctness on factual tasks scaled positively with parameter count in base and instruct models (r = 0.45–0.71 across factual datasets), with instruct-finetuned variants showing no systematic advantage over their base counterparts except in open-ended fac-tual recall, where finetuning was associated with a significant decrease in accuracy (Wilcoxon p = 0.017, r = 0.67). Agreement with the most com-mon human response followed a similar but attenu-ated pattern on knowledge-based datasets, and was largely independent of model size on the purely preference-based ProtoQA dataset Given that no such size-dependence is discern-able for the purely preference-base ProtoQA, how-ever, this is likely only an artifact of size-dependent correctness and human accuracy. Generally, agree-ment per model is ranked such that correctness on MCQA tasks is higher than than both OEQA correctness and MCQA human-similarity. OEQA correctness tends higher than MCQA human-similarity for all nearly all models larger than 3B. 
+
+4.2 Uncertainty Alignment 
+
+The rightmost column of Figure 1 displays the significant effect sizes per measure for Wilcoxon signed rank tests between the alignment of each base model versus the alignment of its instruct-finetuned counterpart. Across nearly every mea-sure, this test finds a strong relationship such that instruct finetuned models tend to be less aligned that their base counterparts. The remaining results for other all other dataset, task, and human uncertainty configurations can be found in Figures 4-9 in Appendix C. In brief, the noteworthy trends are that the alignment signal is present but far more sporadically and model-dependent for the CamChoice dataset and for 6Llama_2_7B 
+
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Wilcoxon r (IFT Pairs)
+
+mc_choice-ent 
+
+mc_choice-prob 
+
+mc_total-ent 
+
+mc_top-1-prob 
+
+mc_top-k-ent-5 
+
+mc_top-k-ent-10 
+
+mc_top-k-ent-25 
+
+mc_top-k-ent-50 
+
+mc_top-k-ent-100 
+
+mc_top-p-len-0.95 
+
+mc_top-p-len-0.9 
+
+mc_top-p-len-0.75 
+
+mc_top-p-len-0.5 
+
+mc_top-p-ent-0.95 
+
+mc_top-p-ent-0.9 
+
+mc_top-p-ent-0.75 
+
+mc_top-p-ent-0.5 
+
+0.245 0.072 0.119 0.070 0.149 0.140 0.139 0.053 0.195 0.392 0.165 0.058 0.041 0.192 0.110 0.283 0.365 0.152 0.150 0.209 0.327 0.356 0.067 0.076 0.109 0.012 0.159 0.045 0.194 0.072 
+
+0.046 0.777 0.072 0.807 0.028 0.752 0.052 0.830 0.077 0.530 0.092 0.416 0.110 0.675 0.058 0.591 0.066 0.311 0.050 0.223 0.120 0.498 0.105 0.282 0.051 0.007 0.071 0.082 0.033 0.050 -0.950 
+
+0.260 0.248 0.224 0.200 0.150 0.137 0.178 0.121 0.358 0.186 0.316 0.158 0.254 0.043 0.219 0.044 0.332 0.539 0.143 0.313 0.455 0.150 0.245 0.051 0.198 0.095 0.276 0.203 0.142 0.101 
+
+0.046 0.164 0.072 0.318 0.028 0.324 0.052 0.062 0.077 0.173 0.092 0.182 0.110 0.202 0.058 0.298 0.066 0.310 0.050 0.223 0.120 0.509 0.105 0.269 0.051 0.018 0.071 0.092 0.033 0.044 -0.933 
+
+0.188 0.124 0.071 0.285 0.110 0.495 0.095 0.052 0.117 0.207 0.108 0.314 0.041 0.280 0.074 0.450 0.269 0.182 0.109 0.149 0.248 0.537 0.037 0.337 0.070 0.089 0.112 0.050 0.152 0.063 
+
+0.101 0.150 0.056 0.245 0.034 0.443 0.053 0.069 0.073 0.134 0.083 0.221 0.092 0.278 0.058 0.323 0.100 0.290 0.044 0.196 0.165 0.520 0.086 0.307 0.053 0.060 0.058 0.040 0.082 0.056 -0.883 
+
+0.123 0.179 0.105 0.213 0.048 0.359 0.078 0.084 0.168 0.098 0.155 0.129 0.144 0.237 0.105 0.229 0.103 0.375 0.047 0.225 0.229 0.478 0.141 0.275 0.097 0.034 0.117 0.065 0.068 0.049 
+
+0.144 0.196 0.141 0.204 0.072 0.305 0.101 0.096 0.213 0.052 0.193 0.085 0.169 0.204 0.136 0.178 0.145 0.413 0.068 0.241 0.280 0.439 0.166 0.250 0.120 0.026 0.153 0.087 0.077 0.058 
+
+0.167 0.208 0.156 0.201 0.090 0.254 0.118 0.107 0.247 0.022 0.220 0.063 0.188 0.176 0.150 0.138 0.194 0.441 0.083 0.254 0.319 0.400 0.184 0.222 0.137 0.031 0.179 0.108 0.088 0.065 
+
+0.131 0.115 0.198 0.319 0.158 0.045 0.068 0.152 0.320 0.266 0.226 0.246 0.018 0.068 0.043 0.096 0.149 0.310 0.123 0.241 0.116 0.581 0.073 0.087 0.112 0.147 0.018 0.259 0.263 0.125 
+
+0.037 0.145 0.051 0.123 0.063 0.203 0.031 0.178 0.185 0.391 0.153 0.317 0.062 0.185 0.023 0.163 0.058 0.377 0.063 0.252 0.036 0.327 0.043 0.166 0.052 0.185 0.091 0.281 0.101 0.105 -1.000 
+
+0.154 0.182 0.086 0.178 0.051 0.277 0.078 0.161 0.113 0.422 0.103 0.318 0.113 0.273 0.080 0.182 0.136 0.467 0.042 0.253 0.165 0.355 0.102 0.199 0.050 0.127 0.168 0.200 0.010 0.105 -1.000 
+
+0.203 0.214 0.152 0.200 0.098 0.292 0.117 0.160 0.264 0.424 0.211 0.305 0.147 0.283 0.121 0.186 0.286 0.547 0.081 0.256 0.355 0.358 0.161 0.219 0.097 0.110 0.210 0.193 0.060 0.105 -0.933 
+
+0.266 0.107 0.143 0.221 0.143 0.315 0.121 0.027 0.196 0.014 0.194 0.166 0.052 0.152 0.122 0.346 0.368 0.189 0.123 0.149 0.376 0.156 0.128 0.211 0.155 0.060 0.183 0.034 0.207 0.057 
+
+0.270 0.120 0.105 0.206 0.128 0.392 0.132 0.072 0.205 0.062 0.196 0.305 0.059 0.200 0.116 0.514 0.371 0.244 0.129 0.147 0.402 0.271 0.103 0.261 0.147 0.070 0.203 0.092 0.156 0.062 
+
+0.213 0.083 0.088 0.202 0.106 0.490 0.090 0.098 0.191 0.269 0.169 0.400 0.067 0.287 0.082 0.663 0.354 0.310 0.094 0.182 0.383 0.374 0.091 0.300 0.072 0.055 0.146 0.105 0.103 0.052 
+
+0.139 0.182 0.125 0.283 0.057 0.371 0.091 0.137 0.175 0.418 0.142 0.400 0.102 0.037 0.076 0.296 0.247 0.434 0.035 0.203 0.246 0.502 0.132 0.293 0.078 0.037 0.146 0.114 0.055 0.093 -0.833 
+
+Expected Calibration Error ( )
+
+Coane (MCQA) 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 2: ECESweep results for the MCQA version of the Coane dataset. Darker cells indicate higher calibration error and thus lower calibration. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models, with blank cells indicating insignificance. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 0 4 8 12 17 
+
+layer 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> value
+
+W: p | r b | i peak 
+
+0.811 | 0.06 16 | 6
+
+0.199 | 0.30 13 | 11 
+
+0.286 | 0.25 3 | 9
+
+Gemma_2B 
+
+0 6 13 20 27 
+
+layer 
+
+W: p | r b | i peak 
+
+0.000 | 0.67 20 | 22 
+
+0.034 | 0.40 13 | 25 
+
+0.000 | 0.69 22 | 17 
+
+Falcon3_7B 
+
+0 7 15 23 31 
+
+layer 
+
+W: p | r b | i peak 
+
+0.116 | 0.28 30 | 28 
+
+0.000 | 0.72 7 | 13 
+
+0.322 | 0.18 13 | 13 
+
+Llama_3.1_8B 
+
+human_ent_mean_correlation 
+
+rt_correct_mean_correlation 
+
+rt_combined_mean_correlation 
+
+base 
+
+instruction 
+
+base > ins region 
+
+ins > base region 
+
+Figure 3: Per-layer model activation probing correlations. Colors indicate the human uncertainty type targeted during linear regression. Shaded regions indicate the gap between the base mode (solid line) and the instruct finetuned variant (dashed line). On-figure annotations in the top-left indicate the p-value and effect size for a Wilcoxon rank sum test between the base correlation and ins correlation across layers. Annotations in the top-right display the layer at which maximum human alignment was measured. 
+
+MCQA response time correlation on Coane. Pro-toQA shows consistently significant, but very weak alignment. For OEQA, the models show nearly no significant evidence of alignment for any of the FR uncertainty measure classes. Only Falcon 3 10B shows any significant correlation with human response time, but this may be an artifact of ex-traneous generation behavior as the same model shows no alignment for BFR or 1TFR. Unlike factual accuracy, uncertainty alignment shows no consistent relationship with model size in either base or instruct models. 
+
+4.3 Uncertainty Calibration 
+
+Following up on its standout alignment in the prior section, we have evaluated the ECE scores for each MCQA measure-model pair on the Coane dataset in Figure 2, with the remaining datasets and Coane OEQA measures presented in Figures 10-14 in Ap-pendix C. With a few noteworthy exceptions, the results show relatively strong calibration on the Coane dataset, with every model showing strong calibration (ECE ≲ 0.1) for at least one measure. Like with alignment, there is noticeable model-dependency, with the Mistral 0.1 Ins, Gemma 2B Ins, and LLaMa 3.2 1B Ins showing substantially worse calibration across nearly every measure than most other models. For measures, mc_choice-prob stands out as particularly volatile, being highly cali-brated for most models, but actively anti-calibrated for the instruct-finetuned variants of all LLaMa 2 and Mistral models. The Wilcoxon column shows evidence of significant degradation in calibration af-ter instruct finetuning across many measures. This result, while initially surprising, is consistent with existing findings on the unintended effects of in-7struct finetuning (Huang et al., 2025a). Taken to-gether with the results of section 4.2, this suggests that alignment and calibration are both negatively affected by instruct finetuning. Unlike alignment, calibration appears less af-fected by choice of model and dataset, with lower but still substantial calibration across all pairings for both MMLU and CamChoice. This may be explainable by the relative difficulty of these two datasets when compared with Coane MCQA. Un-like the alignment results, the OEQA results on Coane show strong calibration across all three un-certainty measure groups. Average top-k entropy in particular shows strong calibration for full gen-eration measures with relatively little loss in BFR. In a noteworthy deviation from the MCQA case, we observe a significant positive Wilcoxon effect size for some measures, indicating some measures may improve calibration with instruct finetuning outside of limited-option contexts. As a final point of comparison, we calculated the human calibration on the Coane dataset. Because we have access to per-question accuracies, we are able to sidestep binning questions by taking aver-age instance-level calibration 1
+
+> |Q|
+
+P 
+
+> q∈Q
+
+|Acc (q) −
+
+Conf (q)| where Q is the set of all questions. The results were average calibration errors of 0.226 for MCQA with human entropy, 0.210 for MCQA with response time, and 0.445 for OEQA with response time. This indicates that the LLMs tend to be more well-calibrated than human subjects across most UQ measures. 
+
+4.4 Probing 
+
+The results of probing the LLM internals are shown in Figure 3 for a representative subset of models, with the remaining models reported in Figure 15 in Appendix C. In addition to plotting the correlation across layers, we perform a Wilcoxon signed-rank test on the per layer base model correlation vs in-struct model correlations. We also identify the layers at which maximum correlation is attained with each of the human uncertainty measures. Consistently across nearly every model, the most correlated human measure with model activations, both in absolute terms over all layers and in terms of final layer activations, is human entropy. This dominance tends to arise near the middle lay-ers. Notably, this occurs because of the relatively flat trajectory of the response time across layers, while human entropy tends to become more cor-related with depth. This suggests a meaningful difference in how the models internalize human individual-level (RT) vs group-level (entropy) un-certainty. Group uncertainty alignment consistently occurs stronger, later, and with increasing strength throughout inference. We also see, when compar-ing against the alignment heatmaps in Section 4.2, that maximum correlation for every model tends to be substantially higher than that observed only in the output logits. For an extreme example, Gemma 2 9B shows a maximum of r ≈ 0.6 correlation with human entropy when using the internal probe, but a maximum of r = 0 .32 correlation for logit-based measures. This shows promise for further behav-ioral identification and isolation in future LLM behavioral studies. 
+
+5 Conclusion 
+
+In this work, we have extensively studied the un-certainty behavior of an array of pre-trained LLMs. We have verified and extended previous results by finding evidence of a consistent, but moderate in strength and sensitive to measurement methodol-ogy, positive uncertainty alignment signal. We have demonstrated that models are often simultaneously aligned and calibrated in their uncertainty and that both of these tend to be disrupted by instruction finetuning. We also showed through activation probing that LLM overt behavior does not fully capture the model alignment and found initial evi-dence that human similarity may be better charac-terized in terms of similarity to groups of humans rather than representative individuals. 
+
+6 Future Work 
+
+As the field of uncertainty alignment in LLMs re-mains largely unexplored, there are many viable paths for further exploration in future work. This work has remained limited to the narrow tasks of short-form question answering. Future work should expand into more complex tasks, such as problem-solving, planning, or long-form response tasks. To bring our work more in line with existing calibration research, future work should also in-vestigate multi-inference and other more complex methods of uncertainty quantification. Finally, with the recognition of uncertainty alignment signals within model activation patterns, isolation of the related latent vectors may allow for direct manipu-lation, enhancement, or even reversal of alignment behaviors without significant retraining, broaden-ing to possible applications of the research pre-8sented herein. 
+
+Limitations 
+
+The largest limitation of the study herein is the relatively limited task set, covering only simple factual recall tasks. It is difficult to guarantee gen-eralization of any results reported herein to more complex tasks, especially in light of the nearly non-existent overt alignment results on the OEQA task. Our most well-performing dataset, Coane, is also targeted at an age-specific cohort of older adults. This may harm generalization to more diverse hu-man comparison sets, though it is also possible that the knowledge biases within this group may have artificially deflated the final results. 
+
+References 
+
+Michael Boratko, Xiang Li, Tim O’Gorman, Rajarshi Das, Dan Le, and Andrew McCallum. 2020. Pro-toqa: A question answering dataset for prototypi-cal common-sense reasoning. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) , pages 1122–1136. Lennart Bürger, Fred A Hamprecht, and Boaz Nadler. 2024. Truth is universal: Robust detection of lies in llms. Advances in Neural Information Processing Systems , 37:138393–138431. Jennifer H Coane and Sharda Umanath. 2021. Adatabase of general knowledge question perfor-mance in older adults. Behavior Research Methods ,53(1):415–429. Sebastian Farquhar, Jannik Kossen, Lorenz Kuhn, and Yarin Gal. 2024. Detecting hallucinations in large language models using semantic entropy. Nature ,630(8017):625–630. Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, and 1 others. 2024. The llama 3 herd of models. arXiv preprint arXiv:2407.21783 .Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q Wein-berger. 2017. On calibration of modern neural net-works. In International conference on machine learn-ing , pages 1321–1330. PMLR. Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2020. Measuring massive multitask language under-standing. arXiv preprint arXiv:2009.03300 .William E Hick. 1952. On the rate of gain of informa-tion. Quarterly Journal of experimental psychology ,4(1):11–26. Jerry Huang, Peng Lu, and Qiuhao Zeng. 2025a. Cali-brated language models and how to find them with label smoothing. arXiv preprint arXiv:2508.00264 .Yuheng Huang, Jiayang Song, Zhijie Wang, Sheng-ming Zhao, Huaming Chen, Felix Juefei-Xu, and Lei Ma. 2025b. Look before you leap: An exploratory study of uncertainty analysis for large language mod-els. IEEE Transactions on Software Engineering ,51(2):413–429. Albert Q. Jiang, Alexandre Sablayrolles, Arthur Men-sch, Chris Bamford, Devendra Singh Chaplot, Diego de las Casas, Florian Bressand, Gianna Lengyel, Guil-laume Lample, Lucile Saulnier, Lélio Renard Lavaud, Marie-Anne Lachaux, Pierre Stock, Teven Le Scao, Thibaut Lavril, Thomas Wang, Timothée Lacroix, and William El Sayed. 2023. Mistral 7b. Preprint ,arXiv:2310.06825. Xiaoou Liu, Tiejin Chen, Longchao Da, Chacha Chen, Zhen Lin, and Hua Wei. 2025. Uncertainty quantifi-cation and confidence calibration in large language models: A survey. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2 , pages 6107–6117. Kyle Moore, Jesse Roberts, Thao Thi Minh Pham, and Douglas Fisher. 2025. Chain of thought still thinks fast: Apricot helps with thinking slow. In Proceed-ings of the Annual Meeting of the Cognitive Science Society , volume 47. Kyle Moore, Jesse Roberts, Daryl Watson, and Pamela Wisniewski. 2026. Investigating human-aligned large language model uncertainty. The International FLAIRS Conference Proceedings , 39(1). Andrew Mullooly, Øistein Andersen, Luca Benedetto, Paula Buttery, Andrew Caines, Mark JF Gales, Yasin Karatay, Kate Knill, Adian Liusie, Vatsal Raina, and 1 others. 2023. The cambridge multiple-choice ques-tions reading dataset. Jesse Roberts, Kyle Moore, Douglas Fisher, Oseremhen Ewaleifoh, and Thao Pham. 2024. Large language model recall uncertainty is modulated by the fan ef-fect. In Proceedings of the 28th conference on compu-tational natural language learning , pages 303–313. Rebecca Roelofs, Nicholas Cain, Jonathon Shlens, and Michael C Mozer. 2022. Mitigating bias in calibra-tion error estimation. In International Conference on Artificial Intelligence and Statistics , pages 4036– 4054. PMLR. Ola Shorinwa, Zhiting Mei, Justin Lidard, Allen Z Ren, and Anirudha Majumdar. 2025. A survey on un-certainty quantification of large language models: Taxonomy, open research challenges, and future di-rections. ACM Computing Surveys , 58(3):1–38. Mark Steyvers, Heliodoro Tejeda, Aakriti Kumar, Cata-rina Belem, Sheer Karny, Xinyue Hu, Lukas W Mayer, and Padhraic Smyth. 2025. What large lan-guage models know and what people think they know. 
+
+Nature Machine Intelligence , 7(2):221–231. 
+
+9Fengfei Sun, Ningke Li, Kailong Wang, and Lorenz Goette. 2025. Large language models are over-confident and amplify human bias. arXiv preprint arXiv:2505.02151 .Falcon-LLM Team. 2024. The falcon 3 family of open models. Gemma Team, Thomas Mesnard, Cassidy Hardin, Robert Dadashi, Surya Bhupatiraju, Shreya Pathak, Laurent Sifre, Morgane Rivière, Mihir Sanjay Kale, Juliette Love, and 1 others. 2024a. Gemma: Open models based on gemini research and technology.          
+
+> arXiv preprint arXiv:2403.08295 .Gemma Team, Morgane Riviere, Shreya Pathak, Pier Giuseppe Sessa, Cassidy Hardin, Surya Bhupati-raju, Léonard Hussenot, Thomas Mesnard, Bobak Shahriari, Alexandre Ramé, and 1 others. 2024b. Gemma 2: Improving open language models at a practical size. arXiv preprint arXiv:2408.00118 .Hugo Touvron, Louis Martin, Kevin Stone, Peter Al-bert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, and 1 others. 2023. Llama 2: Open foun-dation and fine-tuned chat models. arXiv preprint arXiv:2307.09288 .Cheng Wang. 2023. Calibration in deep learning: A survey of the state-of-the-art. arXiv preprint arXiv:2308.01222 .Chenjun Xu, Bingbing Wen, Bin Han, Robert Wolfe, Lucy Lu Wang, and Bill Howe. 2025. Do language models mirror human confidence? exploring psycho-logical insights to address overconfidence in llms. In
+> Findings of the Association for Computational Lin-guistics: ACL 2025 , pages 25655–25672.
+
+A Dataset Alterations 
+
+In this section, we briefly detail minor alterations and/or exclusions made to the datasets. The major-ity of changes were small encoding changes, specif-ically the replacement of some Unicode punctua-tion characters with their ASCII equivalents. This was done to guard against interference in model behavior from the inclusion of equivalent but much rarer tokens. Most notably, two questions were removed from the Coane dataset. The first of these concerned the current holder of a public political office. This was removed for two-fold reasons. First, the correct an-swer to this question has changed since the original human trials, meaning that the correct answer as marked is outdated. While this could have been rectified, we removed the question entirely because the wide range of knowledge cutoffs across models makes it very likely that the “correct” accessible answer varies widely. The second question con-cerned a detail to a popular fantasy book, “The Little Prince”. On further research, the annotators concluded that not only is the answer provided in the original dataset not correct based on publicly ac-cessible information on the story, but the question asked has no non-trivial correct alternative answer. As such, it was also removed from all further anal-ysis. 
+
+B Model Prompt Examples 
+
+This section will contain example prompts, includ-ing question and answer choices where appropriate, as they were presented to the models. The specific formats presented are those used for the Falcon 3 1B base model. In all cases, underscores (_) in-dicate the model’s first token generation position and are not included in the context provided to the mode. 
+
+B.1 ProtoQA 
+
+Question: What is the chemical symbol for gold? A. Ag B. Mo C. Au D. Gd Answer: C Question: In what year did the First World War end? A. 1939 
+
+10 B. 1918 C. 1914 D. 1945 Answer: B Question: At The Beach, Name Something That Might Protect You From Sun. A. umbrella B. sunscreen C. sun hat D. sunglasses E. cover up F. shade Answer: _ 
+
+B.2 CamChoice 
+
+Question: What is the chemical symbol for gold? A. Ag B. Mo C. Au D. Gd Answer: C Question: In what year did the First World War end? A. 1939 B. 1918 C. 1914 D. 1945 Answer: B Question: Some time ago a website highlighted the risks of public check-ins - online announcements of your whereabouts. ... <story truncated for example purposes only> ... What Armstrong has figured out is something we would all do well to remember: the web may allow us to say anything, but that doesn 't mean we should. Why does the writer describe a website about public check-ins in the first paragraph? A. to reinforce the concerns already felt by some people B. to remind readers to beware of false promises C. to explain that such sites often have a hidden agenda D. to show that the risks of internet use are sometimes over estimated Answer: _ 
+
+B.3 MMLU 
+
+Question: What is the chemical symbol for gold? A. Ag B. Mo C. Au D. Gd Answer: C Question: In what year did the First World War end? A. 1939 B. 1918 C. 1914 D. 1945 Answer: B Question: Find the degree for the given field extension Q(sqrt(2), sqrt(3), sqrt(18)) over Q. A. 0 B. 4 C. 2 D. 6 Answer: _ 
+
+B.4 Coane B.4.1 MCQA 
+
+Question: What is the chemical symbol for gold? A. Ag B. Mo C. Au D. Gd Answer: C Question: In what year did the First World War end? A. 1939 B. 1918 C. 1914 D. 1945 Answer: B Question: Which band was Paul McCartney a member of? A. The Monkees B. The Rolling Stones C. The Yardbirds 
+
+11 D. The Beatles Answer: _ 
+
+B.4.2 OEQA 
+
+What is the chemical symbol for gold? Answer in as few words as possible, wrapping the key part in {} brackets: The chemical symbol for gold is {Au}. In what year did the First World War end? Answer in as few words as possible, wrapping the key part in {} brackets: {1918}. Which band was Paul McCartney a member of? Answer in as few words as possible, wrapping the key part in {} brackets: {_ 
+
+C Additional Figures 
+
+12 Llama_3.2_1B 
+
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Wilcoxon r (IFT Pairs)
+
+mc_choice-ent 
+
+mc_choice-prob 
+
+mc_total-ent 
+
+mc_top-1-prob 
+
+mc_top-k-ent-5 
+
+mc_top-k-ent-10 
+
+mc_top-k-ent-25 
+
+mc_top-k-ent-50 
+
+mc_top-k-ent-100 
+
+mc_top-p-len-0.95 
+
+mc_top-p-len-0.9 
+
+mc_top-p-len-0.75 
+
+mc_top-p-len-0.5 
+
+mc_top-p-ent-0.95 
+
+mc_top-p-ent-0.9 
+
+mc_top-p-ent-0.75 
+
+mc_top-p-ent-0.5 
+
+0.20 0.23 0.19 0.21 0.19 0.22 0.21 0.20 
+
+0.20 0.19 0.19 0.21 0.19 0.19 
+
+0.20 0.19 0.20 0.20 0.20 
+
+0.20 0.20 0.19 0.20 0.21 0.19 0.19 
+
+0.20 0.21 0.19 0.21 0.19 0.21 0.21 0.20 
+
+0.20 0.20 0.19 0.20 0.21 0.20 0.20 
+
+0.20 0.19 0.21 0.20 0.20 
+
+0.20 0.19 0.21 0.20 0.20 
+
+0.20 0.19 0.21 0.20 0.20 
+
+0.21 
+
+0.20 0.20 
+
+0.22 0.22 0.20 
+
+0.21 0.21 0.22 
+
+0.21 0.21 0.21 
+
+0.22 0.20 0.20 
+
+0.22 
+
+Spearman Correlation 
+
+CamChoice (MCQA) 
+
+human uncertainty (Human Ent) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 4: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the CamChoice dataset. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation Gemma2_2B 
+
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Wilcoxon r (IFT Pairs)
+
+mc_choice-ent 
+
+mc_choice-prob 
+
+mc_total-ent 
+
+mc_top-1-prob 
+
+mc_top-k-ent-5 
+
+mc_top-k-ent-10 
+
+mc_top-k-ent-25 
+
+mc_top-k-ent-50 
+
+mc_top-k-ent-100 
+
+mc_top-p-len-0.95 
+
+mc_top-p-len-0.9 
+
+mc_top-p-len-0.75 
+
+mc_top-p-len-0.5 
+
+mc_top-p-ent-0.95 
+
+mc_top-p-ent-0.9 
+
+mc_top-p-ent-0.75 
+
+mc_top-p-ent-0.5 
+
+0.07 0.10 0.09 0.11 0.09 0.11 0.08 0.12 0.07 0.09 0.13 0.07 0.07 0.05 0.07 0.07 0.06 0.06 0.07 0.07 0.13 0.14 0.11 0.09 
+
+0.08 0.09 0.12 0.08 0.10 0.09 0.08 0.08 0.06 0.12 0.06 0.09 0.06 0.09 0.06 0.08 0.08 0.14 -0.05 0.14 0.11 0.09 0.07 0.883 
+
+0.10 0.08 0.11 0.07 0.09 0.10 0.09 0.09 0.07 0.09 0.14 0.05 0.09 0.08 0.11 0.06 0.09 0.09 0.12 0.13 0.09 0.11 0.05 0.917 
+
+0.09 0.09 0.13 0.07 0.10 0.11 0.09 0.09 0.07 0.08 0.05 0.12 0.06 0.09 0.06 0.08 0.08 0.08 0.14 0.14 0.11 0.09 
+
+0.08 0.09 0.10 0.07 0.10 0.10 0.09 0.10 0.05 0.07 0.09 0.06 0.12 0.07 0.08 0.08 0.09 0.05 0.07 0.08 0.13 0.14 0.10 0.09 
+
+0.10 0.09 0.12 0.08 0.10 0.11 0.10 0.10 0.07 0.08 0.09 0.05 0.13 0.07 0.09 0.08 0.10 0.05 0.09 0.09 0.13 0.14 0.10 0.10 0.883 
+
+0.10 0.09 0.12 0.08 0.10 0.11 0.09 0.10 0.07 0.08 0.09 0.05 0.14 0.07 0.09 0.08 0.10 0.05 0.09 0.09 0.13 0.13 0.10 0.10 0.850 
+
+0.10 0.09 0.11 0.07 0.10 0.11 0.09 0.10 0.07 0.08 0.09 0.14 0.06 0.09 0.08 0.10 0.05 0.09 0.09 0.12 0.13 0.10 0.10 0.850 
+
+0.10 0.09 0.11 0.07 0.10 0.11 0.09 0.10 0.07 0.07 0.09 0.14 0.06 0.09 0.08 0.10 0.05 0.09 0.09 0.12 0.13 0.10 0.10 0.867 
+
+0.10 0.07 0.08 0.07 0.08 0.06 0.08 0.09 0.09 0.13 0.07 0.08 0.10 0.06 0.08 0.08 0.09 0.10 0.07 0.10 0.900 
+
+0.10 0.08 0.09 0.06 0.08 0.09 0.07 0.10 0.08 0.09 0.12 0.07 0.07 0.11 0.06 0.08 0.08 0.10 0.10 0.09 0.10 0.05 0.883 
+
+0.10 0.08 0.10 0.08 0.10 0.10 0.09 0.07 0.06 0.09 0.12 0.06 0.09 0.06 0.09 0.06 0.07 0.09 0.12 0.12 0.10 0.10 0.05 0.983 
+
+0.08 0.07 0.13 0.06 0.09 0.11 0.09 0.05 0.05 0.08 0.10 0.05 0.08 0.08 0.07 0.08 0.13 0.13 0.10 0.10 0.05 0.950 
+
+0.09 0.06 0.08 0.10 0.08 0.07 0.06 0.09 0.06 0.08 0.05 0.08 
+
+0.09 0.06 0.08 0.10 0.05 0.07 0.06 0.07 0.06 0.10 0.06 0.05 0.05 0.11 0.10 0.08 
+
+0.05 0.09 0.08 0.07 0.06 0.08 0.06 0.06 0.07 0.05 0.06 0.08 0.05 0.06 0.06 0.05 0.11 0.11 0.09 0.06 
+
+0.05 0.07 0.09 0.06 0.07 0.09 0.06 0.05 0.06 0.05 0.05 0.08 0.06 0.06 0.05 0.11 0.11 0.07 
+
+Spearman Correlation 
+
+ProtoQA (MCQA) 
+
+human uncertainty (Human Ent) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+Figure 5: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the ProtoQA dataset. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+13 Gemma2_2B 
+
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Wilcoxon r (IFT Pairs)
+
+mc_choice-ent 
+
+mc_choice-prob 
+
+mc_total-ent 
+
+mc_top-1-prob 
+
+mc_top-k-ent-5 
+
+mc_top-k-ent-10 
+
+mc_top-k-ent-25 
+
+mc_top-k-ent-50 
+
+mc_top-k-ent-100 
+
+mc_top-p-len-0.95 
+
+mc_top-p-len-0.9 
+
+mc_top-p-len-0.75 
+
+mc_top-p-len-0.5 
+
+mc_top-p-ent-0.95 
+
+mc_top-p-ent-0.9 
+
+mc_top-p-ent-0.75 
+
+mc_top-p-ent-0.5 
+
+0.22 0.21 0.26 0.21 0.25 0.22 0.22 0.22 
+
+0.21 0.27 0.22 0.24 0.21 0.23 0.967 
+
+0.21 0.27 0.27 0.22 0.25 0.22 0.850 
+
+0.21 0.27 0.22 0.24 0.21 0.23 0.883 
+
+0.21 0.21 0.27 0.21 0.25 0.22 0.24 0.917 
+
+0.21 0.23 0.27 0.22 0.25 0.22 0.23 0.850 
+
+0.21 0.25 0.27 0.22 0.25 0.22 0.22 0.867 
+
+0.21 0.26 0.27 0.22 0.25 0.22 0.22 0.867 
+
+0.21 0.26 0.27 0.22 0.25 0.22 0.21 0.867 
+
+0.21 0.21 0.29 0.22 0.23 0.25 0.850 
+
+0.30 0.24 
+
+0.28 0.25 0.21 
+
+0.22 0.21 0.24 0.24 0.23 0.933 
+
+0.22 0.21 0.22 0.24 0.24 0.867 
+
+0.26 -0.21 0.21 
+
+Spearman Correlation 
+
+Coane (MCQA) 
+
+human uncertainty (Human RT) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 6: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the MCQA version of the Coane dataset compared against human response time. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation Falcon3_1B 
+
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Wilcoxon r (IFT Pairs)
+
+fr_total-ent 
+
+fr_ppl 
+
+fr_top-k-ent-5 
+
+fr_top-k-ent-10 
+
+fr_top-k-ent-25 
+
+fr_top-k-ent-50 
+
+fr_top-k-ent-100 
+
+fr_top-p-len-0.95 
+
+fr_top-p-len-0.9 
+
+fr_top-p-len-0.75 
+
+fr_top-p-len-0.5 
+
+fr_top-p-ent-0.95 
+
+fr_top-p-ent-0.9 
+
+fr_top-p-ent-0.75 
+
+fr_top-p-ent-0.5 
+
+0.21 0.867 
+
+0.22 0.917 
+
+0.22 0.900 
+
+0.22 0.883 
+
+0.22 0.883 
+
+0.22 0.867 
+
+0.22 0.867 
+
+0.883 
+
+0.900 
+
+Spearman Correlation 
+
+Coane (FR) 
+
+human uncertainty (Human ANS RT) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+Figure 7: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the FR version of the Coane dataset. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+14 Mistral_0.1 
+
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Wilcoxon r (IFT Pairs)
+
+bfr_total-ent 
+
+bfr_ppl 
+
+bfr_top-k-ent-5 
+
+bfr_top-k-ent-10 
+
+bfr_top-k-ent-25 
+
+bfr_top-k-ent-50 
+
+bfr_top-k-ent-100 
+
+bfr_top-p-len-0.95 
+
+bfr_top-p-len-0.9 
+
+bfr_top-p-len-0.75 
+
+bfr_top-p-len-0.5 
+
+bfr_top-p-ent-0.95 
+
+bfr_top-p-ent-0.9 
+
+bfr_top-p-ent-0.75 
+
+bfr_top-p-ent-0.5 
+
+Spearman Correlation 
+
+Coane (BFR) 
+
+human uncertainty (Human ANS RT) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 8: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the BFR version of the Coane dataset. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation Llama_3.2_1B 
+
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Wilcoxon r (IFT Pairs)
+
+fr_tok1_total-ent 
+
+fr_tok1_top-1-prob 
+
+fr_tok1_top-k-ent-5 
+
+fr_tok1_top-k-ent-10 
+
+fr_tok1_top-k-ent-25 
+
+fr_tok1_top-k-ent-50 
+
+fr_tok1_top-k-ent-100 
+
+fr_tok1_top-p-len-0.95 
+
+fr_tok1_top-p-len-0.9 
+
+fr_tok1_top-p-len-0.75 
+
+fr_tok1_top-p-len-0.5 
+
+fr_tok1_top-p-ent-0.95 
+
+fr_tok1_top-p-ent-0.9 
+
+fr_tok1_top-p-ent-0.75 
+
+fr_tok1_top-p-ent-0.5 
+
+Spearman Correlation 
+
+Coane (1TFR) 
+
+human uncertainty (Human ANS RT) vs. model uncertainty 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+Figure 9: Spearman correlation between uncertainty measures and human uncertainty (measured via human response distribution entropy) on the 1TFR version of the Coane dataset. Darker cells indicate higher correlation, while blank cells indicate that correlation failed to meet the corrected p-value threshold. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+15 Llama_2_7B 
+
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Wilcoxon r (IFT Pairs)
+
+mc_choice-ent 
+
+mc_choice-prob 
+
+mc_total-ent 
+
+mc_top-1-prob 
+
+mc_top-k-ent-5 
+
+mc_top-k-ent-10 
+
+mc_top-k-ent-25 
+
+mc_top-k-ent-50 
+
+mc_top-k-ent-100 
+
+mc_top-p-len-0.95 
+
+mc_top-p-len-0.9 
+
+mc_top-p-len-0.75 
+
+mc_top-p-len-0.5 
+
+mc_top-p-ent-0.95 
+
+mc_top-p-ent-0.9 
+
+mc_top-p-ent-0.75 
+
+mc_top-p-ent-0.5 
+
+0.399 0.263 0.322 0.196 0.392 0.361 0.272 0.281 0.284 0.114 0.325 0.123 0.275 0.180 0.175 0.289 0.243 0.318 0.308 0.146 0.297 0.284 0.205 0.237 0.237 0.164 0.337 0.154 0.259 0.034 
+
+0.106 0.417 0.043 0.560 0.096 0.488 0.047 0.287 0.076 0.091 0.052 0.318 0.024 0.675 0.048 0.761 0.044 0.547 0.059 0.719 0.029 0.039 0.107 0.323 0.031 0.045 0.032 0.148 0.028 0.069 -1.000 
+
+0.448 0.479 0.310 0.234 0.477 0.620 0.200 0.377 0.423 0.441 0.346 0.138 0.255 0.107 0.261 0.170 0.291 0.172 0.241 0.158 0.540 0.389 0.356 0.043 0.274 0.134 0.387 0.284 0.200 0.068 
+
+0.106 0.295 0.041 0.202 0.096 0.471 0.048 0.287 0.076 0.074 0.024 0.242 0.024 0.062 0.048 0.117 0.044 0.255 0.059 0.037 0.029 0.067 0.107 0.334 0.031 0.088 0.032 0.140 0.028 0.079 -0.950 
+
+0.275 0.176 0.232 0.201 0.265 0.350 0.208 0.220 0.187 0.197 0.235 0.334 0.217 0.161 0.129 0.057 0.174 0.408 0.231 0.143 0.167 0.225 0.120 0.394 0.163 0.212 0.233 0.116 0.197 0.199 
+
+0.084 0.261 0.071 0.212 0.062 0.434 0.088 0.259 0.071 0.086 0.087 0.302 0.095 0.122 0.069 0.083 0.068 0.345 0.080 0.084 0.084 0.101 0.057 0.369 0.051 0.150 0.063 0.083 0.088 0.186 -1.000 
+
+0.166 0.337 0.087 0.227 0.156 0.495 0.046 0.295 0.169 0.092 0.117 0.251 0.076 0.083 0.110 0.101 0.109 0.229 0.059 0.035 0.243 0.066 0.159 0.326 0.095 0.088 0.122 0.112 0.067 0.142 
+
+0.231 0.375 0.142 0.232 0.228 0.524 0.075 0.314 0.229 0.167 0.167 0.204 0.109 0.059 0.142 0.111 0.149 0.166 0.099 0.041 0.316 0.099 0.207 0.287 0.140 0.050 0.181 0.142 0.088 0.107 
+
+0.281 0.400 0.181 0.234 0.282 0.545 0.096 0.327 0.274 0.220 0.205 0.159 0.140 0.039 0.166 0.119 0.181 0.112 0.129 0.050 0.366 0.152 0.240 0.253 0.171 0.040 0.224 0.168 0.110 0.083 
+
+0.166 0.570 0.122 0.279 0.158 0.455 0.432 0.270 0.448 0.567 0.042 0.215 0.188 0.056 0.087 0.199 0.124 0.142 0.158 0.221 0.345 0.548 0.294 0.172 0.050 0.226 0.111 0.288 0.271 0.098 
+
+0.167 0.591 0.062 0.376 0.154 0.517 0.259 0.293 0.314 0.591 0.053 0.342 0.068 0.229 0.061 0.217 0.069 0.374 0.073 0.279 0.300 0.622 0.154 0.274 0.104 0.262 0.048 0.323 0.098 0.133 -1.000 
+
+0.088 0.595 0.169 0.433 0.093 0.595 0.101 0.364 0.122 0.599 0.218 0.397 0.154 0.272 0.174 0.220 0.187 0.448 0.153 0.299 0.019 0.634 0.174 0.312 0.205 0.284 0.173 0.337 0.094 0.138 -1.000 
+
+0.346 0.583 0.307 0.436 0.348 0.654 0.159 0.373 0.364 0.604 0.346 0.411 0.252 0.276 0.227 0.220 0.288 0.469 0.250 0.282 0.348 0.635 0.315 0.324 0.274 0.289 0.362 0.337 0.178 0.134 
+
+0.398 0.242 0.333 0.228 0.391 0.319 0.292 0.242 0.278 0.091 0.330 0.115 0.283 0.037 0.221 0.064 0.265 0.090 0.320 0.045 0.297 0.146 0.247 0.177 0.294 0.107 0.335 0.137 0.271 0.180 1.000 
+
+0.399 0.235 0.362 0.235 0.392 0.381 0.301 0.249 0.281 0.163 0.340 0.177 0.307 0.082 0.230 0.076 0.289 0.192 0.335 0.142 0.303 0.076 0.267 0.234 0.321 0.196 0.339 0.226 0.274 0.187 1.000 
+
+0.406 0.329 0.366 0.295 0.391 0.507 0.297 0.308 0.310 0.246 0.323 0.291 0.255 0.091 0.208 0.142 0.263 0.374 0.320 0.269 0.315 0.233 0.316 0.328 0.269 0.229 0.309 0.222 0.193 0.100 
+
+0.371 0.453 0.310 0.310 0.372 0.617 0.153 0.318 0.326 0.278 0.264 0.385 0.173 0.185 0.172 0.210 0.231 0.432 0.257 0.213 0.257 0.283 0.308 0.390 0.208 0.207 0.302 0.253 0.153 0.102 
+
+Expected Calibration Error ( )
+
+CamChoice 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 10: ECESweep results for the CamChoice dataset. Darker cells indicate higher calibration error and thus lower calibration. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models, with blank cells indicating insignificance. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation Llama_2_7B 
+
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Wilcoxon r (IFT Pairs)
+
+mc_choice-ent 
+
+mc_choice-prob 
+
+mc_total-ent 
+
+mc_top-1-prob 
+
+mc_top-k-ent-5 
+
+mc_top-k-ent-10 
+
+mc_top-k-ent-25 
+
+mc_top-k-ent-50 
+
+mc_top-k-ent-100 
+
+mc_top-p-len-0.95 
+
+mc_top-p-len-0.9 
+
+mc_top-p-len-0.75 
+
+mc_top-p-len-0.5 
+
+mc_top-p-ent-0.95 
+
+mc_top-p-ent-0.9 
+
+mc_top-p-ent-0.75 
+
+mc_top-p-ent-0.5 
+
+0.276 0.174 0.244 0.248 0.267 0.250 0.201 0.107 0.235 0.085 0.236 0.173 0.234 0.115 0.252 0.189 0.212 0.127 0.151 0.182 0.161 0.170 0.310 0.251 0.241 0.366 0.244 0.184 0.237 0.125 
+
+0.042 0.451 0.048 0.444 0.050 0.183 0.084 0.181 0.031 0.104 0.040 0.501 0.043 0.573 0.075 0.274 0.075 0.261 0.091 0.570 0.064 0.497 0.021 0.414 0.030 0.394 0.069 0.254 0.020 0.112 -1.000 
+
+0.469 0.489 0.408 0.108 0.557 0.232 0.424 0.149 0.366 0.256 0.372 0.253 0.378 0.349 0.480 0.422 0.409 0.221 0.327 0.227 0.308 0.245 0.508 0.617 0.367 0.489 0.442 0.394 0.327 0.242 
+
+0.042 0.333 0.048 0.157 0.050 0.163 0.084 0.178 0.031 0.069 0.039 0.115 0.043 0.204 0.075 0.057 0.075 0.154 0.091 0.086 0.064 0.032 0.016 0.414 0.029 0.392 0.068 0.243 0.020 0.100 -0.900 
+
+0.169 0.233 0.162 0.175 0.146 0.263 0.106 0.265 0.147 0.120 0.148 0.277 0.146 0.095 0.144 0.113 0.122 0.277 0.087 0.041 0.100 0.162 0.194 0.272 0.156 0.319 0.146 0.157 0.162 0.072 
+
+0.066 0.301 0.039 0.155 0.118 0.205 0.084 0.227 0.064 0.072 0.053 0.220 0.055 0.152 0.073 0.094 0.063 0.206 0.050 0.038 0.040 0.070 0.074 0.369 0.051 0.357 0.059 0.177 0.067 0.062 -0.933 
+
+0.205 0.362 0.161 0.147 0.268 0.107 0.203 0.179 0.160 0.066 0.159 0.125 0.163 0.217 0.213 0.133 0.181 0.125 0.146 0.051 0.130 0.003 0.211 0.450 0.146 0.394 0.188 0.221 0.132 0.067 
+
+0.271 0.392 0.222 0.145 0.339 0.056 0.257 0.142 0.209 0.090 0.212 0.070 0.216 0.248 0.277 0.173 0.236 0.075 0.189 0.068 0.172 0.042 0.280 0.489 0.197 0.413 0.248 0.250 0.175 0.089 
+
+0.319 0.415 0.266 0.140 0.387 0.012 0.294 0.108 0.245 0.116 0.250 0.048 0.254 0.271 0.322 0.210 0.275 0.034 0.220 0.084 0.202 0.073 0.329 0.516 0.234 0.428 0.291 0.275 0.207 0.113 
+
+0.411 0.561 0.313 0.146 0.245 0.235 0.113 0.398 0.071 0.390 0.156 0.503 0.286 0.432 0.257 0.590 0.369 0.358 0.192 0.244 0.218 0.352 0.503 0.578 0.106 0.504 0.427 0.445 0.203 0.298 
+
+0.430 0.560 0.355 0.310 0.282 0.589 0.177 0.405 0.128 0.397 0.208 0.509 0.320 0.446 0.295 0.632 0.396 0.442 0.236 0.356 0.253 0.385 0.511 0.603 0.155 0.506 0.437 0.458 0.236 0.322 -0.967 
+
+0.487 0.553 0.419 0.517 0.393 0.599 0.298 0.418 0.241 0.390 0.307 0.512 0.380 0.439 0.402 0.643 0.430 0.475 0.293 0.389 0.290 0.395 0.545 0.639 0.261 0.504 0.476 0.444 0.291 0.300 -0.967 
+
+0.541 0.548 0.459 0.569 0.532 0.600 0.392 0.420 0.321 0.360 0.376 0.518 0.409 0.424 0.496 0.644 0.440 0.475 0.305 0.393 0.285 0.397 0.579 0.665 0.334 0.504 0.483 0.440 0.299 0.289 -0.850 
+
+0.276 0.222 0.238 0.105 0.277 0.096 0.231 0.079 0.269 0.054 0.249 0.087 0.244 0.130 0.255 0.188 0.236 0.040 0.187 0.085 0.211 0.048 0.311 0.250 0.258 0.306 0.247 0.160 0.259 0.035 0.983 
+
+0.278 0.245 0.261 0.116 0.291 0.060 0.250 0.151 0.281 0.119 0.263 0.155 0.256 0.147 0.259 0.116 0.257 0.118 0.209 0.064 0.233 0.154 0.315 0.288 0.271 0.310 0.256 0.191 0.270 0.082 0.950 
+
+0.284 0.346 0.276 0.152 0.301 0.160 0.263 0.248 0.263 0.196 0.252 0.259 0.247 0.220 0.272 0.106 0.262 0.275 0.223 0.103 0.230 0.233 0.309 0.412 0.257 0.372 0.262 0.261 0.238 0.142 
+
+0.282 0.465 0.260 0.248 0.239 0.266 0.256 0.282 0.200 0.197 0.246 0.282 0.248 0.326 0.295 0.253 0.259 0.317 0.195 0.317 0.176 0.012 0.302 0.543 0.212 0.396 0.269 0.332 0.173 0.202 
+
+Expected Calibration Error ( )
+
+MMLU 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+Figure 11: ECESweep results for the MMLU dataset. Darker cells indicate higher calibration error and thus lower calibration. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models, with blank cells indicating insignificance. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+16 Gemma2_2B 
+
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Wilcoxon r (IFT Pairs)
+
+fr_total-ent 
+
+fr_first-token-ent 
+
+fr_ppl 
+
+fr_top-k-ent-5 
+
+fr_top-k-ent-10 
+
+fr_top-k-ent-25 
+
+fr_top-k-ent-50 
+
+fr_top-k-ent-100 
+
+fr_top-p-len-0.95 
+
+fr_top-p-len-0.9 
+
+fr_top-p-len-0.75 
+
+fr_top-p-len-0.5 
+
+fr_top-p-ent-0.95 
+
+fr_top-p-ent-0.9 
+
+fr_top-p-ent-0.75 
+
+fr_top-p-ent-0.5 
+
+0.166 0.151 0.041 0.082 0.070 0.205 0.079 0.141 0.198 0.188 0.112 0.168 0.294 0.513 0.041 0.223 0.304 0.315 0.214 0.222 0.122 0.261 0.101 0.165 0.317 0.246 0.070 0.132 0.074 0.097 
+
+0.048 0.073 0.045 0.064 0.036 0.078 0.040 0.101 0.055 0.150 0.059 0.121 0.091 0.428 0.067 0.186 0.022 0.196 0.032 0.107 0.045 0.190 0.024 0.123 0.152 0.102 0.063 0.053 0.026 0.050 -0.883 
+
+0.508 0.550 0.632 0.625 0.588 0.479 0.575 0.529 0.443 0.476 0.538 0.482 0.382 0.172 0.621 0.466 0.343 0.374 0.457 0.482 0.535 0.415 0.556 0.502 0.366 0.439 0.604 0.543 0.614 0.575 
+
+0.016 0.151 0.107 0.176 0.053 0.044 0.036 0.046 0.127 0.034 0.009 0.064 0.163 0.261 0.075 0.055 0.224 0.099 0.094 0.076 0.019 0.103 0.017 0.047 0.086 0.053 0.225 0.077 0.205 0.075 
+
+0.021 0.091 0.090 0.099 0.047 0.062 0.032 0.016 0.139 0.068 0.026 0.083 0.181 0.315 0.057 0.066 0.233 0.114 0.111 0.042 0.045 0.134 0.023 0.066 0.093 0.068 0.179 0.039 0.150 0.037 
+
+0.041 0.039 0.074 0.046 0.046 0.101 0.031 0.055 0.151 0.106 0.041 0.110 0.198 0.366 0.040 0.102 0.243 0.149 0.126 0.039 0.056 0.165 0.043 0.083 0.109 0.082 0.134 0.027 0.102 0.026 
+
+0.055 0.048 0.063 0.028 0.043 0.122 0.035 0.077 0.157 0.124 0.051 0.120 0.210 0.393 0.031 0.124 0.250 0.165 0.143 0.068 0.070 0.182 0.044 0.103 0.133 0.105 0.103 0.045 0.078 0.038 
+
+0.069 0.047 0.053 0.025 0.041 0.136 0.029 0.092 0.163 0.136 0.060 0.131 0.220 0.414 0.024 0.142 0.257 0.187 0.151 0.094 0.076 0.196 0.055 0.113 0.147 0.121 0.073 0.059 0.054 0.047 
+
+0.044 0.183 0.197 0.103 0.350 0.219 0.389 0.171 0.194 0.212 0.383 0.181 0.095 0.542 0.102 0.211 0.217 0.322 0.116 0.264 0.082 0.282 0.050 0.171 0.441 0.322 0.121 0.182 0.120 0.111 
+
+0.142 0.205 0.067 0.114 0.108 0.251 0.133 0.173 0.141 0.228 0.101 0.197 0.194 0.566 0.032 0.238 0.303 0.382 0.169 0.294 0.125 0.295 0.099 0.188 0.477 0.357 0.166 0.195 0.139 0.128 
+
+0.213 0.216 0.035 0.115 0.077 0.265 0.087 0.185 0.209 0.229 0.117 0.210 0.331 0.574 0.087 0.255 0.342 0.417 0.253 0.315 0.157 0.293 0.134 0.195 0.498 0.368 0.189 0.191 0.148 0.123 
+
+0.229 0.215 0.069 0.105 0.112 0.244 0.124 0.166 0.235 0.226 0.166 0.198 0.358 0.575 0.102 0.258 0.351 0.429 0.273 0.320 0.166 0.288 0.145 0.188 0.508 0.370 0.183 0.184 0.127 0.110 
+
+0.306 0.353 0.447 0.682 0.358 0.239 0.355 0.352 0.235 0.392 0.312 0.325 0.105 0.003 0.351 0.335 0.077 0.145 0.221 0.288 0.354 0.270 0.381 0.412 0.026 0.170 0.300 0.343 0.351 0.443 
+
+0.406 0.423 0.555 0.732 0.464 0.335 0.466 0.416 0.354 0.464 0.406 0.380 0.211 0.096 0.461 0.390 0.177 0.231 0.320 0.361 0.450 0.338 0.490 0.473 0.106 0.266 0.395 0.413 0.433 0.473 
+
+0.535 0.461 0.690 0.759 0.620 0.420 0.611 0.468 0.492 0.490 0.557 0.402 0.364 0.167 0.623 0.483 0.339 0.304 0.465 0.440 0.599 0.380 0.639 0.492 0.254 0.382 0.524 0.468 0.517 0.443 
+
+0.650 0.379 0.805 0.262 0.748 0.334 0.724 0.246 0.600 0.415 0.698 0.013 0.483 0.043 0.729 0.368 0.500 0.355 0.598 0.420 0.731 0.233 0.746 0.005 0.308 0.394 0.489 0.403 0.434 0.178 0.967 
+
+Expected Calibration Error ( )
+
+Coane (FR) 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 12: ECESweep results for the FR version of the Coane dataset. Darker cells indicate higher calibration error and thus lower calibration. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models, with blank cells indicating insignificance. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation Gemma2_2B 
+
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Gemma_2B
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Wilcoxon r (IFT Pairs)
+
+bfr_total-ent 
+
+bfr_first-token-ent 
+
+bfr_ppl 
+
+bfr_top-k-ent-5 
+
+bfr_top-k-ent-10 
+
+bfr_top-k-ent-25 
+
+bfr_top-k-ent-50 
+
+bfr_top-k-ent-100 
+
+bfr_top-p-len-0.95 
+
+bfr_top-p-len-0.9 
+
+bfr_top-p-len-0.75 
+
+bfr_top-p-len-0.5 
+
+bfr_top-p-ent-0.95 
+
+bfr_top-p-ent-0.9 
+
+bfr_top-p-ent-0.75 
+
+bfr_top-p-ent-0.5 
+
+0.098 0.121 0.013 0.085 0.285 0.199 0.050 0.101 0.057 0.078 0.066 0.184 0.068 0.110 0.182 0.476 0.024 0.216 0.126 0.263 0.088 0.181 0.069 0.227 0.076 0.148 0.166 0.176 0.122 0.158 -0.850 
+
+0.048 0.073 0.045 0.064 0.152 0.102 0.063 0.053 0.026 0.050 0.036 0.078 0.040 0.101 0.091 0.428 0.067 0.186 0.022 0.196 0.032 0.107 0.045 0.190 0.024 0.123 0.055 0.150 0.059 0.121 -0.883 
+
+0.592 0.569 0.683 0.580 0.391 0.482 0.619 0.565 0.621 0.582 0.611 0.493 0.601 0.538 0.499 0.216 0.673 0.461 0.549 0.422 0.593 0.518 0.607 0.442 0.608 0.513 0.509 0.482 0.544 0.489 0.867 
+
+0.301 0.228 0.327 0.131 0.145 0.169 0.256 0.179 0.207 0.144 0.181 0.052 0.174 0.102 0.220 0.209 0.304 0.132 0.265 0.199 0.285 0.206 0.255 0.123 0.215 0.131 0.102 0.086 0.119 0.093 0.950 
+
+0.250 0.168 0.264 0.084 0.103 0.133 0.214 0.131 0.162 0.094 0.131 0.035 0.126 0.085 0.197 0.240 0.255 0.102 0.234 0.169 0.249 0.157 0.205 0.106 0.163 0.105 0.064 0.077 0.065 0.086 
+
+0.201 0.117 0.205 0.048 0.072 0.110 0.171 0.089 0.107 0.077 0.084 0.074 0.079 0.075 0.166 0.280 0.204 0.102 0.199 0.124 0.208 0.120 0.154 0.112 0.114 0.090 0.057 0.094 0.045 0.100 
+
+0.161 0.083 0.169 0.036 0.085 0.088 0.141 0.057 0.081 0.049 0.055 0.095 0.049 0.061 0.145 0.310 0.176 0.116 0.187 0.116 0.178 0.078 0.120 0.127 0.083 0.092 0.043 0.110 0.039 0.110 
+
+0.137 0.065 0.141 0.034 0.103 0.087 0.130 0.046 0.059 0.043 0.038 0.105 0.027 0.068 0.119 0.334 0.149 0.132 0.155 0.124 0.150 0.069 0.100 0.141 0.060 0.097 0.064 0.124 0.049 0.119 
+
+0.177 0.182 0.057 0.109 0.425 0.322 0.124 0.187 0.115 0.100 0.109 0.214 0.127 0.136 0.293 0.553 0.068 0.239 0.243 0.320 0.187 0.276 0.132 0.280 0.112 0.175 0.173 0.216 0.140 0.183 
+
+0.221 0.205 0.077 0.113 0.468 0.355 0.166 0.191 0.138 0.120 0.141 0.247 0.149 0.152 0.339 0.569 0.090 0.256 0.304 0.382 0.243 0.303 0.164 0.288 0.150 0.189 0.221 0.232 0.174 0.197 
+
+0.244 0.223 0.089 0.107 0.502 0.369 0.188 0.190 0.136 0.113 0.146 0.263 0.142 0.167 0.367 0.577 0.109 0.265 0.349 0.419 0.282 0.309 0.169 0.302 0.156 0.198 0.247 0.232 0.179 0.209 
+
+0.248 0.209 0.086 0.105 0.500 0.371 0.185 0.179 0.125 0.110 0.145 0.244 0.147 0.159 0.377 0.577 0.108 0.257 0.360 0.429 0.289 0.322 0.174 0.288 0.139 0.188 0.249 0.226 0.178 0.198 
+
+0.300 0.343 0.427 0.359 0.067 0.166 0.309 0.302 0.370 0.371 0.389 0.224 0.373 0.338 0.171 0.056 0.352 0.278 0.234 0.150 0.312 0.262 0.375 0.293 0.371 0.334 0.290 0.255 0.312 0.281 
+
+0.385 0.398 0.508 0.377 0.144 0.251 0.406 0.372 0.465 0.394 0.480 0.318 0.474 0.375 0.237 0.164 0.473 0.336 0.304 0.211 0.379 0.341 0.443 0.310 0.450 0.367 0.384 0.309 0.396 0.346 
+
+0.471 0.442 0.515 0.287 0.259 0.362 0.519 0.453 0.505 0.407 0.557 0.392 0.480 0.393 0.354 0.245 0.535 0.387 0.394 0.275 0.474 0.432 0.500 0.376 0.497 0.394 0.470 0.455 0.408 0.354 0.867 
+
+0.470 0.358 0.491 0.021 0.305 0.394 0.479 0.322 0.433 0.165 0.437 0.303 0.474 0.034 0.383 0.388 0.545 0.011 0.428 0.358 0.457 0.426 0.421 0.228 0.328 0.005 0.471 0.417 0.445 0.019 0.900 
+
+Expected Calibration Error ( )
+
+Coane (BFR) 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 
+
+Figure 13: ECESweep results for the BFR version of the Coane dataset. Darker cells indicate higher calibration error and thus lower calibration. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models, with blank cells indicating insignificance. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+17 Gemma_2B 
+
+> Gemma_2B_Ins
+> Gemma_7B
+> Gemma_7B_Ins
+> Mistral_0.1
+> Mistral_0.1_Ins
+> Mistral_0.3
+> Mistral_0.3_Ins
+> Llama_3.2_1B
+> Llama_3.2_1B_Ins
+> Llama_3.2_3B
+> Llama_3.2_3B_Ins
+> Llama_3.1_8B
+> Llama_3.1_8B_Ins
+> Gemma2_2B
+> Gemma2_2B_Ins
+> Gemma2_9B
+> Gemma2_9B_Ins
+> Falcon3_1B
+> Falcon3_1B_Ins
+> Falcon3_3B
+> Falcon3_3B_Ins
+> Falcon3_7B
+> Falcon3_7B_Ins
+> Falcon3_10B
+> Falcon3_10B_Ins
+> Llama_2_7B
+> Llama_2_7B_Chat
+> Llama_2_13B
+> Llama_2_13B_Chat
+> Wilcoxon r (IFT Pairs)
+
+fr_tok1_total-ent 
+
+fr_tok1_top-1-prob 
+
+fr_tok1_top-k-ent-5 
+
+fr_tok1_top-k-ent-10 
+
+fr_tok1_top-k-ent-25 
+
+fr_tok1_top-k-ent-50 
+
+fr_tok1_top-k-ent-100 
+
+fr_tok1_top-p-len-0.95 
+
+fr_tok1_top-p-len-0.9 
+
+fr_tok1_top-p-len-0.75 
+
+fr_tok1_top-p-len-0.5 
+
+fr_tok1_top-p-ent-0.95 
+
+fr_tok1_top-p-ent-0.9 
+
+fr_tok1_top-p-ent-0.75 
+
+fr_tok1_top-p-ent-0.5 
+
+0.091 0.428 0.067 0.186 0.036 0.078 0.040 0.101 0.152 0.102 0.063 0.053 0.026 0.050 0.048 0.073 0.045 0.064 0.022 0.196 0.032 0.107 0.045 0.190 0.024 0.123 0.055 0.150 0.059 0.121 -0.883 
+
+0.324 0.240 0.403 0.165 0.324 0.207 0.328 0.101 0.266 0.302 0.400 0.246 0.315 0.182 0.373 0.244 0.363 0.142 0.408 0.268 0.426 0.288 0.336 0.172 0.284 0.178 0.296 0.148 0.290 0.169 0.983 
+
+0.394 0.226 0.490 0.245 0.465 0.332 0.472 0.211 0.328 0.392 0.507 0.356 0.425 0.273 0.471 0.380 0.494 0.235 0.458 0.330 0.495 0.400 0.431 0.262 0.399 0.251 0.413 0.256 0.400 0.253 0.983 
+
+0.352 0.184 0.424 0.183 0.382 0.256 0.384 0.138 0.290 0.352 0.455 0.283 0.357 0.205 0.417 0.311 0.411 0.169 0.431 0.294 0.464 0.356 0.386 0.195 0.332 0.181 0.353 0.186 0.315 0.188 0.983 
+
+0.302 0.209 0.356 0.130 0.297 0.182 0.302 0.080 0.253 0.302 0.388 0.222 0.289 0.151 0.356 0.241 0.328 0.090 0.402 0.243 0.422 0.273 0.316 0.146 0.268 0.116 0.283 0.126 0.235 0.116 0.983 
+
+0.267 0.229 0.317 0.110 0.249 0.145 0.251 0.058 0.228 0.264 0.348 0.180 0.247 0.129 0.313 0.203 0.281 0.063 0.374 0.204 0.394 0.239 0.273 0.113 0.229 0.092 0.230 0.103 0.190 0.103 0.983 
+
+0.237 0.251 0.281 0.104 0.207 0.104 0.209 0.053 0.194 0.224 0.312 0.138 0.212 0.105 0.274 0.158 0.243 0.043 0.343 0.174 0.358 0.198 0.236 0.109 0.201 0.078 0.182 0.098 0.153 0.091 0.950 
+
+0.261 0.539 0.076 0.229 0.103 0.153 0.100 0.136 0.367 0.313 0.093 0.160 0.082 0.095 0.175 0.183 0.052 0.116 0.194 0.302 0.177 0.259 0.119 0.263 0.104 0.146 0.166 0.203 0.133 0.181 -0.867 
+
+0.323 0.563 0.100 0.246 0.135 0.216 0.134 0.156 0.441 0.353 0.142 0.183 0.122 0.117 0.217 0.206 0.075 0.120 0.263 0.362 0.231 0.289 0.148 0.287 0.141 0.174 0.213 0.218 0.162 0.195 
+
+0.361 0.575 0.108 0.257 0.139 0.250 0.146 0.161 0.489 0.374 0.185 0.185 0.128 0.111 0.242 0.217 0.087 0.106 0.339 0.410 0.277 0.313 0.172 0.290 0.156 0.186 0.247 0.227 0.175 0.198 
+
+0.376 0.575 0.105 0.257 0.147 0.234 0.140 0.159 0.501 0.372 0.187 0.175 0.135 0.109 0.241 0.213 0.079 0.105 0.358 0.422 0.289 0.314 0.176 0.284 0.139 0.187 0.244 0.223 0.177 0.198 
+
+0.178 0.180 0.391 0.297 0.416 0.238 0.391 0.302 0.106 0.190 0.310 0.294 0.358 0.325 0.309 0.325 0.423 0.327 0.270 0.178 0.337 0.268 0.371 0.272 0.353 0.314 0.306 0.311 0.314 0.271 
+
+0.238 0.024 0.457 0.323 0.502 0.329 0.473 0.306 0.161 0.267 0.394 0.357 0.444 0.361 0.379 0.375 0.485 0.337 0.327 0.250 0.387 0.337 0.444 0.322 0.420 0.342 0.394 0.349 0.379 0.314 0.850 
+
+0.343 0.298 0.529 0.304 0.537 0.409 0.542 0.220 0.261 0.347 0.501 0.400 0.489 0.263 0.500 0.417 0.482 0.242 0.399 0.293 0.462 0.387 0.475 0.348 0.452 0.276 0.446 0.303 0.362 0.281 0.917 
+
+0.363 0.417 0.492 0.069 0.410 0.267 0.459 0.070 0.334 0.423 0.463 0.273 0.416 0.031 0.484 0.360 0.482 0.004 0.419 0.365 0.485 0.387 0.413 0.224 0.296 0.038 0.455 0.075 0.385 0.054 0.917 
+
+Expected Calibration Error ( )
+
+Coane (1TFR) 
+
+1.00 
+
+0.75 
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+1.00 Figure 14: ECESweep results for the 1TFR version of the Coane dataset. Darker cells indicate higher calibration error and thus lower calibration. The rightmost column shows the Wilcoxon effect size between each pair of base vs instruct models, with blank cells indicating insignificance. Models are grouped by family, models are sorted within family by model size, and families are sorted by mean per-column maximum correlation 
+
+18 0 4 8 12 17 
+
+layer 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> value
+
+W: p | r b | i peak 
+
+0.064 | 0.44 17 | 3
+
+0.002 | 0.74 10 | 4
+
+0.008 | 0.62 13 | 5
+
+Falcon3_1B 
+
+0 5 10 15 21 
+
+layer 
+
+W: p | r b | i peak 
+
+0.042 | 0.43 18 | 12 
+
+0.236 | 0.25 18 | 12 
+
+0.291 | 0.22 13 | 8
+
+Falcon3_3B 
+
+0 6 13 20 27 
+
+layer 
+
+W: p | r b | i peak 
+
+0.000 | 0.67 20 | 22 
+
+0.034 | 0.40 13 | 25 
+
+0.000 | 0.69 22 | 17 
+
+Falcon3_7B 
+
+0 9 19 29 39 
+
+layer 
+
+W: p | r b | i peak 
+
+0.000 | 0.59 32 | 33 
+
+0.340 | 0.15 17 | 28 
+
+0.098 | 0.26 19 | 9
+
+Falcon3_10B 
+
+0 4 8 12 17 
+
+layer 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> value
+
+W: p | r b | i peak 
+
+0.811 | 0.06 16 | 6
+
+0.199 | 0.30 13 | 11 
+
+0.286 | 0.25 3 | 9
+
+Gemma_2B 
+
+0 6 13 20 27 
+
+layer 
+
+W: p | r b | i peak 
+
+0.000 | 0.73 18 | 21 
+
+0.092 | 0.32 17 | 24 
+
+0.024 | 0.43 16 | 24 
+
+Gemma_7B 
+
+0 6 12 18 25 
+
+layer 
+
+W: p | r b | i peak 
+
+0.006 | 0.54 14 | 15 
+
+0.620 | 0.10 12 | 10 
+
+0.004 | 0.56 11 | 16 
+
+Gemma2_2B 
+
+0 10 20 30 41 
+
+layer 
+
+W: p | r b | i peak 
+
+0.000 | 0.60 32 | 36 
+
+0.648 | 0.07 33 | 34 
+
+0.750 | 0.05 31 | 21 
+
+Gemma2_9B 
+
+0 7 15 23 31 
+
+layer 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> value
+
+W: p | r b | i peak 
+
+0.017 | 0.42 29 | 26 
+
+0.654 | 0.08 13 | 27 
+
+0.601 | 0.09 17 | 18 
+
+Mistral_0.1 
+
+0 7 15 23 31 
+
+layer 
+
+W: p | r b | i peak 
+
+0.000 | 0.73 14 | 19 
+
+0.000 | 0.71 15 | 29 
+
+0.000 | 0.83 15 | 18 
+
+Mistral_0.3 
+
+0 7 15 23 31 
+
+layer 
+
+W: p | r b | i peak 
+
+0.150 | 0.25 15 | 22 
+
+0.018 | 0.42 8 | 25 
+
+0.006 | 0.49 12 | 25 
+
+Llama_2_7B 
+
+0 9 19 29 39 
+
+layer 
+
+W: p | r b | i peak 
+
+0.022 | 0.36 13 | 36 
+
+0.000 | 0.58 13 | 39 
+
+0.014 | 0.39 17 | 15 
+
+Llama_2_13B 
+
+0 3 7 11 15 
+
+layer 
+
+0.0 
+
+0.2 
+
+0.4 
+
+0.6 
+
+0.8 
+
+1.0 
+
+> value
+
+W: p | r b | i peak 
+
+0.918 | 0.03 8 | 13 
+
+0.469 | 0.18 8 | 10 
+
+0.642 | 0.12 7 | 9
+
+Llama_3.2_1B 
+
+0 6 13 20 27 
+
+layer 
+
+W: p | r b | i peak 
+
+0.133 | 0.28 15 | 24 
+
+0.026 | 0.42 11 | 24 
+
+0.000 | 0.72 11 | 27 
+
+Llama_3.2_3B 
+
+0 7 15 23 31 
+
+layer 
+
+W: p | r b | i peak 
+
+0.116 | 0.28 30 | 28 
+
+0.000 | 0.72 7 | 13 
+
+0.322 | 0.18 13 | 13 
+
+Llama_3.1_8B 
+
+human_ent_mean_correlation 
+
+rt_correct_mean_correlation 
+
+rt_combined_mean_correlation 
+
+base 
+
+instruction 
+
+base > ins region 
+
+ins > base region Figure 15: Per-layer model activation probing correlations. Colors indicate the human uncertainty type targeted during linear regression. Shaded regions indicate the gap between the base mode (solid line) and the instruct finetuned variant (dashed line). On-figure annotations in the top-left indicate the p-value and effect size for a Wilcoxon rank sum test between the base correlation and ins correlation across layers. Annotations in the top-right display the layer at which maximum human alignment was measured 
+
+19
