@@ -1,71 +1,31 @@
 {
-  "generated_at": "2026-06-08T21:27:25.231382+00:00",
-  "updated_date": "20260608",
+  "generated_at": "2026-06-12T21:09:53.152305+00:00",
+  "updated_date": "20260612",
   "carryover_days": 9,
   "tag_states": {
     "llm-agent": {
-      "updated_date": "20260608",
+      "updated_date": "20260612",
       "carryover_days": 9,
       "items": [
         {
-          "id": "2606.06820v1",
+          "id": "2606.08470v1",
           "source": "arxiv",
-          "title": "SCALE: Scalable Cross-Attention Learning with Extrapolation for Agentic Workflow Scheduling",
-          "abstract": "Agentic Large Language Model (LLM) systems decompose complex tasks into workflow Directed Acyclic Graphs (DAGs) whose primitives must be scheduled on heterogeneous clusters. Existing deep reinforcement learning (DRL) schedulers are tied to a fixed cluster size and require retraining whenever the number of servers changes. We propose SCALE (Scalable Cross-Attention Learning with Extrapolation), a DRL scheduler that generalizes to unseen cluster scales without fine-tuning. SCALE employs a cross-attention pointer network where task features query against server features, so the architecture accepts any number of servers by construction. We observe, however, that permutation-invariant architecture alone does not guarantee good performance at new scales - the attention feature undergoes distribution shift as the server count grows. To counter this, we introduce Structured Representation Regularization (SRR): a decorrelation loss combined with a KL penalty toward the standard normal, which keeps feature statistics stable regardless of input size. Trained on 16 nodes and tested directly on 32 and 48 nodes, SCALE reduces average response time by 8.9% at N=48 relative to the same architecture without SRR, confirming that explicit regularization is necessary to close the scale-generalization gap.",
+          "title": "LUNA-AD: Lightweight Uncertainty-Aware Language Model with Lifelong Learning for Autonomous Driving",
+          "abstract": "While large language models (LLMs) offer promising reasoning capabilities, their integration into safety-critical driving systems is hindered by limited reasoning diversity, high computational overhead, and static learning paradigms. To address these challenges, we propose LUNA-AD, a lightweight uncertainty-aware language model with lifelong learning for autonomous driving (AD). LUNA-AD features a tri-system architecture that reconciles complex multimodal behavioral reasoning, efficient deployment, and continual refinement. We design a multi-agent analytical system to generate uncertainty-aware decision-making demonstrations through diverse hypothesis exploration. A dual-head lightweight heuristic model is distilled to unify the inference of decision distributions and textual explanations while enabling efficient deployment. Furthermore, a reflection-driven lifelong learning mechanism operates on multimodal decision outputs and preserves strategic diversity, allowing for the refinement of candidate decisions and rationales via closed-loop feedback to enhance driving robustness. Extensive experiments on nuPlan benchmarks demonstrate that LUNA-AD achieves state-of-the-art success rates under both non-reactive and reactive modes, with drastically reduced inference latency compared to existing knowledge-driven AD frameworks.",
           "authors": [
-            "Zhifei Xu",
-            "Jierui Lan",
-            "Zixuan Liang",
-            "Aiji Liang",
-            "Jinxi He"
+            "Ruoyu Yao",
+            "Pei Liu",
+            "Ruiguo Zhong",
+            "Mingxing Peng",
+            "Rui Yang",
+            "Jun Ma"
           ],
-          "primary_category": "cs.LG",
+          "primary_category": "cs.RO",
           "categories": [
-            "cs.LG",
-            "cs.AI"
+            "cs.RO"
           ],
-          "published": "2026-06-05T01:45:02+00:00",
-          "link": "https://arxiv.org/pdf/2606.06820v1",
-          "tags": [
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Scalable scheduling framework for agentic LLM workflows using cross-attention learning",
-          "llm_evidence_cn": "使用交叉注意力学习的可扩展智能体工作流调度框架",
-          "llm_evidence": "使用交叉注意力学习的可扩展智能体工作流调度框架",
-          "canonical_evidence": "使用交叉注意力学习的可扩展智能体工作流调度框架",
-          "llm_tldr_en": "Presents SCALE, a DRL scheduler for agentic LLM workflow DAGs that generalizes to unseen cluster sizes via cross-attention pointer network and extrapolation, improving resource efficiency.",
-          "llm_tldr_cn": "针对现有智能体工作流调度器受限于固定集群规模、需针对不同规模重新训练的问题，提出SCALE框架。它采用交叉注意力指针网络，使任务特征查询服务器特征，结合外推策略，无需微调即可泛化到未见过的集群规模，实现了高效的异构集群调度。",
-          "llm_tldr": "针对现有智能体工作流调度器受限于固定集群规模、需针对不同规模重新训练的问题，提出SCALE框架。它采用交叉注意力指针网络，使任务特征查询服务器特征，结合外推策略，无需微调即可泛化到未见过的集群规模，实现了高效的异构集群调度。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "agent framework for LLM",
-          "matched_requirement_id": "req-17",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.06820v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.07200v1",
-          "source": "arxiv",
-          "title": "Learning Multi-Agent Communication Protocol: Study on Information Entropy Efficiency in MARL",
-          "abstract": "Multi-Agent Systems (MAS) have emerged as a fundamental paradigm for distributed problem-solving, where autonomous agents collaborate to achieve complex objectives. Within this framework, Multi-Agent Reinforcement Learning (MARL) with communication has demonstrated remarkable success in cooperative tasks. However, existing approaches predominantly pursue performance gains through increasingly complex architectures and expanding communication overhead, lacking principled metrics to evaluate the efficiency of information exchange. In this paper, we focus on enabling agents to learn efficient multi-agent communication protocols that balance performance and information compactness. We propose the Information Entropy Efficiency Index (IEI), a novel metric that quantifies the ratio between message entropy and task performance in learned communication protocols. A lower IEI indicates more compact and efficient message representations. By incorporating IEI into training loss functions, we encourage agents to develop communication protocols that achieve high performance with improved communication efficiency. Extensive experiments across diverse MARL algorithms demonstrate that our approach achieves equivalent or superior task performance compared to baseline methods while improving communication efficiency. These findings challenge the prevailing assumption that performance improvements require complex architectures or increased communication overhead and highlight the potential of improving both task success and communication efficiency to enable scalable MAS.",
-          "authors": [
-            "Xinren Zhang",
-            "Zixin Zhong",
-            "Jiadong Yu"
-          ],
-          "primary_category": "cs.MA",
-          "categories": [
-            "cs.MA"
-          ],
-          "published": "2026-06-05T12:08:37+00:00",
-          "link": "https://arxiv.org/pdf/2606.07200v1",
+          "published": "2026-06-07T06:27:29+00:00",
+          "link": "https://arxiv.org/pdf/2606.08470v1",
           "tags": [
             "keyword:agent-evol",
             "keyword:llm-agent",
@@ -75,13 +35,13 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "learns efficient communication protocols for multi-agent coordination",
-          "llm_evidence_cn": "学习高效的多智能体协调通信协议",
-          "llm_evidence": "学习高效的多智能体协调通信协议",
-          "canonical_evidence": "学习高效的多智能体协调通信协议",
-          "llm_tldr_en": "Proposes information entropy efficiency index for MARL communication, balancing performance and overhead.",
-          "llm_tldr_cn": "多智能体系统中的通信效率对合作性能至关重要，现有方法缺乏原则性度量。本文提出信息熵效率指数，使智能体在学习协作策略时兼顾通信的紧凑性。实验表明该方法能显著降低通信冗余，同时保持任务完成质量，为多智能体协调机制的设计提供了新的优化视角。",
-          "llm_tldr": "多智能体系统中的通信效率对合作性能至关重要，现有方法缺乏原则性度量。本文提出信息熵效率指数，使智能体在学习协作策略时兼顾通信的紧凑性。实验表明该方法能显著降低通信冗余，同时保持任务完成质量，为多智能体协调机制的设计提供了新的优化视角。",
+          "llm_evidence_en": "multi-agent analytical system for uncertainty-aware decision-making in autonomous driving",
+          "llm_evidence_cn": "面向自动驾驶的多智能体分析系统生成不确定性感知决策",
+          "llm_evidence": "面向自动驾驶的多智能体分析系统生成不确定性感知决策",
+          "canonical_evidence": "面向自动驾驶的多智能体分析系统生成不确定性感知决策",
+          "llm_tldr_en": "LUNA-AD integrates a multi-agent analytical system with a lightweight language model for lifelong learning in autonomous driving, generating diverse hypotheses to produce uncertainty-aware decisions and enable continual refinement.",
+          "llm_tldr_cn": "LLM集成到安全关键的自动驾驶受限于推理多样性、计算开销和静态学习。LUNA-AD设计三系统架构，通过多智能体分析系统探索多种假设生成不确定性感知决策演示，并蒸馏出轻量级双头启发式模型统一行为推理，具备终身学习能力，在复杂场景下提高了决策安全性和适应性，为统一推理与部署提供了新范式。",
+          "llm_tldr": "LLM集成到安全关键的自动驾驶受限于推理多样性、计算开销和静态学习。LUNA-AD设计三系统架构，通过多智能体分析系统探索多种假设生成不确定性感知决策演示，并蒸馏出轻量级双头启发式模型统一行为推理，具备终身学习能力，在复杂场景下提高了决策安全性和适应性，为统一推理与部署提供了新范式。",
           "llm_tags": [
             "query:llm-agent"
           ],
@@ -89,29 +49,38 @@
           "matched_query_text": "multi-agent system coordination",
           "matched_requirement_id": "req-16",
           "selection_source": "carryover_cache",
-          "paper_id": "2606.07200v1",
+          "paper_id": "2606.08470v1",
           "carry_days": 1
         },
         {
-          "id": "2606.06976v1",
+          "id": "2606.11070v1",
           "source": "arxiv",
-          "title": "Exploring Agentic Tool-Calling Decisions via Uncertainty-Aligned Reinforcement Learning",
-          "abstract": "Large language model (LLM)-based agents often make suboptimal tool-use decisions, including unsupported tool invocation and hallucinated direct responses, which may accumulate errors throughout multi-step interactions. Existing approaches mainly improve these behaviors through inference-time correction or coarse-grained reward signals based on decision outcomes and structured checklists, leaving the uncertainty characteristics of agent decisions underexplored. We observe that decision-oriented reinforcement learning tends to weaken the uncertainty separation between correct and incorrect actions, resulting in overconfident mistakes and weaker exploration signals. Therefore, we propose TRUST, which incorporates uncertainty quantification into reward design as a repulsive force for maintaining uncertainty separation, and labels lightweight key-turn annotations for unified post-training of multi-turn trajectories. Experimental results across diverse tool-use benchmarks show that TRUST consistently enhances both decision quality and agent performance while maintaining more reliable uncertainty estimates during optimization.",
+          "title": "T1-Bench: Benchmarking Multi-Scenario Agents in Real-World Domains",
+          "abstract": "Recent advances in reasoning and tool-calling capabilities of large language models (LLMs) have enabled increasingly capable agentic systems. However, existing benchmarks remain limited in task complexity, realism, and domain diversity, and often fail to capture interactions that span multiple domains, limiting their ability to evaluate agents in realistic multi-step settings that require sustained reasoning and coordination. To address these limitations, we introduce T1-Bench, a high-fidelity, comprehensive benchmark for evaluating agentic systems in realistic customer-facing, multi-domain environments, featuring interleaved scenarios that require structured reasoning across multi-turn user-assistant interactions and substantially increasing both compositional complexity and evaluative rigor across 25 domains of varying difficulty. We evaluate T1-Bench using 12 proprietary and open-weight models, providing a reproducible and standardized framework for assessing agent behavior, tool utilization, and conversational quality in complex, multi-step environments. We further complement automatic evaluation with human judgments to strengthen the assessment of qualitative performance. Overall, T1-Bench substantially advances prior benchmarks by increasing task complexity, interaction depth, and domain coverage in simulated multi-domain environments. To facilitate future research on agentic systems, we will publicly release data and evaluation code as open source.",
           "authors": [
-            "Yijin Zhou",
-            "Linqian Zeng",
-            "Xiaoya Lu",
-            "Wenyuan Xie",
-            "Dongrui Liu",
-            "Junchi Yan",
-            "Jing Shao"
+            "Genta Indra Winata",
+            "Amartya Chakraborty",
+            "Yuzhen Lin",
+            "Swasthi P Rao",
+            "Shikhhar Siingh",
+            "Houhan Lu",
+            "Nadia Bathaee",
+            "Sriharsha Hatwar",
+            "Paresh Dashore",
+            "Anmol Jain",
+            "Kshitij Tayal",
+            "Xiuzhu Lin",
+            "Anirban Das",
+            "Sambit Sahu",
+            "Shi-Xiong Zhang"
           ],
-          "primary_category": "cs.AI",
+          "primary_category": "cs.CL",
           "categories": [
+            "cs.CL",
             "cs.AI"
           ],
-          "published": "2026-06-05T07:08:34+00:00",
-          "link": "https://arxiv.org/pdf/2606.06976v1",
+          "published": "2026-06-09T16:32:14+00:00",
+          "link": "https://arxiv.org/pdf/2606.11070v1",
           "tags": [
             "keyword:agent-evol",
             "keyword:llm-agent",
@@ -121,57 +90,13 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Improves tool-use decisions in LLM agents by aligning uncertainty with RL training",
-          "llm_evidence_cn": "通过将不确定性与强化学习训练对齐来改善LLM智能体的工具使用决策",
-          "llm_evidence": "通过将不确定性与强化学习训练对齐来改善LLM智能体的工具使用决策",
-          "canonical_evidence": "通过将不确定性与强化学习训练对齐来改善LLM智能体的工具使用决策",
-          "llm_tldr_en": "Proposes TRUST, which incorporates uncertainty quantification in RL to improve tool-calling decisions of LLM agents, reducing overconfident mistakes and enabling better exploration.",
-          "llm_tldr_cn": "针对LLM智能体在工具使用中常出现无效调用和幻觉回复等次优决策，现有方法改进有限且忽略决策不确定性，提出TRUST方法，将不确定性量化融入强化学习训练，使模型更好区分正确与错误动作的不确定性，从而减少过度自信错误并增强探索信号，实验表明有效提升工具调用决策质量。",
-          "llm_tldr": "针对LLM智能体在工具使用中常出现无效调用和幻觉回复等次优决策，现有方法改进有限且忽略决策不确定性，提出TRUST方法，将不确定性量化融入强化学习训练，使模型更好区分正确与错误动作的不确定性，从而减少过度自信错误并增强探索信号，实验表明有效提升工具调用决策质量。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "tool use agent in LLM",
-          "matched_requirement_id": "req-18",
-          "selection_source": "carryover_cache",
-          "paper_id": "2606.06976v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2606.06880v1",
-          "source": "arxiv",
-          "title": "Towards Retrieving Interaction Spaces for Agentic Search",
-          "abstract": "Retrieval for search agents is still inherited from non-agentic information retrieval: a retriever ranks the corpus and the agent reads a small set of returned documents. Recent direct corpus interaction (DCI) work shows that agents can instead interact with the raw corpus through shell tools such as grep and file reads. But unbounded interaction does not scale: every broad shell command is a scan over the whole corpus, and latency degrades sharply as the corpus grows. We argue that the role of retrieval for agentic search is not just to select documents that fit in the LLM context window, but to construct an interaction space: a bounded subset of the corpus the agent can explore with associated tools. Two design consequences follow. The space needs a boundary supplied by retrieval, and the objects within it should be processed for interaction. As a proof of concept, we propose RISE (Retrieving Interaction SpacE): we use BM25 to construct the interaction space; meanwhile, its documents are processed during indexing for shell-style navigation. On BrowseComp-Plus, RISE matches the pure-shell DCI baseline at 78% accuracy with gpt-5.4-mini at roughly one quarter of the per-query cost. At 1M documents, RISE-BM25 reaches 81% on gpt-5.4-mini, whereas DCI on gpt-5.4-nano degrades to 60% with 33 of 100 wall-clock failures.",
-          "authors": [
-            "Shengyao Zhuang",
-            "Yuansheng Ni",
-            "Hengxin Fun",
-            "Jimmy Lin",
-            "Xueguang Ma"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR"
-          ],
-          "published": "2026-06-05T03:47:40+00:00",
-          "link": "https://arxiv.org/pdf/2606.06880v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Constructing bounded interaction spaces for efficient agentic search over large corpora",
-          "llm_evidence_cn": "为智能体在大规模语料库上的高效搜索构建有界交互空间",
-          "llm_evidence": "为智能体在大规模语料库上的高效搜索构建有界交互空间",
-          "canonical_evidence": "为智能体在大规模语料库上的高效搜索构建有界交互空间",
-          "llm_tldr_en": "Proposes retrieval for agentic search to construct an interaction space rather than just select documents, enabling efficient corpus exploration with bounded latency.",
-          "llm_tldr_cn": "现有搜索智能体的检索方式继承自非智能体检索，不能支持高效的大规模语料交互。本论文提出构建交互空间而非仅选择文档，通过定义空间边界和关联工具，使智能体以低延迟探索有界子集。实验验证了该方法在降低延迟和提升搜索效率上的优势。",
-          "llm_tldr": "现有搜索智能体的检索方式继承自非智能体检索，不能支持高效的大规模语料交互。本论文提出构建交互空间而非仅选择文档，通过定义空间边界和关联工具，使智能体以低延迟探索有界子集。实验验证了该方法在降低延迟和提升搜索效率上的优势。",
+          "llm_evidence_en": "a new benchmark for evaluating multi-scenario LLM-based agents in real-world domains",
+          "llm_evidence_cn": "一个新的基准，用于评估现实世界多场景中基于LLM的智能体",
+          "llm_evidence": "一个新的基准，用于评估现实世界多场景中基于LLM的智能体",
+          "canonical_evidence": "一个新的基准，用于评估现实世界多场景中基于LLM的智能体",
+          "llm_tldr_en": "T1-Bench is a comprehensive benchmark for agentic systems in realistic multi-domain environments, testing sustained reasoning and coordination.",
+          "llm_tldr_cn": "现有智能体基准测试在任务复杂性、现实性和领域多样性上存在局限。本文引入T1-Bench，一个高保真度综合基准，覆盖现实客户面对话的多领域交织场景。它要求智能体进行多轮结构化推理和领域协调，大幅提升了评估难度。该基准为推动LLM智能体在真实多步骤任务中的发展提供了重要工具。",
+          "llm_tldr": "现有智能体基准测试在任务复杂性、现实性和领域多样性上存在局限。本文引入T1-Bench，一个高保真度综合基准，覆盖现实客户面对话的多领域交织场景。它要求智能体进行多轮结构化推理和领域协调，大幅提升了评估难度。该基准为推动LLM智能体在真实多步骤任务中的发展提供了重要工具。",
           "llm_tags": [
             "query:llm-agent"
           ],
@@ -179,61 +104,329 @@
           "matched_query_text": "latest advances in LLM based autonomous agents",
           "matched_requirement_id": "req-21",
           "selection_source": "carryover_cache",
-          "paper_id": "2606.06880v1",
+          "paper_id": "2606.11070v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.12384v1",
+          "source": "arxiv",
+          "title": "APPO: Agentic Procedural Policy Optimization",
+          "abstract": "Recent advances in agentic Reinforcement Learning (RL) have substantially improved the multi-turn tool-use capabilities of large language model agents. However, most existing methods assign credit over coarse heuristic units, such as tool-call boundaries or fixed workflows, making it difficult to identify which intermediate decisions influence downstream outcomes. In this work, we study agentic RL from two perspectives: \\textit{where to branch and how to assign credit after branching}. Our pilot analysis shows that influential decision points are broadly distributed throughout the generated sequence rather than concentrated at tool calls, while token entropy alone does not reliably reflect their impact on final outcomes. Motivated by these observations, we propose \\textbf{Agentic Procedural Policy Optimization (APPO)}, which shifts branching and credit assignment from coarse interaction units to fine-grained decision points in the sequence. APPO selects branching locations using a Branching Score that combines token uncertainty with policy-induced likelihood gains of subsequent continuations, enabling more targeted exploration while filtering out spurious high-entropy positions. It further introduces procedure-level advantage scaling to better distribute credit across branched rollouts. Experiments on 13 benchmarks show that APPO consistently improves strong agentic RL baselines by nearly 4 points, while keeping efficient tool-calls and maintaining behavior interpretability.",
+          "authors": [
+            "Xucong Wang",
+            "Ziyu Ma",
+            "Yong Wang",
+            "Yuxiang Ji",
+            "Shidong Yang",
+            "Guanhua Chen",
+            "Pengkun Wang",
+            "Xiangxiang Chu"
+          ],
+          "primary_category": "cs.LG",
+          "categories": [
+            "cs.LG",
+            "cs.AI"
+          ],
+          "published": "2026-06-10T17:47:07+00:00",
+          "link": "https://arxiv.org/pdf/2606.12384v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "improves credit assignment in agentic RL for multi-turn tool-use of LLM agents",
+          "llm_evidence_cn": "改进LLM智能体多轮工具使用的代理强化学习中的信用分配",
+          "llm_evidence": "改进LLM智能体多轮工具使用的代理强化学习中的信用分配",
+          "canonical_evidence": "改进LLM智能体多轮工具使用的代理强化学习中的信用分配",
+          "llm_tldr_en": "APPO addresses credit assignment in agentic RL by identifying influential decision points beyond tool-call boundaries and using token-level branching, enhancing LLM agent tool-use capabilities.",
+          "llm_tldr_cn": "现有LLM智能体的强化学习方法通常按工具调用边界等粗粒度单元分配信用，难以定位影响结果的关键决策点。本文提出APPO框架，通过分析序列中广泛分布的影响点，并采用令牌级分支与信用分配，显著提升多轮工具使用任务的性能。该方法为LLM智能体的精细优化提供了新思路。",
+          "llm_tldr": "现有LLM智能体的强化学习方法通常按工具调用边界等粗粒度单元分配信用，难以定位影响结果的关键决策点。本文提出APPO框架，通过分析序列中广泛分布的影响点，并采用令牌级分支与信用分配，显著提升多轮工具使用任务的性能。该方法为LLM智能体的精细优化提供了新思路。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "tool use agent in LLM",
+          "matched_requirement_id": "req-18",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.12384v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.10064v1",
+          "source": "arxiv",
+          "title": "Bittensor Agent Arenas as a Trajectory Primitive: Distilling a Shopping Agent from ShoppingBench Subnet Traces",
+          "abstract": "Small-model agentic post-training is bottlenecked less by the algorithm than by the trajectory substrate it consumes. Leading recipes (RLVR, group-relative RL, rejection-sampled re-SFT) all need multi-turn traces carrying per-trajectory supervision, and the two existing sources fall short: frontier-synthesised data inherits the synthesizer's biases and collapses the long tail, while unfiltered production logs are unjudged and contaminated by shortcut behaviour. We argue that an incentive-aligned agent arena can be engineered to manufacture such trajectories, and demonstrate this on ORO Subnet 15 (SN15), a Bittensor deployment of the ShoppingBench agentic-commerce benchmark. SN15's race mechanism, LLM reasoning judge, and rotating leak-cluster-guarded problem suite yield a corpus with three properties: incentive-aligned diversity, per-trajectory judging, and anti-memorised held-out evaluation. We introduce a structural-quality filter that converts the raw firehose into a trainable corpus by keeping agentic trajectories (the model itself emits the tool calls) and rejecting sub-task trajectories (the model only classifies or narrates over a deterministic search loop), then post-train Qwen3-4B with a recipe matched to the published ShoppingBench SFT-then-GRPO pipeline. On a leak-cluster-guarded held-out partition scored production-strict, the model lifts from the published Qwen3-4B base of 18.0% ASR to 42.7%, within single-problem noise of the synthetic-data SFT-only baseline (43.6%), while training on a fraction of a single day of subnet output. The supervised stack leaves a large pass@8 to pass@1 gap (53.3% vs 34.8%); a per-step teacher-grounded Dr. GRPO reward converts that headroom into process improvement, and we identify the sub-task firehose as the primary lever for closing the gap to the 48.7% SFT+GRPO bar. We release the filter, the corpus splits, and the arena mechanics.",
+          "authors": [
+            "Shardul Bansal",
+            "Seth Schilbe",
+            "Jarrod Barnes"
+          ],
+          "primary_category": "cs.LG",
+          "categories": [
+            "cs.LG",
+            "cs.AI"
+          ],
+          "published": "2026-06-08T18:39:15+00:00",
+          "link": "https://arxiv.org/pdf/2606.10064v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "uses a Bittensor agent arena to generate high-quality trajectories for distilling small shopping agents",
+          "llm_evidence_cn": "利用Bittensor智能体竞技场生成高质量轨迹，用于蒸馏小型购物智能体",
+          "llm_evidence": "利用Bittensor智能体竞技场生成高质量轨迹，用于蒸馏小型购物智能体",
+          "canonical_evidence": "利用Bittensor智能体竞技场生成高质量轨迹，用于蒸馏小型购物智能体",
+          "llm_tldr_en": "This paper proposes using an incentive-aligned agent arena (Bittensor) to manufacture training trajectories for small-model agents, overcoming biases in frontier-synthesized data.",
+          "llm_tldr_cn": "小型智能体的训练往往受限于轨迹数据的质量和偏差。本文利用Bittensor上的代理竞技场（如ShoppingBench子网），通过竞赛机制生成高质量、有判断的多轮交互轨迹，并蒸馏出高效的购物智能体。该方法避免了对前沿模型合成数据的依赖，提升了智能体的长尾覆盖和鲁棒性。",
+          "llm_tldr": "小型智能体的训练往往受限于轨迹数据的质量和偏差。本文利用Bittensor上的代理竞技场（如ShoppingBench子网），通过竞赛机制生成高质量、有判断的多轮交互轨迹，并蒸馏出高效的购物智能体。该方法避免了对前沿模型合成数据的依赖，提升了智能体的长尾覆盖和鲁棒性。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "latest advances in LLM based autonomous agents",
+          "matched_requirement_id": "req-21",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.10064v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.10709v1",
+          "source": "arxiv",
+          "title": "Effective Reinforcement Learning for Agentic Search by Recycling Zero-Variance Queries During Training",
+          "abstract": "The use of GRPO-style algorithms has become the standard strategy for training LLM search agents under outcome-only rewards. With these algorithms, a query contributes to parameter updates only when its rollout group mixes successes and failures; all-correct (too-easy) and all-incorrect (too-hard) groups are zero-variance and waste rollout cost. Existing approaches treat zero-variance as a static property and either discard or pre-filter such groups. We hypothesize and empirically validate that queries flip between zero-variance and signal-bearing states as the policy evolves during training. Building on this intuition, we propose query recycling, which returns zero-variance groups to a mutable pool for future resampling, so that the effective training distribution co-evolves with the policy. With the proposed technique, a 1.7B parameter model trained on synthetic data can reach 66.0 average Pass@1 accross seven multi-hop QA benchmarks, matching or surpassing systems with up to 7B parameters trained on benchmark-derived supervision. Analysis of recycling patterns shows that recycled queries supply roughly three quarters of the effective batch by the end of training, with contributions split between recovery from policy improvement and policy drift.",
+          "authors": [
+            "João Coelho",
+            "João Magalhães",
+            "Bruno Martins",
+            "Chenyan Xiong"
+          ],
+          "primary_category": "cs.IR",
+          "categories": [
+            "cs.IR",
+            "cs.AI"
+          ],
+          "published": "2026-06-09T11:12:58+00:00",
+          "link": "https://arxiv.org/pdf/2606.10709v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Recycling zero-variance queries to improve training efficiency of LLM search agents using RL.",
+          "llm_evidence_cn": "通过回收零方差查询提高LLM搜索智能体的RL训练效率",
+          "llm_evidence": "通过回收零方差查询提高LLM搜索智能体的RL训练效率",
+          "canonical_evidence": "通过回收零方差查询提高LLM搜索智能体的RL训练效率",
+          "llm_tldr_en": "This paper addresses wasted computation from zero-variance query groups in GRPO-style RL for LLM search agents by proposing query recycling, where zero-variance groups are returned to a mutable pool for future resampling as the policy evolves, improving training efficiency.",
+          "llm_tldr_cn": "在基于GRPO的LLM搜索智能体训练中，当一个查询对应的多次采样结果全部正确或全部错误时，该组梯度为零，造成大量计算浪费。本文发现这些零方差组并非固定属性，而是随着策略进化动态变化。为此提出查询回收机制：将当前零方差组放入动态池，允许在后续训练轮次重新采样，当策略改变后，原本零方差的查询可能产生梯度信号。在多个搜索任务上的实验表明，该方法显著提高了训练数据利用效率，并提升了最终智能体的性能，为提高LLM智能体强化学习训练效率提供了新思路。",
+          "llm_tldr": "在基于GRPO的LLM搜索智能体训练中，当一个查询对应的多次采样结果全部正确或全部错误时，该组梯度为零，造成大量计算浪费。本文发现这些零方差组并非固定属性，而是随着策略进化动态变化。为此提出查询回收机制：将当前零方差组放入动态池，允许在后续训练轮次重新采样，当策略改变后，原本零方差的查询可能产生梯度信号。在多个搜索任务上的实验表明，该方法显著提高了训练数据利用效率，并提升了最终智能体的性能，为提高LLM智能体强化学习训练效率提供了新思路。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "latest advances in LLM based autonomous agents",
+          "matched_requirement_id": "req-21",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.10709v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.09461v1",
+          "source": "arxiv",
+          "title": "H2HMem: A Multimodal Memory Benchmark for Agents in Human-Human Interactions",
+          "abstract": "Large language model agents are increasingly deployed in human-human interaction settings, such as meeting assistants and clinical documentation systems, where they must observe conversations and retain information for downstream queries. Unlike traditional human-assistant settings, these environments are inherently multimodal, involve complex discourse phenomena such as anaphora and deixis, and contain asynchronous or conflicting information from multiple participants. However, existing memory benchmarks largely focus on single-user, text-only interactions, failing to capture these challenges. To address this gap, we introduce H2HMem, a Human-to-Human Multimodal Memory Benchmark for evaluating memory capabilities in complex human-human interactions. H2HMem includes both dyadic and multi-party conversations with multimodal information streams, and evaluates agents along three dimensions: memory recall, reasoning, and application. Experiments with advanced agents reveal substantial limitations in constructing, retaining, and utilizing memories across modalities, participants, and sessions, highlighting substantial room for improvement in next-generation LLM agents.",
+          "authors": [
+            "Shiping Zhu",
+            "Yibo Yang",
+            "Zhengyang Wang",
+            "Tiancheng Shen",
+            "Dandan Guo",
+            "Ming-Hsuan Yang"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-06-08T13:17:16+00:00",
+          "link": "https://arxiv.org/pdf/2606.09461v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Multimodal memory benchmark for agents in human-human interaction settings.",
+          "llm_evidence_cn": "用于人-人交互场景中代理的多模态记忆基准。",
+          "llm_evidence": "用于人-人交互场景中代理的多模态记忆基准。",
+          "canonical_evidence": "用于人-人交互场景中代理的多模态记忆基准。",
+          "llm_tldr_en": "H2HMem targets multimodal memory challenges in human-human settings like meetings, with anaphora, deixis, and asynchronous information. It goes beyond single-user, text-only benchmarks to evaluate memory capabilities essential for meeting assistants and clinical documentation.",
+          "llm_tldr_cn": "现有记忆基准仅关注单用户文本交互，无法应对多人对话中的多模态、指代消解和冲突信息。H2HMem针对会议辅助和临床记录等场景，构建了包含复杂话语现象的多模态记忆基准。实验评估了主流代理记忆模型，揭示了其在处理多人异步信息上的局限，为开发更鲁棒的代理记忆系统提供了评测依据。数据集包含音频、视频等多模态输入，模拟真实世界的人类交流。结果表明，现有代理在记忆保持和多源信息整合上仍有较大提升空间。",
+          "llm_tldr": "现有记忆基准仅关注单用户文本交互，无法应对多人对话中的多模态、指代消解和冲突信息。H2HMem针对会议辅助和临床记录等场景，构建了包含复杂话语现象的多模态记忆基准。实验评估了主流代理记忆模型，揭示了其在处理多人异步信息上的局限，为开发更鲁棒的代理记忆系统提供了评测依据。数据集包含音频、视频等多模态输入，模拟真实世界的人类交流。结果表明，现有代理在记忆保持和多源信息整合上仍有较大提升空间。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "latest advances in LLM based autonomous agents",
+          "matched_requirement_id": "req-21",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.09461v1",
           "carry_days": 1
         }
       ]
     },
     "llm-security": {
-      "updated_date": "20260608",
+      "updated_date": "20260612",
       "carryover_days": 9,
       "items": [
         {
-          "id": "2606.06037v1",
+          "id": "2606.09125v1",
           "source": "arxiv",
-          "title": "SpeechJBB: Probing Safety Alignment and Comprehension in Large Audio Language Models under Code-Switched Speech",
-          "abstract": "Large audio language models (LALMs) are increasingly deployed in real-world applications, yet their safety alignment is still primarily evaluated on monolingual, text-based harmful prompts. This leaves their generalizability under multilingual and spoken settings, particularly code-switched speech, largely underexplored. To address this gap, we introduce SpeechJBB, an audio jailbreak dataset for benchmarking across multiple state-of-the-art LALMs. The extent of safety weaknesses is further probed by introducing an augmented setting where phonologically plausible pseudo-words are inserted around safety-critical terms to simulate localized obfuscation. Across models, code-switched harmful audio yields substantially high jailbreak success rates (JSR), with non-English monolingual and non-English code-switched pairs exhibiting the highest attack success. Pseudo-word insertion further reduces refusal rates, which demonstrates that natural-sounding obfuscation can effectively bypass safety policies.",
+          "title": "Unveiling Privacy Risks in Multi-modal Large Language Models: Task-specific Vulnerabilities and Mitigation Challenges",
+          "abstract": "Privacy risks in text-only Large Language Models (LLMs) are well studied, particularly their tendency to memorize and leak sensitive information. However, Multi-modal Large Language Models (MLLMs), which process both text and images, introduce unique privacy challenges that remain underexplored. Compared to text-only models, MLLMs can extract and expose sensitive information embedded in images, posing new privacy risks. We reveal that some MLLMs are susceptible to privacy breaches, leaking sensitive data embedded in images or stored in memory. Specifically, in this paper, we (1) introduce MM-Privacy, a comprehensive dataset designed to assess privacy risks across various multi-modal tasks and scenarios, where we define Disclosure Risks and Retention Risks. (2) systematically evaluate different MLLMs using MM-Privacy and demonstrate how models leak sensitive data across various tasks, and (3) provide additional insights into the role of task inconsistency in privacy risks, emphasizing the urgent need for mitigation strategies. Our findings highlight privacy concerns in MLLMs, underscoring the necessity of safeguards to prevent data exposure. Our dataset and code can be found here.",
           "authors": [
-            "Virginia Ceccatelli",
-            "Yejin Jeon",
-            "David Ifeoluwa Adelani"
+            "Tiejin Chen",
+            "Pingzhi Li",
+            "Kaixiong Zhou",
+            "Tianlong Chen",
+            "Hua Wei"
           ],
-          "primary_category": "cs.SD",
+          "primary_category": "cs.CR",
           "categories": [
-            "cs.SD",
-            "eess.AS"
+            "cs.CR",
+            "cs.AI"
           ],
-          "published": "2026-06-04T11:31:38+00:00",
-          "link": "https://arxiv.org/pdf/2606.06037v1",
+          "published": "2026-06-08T07:19:42+00:00",
+          "link": "https://arxiv.org/pdf/2606.09125v1",
           "tags": [
             "keyword:llm-agent",
             "keyword:llm-security",
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Probes safety alignment in large audio language models under code-switched speech, revealing vulnerabilities.",
-          "llm_evidence_cn": "在语码转换语音下探测大型音频语言模型的安全对齐，揭示漏洞。",
-          "llm_evidence": "在语码转换语音下探测大型音频语言模型的安全对齐，揭示漏洞。",
-          "canonical_evidence": "在语码转换语音下探测大型音频语言模型的安全对齐，揭示漏洞。",
-          "llm_tldr_en": "Introduces SpeechJBB, an audio jailbreak dataset for evaluating safety alignment of LALMs. Code-switched harmful audio and pseudo-word obfuscation significantly increase model vulnerability, showing current safety measures are insufficient.",
-          "llm_tldr_cn": "现有安全对齐评估局限于单语文本，大型音频语言模型在多语种语音尤其是语码转换下的安全性未知。构建SpeechJBB数据集，基准测试多个顶尖模型，并引入伪词混淆进一步探测。结果显示，语码转换有害音频大幅提高了模型违规率，现有安全措施在多语言口语场景下泛化性不足，亟需更鲁棒的对齐机制。",
-          "llm_tldr": "现有安全对齐评估局限于单语文本，大型音频语言模型在多语种语音尤其是语码转换下的安全性未知。构建SpeechJBB数据集，基准测试多个顶尖模型，并引入伪词混淆进一步探测。结果显示，语码转换有害音频大幅提高了模型违规率，现有安全措施在多语言口语场景下泛化性不足，亟需更鲁棒的对齐机制。",
+          "llm_evidence_en": "exposes privacy vulnerabilities in multimodal LLMs and introduces MM-Privacy dataset",
+          "llm_evidence_cn": "揭示多模态大语言模型的隐私漏洞并提出MM-Privacy数据集",
+          "llm_evidence": "揭示多模态大语言模型的隐私漏洞并提出MM-Privacy数据集",
+          "canonical_evidence": "揭示多模态大语言模型的隐私漏洞并提出MM-Privacy数据集",
+          "llm_tldr_en": "Multimodal LLMs can leak sensitive information from images, with dataset MM-Privacy revealing task-specific risks and mitigation challenges.",
+          "llm_tldr_cn": "多模态大语言模型不仅处理文本，还能从图片中提取敏感信息，造成新型隐私风险。本文创建MM-Privacy多任务隐私评估数据集，对主流模型进行全面测试。发现部分MLLM极易从图像中泄露隐私，且现有缓解措施效果有限，凸显了多模态场景下隐私保护的特殊挑战。",
+          "llm_tldr": "多模态大语言模型不仅处理文本，还能从图片中提取敏感信息，造成新型隐私风险。本文创建MM-Privacy多任务隐私评估数据集，对主流模型进行全面测试。发现部分MLLM极易从图像中泄露隐私，且现有缓解措施效果有限，凸显了多模态场景下隐私保护的特殊挑战。",
           "llm_tags": [
             "query:llm-security"
           ],
           "matched_query_tag": "query:llm-security",
-          "matched_query_text": "safety mechanisms for language models",
-          "matched_requirement_id": "req-4",
+          "matched_query_text": "security of large language models",
+          "matched_requirement_id": "req-2",
           "selection_source": "carryover_cache",
-          "paper_id": "2606.06037v1",
+          "paper_id": "2606.09125v1",
           "carry_days": 1
         }
       ]
     },
     "agent-evol": {
-      "updated_date": "20260608",
+      "updated_date": "20260612",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2606.08091v1",
+          "source": "arxiv",
+          "title": "VideoWeaver: Evaluating and Evolving Skills for Agentic Long Video Generation",
+          "abstract": "Recent agent frameworks such as Claude Code, Codex, and OpenClaw are strong at tool use and orchestration, but whether they can handle long video generation, a long-horizon multimodal task, remains underexplored. Unlike earlier video agents whose pipeline is handcrafted, these frameworks can build and refine their own workflows. We introduce VideoWeaver, an agent harness and benchmark that evaluates and evolves skills for long video generation, where an agent turns a single instruction into a long video by composing foundation skills into its own workflow rather than following a predefined pipeline. The benchmark has 16 task categories and 285 cases, with references spanning text, image, audio, video, and their combinations. Because errors can arise at any stage and not just in the final video, we propose an agent-as-judge that inspects both the execution trace and the final video, grounding its scores in evidence such as metadata and intermediate files. Using this feedback, we further design a skill evolution algorithm that refines and merges the agent's skills. Across multiple frameworks and models, we find that an explicit composition skill improves the generation process over using foundation skills alone, that skill evolution further improves output quality, and that performance varies notably across harness and model choices. The proposed agent-as-judge also aligns well with human judgments, especially on process metrics. Code and dataset is available at https://github.com/JianhuiWei7/VideoWeaver",
+          "authors": [
+            "Jianhui Wei",
+            "Jie Tan",
+            "Hengchuan Zhu",
+            "Xiaotian Zhang",
+            "Yan Zhang",
+            "Ziyi Chen",
+            "Daoan Zhang",
+            "Wei Xu",
+            "Zuozhu Liu"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-06-06T10:35:28+00:00",
+          "link": "https://arxiv.org/pdf/2606.08091v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "query:agent-evol"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "agent-based framework evolves skills for long video generation by composing foundation skills autonomously",
+          "llm_evidence_cn": "基于代理的框架通过自主组合基础技能进化长视频生成技能",
+          "llm_evidence": "基于代理的框架通过自主组合基础技能进化长视频生成技能",
+          "canonical_evidence": "基于代理的框架通过自主组合基础技能进化长视频生成技能",
+          "llm_tldr_en": "Introduces VideoWeaver, an agent harness and benchmark that evaluates and evolves skills for agentic long video generation, where an agent builds its own workflow by composing foundation skills rather than following a fixed pipeline.",
+          "llm_tldr_cn": "针对现有代理框架未探索超长视频生成这一问题，提出VideoWeaver基准和技能进化框架，允许代理自主组合基础技能生成工作流，而非预定义管道。基准包含16类285个任务，涵盖多模态引用。实验表明代理可通过错误驱动迭代改进技能，为开放域、长时程的多模态任务代理进化提供了新范式。",
+          "llm_tldr": "针对现有代理框架未探索超长视频生成这一问题，提出VideoWeaver基准和技能进化框架，允许代理自主组合基础技能生成工作流，而非预定义管道。基准包含16类285个任务，涵盖多模态引用。实验表明代理可通过错误驱动迭代改进技能，为开放域、长时程的多模态任务代理进化提供了新范式。",
+          "llm_tags": [
+            "query:agent-evol"
+          ],
+          "matched_query_tag": "query:agent-evol",
+          "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
+          "matched_requirement_id": "req-9",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.08091v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2606.10546v1",
+          "source": "arxiv",
+          "title": "SkillAxe: Sharpening LLM-Authored Agent Skills Through Evaluation-Guided Self-Refinement",
+          "abstract": "Skill documents, structured natural-language instructions that guide Large Language Model (LLM) agents, are critical to modern agent frameworks, yet LLMs struggle to write skills that actually work. On SkillsBench, human-authored skills improve pass rates by 16.2 percentage points, while LLM-authored skills provide no measurable gain. We introduce SkillAxe, a fully unsupervised framework that enables LLMs to iteratively diagnose and refine their own skills. SkillAxe decomposes skill quality into four interpretable dimensions (quality impact, trigger precision, instruction compliance with fault attribution, and solution-path coverage), producing structured improvement briefs that require no ground-truth labels, test suites, or environment rewards. On SkillsBench, SkillAxe improves pass rates by 28\\% relative over unimproved LLM skills and closes 47--67\\% of the gap to human-authored skills. We validate the approach as a continuous improvement engine in the wild on SpreadsheetBench, where a SkillAxe-built skill library learns from past agent trajectories and raises pass rate from 16.0\\% to 52.0\\% using only 22 skills.",
+          "authors": [
+            "Srishti Gautam",
+            "Arjun Radhakrishna",
+            "Sumit Gulwani"
+          ],
+          "primary_category": "cs.MA",
+          "categories": [
+            "cs.MA"
+          ],
+          "published": "2026-06-09T08:14:39+00:00",
+          "link": "https://arxiv.org/pdf/2606.10546v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Self-improving agent skills via evaluation-guided self-refinement",
+          "llm_evidence_cn": "通过评估引导的自我优化提升智能体技能",
+          "llm_evidence": "通过评估引导的自我优化提升智能体技能",
+          "canonical_evidence": "通过评估引导的自我优化提升智能体技能",
+          "llm_tldr_en": "SkillAxe enables LLMs to iteratively diagnose and refine their own skill documents without ground truth, improving agent performance by sharpening skills along four quality dimensions.",
+          "llm_tldr_cn": "LLM智能体依赖技能文档来指导行为，但LLM编写的技能往往效果不佳。本文提出SkillAxe，一种无监督框架，通过评估引导的自我诊断与优化迭代改进技能。它从质量影响、触发精度、指令合规与排错、解决路径覆盖四个维度评价技能，无需真实标签或测试环境。实验表明，经SkillAxe优化的技能显著提升了智能体的任务完成率，为智能体自我进化提供了实用机制。SkillAxe解决了LLM编写技能不可靠的问题，通过结构化改进简报实现持续优化，使智能体能够自主提升能力，推动了自我进化智能体的发展。",
+          "llm_tldr": "LLM智能体依赖技能文档来指导行为，但LLM编写的技能往往效果不佳。本文提出SkillAxe，一种无监督框架，通过评估引导的自我诊断与优化迭代改进技能。它从质量影响、触发精度、指令合规与排错、解决路径覆盖四个维度评价技能，无需真实标签或测试环境。实验表明，经SkillAxe优化的技能显著提升了智能体的任务完成率，为智能体自我进化提供了实用机制。SkillAxe解决了LLM编写技能不可靠的问题，通过结构化改进简报实现持续优化，使智能体能够自主提升能力，推动了自我进化智能体的发展。",
+          "llm_tags": [
+            "query:agent-evol"
+          ],
+          "matched_query_tag": "query:agent-evol",
+          "matched_query_text": "agent self evolution",
+          "matched_requirement_id": "req-12",
+          "selection_source": "carryover_cache",
+          "paper_id": "2606.10546v1",
+          "carry_days": 1
+        }
+      ]
     },
     "company": {
       "updated_date": "20260522-20260531",
