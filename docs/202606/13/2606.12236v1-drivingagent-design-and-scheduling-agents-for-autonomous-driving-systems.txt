@@ -1,0 +1,571 @@
+Title: DrivingAgent: Design and Scheduling Agents for Autonomous Driving Systems
+
+URL Source: https://arxiv.org/pdf/2606.12236v1
+
+Published Time: Thu, 11 Jun 2026 01:14:36 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# DrivingAgent: Design and Scheduling Agents for Autonomous Driving Systems 
+
+Zhongyu Xia 1 Wenhao Chen 1 Yongtao Wang 1∗ Ming-Hsuan Yang 21Wangxuan Institute of Computer Technology, Peking University 
+
+> 2
+
+University of California, Merced 
+
+{xiazhongyu,wyt}@pku.edu.cn wenhaochen@stu.pku.edu.cn mhyang@ucmerced.edu 
+
+Abstract 
+
+Many autonomous driving systems are increasingly incorporating foundation mod-els to improve generalization and handle long-tail scenarios. However, this trend introduces two key challenges: (i) the manual and labor-intensive process of design-ing and integrating new models, and (ii) the lack of intelligent, dynamic scheduling mechanisms to meet strict real-time constraints. While Large Language Model (LLM)-based agents offer a promising avenue for automation, existing frameworks are ill-suited for autonomous driving. Specifically, they fail to distinguish between the fundamentally different requirements of system design and real-time schedul-ing, treat modules as opaque black boxes, and are not designed for continuous operation. To address these limitations, we propose DrivingAgent , a novel agent framework tailored to the dual challenges of autonomous driving system design and scheduling. In the design phase, DrivingAgent automates module development by interpreting system architecture, generating code, and validating modules via super-network training. In the scheduling phase, it employs a lightweight LLM trained with reinforcement learning to dynamically orchestrate system modules in real time, supported by a structured memory that integrates long-term storage with timestamped short-term context. Experimental results demonstrate that Drivin-gAgent achieves a superior speed–accuracy trade-off on both the nuScenes and Bench2Drive benchmarks. 
+
+1 Introduction 
+
+Autonomous driving is a core application of deep learning. An autonomous driving system takes as input sensor data, navigation signals, or natural language commands, and predicts either future trajectories or control signals for the ego vehicle. A wide range of paradigms has been proposed for autonomous driving systems. However, to improve generalization, handle long-tail scenarios, and satisfy legal and ethical constraints, these systems are becoming increasingly large and complex. Some approaches are built on Vision-Language Models (VLMs) or video generation models, in which vision-centric representations are augmented with action experts to form Vision-Language-Action (VLA) models [ 4, 19 ] or World Action Models (WAMs) [ 5]. These frameworks are further extended with reasoning capabilities, such as Mixture-of-Thoughts (MoT) [ 14 ]. Other approaches rely on multimodal fusion of vision and point clouds. They constrain 3D representations using perception and prediction objectives, while employing dedicated planning modules for decision-making [ 8 , 13 , 36 , 32 ]. To better address long-tail scenarios and ensure compliance with legal and ethical requirements, additional components such as VLMs and knowledge graphs are increasingly integrated [31]. These developments introduce two key challenges.                                                        
+
+> ∗Corresponding author. Preprint.
+> arXiv:2606.12236v1 [cs.RO] 10 Jun 2026 System Design System Scheduling
+> TT + 1 T+2
+> Automatic Desig n
+> Manually Designed
+> Workflow
+> Module A Researchers
+> AutoML techniques, e.g. Neural
+> Architecture Search
+> Architecture
+> Parameter
+> Tuning Module D
+> Module E
+> Design Input
+> Driving
+> Action
+> Cycle
+> T += 1
+> Dual-Systems: several cycles
+> Module B
+> Module C
+> AB
+> EC
+> D
+> AB
+> EC
+> D
+> AB
+> EC
+> D
+> DrivingAgent
+> Blueprint
+> Dynamic Scheduling
+> Existing Works
+> Module A
+> Mod el DMod el C
+> Module B
+> DrivingAgent
+> Design
+> Understand Generat e
+> Verify Train
+> Evaluat eOrganiz e
+> Long-term Memories
+> Knowledge
+> …
+> Module & Profiles
+> Module A Module B
+> Module D
+> Module C
+> Module E
+> Module F
+> DrivingAgent
+> Scheduling
+> Long-term Memory
+> Short-term Memory
+> E
+> C
+> A
+> D
+> B
+> F
+> Trigger
+> I/O
+> Condition
+> TT + 1T + 2 T+3T+4T+5
+> AB
+> CDEF
+> BBBBBAAAGG
+
+A) Existing Paradigm B) Our DrivingAgent Figure 1: Compared with existing autonomous driving paradigms, DrivingAgent automatically integrates prior methods and designs, trains, and validates new adapter modules. During inference, it leverages a design blueprint and a lightweight LLM trained via reinforcement learning, conditioned on a timestamped memory bank, to perform dynamic concurrent scheduling, thereby improving the speed-accuracy trade-off. First, incorporating a new prior module typically requires substantial manual effort in network design and training for system integration. For example, prior work designs specialized adapters [ 16 ] to extract visual prompts from the attention maps of a Vision-Language Model (VLM). A framework that can automatically design such modules at scale and perform automated validation and selection would substantially reduce the research and development burden. Second, autonomous driving imposes stringent real-time constraints. Many modules in existing systems do not need to be invoked at high frequency, such as natural language encoders or knowledge graph retrieval components. While some prior work adopts a dual-system design [ 26 ] that executes slower modules (e.g., VLMs) at reduced frame rates, these approaches remain suboptimal because they lack dynamic, context-aware scheduling . For example, when no new perceptual elements are observed, and the query remains unchanged, repeatedly invoking the knowledge retrieval module is unnecessary. Similarly, mapping modules can operate at different update frequencies depending on the driving context, such as high-speed motion versus a stationary waiting state. With the rapid advancement of Large Language Models (LLMs), numerous agent frameworks have been proposed [ 33 , 20 , 17 , 22 , 27 , 30 , 6]. Such agents can autonomously interpret goals, devise plans, invoke tools, and execute tasks, making them a natural fit for addressing the aforementioned challenges. However, existing agent frameworks are not directly applicable to the design and scheduling problems in autonomous driving for several reasons. First, design and scheduling are tightly coupled yet fundamentally distinct tasks. A design agent typically relies on tools such as debuggers and syntax checkers, operating across both training and inference stages, where latency is less critical. In contrast, a scheduling agent interacts with system modules as executable components, with primary emphasis on real-time inference performance. Second, existing agent frameworks often treat tools as black boxes. In autonomous driving, however, effective design and scheduling of neural networks require explicit understanding of model internals and structural dependencies. 
+
+Third, current agent frameworks are primarily designed for one-off task completion rather than continuous operation. As a result, they lack mechanisms to reason about runtime duration and information staleness, and do not provide dedicated designs for both long-term and short-term memory in persistent, real-time environments. Therefore, we propose DrivingAgent , a unique agent framework that integrates automated mod-ule design with intelligent real-time scheduling to address the intertwined challenges of building and orchestrating autonomous driving systems. Our contributions include: (1) We introduce the DrivingAgent framework, whose design phase analyzes existing neural network modules, constructs a structured design blueprint, and performs automated code generation followed by super-network training for validation. Each accepted generated module is exported as an agent-tool profile. (2) 
+
+DrivingAgent features a scheduling phase that employs a lightweight LLM, fine-tuned via reinforce-ment learning with a carefully designed hybrid reward, to dynamically orchestrate neural network modules in real time. The scheduler leverages both long-term memory and timestamped short-term memory to achieve context-aware module coordination. (3) To our knowledge, DrivingAgent is the first to systematically explore automated design and dynamic scheduling for autonomous driv-2ing, and the first to address this with an LLM agent framework. DrivingAgent achieves a superior speed-accuracy trade-off on both the nuScenes and Bench2Drive benchmarks. 
+
+2 Related Work 
+
+Autonomous Driving Systems. Autonomous driving systems span diverse paradigms, including modular pipelines, end-to-end models, VLAs, and WAMs. Within the end-to-end paradigm, ST-P3 [ 7]unifies perception, prediction, and planning, and UniAD [ 8] extends this with BEV representations and task-specific decoders. VAD [ 13 ] introduces vectorized scene representations, while PARA-Drive [ 28 ]studies structured multi-task supervision. GenAD [ 36 ] and SparseDrive [ 25 ] focus on sparse feature representations to improve planning and reduce error accumulation. Recent works emphasize temporal consistency and diversity, including MomAD [ 24 ], BridgeAD [ 34 ], DiffusionDrive [ 15 ], and HENet++ [ 32 ]. Additional designs improve planning and efficiency: TCP [ 29 ], ThinkTwice [ 10 ], DriveAdapter [ 9], and DriveTransformer [ 12 ]. In the VLA paradigm, DriveLM [ 23 ] formulates reasoning as graph-based VQA, while ORION [ 4 ], SimLingo [ 19 ], and KnowVal [ 31 ] integrate language, control, and retrieval. Overall, improved generalization and long-tail robustness come at the cost of increased architectural complexity and computational demands. Some methods attempt a simple parallel design, running the VLM and the planner cyclically at different frequencies. DriveVLM-Dual [ 26 ] pairs a low-frequency VLM with a real-time classical planner and asynchronously injects VLM trajectories. AsyncDriver [ 3] injects LLM scene-instruction features into a transformer planner at controllable intervals. SOLVE [ 2 ] temporally decouples a VLM and an end-to-end branch over a shared visual encoder. However, the scheduling mechanisms of these methods remain relatively simple, requiring manually designed interfaces and lacking the ability to perform dynamic scheduling according to the scenario. For example, even when the language input remains completely unchanged, any of the aforementioned systems will still repeatedly run the language encoder, resulting in redundant computation. 
+
+Agent Frameworks. LLM-based agent frameworks can be broadly categorized into three paradigms: reasoning-and-acting loops, multi-agent collaboration, and tool-use augmentation. ReAct [ 33 ] pio-neers the interleaving of reasoning and action within a unified loop. Reflexion [ 22 ] and Voyager [ 27 ]extend this paradigm by introducing verbal self-improvement and open-ended skill acquisition, re-spectively. In the multi-agent setting, AutoGen [ 30 ] and MetaGPT [ 6 ] organize LLMs into role-based collaborative structures, while Generative Agents [ 17 ] incorporate memory and reflection mechanisms to simulate realistic behaviors. For tool use, Toolformer [ 20 ] enables models to learn to invoke APIs from unlabeled data. Despite these advances, existing frameworks are not well-suited to autonomous driving. Their tools are typically treated as opaque API calls, rather than neural modules with explicit tensor I/O and compositional interfaces. They are designed for one-shot objectives, rather than persistent, event-driven environments with cache validity and information expiration. Moreover, they lack a principled separation between design-time authoring and inference-time scheduling, a distinction that is critical for autonomous driving systems. DriveAgent-R1 [ 35 ] is the first to apply an LLM agent to autonomous driving scenarios, treating vision input acquisition, cropping, depth estimation, and perception as agent tools. However, it is limited to scene understanding and cannot perform planning tasks. Moreover, it does not address design and scheduling problems, and its latency ranges from 6740 ms to 7910 ms, making it incapable of real-time operation. 
+
+3 Method 
+
+As shown in Figure 2, DrivingAgent addresses two coupled operations in a heterogeneous driving stack: (i) generating new neural agent tools, and (ii) deciding when these tools should be invoked online. The Design Agent (Section 3.1) parses the base planner’s white-box interface and translates targeted capability gaps into validated agent tools. The Concurrent Scheduling Agent (Section 3.2) operates in an event-time runtime, consuming the resulting contracts to control tool invocation, reuse, asynchronous updates, and temporary deactivation based on runtime evidence. The input frame rate is fixed by the sensor stream; the scheduler modulates the effective compute FPS by adjusting the amount of agent-tool computation requested. 33.1 Design Agent for White-Box Neural Networks 
+
+The Design Agent is the offline part of DrivingAgent. As shown in Figure 2(a), its input is a pool of 
+
+Existing Methods : a white-box planner with exposed internal interfaces, together with the available external components that have not been attached to the planner. It converts this pool into a design blueprint, analyzes the capability gap, uses the LLM to generate a typed specification and code, verifies the generated code, trains and evaluates the candidate, and admits it only if the validation gate passes. Its outputs are validated modules and an agent-tool profile for the Scheduling Agent. 
+
+Architecture comprehension and gap selection. The Design Agent operates offline, transforming module generation into an interface-grounded process for downstream scheduling. We use agent tool 
+
+to denote a module produced by the Design Agent and exposed to the Scheduling Agent as a tool, such as a learned adapter or an external perception or retrieval component. The agent first maps the existing methods into a finite, typed design space. An attachment point defines a boundary where an agent tool can read intermediate states or publish reusable outputs. A cache field is a named tensor or semantic value whose validity can be managed at runtime. A supervision recipe is a registered training template that resolves a declared capability into concrete targets, losses, and weighting schemes. These abstractions enable reasoning over neural-network internals without treating the planner as an opaque end-to-end function. The agent then identifies a capability gap , defined as an interface-grounded function that is insuf-ficiently addressed by the current planner or deployed agent tools. Gap selection integrates the typed interface, existing agent tools, design history, and runtime feedback. Rather than enumerating arbitrary modules, the agent selects targets whose outputs can be consistently attached, trained, and scheduled under a unified runtime contract. 
+
+Spec-first module design. Given a selected gap, the LLM generator first produces a design spec-ification rather than free-form code. The specification binds the candidate to an attachment point, defines required inputs and outputs, resolves supervision recipes, and records runtime attributes 
+
+such as current-frame eligibility, execution mode, and latency constraints. Code generation is then constrained to satisfy this specification. This decouples architectural reasoning from implementation: the design stage uses the white-box blueprint, while the online scheduler operates on a compact, well-defined runtime contract. 
+
+Code verification and module validation. Before training, the generated module is checked against the design specification. An LLM-based verifier and deterministic checks ensure that declared inputs must be available at the attachment point, declared outputs must be produced, supervision targets must be well-defined, and runtime attributes must be explicit. Violations are returned as structured repair signals, enabling iterative refinement of the spec–code pair prior to training. Candidates that pass verification proceed to staged module training: a lightweight probe first estimates trainability, quality impact, and latency overhead, while full training and benchmark evaluation are reserved for candidates that pass this initial screening. After full training and evaluation, the validation gate checks whether the candidate satisfies the required quality metrics and latency budget. Candidates that fail this gate are returned for repair, while candidates that pass are admitted as schedulable tools. 
+
+Agent-tool profile handoff. A validated design specification, together with its training evidence and acceptance record, is compiled into an agent-tool profile . This profile is the sole interface consumed by the scheduler: it specifies where the module attaches, its required inputs and produced outputs, the conditions under which its outputs are valid, and its associated compute cost. The full agent-tool profile schema and an example registry-to-runtime conversion are provided in the Appendix. 
+
+3.2 Concurrent Scheduling Agent for Complex Intelligent Systems 
+
+The concurrent Scheduling Agent addresses the online counterpart of the design problem. Given a base planner and a set of validated agent tools, it determines which tool outputs are eligible for the current frame, which tools should be refreshed for future frames, and which should be temporarily suppressed when recent stream-level evidence indicates low utility. The central design choice is to formulate this as an event-time control problem over explicit module contracts, rather than as per-frame LLM invocation or a fixed low-frequency auxiliary pipeline. We adopt event time as the source timestamp of the driving stream, in contrast to wall-clock arrival or replay time. This distinction ensures that cache validity, plan activation, suppression windows, 4(a) Design Agent — Offline White-Box Modules Generating                
+
+> Existing Methods
+> Attachment Points,
+> Cache Fields, Recipes
+> Select
+> Capability Gap
+> History +Exploration
+> Spec →Code
+> Ty ped Design Spec →
+> Constrained Code (LLM)
+> Code Verify by LLM
+> Compile / Tensor Shape /
+> Latency & Effectiveness Check
+> Adapter Training
+> Partial Dataset Test
+> Produces Validated Tools and P rofile
+
+(b) Agent-Tool Profile           
+
+> Design
+> ⟺Runtime
+> Attachment Point
+> Where it Plugs in
+> Tensor / Cache I/O
+> Declared Inputs / outputs
+> Runtime Attributes
+> Exec Mode / E ligibility /Latency
+> Compute Cost
+> Calibrated Per-call Latency
+> Checkpoint + Evidence
+> Weights
+
+(c) Concurrent Scheduling Agent — Event-Time Runtime over Adapter Profiles 
+
+> Validation
+> Evaluation Latency
+> Metrics
+> Scheduling Steps
+> Large Language Model
+> Lightweight Foundation LLM
+> Memory Bank
+> Long-term & Short-term
+
+Parallel Execution        
+
+> T-1 TT+1
+> Use Previous Plan
+> Constructing Structured Prompt New Schedule Plan
+> Reuse/Refresh/Skip
+> Plan Execution Time
+> Tools
+> Previous Modules, New Designed Modules,
+> FPS calculator …
+> Plan stale?
+> Sufficient Elapsed Time?
+> Every
+> Frame
+> Pass
+> Not Pass
+> Plan Commit to
+> Execute
+> Pass
+> Fail
+> Partial Dataset
+> Evaluating
+> Evaluate on Benchmark
+> GRPO RL F ine-tuning
+> Fail
+> Current Plan, Cached Outputs, Observed Latency ...
+> Full Dataset Train ing
+
+Initialization        
+
+> produce an initial plan
+> LLM Call
+> Budget Gate
+> Episodic Reward Dense Reward Values of the Value Model
+> L2 Error / Collision Rate
+> Driving Score Calculate for a Complete Route Calculate Every Frame
+> Vertical Deviation of the
+> Baseline Speed-Accuracy
+> Tradeoff Curve
+
+Figure 2: DrivingAgent overview. DrivingAgent separates offline adapter construction from online scheduling through a structured Tool Profile . (a) The Design Agent discovers planner capability gaps, generates and verifies adapter code, trains candidate modules, and validates them before deployment. (b) The Agent-Tool Profile serves as the design–runtime contract, encoding attachment points, tensor/cache interfaces, runtime attributes, compute cost, and checkpoint evidence. (c) The Scheduling Agent uses these profiles to decide whether to reuse or refresh schedules, execute tools in parallel, and update memory from runtime outcomes. Episodic and dense rewards provide reinforcement signals for improving scheduling decisions. and asynchronous refresh remain causally aligned with the driving sequence, even when replay or background execution proceeds slower than real time. 
+
+3.2.1 Agent Framework 
+
+The Scheduling Agent operates as an event-time scheduler over agent tools. It maintains a timescale memory bank that records schedule plans, tool outcomes, and latency feedback. When the active plan becomes stale, a lightweight LLM generates an updated plan for upcoming frames, specifying which tools to activate and whether to recompute or reuse cached outputs. At each frame, deterministic routing resolves the plan against the available tools and current memory state, while tool execution proceeds asynchronously, updating the memory bank without blocking the control path. 
+
+Abstraction for agent tools. The scheduler does not access agent tool implementations; instead, it operates on agent-tool profiles. Each profile encodes only scheduling-relevant information, including attachment location, required inputs, updatable cached values, default execution mode, latency budget, and a concise description of capability. And we use the fixed latency table to record the theoretical latency of a single forward call for each existing module, excluding data loading; its entries are detailed in the Appendix. 
+
+FPS calculator for feedback. The scheduler employs an FPS estimator to predict throughput based on the selected execution modes and the fixed latency table. After execution, the runtime measures the achieved throughput. The predicted FPS, measured FPS, and their discrepancy are stored in short-term memory, enabling subsequent scheduling decisions to correct cost estimation errors. 
+
+Timescale event memory bank. The scheduler maintains memory at two temporal scales. Long-term memory stores cross-frame state, including the active plan, pending updates, module completion records, and reusable cached outputs. Short-term memory provides a transient context for each LLM call, capturing observable state such as ego motion, background tool execution, runtime latency, and recent outcomes. Initialized empty, memory evolves over time as evidence accumulates. 5Schedule plan initialization. At the start of a stream, only agent-tool profiles are available. The scheduler queries the LLM to produce an initial plan, which becomes the active schedule. Subsequent updates are triggered by event-time evidence rather than unconditional LLM invocation. 
+
+LLM interface. For each invocation, the scheduler constructs a structured prompt from agent-tool profiles and short-term context, including the current plan, cached outputs, background executions, and observed latency. The LLM returns a schedule plan specifying tool policies: Reuse (use cached outputs), Refresh (recompute for future frames), or Skip (disable temporarily). Predicted throughput is computed, compared with measured performance, and written back to memory. 
+
+LLM call budget. The scheduler does not invoke the LLM at every frame. Instead, it updates plans only when they become stale and certain conditions are met, including sufficient elapsed time, absence of pending LLM calls, bounded background execution, and adherence to latency constraints. Otherwise, the current plan is retained. 
+
+Per-frame execution. At runtime, the plan is applied subject to resource and validity constraints. Reuse is permitted only when cached outputs remain valid, and refresh is triggered only when inputs are available and execution budgets allow. Refresh operations are dispatched asynchronously after the current frame, updating memory upon completion without blocking control decisions. If constraints are violated, actions degrade gracefully to reuse or skip. Consequently, the input frame rate remains fixed, while computational load varies dynamically across frames. 
+
+3.2.2 Fine-tuning the Scheduling Agent with GRPO 
+
+The zero-shot scheduler defines the runtime interface: it consumes a structured prompt built from agent-tool profiles and the memory bank, and outputs a schedule plan that affects future frames. GRPO fine-tuning preserves this interface and trains the policy to favor plans that improve the speed-accuracy trade-off while maintaining the same event-time semantics. Each sampled plan is rolled out over a short horizon, scored by quality and theoretical compute latency, and normalized against other plans from the same prompt. Fine-tuning thus reshapes the policy over valid plans. 
+
+Reward design. Let q denote the complete structured scheduler prompt at one call of the LLM. The trainable LLM reads this prompt and returns one schedule plan. We write the trainable LLM as πθ ,where θ denotes its model weights. In fine-tuning, we do not decode a single deterministic plan from 
+
+q. Instead, we sample several possible schedule plans from the same prompt, compare their rewards, and train the LLM to prefer the better ones. We write one such sampled plan as o ∼ πθ (· | q). The LLM output tokens for this plan are o = ( o1, . . . , o L), where L is the number of tokens and os is the token at position s. The Scheduling Agent executes plan o for the next H source frames. In the formulas below, t ∈ { 1, . . . , H } means the t-th frame among these H frames. For frame t, let mt
+
+be the reported planning metric and define Mt so that larger is better: Mt = −mt for L2 error or collision rate, and Mt = mt for Driving Score. Let ℓcomp  
+
+> t
+
+> 0 be the theoretical compute latency of frame t in seconds, obtained from the fixed latency table used by the FPS calculator. We summarize the H frames by mean quality and theoretical compute throughput: 
+
+M ⋆(o) = 1
+
+H
+
+> H
+
+X
+
+> t=1
+
+Mt, F ⋆
+
+> comp
+
+(o) = H
+
+PHt=1 ℓcomp 
+
+> t
+
+. (1) Here M ⋆(o) is the mean signed quality of plan o, and F ⋆
+
+> comp
+
+(o) is its theoretical compute FPS over the same H frames. 
+
+Speed–accuracy episodic reward. The episodic term compares plan o with a calibrated speed– accuracy reference line. We build this line from B calibration points, denoted by B =
+
+{(M1, F 1), . . . , (MB , F B )}. Each calibration point is one measured zero-shot scheduler result on the same base planner and agent tools. The subscript b indexes one calibration point: Mb is its mean signed quality and Fb is its theoretical compute FPS. These zero-shot points use the same fixed latency table as M ⋆(o) and F ⋆
+
+> comp
+
+(o). We choose two calibration points a and c as anchors, with 
+
+|Fc − Fa| > ϵ F . Here ϵF > 0 is a small threshold that avoids using two anchors with nearly identical FPS. The line through these two anchors is 
+
+f (F ) = Ma + Mc − Ma
+
+Fc − Fa
+
+(F − Fa). (2) 6where F is the FPS value at which the line is evaluated, and f (F ) is the reference signed quality at that FPS. We only use anchor pairs whose line is no lower than every calibration point, i.e., Mb ≤ f (Fb)
+
+for all b; if multiple pairs satisfy this condition, we use the closest such line. Let Fmin = min( Fa, F c)
+
+and Fmax = max( Fa, F c). We clip the plan throughput to this calibrated FPS range: 
+
+¯F (o) = min(max( F ⋆
+
+> comp
+
+(o), F min ), F max ).
+
+Thus ¯F (o) equals Fmin if the plan is slower than the calibrated range, equals Fmax if it is faster, and otherwise equals F ⋆
+
+> comp
+
+(o). This avoids evaluating the reference line outside the calibrated FPS range; the unclipped F ⋆
+
+> comp
+
+(o) is still reported in the results. The episodic reward is 
+
+Repi (o) = M ⋆(o) − f   ¯F (o) . (3) Thus Repi (o) is positive when plan o achieves a higher mean quality than the reference line at the same clipped FPS, and negative when it falls below that line. This term gives one scalar reward for the H-frame execution of plan o.
+
+Dense per-frame reward. Let Vψ (t) be an optional frozen value model with fixed parameters ψ. It maps the committed trajectory and retrieved context of frame t to a scalar quality score. If this scorer is not used, we set β = 0 . The per-frame reward and its H-frame average are 
+
+rdense  
+
+> t
+
+= Mt + β V ψ (t), Rdense (o) = 1
+
+H
+
+> H
+
+X
+
+> t=1
+
+rdense  
+
+> t
+
+, β ≥ 0. (4) Here rdense  
+
+> t
+
+is the reward for frame t, Rdense (o) is the average dense reward for plan o, and β controls how much the optional value scorer contributes. 
+
+Total reward. The final reward for plan o is 
+
+R(o) = Repi (o) + α R dense (o), α ≥ 0. (5) Here α controls the weight of the dense per-frame term. 
+
+GRPO fine-tuning with future-frame deployment. The reward in Eq. 5 is assigned to a complete schedule plan, while the scheduler generates that plan as an LLM output sequence. We use GRPO [ 21 ]to update the LLM from these plan-level rewards without training a separate critic. For each prompt 
+
+q, the old policy πθold samples a group of G schema-valid plans, 
+
+{oi}Gi=1 ∼ πθold (· | q),
+
+and each plan receives the reward Ri = R(oi). The advantage of plan oi is computed by normalizing its reward within this same group: 
+
+bAi = Ri − μR
+
+σR + ϵσ
+
+, μR = 1
+
+G
+
+> G
+
+X
+
+> j=1
+
+Rj , σ2 
+
+> R
+
+= 1
+
+G
+
+> G
+
+X
+
+> j=1
+
+(Rj − μR)2. (6) Here μR and σR are the mean and standard deviation of the G rewards, and ϵσ is a small constant for numerical stability. Thus bAi is positive when plan oi performs better than the other plans sampled from the same prompt, and negative when it performs worse. Because the reward is observed for the whole plan, the same bAi is assigned to every token in the serialized output oi. The policy πθ is then updated with the clipped GRPO objective and a KL penalty to a frozen SFT reference policy πref .This fine-tuning changes only the probabilities of schema-valid plans; the output schema, cache rules, and future-frame activation boundary remain the same as in the zero-shot scheduler. 
+
+4 Experimental Results 
+
+4.1 Datasets and Metrics 
+
+We evaluate DrivingAgent on two benchmarks: nuScenes [ 1] and Bench2Drive [ 11 ]. nuScenes contains 1k scenes and ∼35k samples. We use it for open-loop planning and report L2 error between predicted and human trajectories, together with the collision rate. These metrics are calculated under the VAD planning metric protocol. Prior work [ 31 ] shows that the collision rate better reflects planning quality than L2, as trajectory similarity does not guarantee safety or rule compliance. Bench2Drive evaluates closed-loop execution in simulation. Following the official protocol, we report Driving Score (route completion with infraction penalties) and Success Rate. It provides 10k training segments. 70 1 2 3 4 5 6 7 8
+
+> FPS on A100
+> 0.050
+> 0.100
+> 0.200
+> 0.050
+> 0.100
+> 0.200
+> Collision Rate on nuScenes (%)
+> Require 2FPS
+> 0.03%, 1.8 FPS
+> Require 5FPS
+> 0.05%, 5.2 FPS
+> Require 8FPS
+> 0.06%, 7.5 FPS
+> KnowVal-HENet++
+> 0.03%, 0.3 FPS
+> KnowVal-GenAD
+> 0.11%, 0.3 FPS
+> HENet++
+> 0.06%, 4.4 FPS
+> DiffusionDrive
+> 0.08%, 7.5 FPS
+> SparseDrive
+> 0.14% 8.2 FPS
+> GenAD
+> 0.19%, 6.9 FPS
+> VAD
+> 0.22%, 4.1 FPS
+> DrivingAgent (ours)
+
+(a) nuScenes open-loop evaluation. 0 1 2 3 4 5 6 7 8  
+
+> FPS on A100
+> 60
+> 65
+> 70
+> 75
+> 80
+> 85
+> 90
+> Drive Score on Bench2Drive
+> Require 2FPS
+> 88.7, 1.7 FPS
+> Require 5FPS
+> 83.4, 5.1 FPS
+> Require 8FPS
+> 81.1, 7.8 FPS
+> KnowVal-SimLingo
+> 88.4, 0.3FPS
+> SimLingo
+> 85.1, 1.2 FPS
+> DiffusionDrive
+> 77.7, 7.5 FPS
+> ORION
+> 77.7, 0.7FPS
+> DriveTrans.
+> 63.5, 4.8 FPS DriveAdapter
+> 64.2, 5.7 FPS ThinkTwice
+> 62.4, 4.7 FPS
+> DrivingAgent (ours)
+
+(b) Bench2Drive closed-loop evaluation. 
+
+Figure 3: Speed–accuracy trade-off on nuScenes and Bench2Drive. Each method is plotted by planning quality versus theoretical compute FPS on an Nvidia A100 GPU. DrivingAgent (ours, ⋆)is evaluated under three budgets: Require 2/5/8,FPS . The scheduler adapts agent-tool invocation without retraining the base planner, achieving a favorable trade-off across both benchmarks. 
+
+4.2 Implementation Details 
+
+We use the Design Agent to assemble existing modules and generate new ones. The system integrates: HENet++ (nuScenes only), decomposed into backbone, sparse 3D encoding and detection, dense 3D encoding and occupancy, and planner; SimLingo [ 19 ] (Bench2Drive only); DiffusionDrive [ 15 ], decomposed into backbone, perception, and planner (with dataset-specific weights); VLM (Qwen-3.5-0.8B [ 18 ]) and VL-SAM [ 16 ]; and KnowVal [ 31 ] retrieval and value modules. We also include KnowVal’s knowledge graph as long-term memory. The Scheduling Agent is fine-tuned from Qwen3.5-0.8B, requiring ∼16 hours on 8 H100 GPUs. 
+
+4.3 Main Results on Driving Benchmarks 
+
+As shown in Figure 3, DrivingAgent achieves a better speed–accuracy balance on both the nuScenes and Bench2Drive benchmarks and closely follows the FPS requirements in the instructions. Detailed tool invocation counts are provided in Table 3. We also provide an example video of a real driving scenario in the supplementary materials to better illustrate the scheduling agent’s working process. Notably, KnowVal [ 31 ] collects prior designs, then manually assembles them into a system. Our DrivingAgent is given the same prior designs, but not KnowVal’s manual system blueprint. DrivingA-gent achieves a better speed-accuracy balance by adjusting tool calls and cache reuse across different runtime budgets, demonstrating that it can outperform a manually designed system while using the same component inputs. Additionally, the proposed parallel scheduling approach may raise a natural concern about whether the FPS would be unstable. We report the coefficient of variation of FPS ( σ/μ ) in Table 3, where a larger value indicates more severe relative fluctuation in FPS. Incorporating GRPO finetuning and the FPS calculator improves FPS stability, reducing σ/μ to a level slightly higher than that of deterministic end-to-end planners, and well below VLA baselines such as ORION and SimLingo, whose autoregressive decoding introduces inherent latency variability. 
+
+4.4 Ablation Study Design Agent effectiveness. Initially, only the four HENet++ modules form a connected input -to - output pipeline; other capabilities (e.g., VLM-based perception, retrieval) are present but remain disconnected. Directly scheduling these external modules, therefore, leaves the HENet++ computation path unchanged and planning metrics identical to the baseline. The Design Agent bridges this gap by generating adapter modules. As shown in Table 1, each automatically designed adapter, when combined with the initial modules, reduces the collision rate, directly validating both the adapter and the Design Agent’s effectiveness. 8Table 1: White-box adapter gains on the HENet++. 
+
+Each row: original HENet++ modules + one auto-designed adapter. Latency = adapter runtime; Params = adapter parameters.                              
+
+> AdapterName Latency Params Avg. L2 Avg. Col
+> Baseline HENet++ --0.647 0.057%
+> IntentGuidedAgentGate 0.48 ms 82k 0.630 0.031%
+> IntentConditionedAgentGate 0.91 ms 363k 0.599 0.053%
+> FieldConditioned...Bridge 3.03 ms 341k 0.745 0.049%
+> ContextSparseAgentGate 0.84 ms 197k 0.545 0.039%
+> IntentCreditRouter 0.51 ms 182k 0.542 0.040% ......
+
+Table 2: FPS Stability. Repi : GRPO with episodic reward; Rdense : + dense reward; Calc: FPS calculator; Para.: paradigm; σ/μ :FPS Coefficient of Variation.                                                            
+
+> Method ID Repi Rdense Calc Para. σ/μ
+> HENet++ ———E2E 0.037 DiffusionDrive ———E2E 0.043 ORION ———VLA 0.151 SimLingo ———VLA 0.188 DrivingAgent Azero-shot AgentSys 0.387 B✓——AgentSys 0.168 C✓✓—AgentSys 0.172 D✓✓✓AgentSys 0.074 01234567
+> FPS on A100
+> 0.03
+> 0.04
+> 0.05
+> 0.06
+> 0.07
+> 0.08
+> Collision Rate on nuScenes (%)
+> KnowVal
+> HENet++
+> DiffusionDrive
+> A: Zero-shot
+> B: A+EpisodicRL
+> C: B+DenseReward
+> D: C+Calculator 012345678
+> FPS on A100
+> 80
+> 83
+> 86
+> 89
+> Drive Score on Bench2Drive
+> KnowVal-SimLingo
+> SimLingo
+> DiffusionDrive ORION
+> A: Zero-shot
+> B: A+EpisodicRL
+> C: B+DenseReward
+> D: C+Calculator
+
+Figure 4: Ablation on the Scheduling Agent. The experimental results demonstrate the speed–accuracy improvements achieved by GRPO fine-tuning, the proposed reward design, and the addition of an FPS calculator as an agent tool. 
+
+Ablation on the Scheduling Agent. As shown in Figure 4 and Table 2, Exp. A uses a zero-shot LLM for scheduling. Exp. B fine-tunes the agent framework using GRPO with episodic reward, which simultaneously improves the speed–accuracy balance and FPS stability. Exp. C adds a dense reward on top of B, improving accuracy at high FPS. Exp. D further incorporates an FPS calculator and feedback as agent tools, thereby enhancing the speed–accuracy balance, improving FPS instruction-following capability, and further reducing FPS fluctuations. 
+
+5 Limitations 
+
+The current implementation of DrivingAgent is a proof-of-concept prototype and has not been optimized for deployment. For example, experiments are conducted on an NVIDIA A100 GPU rather than automotive-grade hardware. All models use floating-point precision without quantization. Inter-module communication is implemented via local network ports, and the associated latency is not included; practical deployment would require low-level optimizations such as direct GPU memory access. Despite these limitations, DrivingAgent is fully compatible with existing model compression and system-level optimization techniques. We argue that evaluation on a standardized platform (NVIDIA A100) provides a fair comparison and sufficiently demonstrates the effectiveness and feasibility of the proposed framework. 
+
+6 Conclusion 
+
+We introduced DrivingAgent, a specialized agent framework that unifies the design and scheduling of autonomous driving systems. By treating these as distinct yet coupled tasks, DrivingAgent automates module creation and dynamically orchestrates their execution in real time. Its ability to leverage the internal structure of neural network modules, together with a purpose-built memory system, enables context-aware scheduling that improves resource efficiency. Experiments on nuScenes and Bench2Drive demonstrate that DrivingAgent achieves a favorable speed-accuracy trade-off. 9References 
+
+[1] Holger Caesar, Varun Bankiti, Alex H. Lang, Sourabh Vora, Venice Erin Liong, Qiang Xu, Anush Krishnan, Yu Pan, Giancarlo Baldan, and Oscar Beijbom. nuscenes: A multimodal dataset for autonomous driving. In CVPR , 2020. 7 [2] Xuesong Chen, Linjiang Huang, Tao Ma, Rongyao Fang, Shaoshuai Shi, and Hongsheng Li. Solve: Synergy of language-vision and end-to-end networks for autonomous driving. In CVPR , 2025. 3 [3] Yuan Chen, Zi-han Ding, Ziqin Wang, Yan Wang, Lijun Zhang, and Si Liu. Asynchronous large language model enhanced planner for autonomous driving. In ECCV , 2024. 3 [4] Haoyu Fu, Diankun Zhang, Zongchuang Zhao, Jianfeng Cui, Dingkang Liang, Chong Zhang, Dingyuan Zhang, Hongwei Xie, Bing Wang, and Xiang Bai. Orion: A holistic end-to-end autonomous driving framework by vision-language instructed action generation. In ICCV , 2025. 1, 3 [5] Jianhua Han, Meng Tian, Jiangtong Zhu, Fan He, Huixin Zhang, Sitong Guo, Dechang Zhu, Hao Tang, Pei Xu, Yuze Guo, et al. Percept-wam: Perception-enhanced world-awareness-action model for robust end-to-end autonomous driving. arXiv preprint arXiv:2511.19221 , 2025. 1 [6] Sirui Hong, Mingchen Zhuge, Jonathan Chen, Xiawu Zheng, Yuheng Cheng, Jinlin Wang, Ceyao Zhang, Zili Wang, Steven Ka Shing Yau, Zijuan Lin, et al. Metagpt: Meta programming for a multi-agent collaborative framework. In ICLR , 2023. 2, 3 [7] Shengchao Hu, Li Chen, Penghao Wu, Hongyang Li, Junchi Yan, and Dacheng Tao. St-p3: End-to-end vision-based autonomous driving via spatial-temporal feature learning. In ECCV , 2022. 3 [8] Yihan Hu, Jiazhi Yang, Li Chen, Keyu Li, Chonghao Sima, Xizhou Zhu, Siqi Chai, Senyao Du, Tianwei Lin, Wenhai Wang, Lewei Lu, Xiaosong Jia, Qiang Liu, Jifeng Dai, Yu Qiao, and Hongyang Li. Planning-oriented autonomous driving. In CVPR , 2023. 1, 3 [9] Xiaosong Jia, Yulu Gao, Li Chen, Junchi Yan, Patrick Langechuan Liu, and Hongyang Li. Driveadapter: Breaking the coupling barrier of perception and planning in end-to-end autonomous driving. In ICCV ,2023. 3 [10] Xiaosong Jia, Penghao Wu, Li Chen, Jiangwei Xie, Conghui He, Junchi Yan, and Hongyang Li. Think twice before driving: Towards scalable decoders for end-to-end autonomous driving. In CVPR , 2023. 3 [11] Xiaosong Jia, Zhenjie Yang, Qifeng Li, Zhiyuan Zhang, and Junchi Yan. Bench2drive: Towards multi-ability benchmarking of closed-loop end-to-end autonomous driving. In NeurIPS , 2024. 7 [12] Xiaosong Jia, Junqi You, Zhiyuan Zhang, and Junchi Yan. Drivetransformer: Unified transformer for scalable end-to-end autonomous driving. In ICLR , 2025. 3 [13] Bo Jiang, Shaoyu Chen, Qing Xu, Bencheng Liao, Jiajie Chen, Helong Zhou, Qian Zhang, Wenyu Liu, Chang Huang, and Xinggang Wang. Vad: Vectorized scene representation for efficient autonomous driving. In ICCV , 2023. 1, 3 [14] Yongkang Li, Lijun Zhou, Sixu Yan, Bencheng Liao, Tianyi Yan, Kaixin Xiong, Long Chen, Hongwei Xie, Bing Wang, Guang Chen, et al. Unidrivevla: Unifying understanding, perception, and action planning for autonomous driving. arXiv preprint arXiv:2604.02190 , 2026. 1 [15] Bencheng Liao, Shaoyu Chen, Haoran Yin, Bo Jiang, Cheng Wang, Sixu Yan, Xinbang Zhang, Xiangyu Li, Ying Zhang, Qian Zhang, et al. Diffusiondrive: Truncated diffusion model for end-to-end autonomous driving. In CVPR , 2025. 3, 8 [16] Zhiwei Lin and Yongtao Wang. Vl-sam-v2: Open-world object detection with general and specific query fusion. arXiv preprint arXiv:2505.18986 , 2025. 2, 8 [17] Joon Sung Park, Joseph O’Brien, Carrie Jun Cai, Meredith Ringel Morris, Percy Liang, and Michael S Bernstein. Generative agents: Interactive simulacra of human behavior. In UIST , 2023. 2, 3 [18] Qwen Team. Qwen3.5: Towards native multimodal agents, February 2026. 8 [19] Katrin Renz, Long Chen, Elahe Arani, and Oleg Sinavski. Simlingo: Vision-only closed-loop autonomous driving with language-action alignment. In CVPR , 2025. 1, 3, 8 [20] Timo Schick, Jane Dwivedi-Yu, Roberto Dessì, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom. Toolformer: Language models can teach themselves to use tools. In NeurIPS , 2023. 2, 3 
+
+10 [21] Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, YK Li, Yang Wu, et al. Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 , 2024. 7 [22] Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao. Reflexion: Language agents with verbal reinforcement learning. In NeurIPS , 2023. 2, 3 [23] Chonghao Sima, Katrin Renz, Kashyap Chitta, Li Chen, Hanxue Zhang, Chengen Xie, Jens Beißwenger, Ping Luo, Andreas Geiger, and Hongyang Li. Drivelm: Driving with graph visual question answering. In 
+
+ECCV , 2024. 3 [24] Ziying Song, Caiyan Jia, Lin Liu, Hongyu Pan, Yongchang Zhang, Junming Wang, Xingyu Zhang, Shaoqing Xu, Lei Yang, and Yadan Luo. Don’t shake the wheel: Momentum-aware planning in end-to-end autonomous driving. In CVPR , 2025. 3 [25] Wenchao Sun, Xuewu Lin, Yining Shi, Chuang Zhang, Haoran Wu, and Sifa Zheng. Sparsedrive: End-to-end autonomous driving via sparse scene representation. In ICRA , 2025. 3 [26] Xiaoyu Tian, Junru Gu, Bailin Li, Yicheng Liu, Yang Wang, Zhiyong Zhao, Kun Zhan, Peng Jia, Xianpeng Lang, and Hang Zhao. Drivevlm: The convergence of autonomous driving and large vision-language models. arXiv preprint arXiv:2402.12289 , 2024. 2, 3 [27] Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao, Yuke Zhu, Linxi Fan, and Anima Anandkumar. Voyager: An open-ended embodied agent with large language models. arXiv preprint arXiv:2305.16291 , 2023. 2, 3 [28] Xinshuo Weng, Boris Ivanovic, Yan Wang, Yue Wang, and Marco Pavone. Para-drive: Parallelized architecture for real-time autonomous driving. In CVPR , 2024. 3 [29] Penghao Wu, Xiaosong Jia, Li Chen, Junchi Yan, Hongyang Li, and Yu Qiao. Trajectory-guided control prediction for end-to-end autonomous driving: A simple yet strong baseline. In NeurIPS , 2022. 3 [30] Qingyun Wu, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu, Li Jiang, Xiaoyun Zhang, Shaokun Zhang, Jiale Liu, et al. Autogen: Enabling next-gen llm applications via multi-agent conversations. In COLM , 2024. 2, 3 [31] Zhongyu Xia, Wenhao Chen, Yongtao Wang, and Ming-Hsuan Yang. Knowval: A knowledge-augmented and value-guided autonomous driving system. arXiv preprint arXiv:2512.20299 , 2025. 1, 3, 7, 8 [32] Zhongyu Xia, Zhiwei Lin, Yongtao Wang, and Ming-Hsuan Yang. Henet++: Hybrid encoding and multi-task learning for 3d perception and end-to-end autonomous driving. arXiv preprint arXiv:2511.07106 ,2025. 1, 3 [33] Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan, and Yuan Cao. React: Synergizing reasoning and acting in language models. In ICLR , 2022. 2, 3 [34] Bozhou Zhang, Nan Song, Xin Jin, and Li Zhang. Bridging past and future: End-to-end autonomous driving with historical prediction and planning. In CVPR , 2025. 3 [35] Weicheng Zheng, Xiaofei Mao, Nanfei Ye, Pengxiang Li, Kun Zhan, XianPeng Lang, and Hang Zhao. Driveagent-r1: Advancing vlm-based autonomous driving with active perception and hybrid thinking. In 
+
+ICLR , 2026. 3 [36] Wenzhao Zheng, Ruiqi Song, Xianda Guo, Chenming Zhang, and Long Chen. Genad: Generative end-to-end autonomous driving. In ECCV , 2024. 1, 3 
+
+11 A Experimental Details: Sample Outputs of the Design Agent 
+
+> Figure 5–8 shows the specific neural network architectures of several designed modules listed in Table 1.
+
+Figure 5: FieldConditionedConceptBottleneckBridge. A white-box VLSAM-to-planning adapter attached at pre_planning . The module encodes open-vocabulary VLSAM labels, combines them with dense field support, forms a compact concept bottleneck, derives scene-level and query-level semantic priors, and rewrites plan_queries_refined for the host planner. 
+
+Figure 6: IntentGuidedAgentGate. Architecture of an automatically designed white-box planner-side gating adapter attached at pre_planning . The module summarizes previous ego in-tent from prev_plan_queries , scores each agent query against that intent, and rewrites 
+
+plan_queries_refined through intent-conditioned agent gating. 12 Figure 7: IntentConditionedAgentGate. Architecture of an automatically designed white-box planner-side adapter attached at pre_planning . The module selects an intent source from trajectory-derived and cached planner context, projects the resulting intent into multi-head query features, attends over planner-side agent tokens, and rewrites plan_queries_refined with directionality-aware intent-conditioned agent modulation. 
+
+Figure 8: IntentCreditRouter. Architecture of an automatically designed white-box planning router attached at pre_planning . The module computes per-agent planning credit from previous planner context, selects the highest-credit agent subset, rewrites only those selected tokens with a context-conditioned non-identity update, and reconstructs plan_queries_refined for the host planner. 13 B Experimental Details: Sample of the Profile 
+
+Below is an example illustrating how a profile describes a specific module (Figure 5). 
+
+name : FieldConditionedConceptBottleneckBridge type: adapter_profile status: appendix_example host_architecture: HENet++ 
+
+hook_point : pre_planning 
+
+capabilities :- vlsam role: >White-box semantic bridge that converts VLSAM hints into planner-facing semantic priors and direct query refinement. purpose: >Bridge open-vocabulary VLSAM semantics into the HENet++ planning query path by translating sparse label-plus-field evidence into scene-level and query-level priors, then writing plan_queries_refined. attachment_rationale: >The pre_planning hook is the smallest explicit host attachment space where the module can jointly see planner-side query features, detector-side class scores, recent planner intent, and external VLSAM fields before the planner query tensor is consumed downstream. activation_narrative: >Enable this module when valid VLSAM hints are present, local field support is non-trivial, and some planner-side queries remain semantically ambiguous under closed-set detector scores. 
+
+inputs :
+
+required_cache_fields :- bbox_feats_proj - det_scores - vlm_points_bev - vlm_valid_mask - vlm_det_scores - vlm_mask_areas - vlm_attention_map_bev - vlm_boundary_map_bev optional_cache_fields: - prev_plan_queries 
+
+required_meta_fields :- vlm_labels_raw optional_meta_fields: - semantic_source - vlm_response_raw - detseg_boxes_img_raw 
+
+outputs :main_planner_outputs: - bbox_feats_proj - plan_queries_refined semantic_diagnostics: - det_vlm_scene_class_prior - det_vlm_scene_feat_prior - det_vlm_query_gate - det_vlm_activation_score training_outputs: - det_vlm_text_class_anchor_loss - det_vlm_query_class_kl_loss - det_vlm_feature_pull_loss - det_vlm_improvement_loss - det_vlm_bridge_aux_loss 
+
+runtime_contract :
+
+execution_class : inline 
+
+affects_current_frame : true 
+
+latest_wins : false output_key: plan_queries_refined output_shape: (201, B, 256) model_profile: parameter_count: 341652 latency_note: >Standalone latency should be re-profiled after the current pre_planning rewrite. 
+
+14 scheduler_note: >This is an inline current-frame module. The scheduling agent should prefer it only on frames where VLSAM semantics are present and semantically relevant to the current maneuver, because the module directly modifies the planner query path. claim_alignment: >This profile supports the paper’s white-box claim: external VLSAM semantics are not left as side information, but are injected into the host planner through an explicit attachment point and a typed runtime contract. main_limitation: >Query-to-hint routing is driven mainly by feature-space affinity rather than explicit geometry-aware matching, so the module should be described as structured semantic conditioning rather than exact object-level grounding. 
+
+C Experimental Details: Tools Invocation Counts of the Scheduling Agent 
+
+Table 3 below reports the average latency and invocation count of each module (including the scheduler LLM). The six columns correspond to Zero - Shot (A) and the full DrivingAgent (D) in Figure 4, each evaluated under three different FPS requirements. 
+
+Table 3: The average latency and invocation count of each module. Tool name Latency DrivingAgent Zero-Shot DrivingAgent GRPO Avg. (ms) 2 FPS 5 FPS 8 FPS 2 FPS 5 FPS 8 FPS Scheduling-Agent 651.45 1744 845 315 1029 429 208 FPS Calculator 0.00 0 0 0 1029 429 208 HENet-Backbone 11.85 6019 6019 6019 6019 6019 0HENet-Detection 41.85 6019 2762 229 5981 3780 0HENet-Occupancy 164.43 6019 2528 229 5019 628 0HENet-Planner 10.63 6019 6019 6019 6019 6019 0DiffDrive-Backbone 12.93 0 0 0 0 0 6019 DiffDrive-Perception 76.89 0 0 0 0 0 2438 DiffDrive-Planner 33.34 0 0 0 0 0 6019 Knowledge Retrieval 82.70 2008 412 432 617 405 43 VLM-0.8B 446.44 6019 390 396 1461 341 225 VL-SAM Adapter + SAM 1095.89 6019 390 396 753 249 64 IntentGuidedAgentGate 0.48 6019 3036 598 6003 5152 5006 IntentConditionedAgentGate 0.91 6019 3030 598 5991 4980 3782 FieldConditioned...Bridge 3.03 6019 3030 591 6019 6009 6018 ContextSparseAgentGate 0.84 6019 3036 598 6003 5152 5006 IntentCreditRouter 0.51 6019 3030 597 5998 5399 5084 ... Total Frames 6019 6019 6019 6019 6019 6019 Avg. FPS 0.502 3.217 5.718 1.747 5.162 7.497 Collision Rate 1s 0.00 0.00 0.00 0.00 0.00 0.00 2s 0.00 0.01 0.00 0.01 0.01 0.04 3s 0.10 0.18 0.24 0.08 0.14 0.15 Avg. 0.03 0.06 0.08 0.03 0.05 0.06 
+
+The scheduling results above indicate that when the scheduling agent employs a GRPO fine-tuned LLM, it achieves a better speed–accuracy balance. For instance, between the two perception tools HENet-Detection and 
+
+HENet-Occupancy , the scheduling agent learns to reduce calls to the slower HENet-Occupancy while maintaining high-frequency scheduling of the lightweight adapter tools produced by the design agent. Furthermore, the scheduling agent spontaneously learns to decouple the VLM of VL-SAM from its subsequent modules: when the VLM detects no long-tail objects, it no longer invokes the downstream VL-SAM adapter and SAM. Moreover, the VLM is no longer limited to serving VL-SAM. Its retained features are transformed by other adapter tools designed by the design agent and reused in other modules. 
+
+15

@@ -1,0 +1,2865 @@
+Title: Projecting the Emerging Mindset of SWE Agent by Launching a Wild Code Understanding Journey
+
+URL Source: https://arxiv.org/pdf/2606.08500v1
+
+Published Time: Tue, 09 Jun 2026 01:23:12 GMT
+
+Number of Pages: 59
+
+Markdown Content:
+Springer Nature 2021 L ATEX template 
+
+# Projecting the Emerging Mindset of SWE Agent by Launching a Wild Code Understanding Journey 
+
+Zhengyi Zhuo 1 and Yan Liu 1* 
+
+1School of Computer Science and Technology, Tongji University, Shanghai, People’s Republic of China. *Corresponding author(s). E-mail(s): yanliu.sse@tongji.edu.cn; 
+
+Abstract 
+
+Software engineering agents (SWE agents) are rapidly becoming popular in practice, yet we still know very little, in concrete, observable terms, about the behavioral regularities they exhibit when working in real code-bases. Software engineering agents generate rich trajectories of tool use, intermediate reasoning, and self-directed stopping. This creates a basic con-tradiction: we know little about agent behavior, but we can collect abun-dant digital traces of it. The contradiction arises because trajectories record what the agent did, but not, by themselves, why those moves were cho-sen, what evidence was trusted, or what counted as sufficient understanding to stop. Still, precisely because the traces are faithful, replayable, and scal-able, they offer one of the best empirical substrates for probing behavior and projecting the mindset underlying an agent’s reasoning and choices. To turn faithful traces into observable behavioral evidence, we build Ada as a scoped apparatus for repository-level code understanding and give it a world to move through. That world consists of real codebases made traversable through a bounded tool interface, so Ada’s exploration can remain open-ended in practice while becoming recordable as a finite trajectory. Inside this wild-but-bounded setting, Ada chooses where to look, what evidence to read closely, when to con-solidate partial understanding, and when to close its account of the repository. These journeys produce think-action chains in which the progression from navigation through evidence selection and synthesis to stopping becomes vis-ible as situated behavior. We project these chains through carefully designed lenses that offer usable distances for reading agentic behaviors, without reduc-ing interpretations to a mechanistic accounting of tool calls or inflating them into speculative overreading of hidden intent. Read together, the views enable a 
+
+1
+
+> arXiv:2606.08500v1 [cs.SE] 7 Jun 2026
+
+Springer Nature 2021 L ATEX template 2 Projecting the Emerging Mindset of SWE Agent  
+
+> nascent projection of the SWE-agent mindset, expressed as behavioral profiles grounded in the agent’s recorded movement through real software worlds. Together, the apparatus, lenses, and 408-trajectory study provide a method-ological foundation for observing SWE-agent behavior in real codebases, showing how faithful digital traces can be transformed into disciplined, comparable projections of emerging agentic mindset. The resulting obser-vations align with broader findings on agent efficiency, trajectory diversity, epistemic grounding, and the limits of intervention, giving additional sup-port to the proposed method beyond the study’s own experimental scope.
+> Keywords: SWE agents, agent trajectories, repository exploration, code understanding
+
+## 1 Introduction 
+
+Autonomous agents, boosted by LLM reasoning engines, are moving fast into the open world, increasingly operating through trajectories of tool use, environment interaction, intermediate reasoning, and self-directed stopping. A valid, useful agen-tic interaction is no longer a single-turn final answer. It usually unfolds as a group of “turns” through a world, cascading the actions and reasoning into a continuous, vis-ible flow. From the flow, every thought and action is seemingly easier to read closely, providing a translucent view of agent behavior. However, agent behavior does not automatically become legible from the thought–action chain. Recorded trajectories do not, by themselves, reveal the agent’s goals or strategic choices. Interpreting behavioral signals from outside the agent remains difficult, even though tools for logging and replaying agentic trajectories are mature and widely available [1–3]. Software engineering agents (SWE agents) make this challenge unusually con-crete. Their world is digital by nature, organized into repositories whose struc-ture spans files and symbols, cross-file dependencies, and executable behavior, all inspectable as the agent moves through them. It is open enough to require genuine navigation, yet bounded enough for the resulting work to be recorded and revisited. A high degree of digitization, however, does not by itself guarantee an environment that is legible from outside the agent. When an SWE agent enters a repository, it must form a working picture of a software system from partial observations. It must decide where to look, what to trust, when to consolidate, and when its understand-ing is sufficient to stop. These trajectories offer a rare site for studying agentic work as situated movement through a structured world. Interpreting the behavioral phenomena of an intelligent agent is pulled between two failure modes. At one extreme, a close reading of tool calls yields mostly mechanical signals rather than evidence of intelligent behavior; at the other, treat-ing every move as motive imputes intention to every trace and therefore explains nothing. Still, an agent’s “mindset” is not beyond reach. Between these extremes lies a workable stance in which behavioral interpretations remain accountable to Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 3APPARATUS / WORLD 
+
+> Ada
+> the SWE agent
+> LAUNCH
+> TRAJECTORY
+> recorded trace
+> OBSERVERS
+> Analytical LENSES
+> PROJECTED MINDSET
+> embodied in trajectories
+> produces
+> read through
+> Thought -
+> Actions
+> not mindset
+> (solely)
+> RUNS / PLAYS here
+> contains
+> not mindset
+> (by itself)
+> equipped with
+> (i)
+> (ii)
+
+Fig. 1 : Overview of the outside-in reading approach: an SWE agent interacts with a repository world through a tool-mediated apparatus, producing a recorded tra-jectory that is projected through observation lenses into comparable behavioral signals. the traces that generated them. In this work, we develop a reproducible methodol-ogy for studying SWE-agent behavior from an analytical distance where recorded trajectories can begin to reveal an emerging mindset. Before any changes are made to the codebase, code understanding is the phase in which SWE agents (and also human developers) align their perceptions with the software system as it exists. This phase is especially revealing of mindset, because it is not reducible to task success: the agent must build understanding from partial evidence and then judge for itself when that understanding is sufficient to stop. A different line of work looks inside the model itself. Mechanistic interpretabil-ity, advanced most visibly by Anthropic, attempts to recover features and circuits from internal activations, offering a glass-box account of what the network repre-sents. This access is real, but it depends on substantial interpretability infrastructure and compute. It also characterizes the foundation model more directly than the agent assembled around it. Our work starts from a complementary premise: even without opening the model, an agent’s “mindset” leaves systematic traces in its thought–action chain. Reading mindset from trajectories, therefore, offers a distinct scientific stance. Because it reads the assembled agent rather than the foundation model, this stance is tied to the artifact that developers actually ship. It is also comparatively inexpen-sive and suitable for comparison across models and conditions. At the same time, the limits of this outside view are not obvious. We treat the observability of mind-set from traces as an open question, so our method probes the extent to which such readings can be inferred. As illustrated in Fig. 1, projecting mindset from outside requires (i) an envi-ronment that preserves genuine exploratory behavior while remaining bounded enough for repeated observation, (ii) analytical lenses that project recorded trajecto-ries into comparable, interpretable views of how the agent oriented itself. This paper provides both. We build a minimal SWE agent apparatus that runs a multi-turn tool-use loop across six real-world repositories. A suite of observation lenses then renders different aspects of each trajectory into readable form. We use a dedicated code-understanding agent, Ada 1, as the subject of study. 
+
+> 1Our code understanding SWE agent working inside the apparatus. Named after Ada Lovelace
+
+Springer Nature 2021 L ATEX template 4 Projecting the Emerging Mindset of SWE Agent 
+
+A recorded trajectory is not a direct readout of the agent’s internal mindset. It provides a faithful account of observable choices: where the agent looked, what it treated as evidence, how it consolidated partial understanding, when it decided to stop. Our method uses lenses to project those choices into a scoped behavioral profile. The projection supports disciplined comparison, without claiming access to hidden intent. Our contributions are as follows. 1. Within repository-level code understanding, we construct a bounded-yet-wild software world with scoped task activators. This setting makes the agent’s exploration recordable as trajectories that can be interpreted against the reposi-tory’s independently known structure. The world is designed as an observational instrument, providing a stable ground for making agent behavior legible and comparable. 2. At the level of trajectory interpretation, we formalize a suite of observation lenses that project recorded thought–action chains into structured views. These lenses provide usable analytical distances, from aggregate activity to temporal shape, action transitions, semantic grounding, and repository contact, without collapsing trajectory interpretation into raw tool-call accounting or superficial speculations. 3. For probing mindset observability, we operationalize a controlled launch-and-intervention framework. Prompt-framing conditions expose how exploration changes under different evidential and resource constraints, while the coach-judge condition tests how far externally observed trajectories can be steered during a run. 4. Across 408 trajectories spanning multiple models, repositories, and launch condi-tions, we demonstrate that the apparatus makes SWE-agent code-understanding behavior empirically readable through its lenses. The projection lenses expose differences in navigation, synthesis, grounding, and stopping behavior. We also place these observations in dialogue with broader findings on agent trajectories, giving additional support to the proposed method. The remainder of this paper is organized as follows. Section 2 defines the SWE agent apparatus and formulates the research questions it enables. Section 3 describes the experimental scaffold, including repository-level code-understanding tasks, heterogeneous repository selection, foundation models and launching con-ditions, and the trajectory recording scheme, followed by the observation lenses through which recorded trajectories are projected into readable form. Section 4 reports results across three research questions, from surface signals through cross-lens projection to the intervention boundary discovered under coaching. Section 5 situates the findings in the broader literature and discusses what the observation method makes transferable beyond this study. Section 6 addresses threats to validity and the epistemic boundaries of the apparatus. Section 7 surveys related work on trajectory-aware evaluation, tool-mediated interaction, and repository-level code understanding. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 5
+
+## 2 Formulation of Research Questions 
+
+2.1 The Wild in Bounds: Crafting an Observable Digital World for SWE Agents 
+
+Before asking how SWE agent mindsets can be projected from behavioral traces, we specify the object and setting that make such trajectories observable. We use the term SWE agent in a methodological sense. In this paper, an SWE agent is an LLM-mediated, tool-using interaction process. It is activated by a repository-level code-understanding task, acts through a finite sequence of turns in a bounded digital software environment, and terminates when it invokes a distinguished completion tool. We denote a scoped SWE agent as 
+
+Aθ = ⟨Mθ , P, U, u ∗⟩, (1) where Mθ is the foundation model; P is the prompt and role scaffold that defines the agent’s “framing” across launch conditions; U = {u1, . . . , u k} is the set of available tools; and u∗ ∈ U is a designated termination tool whose invocation ends the run. Action selection follows the mechanism the foundation model implements given 
+
+P , U, and the accumulated interaction history; we neither assume nor require an explicit, separable policy. A run is activated by placing this agent in a digital software environment E
+
+under a task τ and an experimental condition c:
+
+ρ = Run( Aθ , E, τ, c ). (2) The run yields a finite trajectory: 
+
+ξ = ⟨ (x0, a 0, o 1), (x1, a 1, o 2), . . . , x n ⟩, n ≤ N, (3) where xt is the accumulated interaction history at turn t, at is the selected tool call, and ot+1 is the observation returned by the environment. The trajectory terminates when at = u∗ or when the turn bound N is reached. We define the surrounding apparatus as 
+
+D = ⟨ W , T , R, L ⟩ , (4) where W is the repository world, T is the set of task activators, R is the record-ing scheme that preserves each run as an analyzable trajectory, and L is a set of observation lenses. The repository world W consists of real software repositories that preserve their directory structure, cross-file references, and architectural lay-ering, with evidence unevenly distributed across these structures. Task activators 
+
+T launch the agent with directed but open-ended purposes that require repository-level understanding. The recording scheme R captures each run as a finite sequence of turns, preserving tool calls, observations, and intermediate reasoning artifacts within each turn. Springer Nature 2021 L ATEX template 6 Projecting the Emerging Mindset of SWE Agent Instrumented environment (bounded) 
+
+> Agent
+
+</>                  
+
+> Codebase Bounded apparatus
+> Agent running log s
+> thinking •actions •responses
+> Environment al setup
+> files •code snippets •time
+> Recorded Trajectories
+> Reasoning
+> contents
+> Navigation
+> actions
+> Tool execution
+> results
+> Time
+> spent
+> Explored code
+> areas
+> RQ1: Behavioral signals
+> The surface activities in statistics
+> RQ3: Intervention boundary
+> Can intervention improve, or expose limits?
+> –
+> RQ2: Mindset projection
+> Under the suite of lenses
+> <thinking> <tool> <system>
+> coach condition
+> <-agent’s vie wobserver’s view ->derived information
+
+Fig. 2 : Our bounded instrumented environment records both agent-understanding traces and environment traces, which are recomposed into observed trajectories that ground the paper’s three research questions on behavior, mindset projection, and intervention boundary. In this paper, “ mindset ” refers to an externally projected stance that is read through the observation lenses. The emerging mindset is visible through the tra-jectories, by looking at them in a proper distance. The lenses create a spectrum of distances for the observers. Each observation lens ℓ ∈ L is a mapping: 
+
+ℓ : Ξ → V ℓ (5) that projects the trajectory data into a readable view Vℓ, structured for comparison and interpretation, providing a scientific distance, namely a range within which we can observe and compare the agent behaviors under study. In this paper, we demonstrate five lenses: surface activity view , journey arc lens , action policy lens ,
+
+automatic adjudication lens , and codebase footprint lens . These range from aggregate statistical summaries to fine-grained projections, both evaluative and spatial, of the trajectory. The set L is open; the five lenses demonstrated here are a minimal set sufficient to show that trajectory-level observation yields distinguishable behavioral signals. Researchers working with the same apparatus can define additional lenses over the same recorded data. 
+
+2.2 Research Questions Enabled by the Apparatus 
+
+The apparatus above does not merely produce task answers. It produces observ-able trajectories: bounded records of how an SWE agent moves, reads, and reasons inside a repository world, how it stores intermediate understanding along the way, and how it terminates. This shift from final answers to trajectories motivates the research questions of this study. As illustrated in Figure 2, the bounded instrumented environment records both agent-understanding traces and environment traces, which are recomposed into Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 7observed trajectories. These trajectories support three connected questions on behavior, mindset projection, and the intervention boundary. First, when an SWE agent is launched into a wild-but-bounded repository world, what behavioral sig-nals are recorded, and what patterns emerge as the launch conditions change? Second, when those signals are interpreted through a mindset observation proto-col, what do they reveal beyond aggregate statistical facts, and can we summarize them as behavioral profiles? Third, when an external observer is allowed into the agent channel through guided intervention, does the intervention improve the pro-duced understanding, or does it instead reveal a boundary on what observation and control can perturb at the agentic behavioral level? 
+
+RQ1: How do the signals gathered from SWE agent trajectories distribute within our wild-but-bounded environment? 
+
+To explore whether the construction of our “wild digital world” supports robust observation, we launch Ada , the code-understanding SWE agent, in the experimen-tal apparatus. The prompting status P was initially framed as the natural state, with no additional limits applied. And then, we used both budget pressure and prior suppression to stimulate the agent. Trajectories were recorded. 
+
+RQ2: When projected through mindset observation lenses, what do these behavioral tendencies reveal of the SWE agent and the underlying LLMs? 
+
+RQ1 asks whether the apparatus records behavioral signals at all. RQ2 asks whether those signals become meaningful only when read across multiple lenses, particularly in cases where surface statistics fail to explain process-level differences. Using the recorded trajectories from RQ1, we therefore interpret behavior through the ordered lens stack, moving from surface activity to temporal shape, action transitions, semantic adjudication, repository footprint. If trajectories can be observed from outside, the next question is whether that outside view can improve or steer the ongoing run. We treat this as an empirical question, not an assumption. 
+
+RQ3: Under external observer-guided coaching, does the agent improve its answer, or does the intervention expose an intrinsic boundary of mindset? 
+
+RQ2 motivates a third question. Can a trajectory-informed outside intervention steer the run toward better understanding, or does it instead expose a boundary on what external feedback can change? We connect the running agent to an online judging panel, then route panel feedback through a coach who decides when to intervene. In this setup, a run of Ada becomes: 
+
+ρ = Run( Aθ , E, τ, c cj , C). (6) The trajectory produced by this run retains the sequential turn structure of Equation 3, but the content of each observation ot+1 is conditionally augmented. At each turn, a judge panel J reads the trajectory up to turn t and produces a diag-nostic report J (ξ≤t). The coach C receives the agent’s current action at and the panel’s report, and selects a decision dt ∈ { PASS , HINT , REJECT }:Springer Nature 2021 L ATEX template 8 Projecting the Emerging Mindset of SWE Agent 
+
+dt = C at, J (ξ≤t). (7) The observation is returned to the agent, and subsequent actions depend on this decision.: 
+
+ot+1 =
+
+(
+
+rt+1 if dt = PASS ,rt+1 ⊕ mC if dt ∈ { HINT , REJECT }, (8) where rt+1 is the tool execution result, and mC is the coach’s intervention mes-sage. Under PASS , the trajectory proceeds as in the main conditions. Under HINT ,the coach provides strategic guidance alongside the tool result. Under REJECT , the coach returns the agent’s conclusion attempt with a diagnostic message, and the trajectory continues rather than terminating. 
+
+## 3 Methodology 
+
+3.1 Methodological Position: Projecting Code-Understanding Trajectories 
+
+Before describing the experimental scaffold and the analysis protocol, we position the methodological stance that governs both. Repository-level code understanding does not terminate in an executable artifact or a pass-fail verdict. The trajectory of tool-mediated encounters with a repository is the primary empirical object, so the method must be designed around that object. Launching Apparatus  
+
+> Code base
+> trajectory logs
+> References
+
+Play Setups   
+
+> Tasks ( Question Answering )
+> ASR
+> Inference
+> Feature
+> Tracing
+> Risk
+> Review
+> Conditions  Natural Pressure
+> Budget
+> Prior
+> Suppression Combined
+> Coach -
+> Judge
+
+Hierarchical Lenses  
+
+> Lens 0
+> Surface
+> Activity View
+> Lens 1
+> Journey Arc
+> Lens
+> Lens 3
+> Automatic
+> Adjudication Lens
+> ✓
+
+! ×   
+
+> Lens 4
+> Codebase
+> Footprint Lens
+> behavioral projections
+> Dependencies
+> Scoped Launch
+> observe & read
+> tool action
+> reason receive
+> response
+> (Player)
+
+Ada 
+
+> termination
+> Architecture
+> Analysis
+
+PKR 
+
+OVW 
+
+EXP 
+
+MEM 
+
+BKM 
+
+HNT 
+
+CON 
+
+> Lens 2
+> Action Policy
+> Lens
+> The 6 Repositories
+> Flask
+> requests
+> scikit -learn
+> prompt -optimizer
+> Tensorzero
+> graphiti
+> Models
+> GPT -4o
+> GPT -4.1
+> DeepSeek -V3.2
+> Qwen3.5 -397B -A17B
+
+Census Layer Narrative Layer Mechanism Layer Evidence Layer   
+
+> Prompt Framing External Intervention
+> interaction
+> one of
+> advices
+> coach
+
+ℛ recording 
+
+> schem a
+
+Observer Gadgets   
+
+> SIGNALS |PROFILE | BOUNDARY
+> proper distance
+> mechanical
+> vie w
+> hyper -reflexive
+> vie w
+> Analytical
+> Statistics
+> Comparative
+> Views
+> Data
+> Visualization
+> LM -enabled
+> Semantic Lens
+
+Fig. 3 : Methodology overview. Within a bounded yet wild repository world, task activators launch Ada under controlled conditions, and the apparatus records its rea-soning and tool-use trajectories. Observation lenses then project these trajectories into comparable views, supporting trajectory-level analysis of behavioral signals, mindset projection, and the identification of intervention boundary. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 9In this paper, we treat trajectories as traces of observable choice, instead of direct access to internal mindset. The lenses operate as projections from those traces into scoped behavioral profiles. Trajectories do not interpret themselves. Aggregate statistics describe sur-face activity, but structured observation through the lenses formally defined in Section 2.1 is what makes behavioral profiles visible and comparable. Projection, as we use the term, extends beyond computing individual lens outputs. It includes read-ing across lens results under matched conditions, then anchoring the differences in trajectory-level evidence, before rendering the results visually so that aspects of an emerging code-understanding mindset become available for scientific discussion. Figure 3 previews the methodological position we take, including the obser-vational distance at which trajectory reading becomes meaningful. Too close, a mechanical reading of raw tool calls yields activity without behavior, and signals that never resolve into a discussable profile. Too far, an over-interpretive reading turns every trace into motive and loses discriminability. Between these extremes lies a workable range in which interpretations stay accountable to the trace that pro-duced them; we place our observer gadgets in this range, using bounded launches, trace-preserving recording, and lens-based projections to make agent processes observable without treating them as hidden internal state. The findings reported in this paper should be read as demonstrations that the method works within our bounded experimental environment. The apparatus is designed for structured observation, not competitive ranking. In this sense, Ada is not designed as a high-performance showcase or a benchmarking system for code-reading performance. It is an observation instrument. By selecting and combining lenses, researchers can build observational instru-ments suited to viewing intelligent-agent trajectories at different levels of granular-ity. 
+
+3.2 Launching a Scoped SWE Agent into Code-Understanding Worlds 
+
+We scope Ada so that its launches yield trajectories that are comparable across con-ditions and interpretable through our observation lenses. The scaffold fixes what can be recorded and keeps the account external. Repository access is read-only, so trajectories reflect how the agent reads the world rather than how it modifies it. A small typed tool surface further separates navigation from cognitive bookkeeping, making both observable in the recorded trace. Ada instantiates the scoped SWE agent Aθ = ⟨Mθ , P, U, u ∗⟩ (Equation 1). We vary Mθ across the models in Section 3.3; the tool set U is summarized in Table 1; and termination u∗ is implemented by stash conclusion .The scaffold P follows a ReAct-style [4] design, informed by publicly avail-able SWE agent prompt architectures [5]. Each turn externalizes a brief pre-action rationale and issues exactly one tool call, yielding a discrete sequence that can be compared across runs. The scaffold also carries forward an accumulating work-ing state (memories, bookmarks, and conclusions), so trajectories show how local Springer Nature 2021 L ATEX template 10 Projecting the Emerging Mindset of SWE Agent 
+
+Table 1 : Ada tool set, grouped by category. Navigation tools interact with the repos-itory; cognitive tools manage the agent’s working state; the oracle tool requests researcher clarification; and the termination tool ( u∗) records conclusions and gov-erns session closure.                
+
+> Abbr. Tool Usage
+> Navigation tools
+> OVW get structural overview
+> Retrieve the high-level structural outline of a file or a named log-ical block within it. PKR peek code region Read a specified range of source lines for detailed examination. EXP explore code Navigate code relationships: jump to a symbol’s definition, find all references to a symbol, or advance to the next logical block.
+> Cognitive tools
+> MEM create memory Record a titled working note synthesizing current understanding, hypotheses, or partial models. BKM bookmark Mark a code location with an attached question or reminder for later return.
+> Oracle tool
+> HNT get hint on snippet
+> Request a targeted clarification from the researcher on a code snippet that remains unclear after self-directed analysis.
+> Termination tool (u∗)CON stash conclusion Record a formal conclusion about the code and signal whether to continue analysis or finalize the session.
+
+evidence is consolidated into intermediate understanding over time. Appendix A details the prompt template and interface. The tool set U defines Ada’s bounded interface to the repository world (Table 1). We choose a small set of typed, developer-like reading actions to make reposi-tory contact observable and comparable, while preventing uncontrolled side effects from arbitrary filesystem access. The tools separate navigation (where the agent looks) from cognitive bookkeeping (what it commits as intermediate understand-ing), a distinction that later lenses use to relate movement through the codebase to stabilization of beliefs. Termination is designed as part of the observation record. A run ends when the agent submits a concluding account via stash conclusion (the distinguished tool u∗ in Equation 1), or when the predefined turn-bound N is reached; separating intermediate synthesis from explicit closure keeps both analyzable in the trajectory. Before scaling the experiment, three prompt-scaffold variants were tested under the same tool design. All produced acceptable code-understanding accounts and reached explicit termination, confirming that the apparatus supports finite, record-able trajectories. The stricter ( N = 100 ) turn bound was applied later in the main matrix. Detailed pilot materials are reported in Appendix B. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 11 
+
+3.3 Experimental Matrix: Tasks, Repositories, Models, and Conditions 
+
+Repository-level code understanding unfolds through trajectories, and trajectories become scientifically comparable only when the launch conditions that produce them are specified across fixed axes. The experimental matrix varies over four axes over the constant scaffold described in the previous subsection: task family, repository, foundation model, and experimental condition. This structure makes the resulting trajectories part of a single observation design rather than isolated demonstrations. Behavioral signals become visible only when runs can be aligned along shared launch axes. Tasks provide the most natural separators of initial “kick-offs” on an agent’s journey, while prompt-framing conditions introduce controlled constraints that scope how the foundation model justifies claims and decides to commit to them. The coaching condition then moves from agent-internal setups to intervention by admitting an external observer into the agent channel and testing the boundary between what can be read from traces and what can be steered. Taken together, the matrix is deliberately scoped. It covers factors that SWE agent designers plausibly care about while avoiding implementation-level variations. The task family axis T specifies the initiating forces that bring the agent into a code-understanding situation, while leaving the ensuing route of exploration under agent control. We draw four task families from recognizable software-engineering situations (Table 2) [6] so that trajectories can be compared across distinct kinds of understanding work rather than a single prompt template. The repository axis W specifies the codebase worlds into which the agent is launched (Table 3). We intentionally mix system types, scales, and organizational styles so that observed behaviors are not artifacts of one architectural idiom, but stable enough to support cross-repository comparison. Varying the foundation model Mθ provides a comparison axis while holding the scaffold fixed, making differences in evidence use, exploration scope, and conclusion grounding observable in trajectories. The main experimental matrix instantiates Ada with four foundation models (GPT-4o 2, GPT-4.1 3, DeepSeek-V3.2 4, and Qwen3.5-397B-A17B 5), chosen to pro-vide bounded diversity rather than exhaustive coverage. Models that could not reliably sustain the tool-call protocol in pilot runs were excluded from trajectory generation. 6
+
+For readability, we later refer to DeepSeek-V3.2 as DeepSeek and Qwen3.5-397B-A17B as Qwen , unless otherwise specified. GPT-4.1 and GPT-4o are kept as-is. The condition axis c varies prompt-framing conditions over the same scaffold, so cross-condition comparisons isolate changes in guidance and evidential stance rather than changes in tools or repository access. Budget pressure operationalizes 
+
+> 2OpenAI model documentation: https://developers.openai.com/api/docs/models/gpt-4o.
+> 3OpenAI announcement: https://developers.openai.com/api/docs/models/gpt-4.1.
+> 4Model card (PDF): https://fe-static.deepseek.com/chat/transparency/deepseek-v3.2-model-card-0414-EN.pdf.
+> 5Model card: https://huggingface.co/Qwen/Qwen3.5-397B-A17B.
+> 6The GLM family was excluded from trajectory generation due to unreliable tool-call compliance, and was used only in the post-hoc evaluation layer. See Appendix B.
+
+Springer Nature 2021 L ATEX template 12 Projecting the Emerging Mindset of SWE Agent 
+
+Table 2 : Task families and the software-engineering situations they reflect. Each family targets a distinct form of repository-level code understanding, grounded in a recognizable moment in real software work. 
+
+Task Family Software-Engineering Sit-uation Code-Understanding Challenge 
+
+architecture analysis Onboarding, dependency evaluation, migration plan-ning Identify major components, architectural style, and interaction patterns across the repository. 
+
+ASR inference Architectural reverse-engineering in underdocumented or legacy codebases Reconstruct implicit architectural requirements from code evidence. 
+
+feature implementation tracing 
+
+Bug localization, change-impact analysis, feature-level debugging Locate and describe the end-to-end implementation path of a specified fea-ture. 
+
+risk and code-smell review 
+
+Code review, maintenance triage, technical-debt assess-ment Identify risks, comprehension difficul-ties, or code smells with supporting code locations. 
+
+Table 3 : Repository fields used in the Ada apparatus. 
+
+Repository Language Files LOC System Type 
+
+Requests Python 29 8,060 HTTP client library 
+
+Role: Tests implementation tracing behind a focused public API. Flask Python 29 9,526 Web framework 
+
+Role: Tests framework abstraction, context mechanisms, routing, and extension structure. Scikit-learn Python 554 258,342 Scientific ML library 
+
+Role: Tests structural compression across a broad algorithmic ecosystem. Graphiti Python 109 14,321 Agent-memory infrastructure 
+
+Role: Tests graph, LLM, retrieval, and service coordination. Prompt Optimizer TypeScript 172 30,694 Prompt-engineering product platform 
+
+Role: Tests frontend, service layer, template, storage, and workflow integration. TensorZero Rust 438 149,755 LLMOps platform 
+
+Role: Tests provider abstraction, inference, observability, evaluation, and optimization loops. 
+
+resource-aware launching to test how constrained planning reshapes trajectory organization [7, 8]. Prior suppression enforces an evidence-first stance to separate trace-grounded understanding from prior familiarity, without attempting to remove knowledge from the model in the sense of unlearning [9]. Finally, the coach-judge condition introduces an external observer into the agent channel to probe the boundary between what can be read from trajectories and what can be steered. Table 4 summarizes the conditions and their observation roles (the core grid yields 
+
+|W| × |T | × | Mθ | × | c| = 6 × 4 × 4 × 4 = 384 trajectories). The four prompt-framing conditions in the core grid are summarized in Table 4 and provide the main comparison set for RQ1 and RQ2. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 13 
+
+Table 4 : Experimental conditions. The core grid (top) systematically varies budget and prior-knowledge constraints across all four models and six repositories. The intervention condition (bottom) introduces an external coaching mechanism and is used exclusively for RQ3.                    
+
+> Condition What’s Different Observation Purpose
+> Prompt-framing conditions (RQ1, RQ2) natural condition Standard launch; no special settings applied Provides the unperturbed reference trajectory against which all other conditions are compared.
+> budget pressure Explicit 12-turn budget aware-ness with progressive convergence reminders Tests whether trajectory organiza-tion restructures when exploration space is compressed.
+> prior suppression Evidence-first constraint treating prior familiarity as weak intuition rather than sufficient ground Makes the boundary between prior-driven and trace-driven reasoning more observable.
+> combined condition Budget pressure and prior suppres-sion applied together Provides an interaction reference for observing both constraints in the same trajectory.
+> External intervention condition (RQ3) (only for GPT-4.1)
+> coach-judge An external coaching and judging mechanism intervenes during the agent’s reasoning process Tests whether external interven-tion improves or degrades what the agent’s mindset produces.
+
+The four main conditions keep each trajectory self-directed. The coach-judge condition crosses that boundary by introducing an external coach whose message can enter the agent’s observation stream, based on a judge panel reading of the trajectory so far. The intervention mechanism is defined in Equation 6 (Section 2.2), and the pipeline details are given in Appendix A.2. The experimental matrix, therefore, defines the apparatus’s bounded empirical range. The 384 main-matrix trajectories and 24 coach-judge trajectories together constitute the 408-trajectory analysis object from which the observation lenses, introduced next, construct behavioral profiles. 
+
+3.4 Analysis Lenses: A Way of Seeing 
+
+Figure 3 summarizes the analysis stack that connects raw trajectories to the claims reported in this paper. The observer gadgets provide the intermediate instrumen-tation: they operationalize aspects of agent behavior and transform long, tool-mediated traces into stable, comparable views that support systematic reading across models, prompting conditions, repositories, and task families. Concretely, an obser-vation lens ℓ ∈ L is defined as a map from trajectory evidence to a structured view, 
+
+ℓ : Ξ → V ℓ (Section 2.1). The lenses are designed for empirical analysis, i.e., for researchers who must compare and aggregate behaviors across many runs rather than interpret individual trajectories in isolation. We instantiate five lenses as a working set; together they suffice to demonstrate that trajectory-level observation yields distinguishable behavioral profiles across models and conditions. Springer Nature 2021 L ATEX template 14 Projecting the Emerging Mindset of SWE Agent 
+
+Although individual trajectories can be interpreted through close reading, this approach does not scale to our 408-run corpus and does not yield observations that are comparable across models and experimental conditions. We therefore record each run using a standardized scheme R that preserves the turn structure and artifacts required for later projection, then treat the resulting traces as empirical material that becomes evidence only when analyzed through lenses. The lenses are ordered because different observations carry different levels of interpretive risk. Surface activity stays closest to the trace. Temporal shape, action transitions, semantic judgment, and repository footprint require progressively stronger interpretation. Because no single perspective is adequate for characterizing agent behavior, we organize the lenses hierarchically into four layers (Figure 3): the census layer , the 
+
+narrative layer , the mechanism layer , and the evidence layer . The purpose of this lay-ering is to support progressive reading: corpus-level summaries enable screening and comparison, while increasingly specific projections recover temporal structure, decision mechanisms, and repository-grounded evidence needed to substantiate explanatory claims. In the census layer, lens 0 (the surface activity view ) summarizes each trajectory into activity statistics that establish a baseline for comparing models and conditions across the run matrix. It separates changes in overall effort from changes in higher-level behavior. Its summary values recur as reference points for the other lenses. In the narrative layer, lens 1 (the journey arc lens ) renders each trajectory on a normalized timeline so that many runs can be compared in a common visual frame. By foregrounding temporal structure instead of isolated events, it supports corpus-scale interpretation through recurrent phases, loops, and atypical trajectories. In the mechanism layer, lens 2 (the action policy lens ) characterizes tool use as sequential decision behavior by modeling adjacent tool transitions as n-gram pat-terns [10]. Table 5 defines the transition codes used in this work; the coding is apparatus-specific because it depends on Ada’s tool vocabulary and on the meaning of tool transitions in a code-understanding setting. In the mechanism layer, lens 3 (the automatic adjudication lens ) adds semantic evaluation that cannot be recovered reliably from structural signals alone. Using LLM-based judging, it assesses whether a trajectory’s outcome is relevant to the task, grounded in repository evidence, appropriately calibrated at termination, and navigationally well-oriented; details and validation are reported in Appendix C. In the evidence layer, lens 4 (the codebase footprint lens ) makes repository con-tact explicit by projecting each trajectory into a map of visited files and code regions (and their aggregate heatmaps). This view distinguishes focused evidence acquisi-tion from diffuse or shallow exploration, grounding behavioral claims in where the agent actually interacted with the codebase. The lenses are intended to be read in combination rather than as stand-alone diagnostics. Lens 0 establishes a baseline of effort and tool use; lenses 1–2 recover temporal and sequential structure; lens 3 evaluates conclusion-level adequacy; and lens 4 grounds these readings in repository contact. Agreement across lenses strengthens interpretation; disagreements localize where a behavioral account is Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 15 
+
+Table 5 : Action policy codes and readings. 
+
+Action Policy Operational Rule(s) Interpretive Reading 
+
+close read PKR → PKR $; EXP →
+
+> PKR $
+
+Sustained inspection of adjacent or continuous code regions. skim OVW → OVW; NAV →  
+
+> PKR*; ANY
+
+→ PKR* 
+
+Broad sampling across structures or file boundaries. traverse NAV → PKR; ANY → PKR Ordinary movement from navigation into code reading. trace ANY → EXP; ANY →
+
+> OVW*
+
+Following code relations or shifting structural attention across files. zoom in OVW → PKR; OVW → EXP Moving from structural overview toward local inspection or traversal. zoom out ANY → OVW Returning from local action to struc-tural overview. resume COG → NAV Returning from cognitive work to repository exploration. other read ANY → NAV Residual navigation transition not cap-tured by more specific rules. close out NAV → CON terminal Moving from repository navigation into final synthesis. interim synth NAV → CON non-terminal 
+
+Recording a provisional conclusion without terminating. dump NAV → COG; ANY → COG Externalizing notes, bookmarks, hints, or conclusions after prior action. cognitive streak  
+
+> COG
+
+→ COG Consecutive consolidation, deferral, clarification, or synthesis actions. other ANY → ANY Fallback for transitions not matched by higher-precedence rules.                      
+
+> Note: NAV ={OVW, PKR, EXP }and COG ={MEM, BKM, HNT, CON }. A *condition requires different current file targets. A $condition requires continuous line ranges. Rules are applied by precedence: exact rules before wildcard rules; more specific wildcard classes before less specific ones; $before *;*before regular wildcard rules; remaining ties by list order.
+
+underdetermined, motivating closer inspection. The behavioral profiles in Section 4 are derived from this triangulation, and the set L remains extensible for additional questions and agent settings. 
+
+## 4 Results 
+
+The results are organized to mirror the layered lens stack introduced in Section 3.4. We begin with the census layer (RQ1, Section 4.1), reporting surface signals that establish a baseline of effort and exposure. We then project trajectories through the narrative, mechanism, and evidence layers (RQ2, Section 4.2), moving progressively Springer Nature 2021 L ATEX template 16 Projecting the Emerging Mindset of SWE Agent 
+
+from temporal shape through action transitions and semantic adjudication to repos-itory footprints. Finally, RQ3 (Section 4.3) tests whether the intervention improves outcomes or exposes a boundary of the apparatus. Throughout, we report observer-oriented findings in a consistent three-part form: signals (what the lens makes measurable), profile (the comparative pattern the projection reveals), and boundary (where the projection ceases to support a stable reading). 
+
+4.1 RQ1: Surface Signals from the Apparatus 
+
+Lens 0 (the surface activity view) projects each trajectory into a small set of census-layer signals, namely turns, lines of code viewed, files visited, elapsed time, and per-turn effort, to support cross-model and cross-condition comparison (Figures 4– 5). At this level, models differ substantially in exploration scale under the natural condition, while budget pressure produces a consistent compression of surface activity across the run matrix. Natural    
+
+> Prior Suppr.
+> Budget Press.
+> Combined
+> 0
+> 10
+> 20
+> 30
+> 40
+> Avg. Turns
+> Natural
+> Prior Suppr.
+> Budget Press.
+> Combined
+> 0
+> 400
+> 800
+> 1200
+> 1600
+> Avg. LOC Viewed
+> Natural
+> Prior Suppr.
+> Budget Press.
+> Combined
+> 0
+> 4
+> 8
+> 12
+> Avg. Files Viewed
+> Natural
+> Prior Suppr.
+> Budget Press.
+> Combined
+> 0
+> 80
+> 160
+> 240
+> 320
+> Avg. Time Elapsed (s)
+> GPT-4.1 GPT-4o DeepSeek-V3.2 Qwen3.5-397B
+
+Fig. 4 : Surface-level exploration activity declines markedly under budget pressure and combined constraints across all four LLM backends. Each panel tracks aver-ages. turns, LOC viewed, files viewed, and time elapsed (left to right) across four constraint conditions: natural, prior suppression, budget pressure, and combined. Figure 4 makes the condition effects explicit. Under budget pressure, turns, LOC viewed, files visited, and total elapsed time decrease for all four models. Under the combined condition, models converge to similarly low activity levels, reducing the between-model spread visible in the natural condition. By contrast, the prior sup-pression condition yields surface profiles that remain close to the natural baseline across all four panels, indicating that this constraint is not distinguishable at the census layer. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 17 Natural    
+
+> Prior Suppr.
+> Budget Press.
+> Combined
+> 0
+> 4
+> 8
+> 12
+> 16
+> Avg. Time per Turn (s)
+> Natural
+> Prior Suppr.
+> Budget Press.
+> Combined
+> 0
+> 200
+> 400
+> 600
+> Avg. Thinking Chars per Turn
+> GPT-4.1 GPT-4o DeepSeek-V3.2 Qwen3.5-397B
+
+Fig. 5 : Per-turn working effort intensifies under budget pressure, revealing a trade-off between session breadth and turn-level depth. Two panels show the average time per turn (s) and the average thinking characters per turn across natural, prior suppression, budget pressure, and combined conditions for four models. Budget pressure does not merely reduce the number of turns; it also changes per-turn behavior. Figure 5 shows an inversion in the census-layer signals: aggregate activity decreases, while per-turn time and per-turn “thinking” characters increase. The increase is most pronounced for GPT-4.1 (time per turn rising from about 5 seconds to over 15 seconds), and is also visible for DeepSeek and Qwen, while GPT-4o remains comparatively stable. Lens 0 makes this trade-off observable, but the trajectory record at this layer does not permit attributing the additional per-turn time to any specific source (e.g., model deliberation versus serving latency). 
+
+Finding 1 signals : Lens 0 projects each run into surface activity and effort measures (trajectory length, repository exposure, elapsed time, and per-turn effort). profile :
+
+Under the natural condition, models separate by exploration scale, whereas budget pres-sure produces a consistent compression of surface activity and a concurrent increase in per-turn effort. boundary : Prior suppression is not distinguishable at this layer, and surface signals do not determine whether observed time increases reflect agent deliberation or external latency. 
+
+4.2 RQ2: Projecting Trajectories through Observation Lenses 
+
+Beyond the census-layer surface signals in RQ1, RQ2 projects trajectories through the narrative, mechanism, and evidence layers to make observer-readable struc-ture explicit. Across these projections, models and constraints can exhibit markedly different temporal organization, transition grammars, semantic adequacy, and repository contact patterns, even when surface activity appears similar. We report these results in four views: journey arcs (Section 4.2.1), action policy transitions (Section 4.2.2), automatic adjudication (Section 4.2.3), and codebase footprints (Section 4.2.4). 
+
+4.2.1 Journey Arc: Temporal Shape and Within-Condition Variance 
+
+The journey arc lens (lens 1) projects each trajectory into a normalized, observer-readable timeline, making temporal organization and within-condition variance Springer Nature 2021 L ATEX template 18 Projecting the Emerging Mindset of SWE Agent natural condition     
+
+> prior suppression
+> combined condition
+> scikit-learn
+> budget pressure
+> flask budget pressure
+> graphiti budget pressure
+> 025 50 75 100%
+> Normalized elapsed time
+> tensorzero budget pressure
+> Markers
+> OVW BKM HNT
+> PKR
+> <20L 20-50L >50L
+> EXP
+> Def Ref Next
+> MEM
+> High Medium Low
+> CON
+> Finalize Hold
+> Errors
+> Tool Error Unknown tool
+> 100% = 4.2 min (249734 ms)
+
+(a) Journey arcs of GPT-4.1, under the task of risk and code-smell review, varying in conditions (arc 1–4) and repositories (arc 4–7). natural condition | GPT-4o     
+
+> prior suppression | GPT-4o
+> natural condition | GPT-4.1
+> prior suppression | GPT-4.1
+> natural condition | DeepSeek-V3.2is
+> prior suppression | DeepSeek-V3.2
+> natural condition | Qwen3-235B
+> 025 50 75 100%
+> Normalized elapsed time
+> prior suppression | Qwen3-235B
+> scikit-learn
+> 100% = 4.5 min (269044 ms)
+
+(b) Journey arcs under the task of architecture analysis, varying all 4 models, pairing the natural and prior-suppression conditions. 
+
+Fig. 6 : Journey arc lens examples. Each arc is a readable timeline with tool calls shown as markers, elapsed time running left to right, and the full journey visible as an overall contour. directly comparable across runs. Figure 6 shows that constraints can change not only how much activity occurs, but also how that activity is distributed over time. Figure 6a traces GPT-4.1 trajectories for risk and code-smell review across condi-tions. Under budget pressure and the combined constraint, arcs are visibly shorter than under the natural condition, consistent with the census-layer compression in RQ1. In addition, the temporal projection reveals heterogeneous within-trajectory pacing: some budget-pressure runs contain extended gaps between successive actions without a commensurate increase in visible output. Figure 6b contrasts natural and prior suppression across models for architecture analysis . Within each model, the two conditions exhibit closely matched arc shapes, whereas the dominant differences are model-specific temporal signatures (e.g., more extended orientation-heavy arcs versus compact, direct arcs). The temporal gaps visible in some arcs raise an attribution boundary for observer-facing interpretation. For GPT-4.1, per-turn elapsed wall-clock time cor-relates only weakly with per-turn output length (Pearson r = 0 .397 ; Spearman 
+
+ρ = 0 .532 ), so extended pauses in Figure 6a cannot be read unambiguously as additional agent work. We therefore treat unusually long per-turn intervals as a limitation of the projection under API-mediated execution; possible serving-stack contributors are discussed in Section 5.1. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 19 Figure 6b pairs natural condition and prior suppression trajectories for all four models on architecture analysis in scikit-learn. Within each model, the two condi-tions produce very similar journey shapes, making them hard to tell apart visually. The main contrast is model-level. GPT-4o and GPT-4.1 remain compact, DeepSeek spans the timeline with OVW-heavy orientation, and Qwen falls in between. At this level of reading, prior suppression leaves Ada’s outward journey largely unchanged. In other words, the condition appears to alter evidential stance without reshaping the visible arc of exploration. 
+
+Finding 2 signals : Lens 1 projects each trajectory as a time-ordered arc, preserving within-run sequencing and per-turn timing. profile : The projection makes within-condition variance visible. Budget pressure yields shorter arcs and, in some runs, uneven pacing with long inter-action gaps, while natural and prior suppression arcs within a model are visually similar relative to the larger model-to-model differences. boundary :
+
+Wall-clock timing in the arcs is not uniquely attributable to agent work; extended pauses should be treated as an execution artifact boundary under API-mediated serving. 
+
+4.2.2 Action Policy: Transition Signatures across Models 
+
+Across all 384 trajectories, raw tool-call counts are highly concentrated. 
+
+peek code region and get structural overview together account for 80.1% of all tool calls, and this concentration holds across models and conditions (Appendix D). Lens 2 (the action policy lens), therefore, shifts the reading from marginal tool frequencies to sequential structure by coding adjacent tool-to-tool transitions (Table 5). Figure 7 shows that these transition profiles are model-characteristic, and that budget pressure reshapes them in distinct, model-specific ways rather than producing a single uniform “compressed” policy. Figure 7 reports transition-tag shares by model and condition. It supports two observer-facing readings: models exhibit stable transition signatures, and constraints reshape these signatures in model-specific ways. 7
+
+Model-wise signatures. In Figure 7, GPT-4o emphasizes close reading; DeepSeek is traverse-heavy in line with its OVW-style orientation sequences; Qwen exhibits the highest skimming share; and GPT-4.1 is comparatively evenly distributed across tags. 
+
+Condition-wise shifts. Natural and prior suppression remain closely matched within each model. Budget pressure changes the transition mix, but without a sin-gle common direction: GPT-4.1 shifts toward cognitive transitions and away from close reading; GPT-4o reduces close reading while increasing dump and zoom-in; DeepSeek becomes more evenly distributed; and Qwen trades skim for zoom-in. 8
+
+Task family also modulates these transition profiles in consistent directions, and the task-stratified results are reported in Appendix D. 
+
+> 7The combined condition is omitted from this figure for compactness. Its profiles closely resemble budget pressure across all models and are reported in Appendix D.
+> 8Close-out share rises mechanically under budget pressure because shorter trajectories contain the same single termination action against fewer total transitions. This is a denominator effect, not a behavioral shift.
+
+Springer Nature 2021 L ATEX template 20 Projecting the Emerging Mindset of SWE Agent 0 25 50 75 100                                      
+
+> Share of action policy tags (%)
+> 22 14 20 14
+> Natural
+> 20 15 20 17
+> Prior Suppression
+> 13 12 15 16
+> Budget Pressure
+> 27 13 16 15
+> Natural
+> 31 15 17 12
+> Prior Suppression
+> 14 17 18 18
+> Budget Pressure
+> 13 24 19 18
+> Natural
+> 12 27 21 17
+> Prior Suppression
+> 20 20 20 12
+> Budget Pressure
+> 17 19 18 26
+> Natural
+> 13 24 22 23
+> Prior Suppression
+> 17 15 20 21 15
+> Budget Pressure
+> GPT-4.1 GPT-4o DeepSeek-V3.2 Qwen3.5-397B
+> close read
+> traverse
+> trace
+> zoom in
+> skim
+> zoom out
+> dump
+> resume
+> cognitive streak
+> interim synth
+> close out
+
+Fig. 7 : Action policy lens: transition-tag shares across models and conditions. Each row summarizes one model under natural, prior suppression, and budget pressure. Stacked bars show the percentage composition of adjacent tool-to-tool transitions, grouped into the transition tags defined in Table 5 (e.g., close read, traverse, skim, zoom, dump, cognitive streak, close out, and intent switch). 
+
+Finding 3 signals : Lens 2 projects trajectories into transition-tag shares over adjacent tool-to-tool moves (Table 5; Figure 7). profile : The resulting transition signatures are model-characteristic, vary systematically with task family, and remain similar between natural and prior suppression. Budget pressure changes the transition mix, but the direc-tion of change depends on the model rather than following a single uniform compression pattern. boundary : Transition profiles describe sequential structure but do not eval-uate whether a given action policy produces higher-quality conclusions; this requires semantic adjudication in lens 3. 
+
+Models navigate differently and reorganize differently under pressure. Whether these different action policies produce different quality outcomes is a question the action policy lens cannot answer. This is the opening for the adjudication lens. 
+
+4.2.3 Adjudication: Conclusion Quality and Epistemic Grounding 
+
+To evaluate whether different projected policies yield different outcomes, lens 3 (adjudication) applies LLM-based judges to each trajectory conclusion on five Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 21 0.6 0.7 0.8 0.9 1.0 
+
+> Conclusion-grounding score (normalised, truncated at 0.6)
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> Task-relevance score (normalised)
+> Model
+> GPT-4.1
+> GPT-4o
+> DeepSeek-V3.2
+> Qwen3.5-397B Condition
+> Natural
+> Prior Suppr.
+> Budget Press.
+> Combined
+
+Fig. 8 : Automatic adjudication scores for task relevance and conclusion ground-ing , normalized to [0 , 1] . Points are aggregated by model and condition, showing how conclusion quality varies across the run matrix. Color encodes the model, and marker encodes the condition. GPT-4.1 GPT-4o DS-V3.2 Qwen-3.5 
+
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> Normalised score
+
+Termination calibration (n=383)    
+
+> GPT-4.1 GPT-4o DS-V3.2 Qwen-3.5
+
+Navigational orientation (n=6309)    
+
+> GPT-4.1 GPT-4o DS-V3.2 Qwen-3.5
+
+Synthesis orientation (n=672)    
+
+> Natural Prior Suppr. Budget Press. Combined
+
+Fig. 9 : Automatic adjudication scores for termination calibration , navigational orientation , and synthesis orientation , shown left to right. Boxplots summarize per-trajectory distributions by model and condition, and points show individual trajectories. The figure highlights how these dimensions shift under different con-straints. dimensions: task relevance , conclusion grounding , termination calibration , naviga-tional orientation , and synthesis orientation . Figures 8–9 show that adjudicated quality is primarily model-characteristic, while constraints produce more localized shifts (most clearly in termination calibration under pressure). Springer Nature 2021 L ATEX template 22 Projecting the Emerging Mindset of SWE Agent 
+
+Table 6 : Automatic adjudication scores for navigation grounding and synthesis grounding . The table reports task-by-model means, with each cell showing naviga-tion grounding/synthesis grounding. “Overall” is the task-level mean across models.                         
+
+> Task Overall GPT-4.1 GPT-4o DeepSeek-V3.2 Qwen3.5-397B
+> architecture analysis 0.691/0.558 0.666/0.481 0.751/0.804 0.674/0.400 0.681/0.375
+> ASR inference 0.615 /0.410 0.568 /0.367 0.698 /0.631 0.600 /0.268 0.607 /0.370
+> feature implementation tracing
+> 0.712/0.588 0.695/0.604 0.736/0.646 0.715/0.614 0.711/0.389
+> risk and code smell review 0.685/0.570 0.691/0.516 0.730/0.644 0.658/0.658 0.681/ 0.333
+
+Figure 8 summarizes conclusion-level quality by plotting task relevance against 
+
+conclusion grounding for each model-condition pair. The primary pattern is model-wise clustering: T1 ranges from 0.174 (GPT-4o) to 0.868 (Qwen), while condition-level variation remains within 0.608–0.632. A closer reading highlights GPT-4o as an outlier: despite high trace grounding (T2 = 0.845) and strong close-reading share in lens 2, its task relevance is substantially lower than the other models. A constraint can change how the agent writes, qualifies, or justifies its conclu-sions more easily than it changes where the agent navigates. This creates a possible mismatch between evidential stance and evidence-gathering behavior. Figure 9 reports termination calibration , navigation grounding , and synthe-sis grounding by model and condition. Here, the main condition-level shift is in termination calibration, which decreases under pressure (0.715 under natural versus 0.633 under budget pressure). Navigation grounding and synthesis ground-ing change more subtly across conditions. Under prior suppression, synthesis grounding decreases slightly, while navigation grounding remains similar or shifts marginally in the opposite direction. At the action level, structural overview actions show the strongest prior-leaning navigation, with a grounding score of 0.464 compared to 0.827 for explore-code actions. Conclusion and memory actions show the strongest prior-leaning synthe-sis, with scores of 0.497 and 0.525. This asymmetry is consistent with prior suppres-sion affecting synthesis-oriented output more strongly than navigation-oriented behavior. We revisit possible interpretations of this mismatch in Section 5.1. Table 6 reports grounding scores by task family. ASR inference is the most prior-shaped task on both dimensions (navigation: 0.615, synthesis: 0.410), consistent with a task that requires speculating beyond what static code reveals. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 23       
+
+> Finding 4 signals :Lens 3 projects trajectory outcomes into adjudicated conclusion-level and epistemic-grounding scores (Figures 8–9; Table 6). profile :Adjudicated quality is primarily model-characteristic and comparatively stable across conditions. The projection also reveals mismatches between dimensions, including cases where high grounding co-occurs with low task relevance (Figure 8). Under budget pressure, termina-tion calibration decreases, while navigation and synthesis grounding shift more subtly (Figure 9). boundary :These scores identify where trajectories align or misalign with the judged criteria, but they do not by themselves establish a causal mechanism for the observed mismatches; interpretation is deferred to Discussion (Section 5).
+
+4.2.4 Footprint: Spatial Divergence in the Repository World 
+
+Lens 4 (the codebase footprint lens) projects each trajectory into a spatial trace-density map over files and code regions, making repository contact directly com-parable across runs. This evidence-layer projection reveals systematic differences in spatial attention across models, constraints, and tasks, while also preserving meaningful single-run variation. Figure 10 visualizes these footprint projections. Panel (a) summarizes aggregate footprints across all six repositories and shows that large regions remain unvisited, with attention concentrated on a subset of structurally central files. Panel (b) con-trasts models on the same repository and task, showing that spatial attention can diverge markedly even when the experimental configuration is held fixed. Panel (c) contrasts conditions and shows spatial contraction under budget pressure, with coverage narrowing to fewer files, while retained hotspots can intensify locally. Panel (d) contrasts tasks and shows that architecture analysis induces broader cov-erage than feature implementation tracing, which concentrates on a smaller module neighborhood. In addition to these aggregate comparisons, the footprint projection remains informative at the run level. Figure 11 shows that, even for the same model, task, and repository, individual trajectories can follow different spatial routes through the codebase. A boundary of the footprint projection is that it inherits artifacts from the under-lying tool interface. For example, some configurations exhibit anomalous single-step intake (e.g., reads exceeding 1,000 LOC in one action), which can inflate local density independent of a sustained exploration strategy.       
+
+> Finding 5 signals :Lens 4 projects repository contact as trace-density over files and code regions. profile :The footprint projection distinguishes spatial attention patterns by model, shows coverage contraction under budget pressure with locally intensified hotspots, and reflects task-dependent coverage differences. It also preserves single-run variability, with different trajectories traversing different regions under the same con-figuration. boundary :Density is shaped by the repository interface (e.g., occasional single-step large-LOC reads), so local hotspots should be interpreted as evidence of contact rather than as a direct measure of sustained effort.
+
+Springer Nature 2021 L ATEX template 24 Projecting the Emerging Mindset of SWE Agent t
+
+e
+
+n
+
+s
+
+o
+
+r
+
+z
+
+e
+
+ro
+
+s
+
+c
+
+i
+
+k
+
+i
+
+t
+
+-
+
+l
+
+e
+
+a
+
+r
+
+n
+
+> r
+> e
+
+q
+
+u
+
+e
+
+s
+
+> t
+> s
+
+p
+
+r
+
+o
+
+m
+
+p
+
+t
+
+-
+
+o
+
+p
+
+t
+
+i
+
+m
+
+izer
+
+g
+
+r
+
+a
+
+p
+
+h
+
+i
+
+t
+
+i
+
+fl 
+
+a
+
+s
+
+k
+
+u
+
+i
+
+t
+
+e
+
+n
+
+s
+
+o
+
+r
+
+z
+
+e
+
+ro-
+
+c
+
+o
+
+r
+
+e
+
+> e
+> v
+
+a
+
+l
+
+u
+
+a
+
+t
+
+i
+
+> o
+> n
+> s
+
+c
+
+l
+
+i
+
+e
+
+nt
+
+s
+
+s
+
+k
+
+l
+
+e
+
+a
+
+r
+
+n
+
+> b
+> e
+> n
+
+c
+
+h
+
+m
+
+> a
+> r
+> k
+> s
+
+p
+
+a
+
+c
+
+k
+
+a
+
+g
+
+e
+
+s
+
+> s
+
+e
+
+r
+
+v
+
+e
+
+> r
+> g
+> r
+
+a
+
+p
+
+h
+
+i
+
+t
+
+i
+
+_
+
+co
+
+> r
+> e
+> s
+
+r
+
+c
+
+/
+
+fl 
+
+a
+
+s
+
+> k
+
+a
+
+p
+
+p
+
+s
+
+r
+
+c
+
+s
+
+r
+
+c
+
+r
+
+u
+
+s
+
+t
+
+> p
+
+y
+
+t
+
+h
+
+o
+
+> n
+
+u
+
+t
+
+i
+
+l
+
+s
+
+t
+
+r
+
+e
+
+e
+
+s
+
+v
+
+m
+
+m
+
+e
+
+t
+
+r
+
+i
+
+c
+
+s
+
+> l
+> i
+> n
+> e
+
+a
+
+r
+
+_
+
+m
+
+o
+
+> d
+> e
+> l
+
+e
+
+x
+
+t
+
+e
+
+r
+
+n
+
+a
+
+l
+
+s
+
+> e
+
+n
+
+s
+
+e
+
+m
+
+b
+
+> l
+> e
+
+d
+
+a
+
+t
+
+a
+
+s
+
+e
+
+t
+
+> s
+
+c
+
+l
+
+u
+
+s
+
+t
+
+e
+
+> r
+
+w
+
+e
+
+b
+
+u
+
+i
+
+> e
+> x
+
+t
+
+e
+
+n
+
+s
+
+i
+
+> o
+> n
+
+c
+
+o
+
+r
+
+e
+
+u
+
+t
+
+i
+
+l
+
+s
+
+> m
+
+o
+
+d
+
+e
+
+> l
+> s
+> u
+> t
+> i
+> l
+> s
+> r
+> o
+> u
+> t
+> e
+> s
+> c
+> o
+> m
+> p
+> o
+> ne
+> n
+> t
+> s
+> v
+> a
+> r
+> i
+> a
+> n
+> t
+> p
+> r
+> o
+> v
+> i
+> d
+> e
+> r
+> s
+> i
+> n
+> f
+> e
+> r
+> e
+> n
+> c
+> e
+> s
+> r
+> c
+> a
+> r
+> r
+> a
+> y
+> _
+> a
+> p
+> i
+> _
+> c
+> o
+> m
+> p
+> a
+> t
+> _
+> s
+> c
+> i
+> p
+> y
+> d
+> a
+> t
+> a
+> s
+> r
+> c
+> p
+> u
+> b
+> l
+> i
+> c
+> s
+> r
+> c
+> o
+> b
+> s
+> e
+> r
+> v
+> ab
+> i
+> l
+> i
+> t
+> y
+> e
+> v
+> a
+> l
+> u
+> a
+> t
+> i
+> o
+> n
+> s
+> d
+> a
+> t
+> a
+> s
+> e
+> t
+> s
+> u
+> i
+> _
+> l
+> i
+> b
+> d
+> a
+> s
+> k
+> i
+> 1
+> 8
+> n
+> s
+> e
+> r
+> v
+> i
+> ce
+> s
+> f
+> u
+> n
+> c
+> t
+> io
+> n
+> s
+> t
+> e
+> m
+> p
+> l
+> a
+> t
+> e
+
+g
+
+r
+
+a
+
+p
+
+hiti_
+
+core
+
+u
+
+tils
+
+s
+
+e
+
+a
+
+r
+
+c
+
+h
+
+p
+
+r
+
+o
+
+m
+
+p
+
+t
+
+s
+
+m
+
+o
+
+d
+
+els
+
+l
+
+l
+
+m
+
+_
+
+c
+
+l
+
+i
+
+e
+
+n
+
+t
+
+e
+
+m
+
+b
+
+e
+
+d
+
+de
+
+r
+
+m
+
+a
+
+i
+
+n
+
+t
+
+e
+
+n
+
+anc
+
+e
+
+de
+
+> s
+> e
+
+d
+
+g
+
+e
+
+> s
+
+graphiti_mcp_serve... 
+
+graphiti_mcp_serve... README.md README.md graphiti.py 
+
+graphiti.py nodes.py 
+
+nodes.py edges.py 
+
+edges.py README.md 
+
+README.md LICENSE LICENSE search_utils.py 
+
+search_utils.py search.py search.py search_co... 
+
+search_co... search_f... 
+
+search_f... extract_no... 
+
+extract_no... extract_e... 
+
+extract_e... eval.py 
+
+eval.py openai_g... 
+
+openai_g... client.py client.py edge_operatio... 
+
+edge_operatio... node_operati... node_operati... community_... 
+
+community_... 
+
+u
+
+t
+
+i
+
+l
+
+s
+
+t
+
+r
+
+e
+
+e
+
+n
+
+e
+
+i
+
+g
+
+h
+
+b
+
+o
+
+r
+
+s
+
+> m
+
+i
+
+x
+
+t
+
+u
+
+re
+
+m
+
+a
+
+n
+
+i
+
+f
+
+o
+
+l
+
+> d
+> i
+
+n
+
+s
+
+p
+
+e
+
+c
+
+t
+
+i
+
+o
+
+> n
+> i
+
+m
+
+p
+
+u
+
+t
+
+> e
+> c
+> o
+
+v
+
+a
+
+r
+
+i
+
+a
+
+n
+
+> c
+> o
+
+m
+
+p
+
+o
+
+> s
+> e
+
+c
+
+l
+
+u
+
+s
+
+t
+
+e
+
+r
+
+> _
+> r
+> e
+
+p
+
+r
+
+_
+
+ht
+
+> m
+> l
+
+_
+
+p
+
+l
+
+o
+
+t
+
+_
+
+p
+
+l
+
+o
+
+t
+
+> _
+> h
+
+d
+
+b
+
+s
+
+c
+
+> a
+> n
+> l
+> i
+
+b
+
+l
+
+i
+
+n
+
+ea
+
+> r
+
+estimato... 
+
+estimato... 
+
+s
+
+a
+
+n
+
+s
+
+i
+
+oapp.py 
+
+app.py cli.py 
+
+cli.py ctx.py 
+
+ctx.py sessions.py 
+
+sessions.py testing.py 
+
+testing.py wrappers.py 
+
+wrappers.py templating.py 
+
+templating.py debughelpers.py 
+
+debughelpers.py blueprints.py 
+
+blueprints.py typing.py 
+
+typing.py logging.py 
+
+logging.py app.py 
+
+app.py scaf fold.py scaf fold.py blueprints.py 
+
+blueprints.py 
+
+(a) overall footprints Trace Density (LOC) 
+
+0 LOC 700+ LOC 
+
+(b) model comparison (c) condition -wise comparison 
+
+(d) task -wise comparison 
+
+−
+
+=
+
+Bubble Styles
+
+size = LOC
+
+(e) demonstration 
+
+of signed density 
+
+Signed T race Density (LOC) 
+
+-700 LOC 0 700+ LOC 
+
+Fig. 10 : Repository footprints projected through trace density. Panel (a) shows an overview of all six repositories with cumulative trace density across the full matrix. Panel (b) compares models: signed density map of Qwen3.5-397B minus DeepSeek-V3.2 on Graphiti, showing divergent spatial attention on the same repository and task. Panel (c) compares conditions: signed density map of Natural minus bud-get pressure on Flask, showing spatial contraction under constraint with locally intensified heat zones. Panel (d) compares tasks: architecture analysis minus fea-ture implementation tracing on scikit-learn, showing broad architectural exploration against narrow implementation focus. Panel (e) provides the legend for signed den-sity encoding. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 25 1     
+
+> 2
+> 3
+> 4
+> 5
+> 6
+> 1
+> 2
+> 3
+> 4
+> 51
+> 2
+> 3
+> 4pp
+> aa
+> cc
+> kk
+> aa
+> gg
+> ee
+> ss
+> p
+> a
+> c
+> k
+> a
+> g
+> e
+> s
+> cc
+> oo
+> rr
+> ee
+> c
+> o
+> r
+> e
+> ss
+> rr
+> cc
+> s
+> r
+> c
+> ss
+> ee
+> rr
+> vv
+> ii
+> cc
+> ee
+> ss
+> s
+> e
+> r
+> v
+> i
+> c
+> e
+> s
+> tt
+> ee
+> mm
+> pp
+> ll
+> aa
+> tt
+> ee
+> t
+> e
+> m
+> p
+> l
+> a
+> t
+> e
+> ss
+> tt
+> oo
+> rr
+> aa
+> gg
+> ee
+> s
+> t
+> o
+> r
+> a
+> g
+> e
+> pp
+> rr
+> oo
+> mm
+> pp
+> tt
+> p
+> r
+> o
+> m
+> p
+> t
+> mm
+> oo
+> dd
+> ee
+> ll
+> m
+> o
+> d
+> e
+> lll
+> ll
+> mm
+> l
+> l
+> m
+> dd
+> ee
+> ff
+> aa
+> uu
+> ll
+> tt
+> --
+> tt
+> ee
+> mm
+> pp
+> ll
+> aatt
+> ee
+> ss
+> d
+> e
+> f
+> a
+> u
+> l
+> t
+> -
+> t
+> e
+> m
+> p
+> l
+> at
+> e
+> s
+> oo
+> pp
+> tt
+> ii
+> mm
+> ii
+> zz
+> ee
+> o
+> p
+> t
+> i
+> m
+> i
+> z
+> eui ui
+> ui ui extension extension extension extension web web
+> web web pnpm-lock.yaml pnpm-lock.yaml
+> pnpm-lock.yaml pnpm-lock.yaml history history
+> history history manager.ts manager.ts
+> manager.ts manager.ts static-loade... static-loade... static-loade... static-loade... types.ts types.ts
+> types.ts types.ts dexieStorageProvid... dexieStorageProvid...
+> dexieStorageProvid... dexieStorageProvid... localStorag... localStorag... localStorag... localStorag... service.ts service.ts
+> service.ts service.ts manager.ts manager.ts
+> manager.ts manager.ts service.ts service.ts
+> service.ts service.ts user-opti... user-opti...
+> user-opti... user-opti... analytical... analytical...
+> analytical... analytical...
+> File Types
+> .js .json .ts .ui
+> .yaml
+> Bubble Styles
+> size = LOC striped = viewed structure
+> Line Style
+> natural
+> prior suppression
+> budget pressure
+
+Fig. 11 : Under different conditions, even the similar prior suppression condition and natural condition are spatially different. They might have overlaps on files, but the order is unpredictable. Budget compression shows a more compressed amount of navigation in this view. 
+
+Summary of RQ2. The four observation lenses, read together, project a consis-tent pattern from different vantage points. Models carry distinct behavioral profiles that are visible in their journey shapes (lens 1), action grammars (lens 2), quality signatures (lens 3), and spatial footprints (lens 4). Budget pressure compresses and restructures these profiles in model-specific directions, but does not collapse conclu-sion quality. Prior suppression is invisible to the surface, temporal, and action-level lenses, and becomes detectable only through the adjudication lens, where it con-strains synthesis more than navigation. Across all lenses, the same finding recurs at increasing resolution: trajectories diverge while conclusions converge. Differ-ent models, different conditions, and even different runs of the same configuration produce distinct journeys through the repository world, yet arrive at comparable understanding. The projection protocol makes this divergence visible and analyz-able. What it cannot do is intervene. Whether an external intelligence can improve the trajectory rather than merely observe it is the question RQ3 addresses. 
+
+4.3 RQ3: Does Intervention Improve or Expose a Boundary? 
+
+RQ3 evaluates an intervention condition in which a judge panel and a coach are introduced into GPT-4.1’s observation channel, yielding 24 additional trajectories across the same repositories and task families. We read this condition through the same lens stack as RQ2 (Figure 12, plus the footprint projection in Figure 13). At the level of these projections, coaching increases trajectory volume but is asso-ciated with a shift toward late-phase conclusion cycling and reduced conclusion grounding. Relative to the natural condition, the coach condition generates substantially more surface activity: 2.5 × more turns, 3.4 × more files visited, and 3.2 × more total Springer Nature 2021 L ATEX template 26 Projecting the Emerging Mindset of SWE Agent ten sorzer o                                                                      
+
+> NaturalCondition|GPT-4.1|Architec ture A nalysis
+> ten sorzer o
+> NaturalCondition|GPT-4.1|ASRInfer en ce
+> ten sorzer o
+> Coach|GPT-4.1|Architec ture A nalysis
+> ten sorzer o
+> Coach|GPT-4.1|ASRInfer en ce
+> Marker sPKREXPMEMCONErrorsCoach
+> 0255075100
+> Shareofactionpolicytags(%)
+> 23152114
+> Naturalcondition
+> 20162016
+> Coachconditionifnaturallyended
+> 23162321
+> Coachconditionextendedlifetime
+> 23161714
+> Coachconditionoverall
+> closeread
+> traverse
+> trace
+> zoomin
+> skim
+> zoomout
+> dump
+> resume
+> cognitivestreak
+> interimsynth
+> closeout
+>  
+> 
+> 
+> 
+>  
+> 
+> 
+>   
+>  
+>  
+>  
+>  
+>  
+
+(a) lens 1 - journey arc 
+
+(b) lens 2 - action policy 
+
+(c) lens 3 - automated adjudication 
+
+Fig. 12 : Coach-judge condition observed through three lenses, all on GPT-4.1. (a) Journey arcs comparing natural condition and Coach Condition on TensorZero across four task families. Natural trajectories terminate within the first quarter of the coach timeline. Coach trajectories extend substantially, with late-phase seg-ments dominated by repeated attempts to conclude and coach rejections. (b) Action policy signatures split by lifetime regime. The natural-lifetime portion of coach trajectories closely resembles the natural condition. The extended-lifetime portion shifts toward close-out and cognitive-streak dominance, indicating a regime change from exploration to conclusion cycling. (c) Adjudication scores comparing Natural and Coach conditions. Conclusion grounding drops under coaching; Task relevance 
+
+spreads wider with more extreme low scores; Termination calibration remains sta-ble. time. Per-turn time remains nearly identical (5.50 s vs. 5.32 s), so the increase is pri-marily in trajectory length rather than per-turn duration. The amount of extension also varies by repository; some trajectories terminate earlier, while others (notably on TensorZero) extend to the 100-turn bound. Inside Figure 12, panel (a) shows that natural-condition trajectories on Ten-sorZero terminate within the first quarter of the coach-condition timeline, whereas coach-condition trajectories extend across the full duration and exhibit late-phase segments dominated by repeated conclusion attempts and coach rejections. Panel (b) shows the corresponding transition-profile split: the natural-lifetime portion of coach trajectories remains close to the natural condition, while the extended-lifetime portion shifts toward close-out (21% of transitions) and cognitive streaks, with reduced close reading and traversal. Panel (c) reports adjudication outcomes. Under coaching, conclusion ground-ing shifts from a tight natural-condition range around 0.85–0.95 to a lower median Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 27 tt   
+
+> ee
+> nn
+> ss
+> oo
+> rr
+> zz
+> ee
+> rr
+> oo
+> --
+> cc
+> oo
+> rr
+> ee
+> aa
+> pp
+> pp
+> ss
+> rr
+> cc
+> uu
+> tt
+> ii
+> ll
+> ss
+> rr
+> oo
+> uu
+> tt
+> ee
+> ss
+> vv
+> aa
+> rr
+> ii
+> aa
+> nn
+> tt
+> pp
+> rr
+> oo
+> vv
+> ii
+> dd
+> ee
+> rr
+> ss
+> ee
+> vv
+> aa
+> ll
+> uu
+> aa
+> tt
+> ii
+> oo
+> nn
+> ss
+> ee
+> nn
+> dd
+> pp
+> oo
+> ii
+> nn
+> tt
+> ss
+> tt
+> ee
+> nn
+> ss
+> oo
+> rr
+> zz
+> ee
+> rr
+> oo
+> aa
+> pp
+> ii
+> oo
+> pp
+> ee
+> nn
+> aa
+> iiconfig_parse... config_parse...
+> config_parse... model.rs model.rs model.rs function.rs function.rs
+> function.rs error.rs error.rs
+> error.rs chat_comple... chat_comple...
+> chat_comple... mod.rs mod.rs mod.rs gcp_vertex_gem... gcp_vertex_gem...
+> gcp_vertex_gem... anthropic.rs anthropic.rs anthropic.rs gcp_vertex_... gcp_vertex_...
+> gcp_vertex_... google_ai_s... google_ai_s...
+> google_ai_s... together.rs together.rs
+> together.rs fireworks.rs fireworks.rs
+> fireworks.rs deepseek.rs deepseek.rs
+> deepseek.rs mistral.rs mistral.rs
+> mistral.rs tgi.rs tgi.rs
+> tgi.rs aws_bedr... aws_bedr...
+> aws_bedr... sglang.rs sglang.rs
+> sglang.rs mod.rs mod.rs
+> mod.rs inference.rs inference.rs
+> inference.rs batch_inf... batch_inf... batch_inf... mod.rs mod.rs
+> mod.rs
+> Signed Trace Density (LOC)
+> -150 LOC 0150+ LOC
+> Repository
+> tensorzero
+> Bubble Styles
+> size = LOC
+
+Fig. 13 : Signed trace density map comparing coach condition minus natural con-dition for GPT-4.1 on TensorZero. Orange and red zones indicate files where the coach condition reads more code; blue zones indicate files where the natural condi-tion reads more. The map visualizes how spatial attention shifts under intervention, including dispersion across a broader set of files versus concentration on fewer files with deeper coverage. (around 0.68) with wider spread, and task relevance becomes more dispersed with more extreme low scores. Termination calibration remains similar between condi-tions, indicating that extended trajectories do not yield improved calibration signals under this projection. Figure 13 provides the footprint projection for the coach condition relative to the natural condition on TensorZero, making the intervention’s spatial redistribution of repository attention visible. 
+
+Finding 6 signals : Under intervention, lens 1 exposes extended trajectory lifetime and late-phase segments dominated by repeated conclusion attempts and coach rejec-tions (Figure 12a); lens 2 splits transition profiles by regime and shows a shift in the extended lifetime toward close-out and cognitive-streak transitions (Figure 12b); lens 3 reports adjudication changes in grounding and relevance (Figure 12c); and lens 4 maps the corresponding spatial redistribution of repository attention (Figure 13). profile :
+
+Coaching increases trajectory volume and extends runs, but the additional lifetime is associated with a transition-profile shift away from exploration and with lower, more variable conclusion grounding, while termination calibration remains similar between conditions. boundary : In this apparatus, the intervention channel increases activity without yielding improved grounding signals under adjudication. This constitutes an Springer Nature 2021 L ATEX template 28 Projecting the Emerging Mindset of SWE Agent 
+
+empirical boundary for externally steered trajectories in our setting: additional interac-tion does not necessarily translate into stronger repository-grounded conclusions. 
+
+## 5 Discussion 
+
+5.1 Situating Our Findings in the Broader Literature 
+
+Ada’s apparatus was designed for behavioral characterization rather than large-scale causal inference. Its findings are structurally reliable, grounded in 384 trajecto-ries across four models, six repositories, and four constraint conditions, but they are best interpreted alongside related work. Prior studies address adjacent phenomena, including agent efficiency, diversity of reasoning paths, chain-of-thought faithful-ness, epistemic constraints, and multi-agent coordination failures. Table 7 situates Ada’s findings in this landscape by pairing each observation with the closest evi-dence in the literature and its citation. In several cases, Ada recovers a known effect at trajectory resolution; in others, it provides process-level characterization that outcome-centric studies do not expose. 
+
+Table 7 : Ada’s observed patterns aligned with prior work. Each row pairs one obser-vation from Ada’s projection study with the closest evidence in the community literature and its citation. 
+
+Observed in Ada Closest findings in prior works Citation Different models traverse different repository regions yet arrive at com-parable conclusions Complex reasoning tasks admit multiple diverse reasoning paths that reach the same correct answer [11] Different SWE agents resolve very different sets of issues despite having similar resolve rates; the large action space of agents inevitably produces solution diversity [12] Conclusion quality is model-characteristic and largely condition-stable; the outward surface of behavior is a weak predictor of synthesis quality Agentic system evaluation has been mostly outcome-centric, overlooking intermediate steps and masking recurrent ineffi-ciencies; process-centric metrics are needed to assess quality independent of final success [1] LLM-generated reasoning chains are often not causally linked to the final answer; perturbing intermediate steps may not change predictions, making explanations essentially post-hoc [13] Budget pressure compresses trajec-tory volume while conclusion qual-ity remains largely stable, suggesting unrealized efficiency in unconstrained trajectories Longer reasoning / extra turns show diminishing returns: stop-ping earlier can maintain comparable accuracy, and max-turn trajectories are unlikely to yield substantial gains. [14, 15] Inefficiency and budget interaction: redundant steps waste compute without improving outcomes, and budget effective-ness depends on scaffold–LLM synergy (with failed attempts consuming disproportionate tokens). [16, 17] Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 29 
+
+Observed in Ada Closest findings in prior works Citation Wall-clock time gaps in API-mediated trajectories create an attribution boundary for temporal projections; pauses cannot be interpreted uniquely as additional agent work Latency variability in LLM serving can confound time-based measures, and gray-failure dynamics can manifest as partial slowdowns without fail-stop errors [18, 19] Prior suppression constrains synthesis more than navigation; agents adjust written claims more than evidence-gathering behavior, consistent with epistemic specification gaming Specification gaming occurs when agents satisfy the literal objective but not its intent; LLMs generalize from simple forms of gaming to more sophisticated compliance failures that are nontrivial to remove [20] LMs often ignore provided context when it conflicts with pre-existing parametric memory; navigational behavior draws on ingrained priors that prompt-level instructions cannot easily override [21] External coach override reduces trace grounding while leaving natural ter-mination calibration intact; added interaction increases activity but degrades outcomes LLM teams consistently underperform their best individual member by 8–38%; the failure is not identification but leverag-ing, because teams average expert and non-expert views rather than appropriately weighting expertise [22] Multi-agent integration success degrades monotonically as shared specification decreases; a substantial coordination tax persists even with full specifications [23] Coach fuses multi-judge critiques into a single instruction; this lossy aggre-gation can discard the strongest signal and obscure responsibility boundaries Diversity only helps with good aggregation: synthesis can lose to single-model baselines, while selection/competition can beat synthesis [24] Role-specialized pipelines can silently propagate errors with-out auditable handoffs; critique is not independently verified before reuse [25] 
+
+Across the seven rows, we see a consistent pattern. Our experiments are small in scale, but the composed methods and lenses let us project trajectories from mul-tiple views. The mechanisms we observe align with prior work at a larger scale, including inefficient exploration, divergent reasoning paths with similar endpoints, output shifts that exceed behavior change, and coordination loss in multi-agent sys-tems. Ada adds structure by making these effects visible in the layers of narrative, mechanism, and evidence. It also pinpoints specification gaming at the navigation-to-synthesis boundary and shows how oversight can push agents from grounded exploration into conclusion cycling. The projection protocol is what makes these dynamics visible. 
+
+5.2 Making the Code-Understanding Journey Observable 
+
+The contribution of this work is observational. By treating trajectories as empir-ical objects, the apparatus and lenses make repository-level code understanding comparable as a process: what evidence is inspected, how navigation and revisita-tion unfold, when intermediate understanding is externalized, and how stopping is calibrated. These comparisons identify projected behavioral differences under con-trolled launch conditions. They do not by themselves establish causal mechanisms inside the model. Springer Nature 2021 L ATEX template 30 Projecting the Emerging Mindset of SWE Agent 
+
+This framing also bounds the interpretation of the launching conditions. Dif-ferences across conditions should be read as behavior under controlled changes in guidance within a fixed instrument, not as intrinsic properties of the underlying models or as guarantees of transfer to other software environments. More broadly, Ada provides a reusable observation design for SWE agents. It projects externalized behavior through explicit lenses to support responsible, process-level claims without assuming direct access to internal cognition. 
+
+5.3 What Can Travel Beyond Ada 
+
+The preceding subsections situate Ada’s findings in the literature and clarify the observational contribution of the apparatus and lenses. What can travel beyond Ada is therefore not the specific behavioral profiles reported here, but the observation logic that makes such profiles readable. The method is transferable only with design work. Other researchers should not treat Ada as a universal template that can simply be copied across agents, tools, or domains. What can travel is the logic of the apparatus. A future study can define a bounded software world, specify meaningful task families, expose tools that shape the agent’s contact with the environment, and design lenses that match the phe-nomenon under observation. Under that condition, trajectory-centered projection can become a practical method for studying SWE agents across different contexts. The findings here are not the end of that program. They are an argument that such a program is possible. 
+
+## 6 Threats and Limitations 
+
+The limitations of this study are part of the methodological conditions under which trajectory-level observation becomes possible. Ada was designed to project repository-level code understanding from behavioral traces, while treating the underlying models as black boxes. This gives access to how an agent moves, reads, records, revises, and terminates inside a bounded repository world. It does not give access to why the model internally preferred one hypothesis, file, or conclusion over another. The three limitations below clarify the epistemic boundaries within which the reported findings hold. 
+
+6.1 Apparatus Dependence 
+
+Any attempt to study an SWE agent in action requires deciding what world the agent enters, what actions it can take, what feedback it receives, and what counts as com-pletion. These decisions constitute the observation environment, and they shape the trajectories that result. Ada is therefore not a neutral window onto SWE agent behavior. Its task openings, prompt scaffold, tool surface, repository interface, and termination mechanism all define what becomes observable, and what remains out-side view. The four experimental conditions are prompt-level and interaction-policy perturbations over a single scaffold. They do not change the underlying toolset or runtime architecture, which strengthens cross-condition comparison but means that Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 31 observed behavioral differences depend on how the perturbations were designed. Model selection introduces a parallel dependence. The four foundation models used for trajectory generation, the post-hoc evaluation models, and the runtime coach-judge layer belong to different parts of the experimental stack, and the study cannot claim that the same profiles would appear under all model families or all prompt formulations. Our design addresses this dependence by keeping the core scaffold stable across conditions and changing only specific forms of guidance or decision pressure. The resulting trajectories should be read as behavior under Ada’s apparatus. They speak to this setting, and the apparatus is designed for structured observation across con-ditions, not for claims about SWE agents in the abstract. Precisely because this dependence is unavoidable, making it explicit is a methodological contribution. The community benefits from observation environments whose assumptions are inspectable, rather than from claims that appear apparatus-free. 
+
+6.2 Scope of Repository-Level Code Understanding 
+
+Code understanding is one phase of software engineering work, and this study delib-erately isolates it. The task families ask the agent to understand, trace, infer, and explain code. They do not ask it to patch bugs, run tests, manage issue histories, negotiate requirements, or maintain software over time. This scope removes patch success as the organizing endpoint and places code understanding itself at the cen-ter of observation. It also means that the findings should not be transferred directly to repair-centered SWE agent settings. The repository sets bounds on the study in a second way. Six repositories span compact libraries, classic frameworks, scientific software, and recent AI-infrastructure systems, providing a structurally heterogeneous terrain for observa-tion. Heterogeneity, however, is not coverage. Six repositories cannot represent the full space of software systems, organizational practices, programming languages, or development contexts. The scale difference across the set, from compact reposito-ries to systems exceeding 100K LOC, helps stress the apparatus but also means that repository complexity may interact with model behavior and task type in ways this study can only begin to characterize. These boundaries are intentional. They define the experimental field within which the observation method can be demonstrated and assessed, while leaving the question of broader applicability to future work with expanded repository sets and task designs. 
+
+6.3 Lens Dependence 
+
+Behavioral profiles are projections, not the agent’s raw properties. Each lens makes certain aspects of the trajectory visible while leaving others outside the view. Sur-face statistics, tool-use sequences, grounding judgments, prior-usage assessments, and termination evaluations each project a partial reading. Different lenses could emphasize different phenomena, such as uncertainty management, hypothesis revi-sion, semantic compression, or interaction with repository topology. This partiality Springer Nature 2021 L ATEX template 32 Projecting the Emerging Mindset of SWE Agent 
+
+is inherent to the method, and it carries specific epistemic consequences that the reported findings cannot fully resolve. One consequence concerns convergence. When trajectories diverge across mod-els, but conclusions converge, the observation lenses cannot definitively distinguish genuine understanding from training-data recall or from task conditions that admit only a narrow range of acceptable answers. Prior suppression changes the eviden-tial stance of the launch, but it operates at the prompt level and cannot guarantee the absence of parametric familiarity. Honest uncertainty about what convergence means is part of the current result. A second consequence concerns the automatic adjudication lens specifically. This lens uses LLM-based judges to evaluate LLM-produced trajectories. The design mitigates circularity through model separation, anonymization, and multi-model voting, but the structural condition remains. Judges and agents share overlapping training-data distributions, so agreement among judges may reflect shared priors rather than independent validation. The alignment between sampled human eval-uation and judge scores provides partial reassurance, but it does not eliminate the concern. These limitations point toward the same methodological reminder. A trajectory does not interpret itself. Responsible study of SWE agent behavior requires explicit lenses whose assumptions can be inspected, reused, criticized, and redesigned. The set L demonstrated in this paper is open and minimal. Its value lies in showing that structured observation yields distinguishable behavioral signals, and in making the instruments available for the community to extend and refine. 
+
+## 7 Related Works 
+
+7.1 Trajectory-Aware Evaluation of Software and Tool-Using Agents 
+
+Existing work on software agents has increasingly moved beyond final-answer eval-uation toward process-aware analysis. Early evaluations of coding agents often centered on whether a task was completed, a patch passed tests, or a benchmark item was solved. More recent work treats the intermediate trajectory as an empiri-cal object in its own right. Studies of thought-action-result logs, diagnostic toolkits for agent trajectories, and trajectory-level evaluation frameworks examine how agents search, read, call tools, recover from errors, and terminate across multi-step processes [3, 10, 26]. This shift is important because long-horizon agent behavior cannot be adequately understood from the final output alone. A correct result may be reached through inefficient, fragile, or poorly grounded routes, while an incorrect result may still contain informative evidence about where the agent’s process broke down. In this sense, trajectory-level analysis has become a necessary complement to outcome-level evaluation. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 33 
+
+7.2 Tool-Mediated Interaction and Repository Environments 
+
+Within software engineering, this process-aware turn has been especially visible in work on repository-level agents. Recent benchmarks and datasets place agents inside realistic code environments, where success depends on locating relevant files, interpreting dependencies, maintaining state across turns, and handling setup or validation constraints [27–30]. These studies make clear that software agents do not operate over isolated snippets. They work inside repository worlds composed of files, symbols, dependency relations, build structures, tests, and developer tools. The resulting behavior is therefore not only a property of the model. It is co-produced by the model, the task opening, the action surface, and the feedback returned by the environment. A parallel line of agent research has studied tool-mediated interaction more generally. Tool-use benchmarks and surveys emphasize that agents must select actions, interpret stateful feedback, manage tool dependencies, and adapt over mul-tiple turns rather than merely produce a single response [31–33]. This literature supports a central assumption of our apparatus. The tool interface is not a neu-tral channel through which an agent simply accesses information. It shapes what can be observed, what can be attempted, and what can become part of the trajec-tory. For SWE agents, this point is especially consequential because code-reading tools, structural overviews, reference tracing, memory mechanisms, and conclusion actions define the agent’s mode of contact with the repository. A trajectory should therefore be read as a tool-mediated encounter between an agent and a software world. 
+
+7.3 Repository-Level Code Understanding and Software Comprehension 
+
+Repository-level code understanding provides the second foundation for this work. Modern LLM-based code research has moved from single-function or single-file tasks toward cross-file completion, repository-level editing, dependency under-standing, context retrieval, and code question answering [34–38]. These works show that repository understanding is not merely a matter of giving the model a larger context window. It requires selecting relevant evidence, following dependencies across files, distinguishing central from peripheral code, and forming a coherent account of how parts of a system interact. This view is close to the problem setting of our study, but our focus differs. We do not ask whether an agent can complete, edit, or answer a repository task as an endpoint. We ask how its code-understanding journey can be made observable while it moves through the repository. The task families used in our apparatus also connect to long-standing soft-ware engineering research. Architecture analysis and architecture reconstruction have studied how high-level design structure can be inferred from implementation artifacts [39, 40]. Work on architecture evaluation and architecturally significant requirements explains why some design decisions and implicit requirements have disproportionate structural impact [41, 42]. Feature location research studies how Springer Nature 2021 L ATEX template 34 Projecting the Emerging Mindset of SWE Agent 
+
+user-visible behavior can be traced to source-code units, while inspection and code-review research grounds risk-oriented reading in established maintenance practices [43–45]. These traditions matter because they prevent repository-level code under-standing from being treated as a new capability invented by LLMs. Architecture reasoning, requirement inference, feature tracing, and risk review are established forms of software comprehension. Our work brings these forms into an apparatus for agent trajectories. 
+
+7.4 From Process Evaluation to Projected Observation 
+
+Taken together, these bodies of work establish three premises. First, final outcomes alone are too narrow for understanding long-horizon agent behavior. Second, agent trajectories are shaped by the tools and environments through which agents act. Third, repository-level code understanding is a cross-file, evidence-selective, and historically grounded software comprehension problem. However, existing work still leaves a methodological gap. Trajectory-aware studies often use process traces to diagnose failure, improve repair performance, train agents, or benchmark execu-tion. Repository-level code benchmarks often retain task success as the organizing endpoint. Classical software comprehension explains what kinds of understand-ing matter, but it does not address how an LLM-based SWE agent’s understanding process can be observed from outside. This paper occupies that gap. We construct Ada as a scoped SWE agent apparatus for observing repository-level code-understanding trajectories in a wild-but-bounded software world. Ada is not intended as a benchmark agent, and its trajectories are not treated as transparent access to internal cognition. Instead, each trajectory is recorded as a recoverable observation record and projected through analysis lenses that make behavioral and epistemic profiles discussable. This posi-tioning distinguishes our work from outcome-centered SWE agent evaluation and from repair-oriented trajectory diagnosis. Prior work shows that agent trajectories useful for evaluation, diagnosis, correction, and scaling. We use trajectories to make repository-level code-understanding journeys observable. 
+
+## 8 Conclusions 
+
+This paper introduced Ada , a scoped SWE agent apparatus for observing repository-level code-understanding as a trajectory-level empirical object. By combining a bounded-yet-wild repository world, a read-only tool-mediated interface, and a reusable suite of observation lenses, the method makes agent exploration, synthe-sis, and stopping behavior comparable across models and controlled perturbations without treating internal cognition as directly accessible. Across 408 recorded trajectories, our projection study surfaced several stable signals. Budget pressure consistently compressed activity volume while leaving conclusion quality largely intact, revealing unrealized efficiency in unconstrained trajectories. Prior suppression altered the stance of synthesis more than the shape 
+
+of navigation, suggesting that prompt-level evidential constraints are easier for agents to satisfy in their written claims than in their evidence-gathering behavior. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 35 Finally, injecting an external coach-judge sidecar increased interaction and activ-ity but could degrade grounding, highlighting a coordination tax at the boundary where a solo trajectory becomes a multi-intelligence process. Taken together, these results argue for a methodological shift: progress on SWE agents should be evaluated not only by endpoints, but by projected obser-vation of the process that produces them. Ada is not a universal template; it is an observation logic that can be redesigned for other domains, tool surfaces, and task families. Future work should expand the repository set and task openings, add lenses for uncertainty management and hypothesis revision, strengthen validation via human and non-overlapping automated judges, and connect trajectory-level sig-nals to downstream engineering outcomes (e.g., repair success) while preserving the interpretability that trajectory-centered observation provides. 
+
+## Declarations of Conflict of Interest 
+
+The authors declared that they have no conflicts of interest in this work. 
+
+## Data Availability 
+
+The apparatus source code, all 408 recorded trajectories, observation lens outputs, analysis scripts, and evaluation prompt templates are publicly available as a replica-tion package at https://doi.org/10.5281/zenodo.20337565. The package includes raw trajectory data, pre-computed projection results for all five lenses, and the scripts that produce every figure and table reported in this paper. 
+
+## Usage of AI Tools 
+
+AI-assisted tools (Claude - Anthropic, Grammarly, and Overleaf’s AI assistant fea-tures) were used during manuscript preparation for proofreading and readability improvements. Analysis scripts for trajectory statistics and visualization code for scientific figures were written with AI assistance under author-specified instruc-tions and reviewed by the authors. The AI tools were not used to generate research ideas, design the study methodology, or produce images directly used in the paper. The authors take full responsibility for the content of this work. Editorial Policies for: Springer journals and proceedings: https://www.springer.com/gp/editorial-policies Nature Portfolio journals: https://www.nature.com/nature-research/editorial-policies 
+
+Scientific Reports : https://www.nature.com/srep/journal-policies/editorial-policies BMC journals: https://www.biomedcentral.com/getpublished/editorial-policies Springer Nature 2021 L ATEX template 36 Projecting the Emerging Mindset of SWE Agent ROLE FRAME You are Ada, a meticulous and insightful code analyst renowned for your ability to delve into software intricacies; understand complex codebases, decipher algorithmic logic, and discern intent behind code.  
+
+> TOOL USE
+
+Tools are how you direct your attention, navigate the codebase, and articulate steps. You can use one tool per message. Use tools step-by-step, with each tool use informed by the result of the previous one. Tool use is formatted using XML-style tags: 
+
+<tool_name> <parameter>value</parameter> </tool_name>  
+
+> TOOLS
+
+specialized analytical tools to explore, understand, build a comprehensive model of the codebase:       
+
+> get_structural_overview peek_code_region explore_code
+> create_memory bookmark get_hint_on_snippet stash_conclusion
+> REPOSITORY
+
+Repository: flask Project Structure: flask/ README.md # 52 lines src/flask app.py # 1537 lines blueprints.py # 129 lines 
+
+> OBJECTIVE
+
+achieve a deep and thorough understanding of the codebase; break the analysis into manageable steps; employ one tool per message.  
+
+> STATE CHANNELS
+
+MEMORY: No memory has been created yet. BOOKMARK: No bookmarks have been created yet. CONCLUSION: No conclusion has been reached yet.  
+
+> TERMINATION
+
+<stash_conclusion> formally record a significant understanding; indicate if analysis is complete or if you intend to continue. Set proceed_to_finalize=true when conclusions sufficiently address the task. 
+
+identity 
+
+analyst role and code-reading stance 
+
+turn grammar 
+
+one action; previous-result dependence; XML parsing 
+
+contact surface 
+
+orientation, reading, traversal; memory, bookmark, hint, con-clusion 
+
+world + task 
+
+bounded repository world and code-understanding objective 
+
+working record 
+
+memory, bookmark, conclusion sections 
+
+closure 
+
+finalization is a tool-mediated decision 
+
+Fig. A1 : Prompt scaffold of Ada as a repository-level code-understanding agent, organized and abstracted by functional components. The figure compresses the role frame, one-tool-per-turn protocol, tool interface, repository context, state channels, and explicit termination rule into a prompt-listing view. 
+
+## Appendix A Appendix: Experiment Pipeline 
+
+This appendix documents the experimental apparatus behind Ada and the Coach-Judge condition. It is intended as replication-oriented scientific reporting: it describes what the apparatus asks the agent to do, what information the agent can observe, how the experimental conditions modify the agent’s operating stance, and how the coach-judge process enters a trajectory. It does not report behavioral findings. 
+
+A.1 Ada Apparatus 
+
+A.1.1 Prompt Scaffold 
+
+Ada is launched as a read-only code-understanding agent. The prompt scaffold gives it an identity, a constrained action protocol, a repository context, and a persis-tent state for accumulating understanding across turns. The scaffold is designed to make each trajectory observable: every turn contains stated reasoning, one selected action, and the environment’s response. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 37 Two exact prompt excerpts matter for interpreting the trajectory design. The first is the one-action-per-turn constraint. 
+
+You must only use one tool per interaction, and your analysis must build up step-by-step from earlier results. 
+
+The second is the termination contract. A trajectory ends only when the agent uses the conclusion tool and explicitly marks the analysis as ready to finalize. 
+
+- proceedtofinalize: (required) A boolean value (true or false). - Set to true if you believe this conclusion ... sufficiently addresses the code reading task, and you wish to finalize your analysis. 
+
+The prompt, therefore, turns code understanding into a bounded sequence of observable choices. The agent is not asked to answer immediately from prior knowl-edge. It is asked to reason, inspect the repository through the available tools, record intermediate understanding, and terminate only when it believes the task has been sufficiently addressed. 
+
+A.1.2 Task Setup Prompts 
+
+The system-side scaffold was paired with a short task block that specified what kind of repository understanding Ada should produce. These task prompts varied by Task Family, while the experimental conditions only changed Ada’s operating stance around the same underlying task. The prompts below reproduce the user-facing task setups in paper-facing terminology rather than internal run identifiers. 
+
+Architecture Analysis.                                                                   
+
+> GLOBAL GOAL: Analyze the provided codebase to determine its overall architecture and architectural style. You should identify the major components, understand how they are organized, and describe the primary patterns of interaction between them. Your analysis should conclude with asummary of the architectural design. Constantly viewing the structure of code might be helpful. And creating memory on important logical and data flow will help you in concluding the architecture design. You can start now.
+
+ASR Inference.                                      
+
+> GLOBAL GOAL: Analyze the provided codebase to identify its Architecturally Significant Requirements (ASRs). Investigate the code for evidence of design decisions that satisfy implicit requirements such as performance, security, scalability, or reliability. Your analysis should conclude with a list of inferred ASRs, each supported by specific code evidence. Constantly exploring the reference of code pieces might be helpful. Feel free to get ahint from the system. You can start now.
+
+Springer Nature 2021 L ATEX template 38 Projecting the Emerging Mindset of SWE Agent 
+
+Feature Implementation Tracing. 
+
+GLOBAL GOAL: Your objective is to locate and describe the complete implementation of the target feature. Trace this feature from its most likely entry point through its core logic, data handling, and any interactions with other modules, concluding with a summary of the end-to-end implementation path. If you get stuck, try bookmarking or getting a hint from the system. Constantly getting structure overviews of files is recommended. Verify your memories and conclusions before stopping. You can start now. 
+
+For this Task Family, the repository-specific target feature was substituted into the prompt. The six targets were request routing and dispatching in Flask, session management and cookie persistence in Requests, the DecisionTreeClassifier 
+
+implementation path in Scikit-learn, conditional edge traversal in Graphiti, the core prompt-optimization workflow in Prompt Optimizer, and the streaming inference pipeline in TensorZero. 
+
+Risk and Code-Smell Review. 
+
+GLOBAL GOAL: Act as a code reviewer and systematically analyze the provided codebase to identify potential risks, comprehension difficulties, or code smells. Your analysis should result in asmall list of these issues, with each issue referencing the specific location in the code where it was found. Use bookmarks to flag code snippets that appear to be risky. You might want to scan the code files, so using peek region or exploring the code might be helpful. You can start now. 
+
+These task blocks were short by design. They specified the repository-understanding objective and a small amount of task-local guidance, while the scaffold and condition overlays controlled the action protocol, memory surfaces, termination rule, and evidential stance. 
+
+A.1.3 Tool Surface 
+
+The seven tools define Ada’s contact surface with the repository and with its own accumulating state. Table A1 describes them by functional role rather than internal format. The navigation tools expose repository evidence; the cognitive tools exter-nalize intermediate reasoning, unresolved questions, clarification requests, and final synthesis. 
+
+Table A1 : Ada tool signatures as exposed in the prompt schema.          
+
+> Tool Group Parameters Function in trajectory
+> peek code region Navigation file path: string ;
+> start line number: number ;optional end line number: number .Reads exact line ranges and records line-level file access.
+
+Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 39 
+
+Tool Group Parameters Function in trajectory 
+
+> get structural overview
+
+Navigation file path: string ; optional  
+
+> logical block name: string
+
+.Calls the structure summarizer for a file or named block and records structural access.  
+
+> explore code
+
+Navigation action type: go to definition 
+
+find all references 
+
+> go to next block
+
+; 
+
+> current file path: string
+
+; 
+
+> current line number: number
+
+;conditional symbol name: string .Uses VS Code definition/reference providers or retrieves the next local block.  
+
+> create memory
+
+Cognitive memory title: string ; 
+
+> memory content: string
+
+; optional   
+
+> confidence level: high
+
+medium 
+
+> low
+
+.Stores intermediate hypotheses or synthesized understanding for later prompt reinjection.  
+
+> bookmark
+
+Cognitive file path: string ; line number: number ; note: string .Marks a code location for later attention. The Cline-oriented prompt names the note field 
+
+> question or note
+
+; the Copilot schema names it note .
+
+> get hint on snippet
+
+Cognitive file path: string ; code range: string ;
+
+> description of confusion: string
+
+; optional  
+
+> what i tried or think: string
+
+.Requests a bounded local hint for a confusing snippet. The hint generator is instructed not to answer the full task.  
+
+> stash conclusion
+
+Cognitive / termination Optional title: string ; content: string ; scope description: string ; proceed to finalize: boolean .Records a major or final conclusion. Finalization occurs when  
+
+> proceed to finalize
+
+is true, corresponding to u∗ in Equation 1. 
+
+This tool surface is intentionally narrower than a full developer environment. Ada can inspect, navigate, remember, bookmark, ask for local hints, and conclude. It cannot edit files or execute arbitrary exploratory routines. This keeps trajectories centered on repository understanding rather than repair or code generation. 
+
+A.1.4 Condition Variants 
+
+The four main experimental conditions preserve the same task set, repositories, tool surface, and read-only boundary. They differ only in the stance imposed on Ada while it conducts the trajectory. 
+
+Table A2 : Condition-level modifications to Ada’s operating stance. 
+
+Condition What changes Rationale in the experiment Natural Condition Uses the base scaffold (role, tool definitions/examples, tool-use guidelines, repository context, accumulated memory/bookmarks/conclusions, objective, notes/history, and the current task). No additional pressure or evidential constraint is added. Establishes the unperturbed reference trajectory for the same agent, tasks, repositories, and tools. Budget Pressure Adds an explicit exploration budget: each turn is framed as consuming budget, so Ada must decide what not to inspect. A budget-status block is shown before the objective (default target: 12 exploration turns, unless overridden). Budget reminders are injected as the remaining budget drops. Tests how the trajectory reorganizes when exploration space is scarce while the tool surface remains unchanged. Springer Nature 2021 L ATEX template 40 Projecting the Emerging Mindset of SWE Agent   
+
+> Condition What changes Rationale in the experiment Prior Sup-pression Adds an evidence-first stance: prior/parametric familiarity is treated as weak intuition rather than evidence. When drawing conclusions, Ada must ground them in repository-specific observations (e.g., files, symbols, code paths, or tool-observed details) and clearly separate hypotheses from observed evidence. Tests whether the agent can separate likely prior familiarity from evidence gathered inside the current repository. Combined Condition Applies both constraints: budget-aware exploration plus evidence-first grounding. Ada is asked to maximize task-relevant certainty under the remaining budget while avoiding unsupported prior-driven conclusions. Tests the joint constraint of scarce exploration and stricter evidential grounding.
+
+Budget Pressure has both an initial prompt effect and a turn-time feedback effect. The initial prompt defines the budget as a real task constraint. During the trajectory, budget reminders are inserted at coarse milestones: around half the budget remain-ing, quarter budget remaining, three turns remaining, and the final turn. These reminders shift from narrowing the search space to consolidating and concluding from the strongest available evidence. Prior Suppression does not attempt to remove prior knowledge from the model. Instead, it changes the evidential rule of the task: prior familiarity may suggest hypotheses, but the reported conclusion should be justified by what Ada has observed in the repository during the trajectory. 
+
+A.1.5 Model Runtime and Context Handling 
+
+Several runtime settings matter for interpreting Ada’s trajectories. For the user-configurable trajectory-generation models, Qwen3.5-397B-A17B and DeepSeek-V3.2, the decoding temperature was fixed at 0.2. For the GitHub Copilot default models, GPT-4o and GPT-4.1, this parameter was not exposed by the runtime, so those trajectories inherit the provider’s default behavior. Model reasoning mode was turned off in the Ada apparatus because the ReAct-style agent design already includes a visible thinking segment as part of the trajectory itself; enabling an addi-tional hidden reasoning mode would have mixed two different reasoning surfaces inside the same observation record. The context window was set to the largest capacity available for each model. When prompt assembly reaches that capacity, truncation is handled by the edi-tor runtime’s internal priority logic rather than by a study-specific manual rule. The system prompts were given higher priority, while accumulated navigation-turn messages were lower priority. As a result, when context overfill occurs, older or lower-priority trajectory material can be dropped, and some trajectories may therefore show goal drift that is partly induced by context saturation. 
+
+A.2 Coach-Judge Pipeline 
+
+A.2.1 Pipeline Architecture 
+
+The Coach-Judge condition adds a second reasoning process to the trajectory. Ada still performs one tool-mediated action per turn. After a turn is completed, the coach-judge process receives the completed turn and updates its trajectory Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 41 record. Specialized judges then evaluate the turn from different perspectives, and a coach decides whether the next observation should remain unchanged or include intervention. The functional flow is:          
+
+> Completed Turn →Trajectory Summary →Judge Panel →Aggregated Diagnostic Report
+> →Coach Decision →Next Observation
+
+This design corresponds to Equations 6–7: the judge panel observes the trajec-tory up to the current turn, the coach conditions on the panel’s diagnostic report and Ada’s current action, and the resulting decision changes the next observation only when intervention occurs. The runtime coach and judges use DeepSeek-V3 in this condition. This is sep-arate from the post-hoc automatic adjudication lens discussed in Appendix C; that evaluation layer uses a separate GLM, MiniMax, and Kimi combination and is not the mechanism that intervenes during Ada’s trajectory. Across both the runtime Coach-Judge layer and the post-hoc adjudication layer, the judge models ran with model reasoning mode turned off, a temperature of 0.2, and an output limit of 2048 tokens. The reasoning mode was disabled because the judges were used as bounded assessment components under time and budget constraints rather than as open-ended deliberators. 
+
+A.2.2 Judge Panel Composition 
+
+The judge panel has six possible roles. Two roles are always active because they monitor the overall trajectory and the agent’s reasoning stance. The other roles are activated only when the current turn falls within their domain. This keeps each turn evaluated by broad trajectory monitors plus the relevant action-specific monitor. The upstream reason for this composition is the separation of concerns. Overall and bias judges watch the trajectory of health and reasoning stance across all turns. 
+
+Navigation , cognitive , conclusion , and error judges each inspect the local type of work being attempted. The coach, therefore, receives a report that combines persistent process-level monitoring with action-specific diagnosis. 
+
+A.2.3 Judge Prompt Structure 
+
+The judge prompts share a common structure. A system-facing portion defines the judge’s role and rating dimensions. A task-facing portion injects the current goal, a compact trajectory history, the current thinking block, the current action, and any action-specific context. The judge returns a structured assessment with a short rationale and categorical ratings. The categories differ by judge’s role, as summarized in Figure A2. Before these judges run, each completed turn is summarized into a compact record of what Ada was trying to do, what action it took, and what information came back. The summaries form a rolling trajectory memory for the judge panel. This design avoids requiring every judge to reread the entire raw trajectory at every turn while still preserving recent context. Springer Nature 2021 L ATEX template 42 Projecting the Emerging Mindset of SWE Agent shared prompt skeleton 
+
+Prompt family 
+
+> Role: specialized judge over Ada’s trajectory Context: global goal / task recent trajectory summaries current thinking or action observation / error / submission Task: compare intent, evidence, result decide if this step helps the run Return JSON: { reasoning, role-specific fields }
+
+role-specific deltas common: goal + trace slice + current step 
+
+Overall Judge   
+
+> Strategic Observer: monitor workflow.
+> Context: last 7 steps; goal; thinking.
+> Ask: progress / looping / assumptions.
+> flow_state; laziness; suggestion
+> always
+
+Bias Judge   
+
+> Metacognition Analyst: self-awareness.
+> Context: goal; evidence seen; thinking.
+> Ask: parametric / confirmation bias; confidence.
+> confidence_level; detected_bias
+> always
+
+Navigation Judge   
+
+> Senior Code Reviewer: navigation logic.
+> Context: goal; steps; intent; action; feedback.
+> Ask: target reasonable? result useful?
+> scent_rating; yield_rating
+> repo action
+
+Cognitive Judge   
+
+> Epistemic Analyst: thinking quality.
+> Context: goal; steps; observation; cognitive action.
+> Ask: synthesis/parroting? risk valid?
+> quality; risk_validity
+> state action
+
+Conclusion Judge   
+
+> Rigorous Auditor: final conclusion.
+> Context: goal; repo tree; visited paths; submission.
+> Ask: enough evidence? unsupported claims? missed files?
+> saturation; grounding; missed_files
+> finalize
+
+Error Judge   
+
+> Resilience Evaluator: error recovery.
+> Context: failed action; error; adjacent steps.
+> Ask: understood? pivot/retry/loop? severity?
+> diagnosis; recovery; severity
+> on error
+
+Fig. A2 : Demonstration of the runtime judge prompts under the Coach-Judge con-dition. The prompt family shares a common skeleton over goal, trajectory slice, current step, and JSON reasoning output, while each judge specializes in the con-text slice and requested judgment for workflow progress, bias, navigation, cognitive state, conclusion, or error recovery. 
+
+A.2.4 Aggregation Logic 
+
+The judge assessments are not averaged into a numerical score. Each judge con-tributes a short rationale and categorical ratings. The aggregation step converts these role-specific assessments into a diagnostic report for the coach. The report preserves the identity of each judge’s role, its evaluation dimensions, and its rea-soning. In effect, aggregation is a structured handoff from specialized observers to the coach, rather than a vote or scalar threshold. This matters experimentally because intervention is not triggered by a single universal metric. The coach receives a distribution of diagnostic signals. For exam-ple, a weak navigation signal can be read differently if the overall judge still sees progress, while a premature conclusion signal has a stronger implication for rejec-tion. The aggregation format, therefore, supports the coach’s qualitative decision among PASS , HINT , and REJECT .
+
+A.2.5 Coach Decision Policy 
+
+The coach is instructed to balance autonomy and rigor. Its default stance is non-intervention: if the judges report no serious problem, the trajectory should continue without alteration. The coach intervenes when multiple diagnostic signals indicate a harmful pattern, and it rejects conclusion attempts when the conclusion appears premature or unsupported. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 43 
+
+Table A3 : Coach decision policy in the intervention condition.      
+
+> Decision Experimental meaning Effect on Ada’s next observation
+> PASS The current turn does not warrant intervention. Ada’s autonomy is preserved. The next observation contains only the normal environment response.
+> HINT The trajectory shows a concerning but recoverable pattern, such as weak navigation plus stalled progress. A concise coach message is appended as guidance. Ada may use or ignore it in the next turn.
+> REJECT Ada attempts to close with a conclusion judged premature or insufficiently grounded. The coach message is returned as a rejection of the attempted closure, and the trajectory continues.
+
+The coach message is visible to Ada only under HINT or REJECT . Under PASS ,the Coach-Judge process observes the trajectory but does not alter it. The condition therefore changes the content of some observations, not the formal turn structure of the trajectory. 
+
+## Appendix B Appendix: Pilot Launches 
+
+Before scaling to the full experimental matrix, three pilot launches were conducted to choose the prompt framework and to check that Ada could produce finite, record-able code-understanding trajectories under the seven-tool interface described in Appendix A. The pilot launches used the same repository-level task and the same foundation model, GPT-4o, while varying only the surrounding prompt framework. 
+
+B.1 Prompt Framework Selection 
+
+The pilot compared three prompt-framework sources: a Copilot-style prompt from a public leaked-prompt collection, a Trae-style prompt from a public leaked-prompt collection, and a Cline-style prompt derived from an officially released open-source project. The pilot was not used to compare final answer quality. Its purpose was narrower: to determine whether each framework could sustain Ada’s tool-mediated trajectory, reach explicit termination, and produce a usable code-understanding account. All three preserved pilot trajectories reached an explicit conclusion action. The preserved records show different exploration volumes: Cline terminated after 28 recorded tool turns, Copilot after 33, and Trae after 58. The corresponding tool-call distributions are shown in Figure B3. The pilot therefore established finite, record-able trajectories, while the stricter 50-turn bound was adopted later for the main matrix. Cline was selected for the main experiment because it avoided reliance on leaked prompt material, produced the shortest preserved pilot while still retaining enough exploration detail, and used a broader action mix than Copilot: four plotted Springer Nature 2021 L ATEX template 44 Projecting the Emerging Mindset of SWE Agent 
+
+Fig. B3 : Pilot tool-call distributions across the three prompt frameworks. All three launches used the same task, the same foundation model, and the same seven-tool Ada interface. The figure reports the number of tool calls by action type, showing that all frameworks produced finite trajectories while differing in exploration vol-ume and cognitive-tool use. tool types plus the terminal conclusion action, compared with Copilot’s two plotted tool types plus the terminal conclusion action. 
+
+Table B4 : Pilot framework comparison.      
+
+> Framework Source status Role in design decision Copilot Public leaked-prompt collection from late 2024. Demonstrated that a short framework could sustain the tool protocol, but the preserved pilot used a narrower action mix, and the source was leaked material. Trae Public leaked-prompt collection from early 2025. Demonstrated that the tool protocol could remain stable in a longer pilot, but was not selected because the source was leaked material and the trajectory was the longest of the three. Cline Officially released open-source project. Selected for the main experiment because it used an official source, had a detailed prompt structure, and produced the shortest preserved pilot while still using navigation, memory, and traversal actions before termination.
+
+B.2 GLM Exclusion 
+
+The pilot phase also tested the GLM family as a possible trajectory-generation model. GLM was excluded from the main trajectory-generation matrix because its tool-call compliance was not reliable enough for recoverable trajectory recording. Observed failure modes included malformed tool calls, calls to tools outside Ada’s seven-tool interface, and loss of the required tool-call format within a trajectory. These failures made the affected pilot trajectories unsuitable as empirical objects for the observation lenses. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 45 The exclusion applies only to trajectory generation. GLM was retained in the post-hoc automatic adjudication layer, where it contributes as one of the judge models described in Appendix C. In that role, GLM does not need to sustain Ada’s multi-turn tool-use protocol; it evaluates completed trajectory materials under a separate adjudication design. 
+
+## Appendix C LLM–Human Alignment and Adjudication Calibration 
+
+This appendix documents the post-hoc adjudication lens used in Section 3.4. The purpose is not to treat the automatic judges as a human substitute. The purpose is to make their protocol, internal agreement, human alignment, and length robustness visible enough that the Lens 3 results can be read with the right calibration. 
+
+C.1 Evaluation Protocol and Judge Prompts 
+
+The adjudication layer evaluates completed Ada trajectories through five evaluation families. Task Relevance, Trace Grounding, and Termination Calibration operate at the conclusion level: they ask whether the final conclusion addresses the task, whether it is grounded in the observed trajectory, and whether the stopping point was well calibrated. Navigation Prior Usage and Reasoning Prior Usage operate at the Turn or artifact level: Navigation Prior Usage evaluates whether navigation moves are led by evidence already visible in the trajectory, while Reasoning Prior Usage evaluates whether cognitive artifacts are organized by trajectory evidence or by prior-shaped framing. The three conclusion-level evaluation families use a three-model vote over GLM-5, Kimi-K2.5, and MiniMax-M2.7. The two Prior Usage families use a single judge model. Evaluation items are anonymized with respect to the trajectory-generating model and experimental condition, and judge models are selected to avoid direct overlap with trajectory-generation models where possible. Each conclusion-level family contains 407 usable judged items, composed of 383 main-grid items and 24 Coach-Judge items; one additional candidate item was excluded after repeated server-side rejection. The Prior Usage evaluations contain 7,193 Nav-igation Prior Usage judgments and 929 Reasoning Prior Usage judgments. These judge runs used the same runtime settings as the Coach-Judge layer: model reason-ing mode was turned off, temperature was fixed at 0.2, and outputs were capped at 2048 tokens. The three conclusion-level evaluations use four ordered labels, with occasional unclear or review flags handled outside the ordinal scale. The Prior Usage evalu-ations use three ordered evidence-orientation labels plus unclear: evidence-led or grounded maps to 0.0, mixed maps to 0.5, and prior-led or prior-shaped maps to 1.0 in the prior-leaning index. Figure C4 summarizes the prompt structure without reproducing full prompt text. Springer Nature 2021 L ATEX template 46 Projecting the Emerging Mindset of SWE Agent Conclusion-level judges 
+
+Shared structure 
+
+System role: single evaluation duty no outside repository knowl-edge structured response only Common inputs: Task Family task prompt conclusion title/content optional scope note Output pattern: rationale one ordinal label short evidence lists 
+
+Task relevance 
+
+Question: Does the conclusion ad-dress the requested task? Extra inputs: required concerns optional concerns off-task patterns Requested judgment: task-addressing label covered concerns missed concerns 
+
+Conclusion grounding 
+
+Question: Is the conclusion sup-ported by the observed trajectory? Extra inputs: prefix summary trajectory excerpt viewed-snippet summary Requested judgment: support label supported claims under-supported claims 
+
+Termination calibration 
+
+Question: Was this a defensible moment to stop? Extra inputs: global trajectory sum-mary coverage summary repository-structure summary Requested judgment: stop-calibration label scope signals possible missing regions 
+
+Turn-level judges 
+
+Shared structure 
+
+System role: judge source of orientation or orga-nization plausible is not automatically evidence-led no outside repository knowledge Common inputs: Task Family and task repository name prefix summary local interaction window 
+
+Navigational orientation 
+
+Evaluation target: one repository-navigation action Extra inputs: turn index tool name and summary action text Requested judgment: evidence-led / mixed / prior-led / un-clear evidence and prior-use indicators 
+
+Synthesis orientation 
+
+Evaluation target: one cognitive artifact Extra inputs: artifact type, title, content scope description artifact action Requested judgment: trajectory-grounded / mixed / prior-shaped / unclear trajectory and prior-shape indicators 
+
+Fig. C4 : Structural templates for the post-hoc judge prompts. The diagrams show the shared input scaffold, the per-family evaluation target, and the requested output shape. They omit full prompt wording; the released prompt templates provide the exact wording for replication. 
+
+Table C5 : Three-judge agreement for conclusion-level adjudication. The high-lighted row marks the weakest agreement surface. 
+
+Evaluation family n Pair exact Mean step diff. All-same rate Task Relevance 407 0.607 0.483 0.452 Trace Grounding 407 0.622 0.387 0.435 
+
+Termination Calibration 407 0.440 0.645 0.204 
+
+C.2 Inter-Judge Agreement 
+
+Table C5 reports agreement among the current three conclusion-level judges. Task Relevance and Trace Grounding have moderate internal agreement. Termination Calibration is the reliability bottleneck: pairwise exact agreement is lower, ordinal disagreement is larger, and all three judges select the same label on only about one fifth of items. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 47 
+
+Table C6 : Judge severity audit for Termination Calibration. The highlighted row marks the severity outlier.       
+
+> Judge Mean Termination Calibration score DeepSeek-V3.2 3.646 Kimi-K2.5 3.292 Qwen3.5-397B-A17B 3.209 GLM-5 3.172
+> MiniMax-M2.7 2.631
+
+Table C7 : Human–LLM alignment by evaluation family. Task Relevance is high-lighted as the strongest alignment; Trace Grounding and Reasoning Prior Usage are italicized as the weakest human-mirroring surfaces.                                              
+
+> Eval nPearson rSpearman ρWeighted κExact Within 1 Mean diff.
+> Task Relevance 50 0.608 0.616 0.547 44% 84% +0.252
+> Trace Grounding 50 -0.135 -0.089 0.116 54% 98% +0.264
+> Termination Calibration 50 0.318 0.297 0.237 40% 88% -0.068 Navigation Prior Usage 50 0.282 0.312 0.305 48% 80% -0.240
+> Reasoning Prior Usage 50 0.077 0.150 0.106 42% 80% +0.160
+
+The lower reliability of Termination Calibration is partly explained by severity differences. Table C6 reports a broader judge-severity audit for Termination Cali-bration. MiniMax-M2.7 is much more conservative than the other judges, with a mean Termination Calibration score of 2.631 on the 1–4 scale. Termination Cali-bration should therefore be read as a projected stopping-maturity signal, not as a mechanically obvious endpoint metric. 
+
+C.3 Human Alignment Check 
+
+A separate human-alignment check sampled 250 items, with 50 items per evaluation family. One annotator supplied labels under the same information regime used for the automatic judges. Annotation notes report approximately 67 minutes of label-ing decisions for about 150 items, which is itself informative: some dimensions, especially Trace Grounding, require cross-checking the conclusion against a full trajectory and are difficult under bounded human annotation time. Table C7 compares the sampled human labels against the LLM aggregate labels or scores. Task Relevance is the strongest human-aligned surface. Termination Calibration and Navigation Prior Usage are directionally useful but noisy. Trace Grounding and Reasoning Prior Usage are the weakest human-mirroring surfaces in this sample. Table C8 compares model–model alignment with human–model alignment on the three conclusion-level families. The Trace Grounding gap is the clearest warning sign: judge models agree with one another more than they agree with the human annotator. Springer Nature 2021 L ATEX template 48 Projecting the Emerging Mindset of SWE Agent 
+
+Table C8 : Model–model alignment versus human–model alignment for the three conclusion-level families. The bold Trace Grounding human-model values mark the critical alignment gap.                     
+
+> Eval Model–model rHuman–model rModel–model κHuman–model κ
+> Task Relevance 0.854 0.571 0.839 0.520 Trace Grounding 0.318 -0.089 0.269 -0.077
+> Termination Calibration 0.458 0.243 0.396 0.224
+
+C.4 Interpretation 
+
+Task Relevance is the most trustworthy automatic adjudication surface in the cur-rent validation. Its Pearson correlation with the human labels is 0.608, and its weighted κ is 0.547. Main-text claims that rely on whether a conclusion addressed the task therefore rest on the firmest Lens 3 ground. Trace Grounding and Reasoning Prior Usage should be read differently. They are machine-consensus projections, not human proxies. The judges can process the whole trajectory without fatigue, while a bounded human annotation session must cross-reference conclusions, intermediate observations, and prior-shaped reasoning under time pressure. The present data cannot distinguish whether model agree-ment reflects shared model priors or better large-context cross-referencing. What it establishes is more limited and more useful: Trace Grounding and Reasoning Prior Usage gain credibility when they converge with other observation lenses, not when treated as standalone human-aligned measures. Termination Calibration and Navigation Prior Usage occupy a middle ground. Their correlations with human labels are positive, but weak enough that the paper should lean on label-composition patterns rather than small mean-score differences. For Termination Calibration, this means reading shifts such as ready-to-finalize ver-sus borderline as qualitative stopping profiles. For Navigation Prior Usage, it means using the prior-leaning index as a directional signal about navigation orientation, not as a precise measure of hidden intent. The alignment check also reveals an asymmetry in evaluation difficulty. Dimen-sions that compare a conclusion against the task are more human-accessible than dimensions that require checking a conclusion against the full trajectory or infer-ring prior familiarity from behavior. This is not only a limitation of the validation exercise; it is also a result about which evaluation questions are tractable for human annotation at scale. 
+
+C.5 Length Robustness Checks 
+
+Table C9 reports the conclusion-length robustness check for the main non-coach grid. Raw correlations are non-trivial, especially for Task Relevance and Trace Grounding, but the added explanatory power after controlling for model, condi-tion, Task Family, and Repository is small. The corresponding visual diagnostic for conclusion length and Task Relevance appears in Figure D9. Table C10 reports the analogous trajectory-length check for Termination Calibration. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 49 
+
+Table C9 : Conclusion length versus conclusion-level adjudication scores, main non-coach grid.               
+
+> Evaluation family nRaw Pearson rAdded ∆R2
+> Task Relevance 383 0.533 0.016 Trace Grounding 383 -0.316 0.004 Termination Calibration 383 0.300 0.001
+
+Table C10 : Trajectory length versus Termination Calibration, main non-coach grid.            
+
+> Metric nRaw Pearson rRaw R2Added ∆R2
+> Valid tool turns 383 0.258 0.067 0.002
+
+Table C11 : Conclusion length by trajectory-generating model, main non-coach grid.                
+
+> Model nMean words Median words Qwen3.5-397B 95 323.1 311.0 DeepSeek-V3.2 96 254.7 246.5 GPT-4o 96 125.0 124.0 GPT-4.1 96 97.0 89.5
+
+The model-level length table explains why raw correlations appear in the first place. Conclusion length is strongly entangled with the trajectory-generating model. Qwen3.5-397B and DeepSeek-V3.2 produce much longer conclusions than GPT-4.1 and GPT-4o, so a raw length association can partly reflect model identity rather than an independent length effect. Length is therefore a visible proxy for answer development, but not an inde-pendent driver of judge scores in the controlled checks. The automatic adjudication lens should be read as a set of semantic projections conditioned by model, task, condition, and repository, rather than as a disguised length measure. 
+
+## Appendix D Supplementary Results and Unreported Details 
+
+This appendix reports selected supplementary materials that support claims com-pressed in Section 4. The materials are organized by observation lens and are included only where they clarify a specific claim, caveat, or extension. 
+
+D.1 Tool-Use Concentration and Task Variation 
+
+The surface activity view shows that Ada’s visible tool use is highly concentrated. Figure D5 reports the overall tool-call distribution and its variation by Task Family. Springer Nature 2021 L ATEX template 50 Projecting the Emerging Mindset of SWE Agent PKR OVW EXP MEM CON BKM HNT 
+
+> 0
+> 1000
+> 2000
+> 3000
+> 4000
+> Tool calls
+> PKR + OVW = 81.7%
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> Cumulative share (%)
+
+(a) Overall concentration. Architecture ASR inference Feature tracing Risk review        
+
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> Avg calls / trajectory
+> PKR OVW EXP MEM CON BKM HNT
+
+(b) Variation by Task Family. 
+
+Fig. D5 : Supplementary surface view of Ada’s tool use. Panel (a) shows tool-call con-centration across the full main matrix. Panel (b) shows average tool-call composition by Task Family, indicating that task openings modulate the balance of structural orientation, close reading, traversal, and cognitive actions. 0 25 50 75 100 
+
+Share of action-policy tags (%) 
+
+Architecture 
+
+ASR inference 
+
+Feature tracing 
+
+Risk review              
+
+> 14 21 19 17
+> 13 21 20 17
+> 19 19 20 14 13
+> 17 14 21 18
+> close read
+> traverse
+> trace
+> zoom in
+> skim
+> zoom out
+> dump
+> resume
+> cognitive streak
+> interim synth
+> close out
+
+Fig. D6 : Task Family changes the transition mix even under the same apparatus. Stacked bars report the share of adjacent-action transition tags, including close read, traverse, trace, zoom in, skim, dump, cognitive streak, interim synthesis, and close out. Across the main matrix, close code reading and structural overview account for most actions. Task Family changes the balance of those actions: feature-implementation tasks increase close reading, while broader repository-understanding openings retain more structural orientation. 
+
+D.2 Extended Action-Policy Projections 
+
+Figure D6 extends the action-policy lens used in the main text. The Combined Con-dition is included here because the main Results figure omits it for compactness. Across models, Combined Condition profiles closely follow the pressure-family pat-tern rather than the Natural or Prior Suppression pattern. Task Family also shifts action policy: Feature Implementation Tracing increases close read and traverse Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 51 close read                                                 
+
+> traverse
+> trace
+> zoom in
+> skim
+> zoom out
+> dump
+> resume
+> cognitive streak
+> interim synth
+> close out
+> other read
+> other
+> GPT-4.1
+> GPT-4o
+> DeepSeek-V3.2
+> Qwen3.5-397B
+> +2.0 +0.4 -2.0 -1.4 -5.4 +0.3 +2.0 +0.8 +2.0 +0.2 +1.1 +0.0 +0.0
+> +8.7 +0.9 -3.1 -5.1 -8.0 -0.4 +3.7 +2.8 -0.2 +0.9 -0.2 +0.0 +0.0
+> -8.7 +0.0 +4.5 +2.9 +4.2 +0.6 -0.9 -1.4 +0.1 -0.3 -1.0 +0.0 +0.0
+> -2.0 -1.4 +0.6 +3.6 +9.2 -0.5 -4.7 -2.2 -1.9 -0.8 +0.1 +0.0 +0.0
+> −5
+> 0
+> 5
+> Deviation from average (pp)
+
+Fig. D7 : Model-level deviations from the average action-policy profile. Positive val-ues indicate that a model uses a transition tag more than the cross-model average, and negative values indicate lower-than-average use. close read 
+
+> traverse
+> trace
+> zoom in
+> skim
+> zoom out
+> dump
+> resume
+> cognitive streak
+> interim synth
+> close out
+> other read
+> other
+
+Architecture 
+
+ASR inference 
+
+Feature tracing 
+
+Risk review                                                 
+
+> -1.6 -4.0 +0.5 +1.5 +3.0 +0.4 +1.1 -0.4 -0.6 -0.2 +0.4 +0.0 +0.0
+> -3.0 -2.1 +0.1 +2.1 +2.8 -0.4 +0.5 -0.5 +0.6 +0.3 -0.4 +0.0 +0.0
+> +3.4 +5.5 -0.5 -3.8 -0.8 +0.2 -3.0 -0.6 -0.5 -0.4 +0.5 +0.0 +0.0
+> +1.2 +0.6 -0.1 +0.3 -5.0 -0.2 +1.5 +1.4 +0.5 +0.3 -0.4 +0.0 +0.0
+> −4
+> −2
+> 0
+> 2
+> 4
+> Deviation from average (pp)
+
+Fig. D8 : Task-Family deviations from the average action-policy profile. Positive values indicate that a Task Family uses a transition tag more than the cross-task average, and negative values indicate lower-than-average use. This figure supplies the relative-to-average task view omitted from the main text. shares, while Architecture Analysis and ASR Inference retain more trace and skim behavior. The model-deviation heatmap in Figure D7 gives a relative view of the same action-policy lens. It centers each transition tag against the cross-model aver-age, making model-characteristic signatures visible: GPT-4o is close-read heavy, DeepSeek-V3.2 is trace-heavy, and Qwen3.5-397B is skim-heavy. This view supple-ments the stacked bars by showing deviation from the common baseline rather than absolute composition. Figure D8 adds the matching relative-to-average view for Task Family. Feature Implementation Tracing over-indexes on close read and traverse while under-indexing on skim, making its implementation-following stance visible in a single panel. Architecture Analysis and ASR Inference tilt more toward skim and zoom-in Springer Nature 2021 L ATEX template 52 Projecting the Emerging Mindset of SWE Agent 200 400 600 800 
+
+> Conclusion length (words)
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> 3.0
+> 3.5
+> 4.0
+> T1 score (normalised)
+> Pearson r = +0.52
+> Added R² (controls) = +0.012
+> GPT-4.1
+> GPT-4o
+> DeepSeek-V3.2
+> Qwen3.5-397B
+
+Fig. D9 : Conclusion length versus Task Relevance. The pooled association is posi-tive, but the diagnostic should be read cautiously: length may correlate with fuller task coverage without guaranteeing stronger grounding. behavior, while Risk and Code-Smell Review carries the clearest interim-synthesis and dump deviations. This heatmap supports the same claim as Figure D6, but in deviation form rather than composition form. 
+
+D.3 Supplementary Adjudication Diagnostic 
+
+Table D12 : Conclusion-length diagnostic by model. Task Relevance is reported on the original 1–4 adjudication scale. 
+
+Model Traj. Median words Mean Task Relevance Length–Task Relevance r
+
+DeepSeek-V3.2 96 262.0 3.719 0.115 GPT-4.1 96 102.5 3.035 0.305 GPT-4o 96 134.0 1.597 0.230 Qwen3.5-397B 96 341.0 3.719 0.372 
+
+Conclusion length is reported here as a diagnostic, not as a quality mea-sure. Longer conclusions can appear more complete, but length does not by itself establish repository grounding. Figure D9 shows a moderate positive association between conclusion length and Task Relevance in the pooled data, while the added explanatory value after controls is small. Table D12 reports the compact model-level summary. Overall, the pooled length–Task Relevance correlation is r = 0 .521 , while the controlled added R2 reported in the diagnostic figure is 0.012 . The appendix there-fore treats length as a cautionary surface diagnostic rather than as a substitute for the adjudication lens. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 53 
+
+D.4 Repository-Footprint Anchors and Transition Corridors 
+
+Table D13 : Recurring anchor files by Repository, ranked by average position across conditions. 
+
+Repository Top recurring anchors Flask src/flask/app.py ; src/flask/sansio/app.py ;
+
+src/flask/sansio/scaffold.py 
+
+Graphiti graphiti core/graphiti.py ;
+
+graphiti core/search/search.py ; graphiti core/edges.py 
+
+Prompt Optimizer 
+
+middleware.js ;
+
+packages/core/src/services/llm/service.ts ;
+
+packages/core/src/services/prompt/service.ts 
+
+Requests src/requests/sessions.py ; src/requests/ init .py ;
+
+src/requests/adapters.py 
+
+Scikit-learn sklearn/tree/ classes.py ; sklearn/base.py ;
+
+sklearn/tree/ tree.pyx 
+
+TensorZero tensorzero-core/src/endpoints/inference.rs ;
+
+gateway/src/main.rs ;
+
+tensorzero-core/src/config parser.rs 
+
+Table D14 : Top file-to-file transition corridors by Repository. 
+
+Repository Corridor Moves Traj. Flask src/flask/app.py →
+
+src/flask/sansio/app.py 
+
+20 17 Graphiti graphiti core/graphiti.py →
+
+graphiti core/search/search.py 
+
+12 11 Prompt Optimizer 
+
+packages/core/src/services/prompt/service.ts 
+
+→
+
+packages/core/src/services/template/processor.ts 
+
+9 9Requests src/requests/sessions.py →
+
+src/requests/adapters.py 
+
+16 14 Scikit-learn sklearn/ init .py → sklearn/base.py 8 8TensorZero tensorzero-core/src/lib.rs →
+
+tensorzero-core/src/endpoints/mod.rs 
+
+10 10 
+
+The footprint lens can be summarized without showing another full heatmap. Table D13 reports recurring anchor files: files that repeatedly appear among the most visited files for a repository across conditions. Table D14 reports the most frequent file-to-file movement corridors. These tables expose recurring spatial attention in the observed trajectories; they do not claim that the files are objectively the most important files in the repository. 
+
+D.5 Coach-Judge Condition Details Springer Nature 2021 L ATEX template 54 Projecting the Emerging Mindset of SWE Agent 
+
+Table D16 : Per-tool Turn shifts under Natural and Coach-Judge conditions for GPT-4.1. PKR = peek code region ; OVW = get structural overview ; EXP = 
+
+> explore code
+
+.                 
+
+> Tool Natural mean Coach mean Mean difference Sign-test p
+> PKR 10.58 19.08 +8.50 0.0227 OVW 3.00 13.71 +10.71 < . 001
+> EXP 2.79 3.29 +0.50 1.0000
+
+Table D17 : Trace Grounding label distribution under Natural and Coach-Judge con-ditions.         
+
+> Trace Grounding label Natural Coach-Judge Well supported 10 (41.7%) 3 (12.5%) Partially supported 14 (58.3%) 19 (79.2%) Thinly supported 0 (0.0%) 2 (8.3%)
+
+Table D15 : Paired Natural versus Coach-Judge surface/action statistics for GPT-4.1. 
+
+Metric Natural mean Coach mean Mean difference Sign-test p
+
+Turns 18.8 48.1 +29.3 < . 001 
+
+Elapsed time (s) 94.4 286.2 +191.8 .0015 Conclusion attempts 0.5 8.3 +7.8 < . 001 
+
+Error turns 0.3 4.6 +4.3 < . 001 
+
+Coach-message turns 0.0 11.2 +11.2 < . 001 
+
+Table D15 reports paired supplementary numbers for GPT-4.1 under Natural and Coach-Judge conditions. The table documents the scale of added interaction with-out repeating the full RQ3 interpretation. Coach-Judge trajectories contain more turns, more conclusion attempts, more error turns, and direct coach messages in a substantial share of turns. Table D16 adds the missing per-tool breakdown for the same paired comparison. The largest absolute shift is in structural overview activity, while explore-code usage is nearly flat. The added interaction therefore looks less like a new traversal strategy and more like repeated re-orientation plus additional close reading. The direct coach messages are split into 179 hint turns and 39 rejection turns among 269 coach-message turns. This distribution supports the main-text reading that the intervention condition often extended trajectories through guidance and conclusion rejection rather than through a change to the formal turn structure. At the tool level, the same pattern appears numerically: PKR rises from 10.58 to 19.08 mean turns, OVW rises from 3.00 to 13.71, and EXP changes only from 2.79 to 3.29. Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 55 Table D17 reports the Trace Grounding label distribution for the same paired comparison. The Coach-Judge condition reduces the share of well-supported con-clusions and introduces thinly supported cases. This table gives the categorical detail behind the main RQ3 adjudication panel. 
+
+## References 
+
+[1] Liu, S., Chen, Y., Krishna, R., Sinha, S., Ganhotra, J., Jabbarvand, R.: Process-centric analysis of agentic software systems. Proceedings of the ACM on Programming Languages 10 (OOPSLA1), 1961–1988 (2026). https://doi.org/10. 1145/3798271 [2] Desmond, M., Lee, J.Y., Ibrahim, I., Johnson, J.M., Sil, A., MacNair, J., Puri, R.: Agent trajectory explorer: Visualizing and providing feedback on agent trajec-tories. Proceedings of the AAAI Conference on Artificial Intelligence 39 (28), 29634–29636 (2025). https://doi.org/10.1609/aaai.v39i28.35350 [3] Ou, T., Guo, W., Gandhi, A., Neubig, G., Yue, X.: AgentDiagnose: An open toolkit for diagnosing LLM agent trajectories. In: Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing: Sys-tem Demonstrations, pp. 207–215. Association for Computational Linguistics, Suzhou, China (2025). https://doi.org/10.18653/v1/2025.emnlp-demos.15 [4] Yao, S., Zhao, J., Yu, D., Du, N., Shafran, I., Narasimhan, K., Cao, Y.: ReAct: Synergizing reasoning and acting in language models. arXiv (2023). https:// doi.org/10.48550/arXiv.2210.03629 [5] Contributors, C.: Cline: Autonomous coding agent. https://github.com/cline/ cline. Open-source project, Apache 2.0 License (2024) [6] Bourque, P., Fairley, R.E. (eds.): SWEBOK: Guide to the Software Engineering Body of Knowledge, Version 3.0 edn. IEEE Computer Society, Los Alamitos, CA (2014) [7] Simon, H.A.: A behavioral model of rational choice. The Quarterly Journal of Economics 69 (1), 99–118 (1955) https://arxiv.org/abs/1884852. https://doi.org/ 10.2307/1884852 [8] Shinn, N., Cassano, F., Gopinath, A., Narasimhan, K.R., Yao, S.: Reflexion: Language agents with verbal reinforcement learning. In: Thirty-Seventh Con-ference on Neural Information Processing Systems (2023) [9] Bourtoule, L., Chandrasekaran, V., Choquette-Choo, C.A., Jia, H., Travers, A., Zhang, B., Lie, D., Papernot, N.: Machine unlearning. In: 2021 IEEE Symposium on Security and Privacy (SP), pp. 141–159. IEEE, San Francisco, CA, USA (2021). https://doi.org/10.1109/SP40001.2021.00019 Springer Nature 2021 L ATEX template 56 Projecting the Emerging Mindset of SWE Agent 
+
+[10] Bouzenia, I., Pradel, M.: Understanding software engineering agents: A study of thought-action-result trajectories. In: Proceedings of the 40th IEEE/ACM International Conference on Automated Software Engineering (ASE) (2025). arXiv:2506.18824 [11] Wang, X., Wei, J., Schuurmans, D., Le, Q.V., Chi, E.H., Narang, S., Chowd-hery, A., Zhou, D.: Self-consistency improves chain-of-thought reasoning in language models. In: The Eleventh International Conference on Learning Representations (2022) [12] Zhang, K., Yao, W., Liu, Z., Feng, Y., Liu, Z., N, R.R., Lan, T., Li, L., Lou, R., Xu, J., Pang, B., Zhou, Y., Heinecke, S., Savarese, S., Wang, H., Xiong, C.: Diversity empowers intelligence: Integrating expertise of software engineering agents. In: The Thirteenth International Conference on Learning Representations (2024) [13] Arcuschin, I., Janiak, J., Krzyzanowski, R., Rajamanoharan, S., Nanda, N., Conmy, A.: Chain-of-thought reasoning in the wild is not always faithful. In: Workshop on Reasoning and Planning for Large Language Models (2025) [14] Zhou, S., Ling, R., Chen, J., Wang, X., Fan, T., Wang, H.: When more thinking hurts: Overthinking in LLM test-time compute scaling. arXiv (2026). https:// doi.org/10.48550/arXiv.2604.10739 [15] Jimenez, C., Lieret, K., Narasimhan, K., Press, O., Wettig, A., Yang, J., Yao, S.: SWE-agent: Agent-computer interfaces enable automated software engineer-ing. In: Advances in Neural Information Processing Systems 37, pp. 50528– 50652. Neural Information Processing Systems Foundation, Inc. (NeurIPS), Vancouver, BC, Canada (2024). https://doi.org/10.52202/079017-1601 [16] Gandhi, S., Tsay, J., Ganhotra, J., Kate, K., Rizk, Y.: When agents go astray: Course-correcting SWE agents with PRMs. In: Workshop on Scaling Environ-ments for Agents (2025) [17] Fan, Z., Vasilevski, K., Lin, D., Chen, B., Chen, Y., Zhong, Z., Zhang, J.M., He, P., Hassan, A.E.: SWE-Effi: Re-evaluating software AI agent system effectiveness under resource constraints. arXiv:2509.09853 (2025) [18] Li, H., Mang, Q., He, R., Zhang, Q., Mao, H., Chen, X., Zhou, H., Cheung, A., Gonzalez, J.E., Stoica, I.: Continuum: Efficient and robust multi-turn LLM agent scheduling with KV cache time-to-live. In: ICLR 2026 Workshop on Lifelong Agents: Learning, Aligning, Evolving (2026) [19] Huang, P., Guo, C., Zhou, L., Lorch, J.R., Dang, Y., Chintalapati, M., Yao, R.: Gray failure: The Achilles’ heel of cloud-scale systems. In: Proceedings of the 16th Workshop on Hot Topics in Operating Systems, pp. 150–155. ACM, Whistler BC Canada (2017). https://doi.org/10.1145/3102980.3103005 Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 57 [20] Denison, C., MacDiarmid, M., Barez, F., Duvenaud, D., Kravec, S., Marks, S., Schiefer, N., Soklaski, R., Tamkin, A., Kaplan, J., Shlegeris, B., Bowman, S.R., Perez, E., Hubinger, E.: Sycophancy to subterfuge: Investigating reward-tampering in large language models (2024). https://arxiv.org/abs/2406.10162 [21] Augenstein, I.: Understanding the interplay between LLMs’ utilisation of para-metric and contextual knowledge: A keynote at ECIR 2025. arXiv:2603.09654 (2026) [22] Pappu, A., El, B., Cao, H., di Nolfo, C., Sun, Y., Cao, M., Zou, J.: Multi-agent teams hold experts back (2026). https://arxiv.org/abs/2602.01011 [23] Sartori, C.C.: The specification gap: Coordination failure under partial knowl-edge in code agents (2026). https://doi.org/10.13140/RG.2.2.14475.96802 [24] Maryanskyy, A., Budnikov, D., Kaliyev, A.T.: When agents disagree: The selec-tion bottleneck in multi-agent LLM pipelines. Applied Sciences 16 (10), 4914 (2026). https://doi.org/10.3390/app16104914 [25] Barrak, A.: Traceability and accountability in role-specialized multi-agent LLM pipelines. 2025 40th IEEE/ACM International Conference on Automated Software Engineering Workshops (ASEW), 315–322 (2025). https://doi.org/10. 1109/ASEW67777.2025.00064 [26] Kim, W., Park, S., In, Y., Kim, S., Lee, D., Park, C.: Beyond the final answer: Eval-uating the reasoning trajectories of tool-augmented agents. arXiv:2510.02837 (2025) [27] Gautam, D., Garg, S., Jang, J., Sundaresan, N., Moghaddam, R.Z.: Refactor-Bench: Evaluating stateful reasoning in language agents through code. In: The Thirteenth International Conference on Learning Representations (2024) [28] Yang, J., Lieret, K., Jimenez, C.E., Wettig, A., Khandpur, K., Zhang, Y., Hui, B., Press, O., Schmidt, L., Yang, D.: SWE-smith: Scaling data for software engineer-ing agents. In: The Thirty-ninth Annual Conference on Neural Information Processing Systems Datasets and Benchmarks Track (2025) [29] Ni, Z., Wang, H., Zhang, S., Lu, S., He, Z., You, W., Tang, Z., Du, Y., Sun, B., Liu, H., Hu, S., Chen, R., Li, B., Li, X., Hu, C., Jiao, B., Jiang, D., Lyu, P.: GitTaskBench: A benchmark for code agents solving real-world tasks through code repository leveraging (2025). https://arxiv.org/abs/2508.18993 [30] Rashid, M.S., Bock, C., Zhuang, Y., Buchholz, A., Esler, T., Valentin, S., Franceschi, L., Wistuba, M., Sivaprasad, P.T., Kim, W.J., Deoras, A., Zappella, G., Callot, L.: SWE-PolyBench: A multi-language benchmark for repository-level evaluation of coding agents. arXiv:2504.08703 (2025) Springer Nature 2021 L ATEX template 58 Projecting the Emerging Mindset of SWE Agent 
+
+[31] Lu, J., Holleis, T., Zhang, Y., Aumayer, B., Nan, F., Bai, H., Ma, S., Ma, S., Li, M., Yin, G., Wang, Z., Pang, R.: ToolSandbox: A stateful, conversational, interactive evaluation benchmark for LLM tool use capabilities. In: Chiruzzo, L., Ritter, A., Wang, L. (eds.) Findings of the Association for Computational Linguistics: NAACL 2025, pp. 1160–1183. Association for Computational Linguistics, Albu-querque, New Mexico (2025). https://doi.org/10.18653/v1/2025.findings-naacl. 65 [32] Yao, S., Shinn, N., Razavi, P., Narasimhan, K.R.: τ -bench: A benchmark for Tool-Agent-User interaction in real-world domains. In: The Thirteenth Inter-national Conference on Learning Representations (2024) [33] Wang, H., Huang, W., Wang, Y., Xi, Y., Lu, J., Zhang, H., Hu, N., Liu, Z., Pan, J.Z., Wong, K.-F.: Rethinking stateful tool use in multi-turn dialogues: Bench-marks and challenges. In: Che, W., Nabende, J., Shutova, E., Pilehvar, M.T. (eds.) Findings of the Association for Computational Linguistics: ACL 2025, pp. 5433–5453. Association for Computational Linguistics, Vienna, Austria (2025). https://doi.org/10.18653/v1/2025.findings-acl.284 [34] Liu, T., Xu, C., McAuley, J.: RepoBench: Benchmarking repository-level code auto-completion systems. In: The Twelfth International Conference on Learn-ing Representations (2023) [35] Ding, Y., Wang, Z., Ahmad, W., Ding, H., Tan, M., Jain, N., Ramanathan, M.K., Nallapati, R., Bhatia, P., Roth, D., Xiang, B.: CrossCodeEval: A diverse and mul-tilingual benchmark for cross-file code completion. In: Oh, A., Naumann, T., Globerson, A., Saenko, K., Hardt, M., Levine, S. (eds.) Advances in Neural Infor-mation Processing Systems, vol. 36, pp. 46701–46723. Curran Associates, Inc., Red Hook, NY (2023) [36] Bairi, R., Sonwane, A., Kanade, A., C., V.D., Iyer, A., Parthasarathy, S., Raja-mani, S., Ashok, B., Shet, S.: CodePlan: Repository-level coding using LLMs and planning. Proceedings of the ACM on Software Engineering 1(FSE), 675–698 (2024). https://doi.org/10.1145/3643757 [37] Du, J., Liu, Y., Guo, H., Wang, J., Huang, H., Ni, Y., Li, Z.: DependEval: Benchmarking LLMs for repository dependency understanding. In: Che, W., Nabende, J., Shutova, E., Pilehvar, M.T. (eds.) Findings of the Association for Computational Linguistics: ACL 2025, pp. 7150–7179. Association for Compu-tational Linguistics, Vienna, Austria (2025). https://doi.org/10.18653/v1/2025. findings-acl.373 [38] Peng, W., Shi, Y., Wang, Y., Zhang, X., Shen, B., Gu, X.: SWE-QA: Can language models answer repository-level code questions? (2026). https://arxiv.org/abs/ 2509.14635 [39] Murphy, G.C., Notkin, D., Sullivan, K.: Software reflexion models: Bridging the Springer Nature 2021 L ATEX template 
+
+Projecting the Emerging Mindset of SWE Agent 59 gap between source and high-level models. In: Proceedings of the 3rd ACM SIGSOFT Symposium on Foundations of Software Engineering, pp. 18–28. ACM, Washington D.C. USA (1995). https://doi.org/10.1145/222124.222136 [40] Ducasse, S., Pollet, D.: Software architecture reconstruction: A process-oriented taxonomy. IEEE Transactions on Software Engineering 35 (4), 573–591 (2009). https://doi.org/10.1109/TSE.2009.19 [41] Kazman, R., Klein, M., Clements, P.: ATAM: Method for architecture evalua-tion. Technical report, Defense Technical Information Center, Fort Belvoir, VA (August 2000). https://doi.org/10.21236/ADA382629 [42] Chen, L., Ali Babar, M., Nuseibeh, B.: Characterizing architecturally significant requirements. IEEE Software 30 (2), 38–45 (2013). https://doi.org/10.1109/MS. 2012.174 [43] Eisenbarth, T., Koschke, R., Simon, D.: Locating features in source code. IEEE Transactions on Software Engineering 29 (3), 210–224 (2003). https://doi.org/ 10.1109/TSE.2003.1183929 [44] Fagan, M.E.: Design and code inspections to reduce errors in program devel-opment. IBM Systems Journal 15 (3), 182–211 (1976). https://doi.org/10.1147/sj. 153.0182 [45] Bacchelli, A., Bird, C.: Expectations, outcomes, and challenges of modern code review. In: 2013 35th International Conference on Software Engineering (ICSE), pp. 712–721. IEEE, San Francisco, CA, USA (2013). https://doi.org/10.1109/ ICSE.2013.6606617
