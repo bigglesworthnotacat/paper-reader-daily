@@ -1,0 +1,916 @@
+Title: MODF-SIR: A Multi-agent Omni-modal Distilled Framework for Social Intelligence Reasoning
+
+URL Source: https://arxiv.org/pdf/2606.12018v1
+
+Published Time: Thu, 11 Jun 2026 01:01:14 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+> 1
+
+# MODF-SIR: A Multi-agent Omni-modal Distilled Framework for Social Intelligence Reasoning 
+
+Shang Ma, Jisheng Dang, Wencan Zhang, Yifan Zhang, Bimei Wang, Hong Peng, Bin Hu, Fellow, IEEE , Qi Tian, Fellow, IEEE , Tat-Seng Chua 
+
+Abstract —We propose a multi-agent collaborative framework built upon a lightweight Multimodal Large Language Model (MLLM), specifically designed for social intelligence reasoning. A key feature of our approach is that both the training and in-ference phases are augmented via knowledge distillation. Within this architecture, multi-modal data pertinent to social intelligence is precisely localized. Furthermore, relevant long-tail events are identified, extracted, and rendered as formatted, explicit text. This formatting strategy prevents critical long-tail information from being overshadowed by head events and environmental noise during the tokenization process. Specifically, we integrate Test-Time Adaptation (TTA) across the entire reasoning pipeline, encompassing the extraction and representation of long-tail events, Chain-of-Thought (CoT) prompting, and self-reflection. This TTA mechanism is also distillation-enhanced, utilizing Low-Rank Adaptation (LoRA) to fine-tune the foundation model exclusively for instance-level reasoning. Extensive evaluations against various open-source and proprietary AI models across multiple benchmarks demonstrate the effectiveness of the pro-posed framework. With around 30% of training data from IntentTrain, we achieve state-of-the-art results. Codes are avail-able at https://github.com/eeee-sys/MODF-SIR, demo is available at https://huggingface.co/spaces/Harry-1234/MODF-SIR, LoRA is available at https://huggingface.co/Harry-1234/MODF-SIR and the dataset for training router is available at https://huggingface. co/datasets/Harry-1234/IntentRouterTrain. 
+
+I. I NTRODUCTION 
+
+# SOCIAL intelligence denotes the cognitive process by which intelligent systems infer and interpret human in-tentions, emotions, interpersonal dynamics, and implicit so-cial norms based on multimodal social signals (e.g., spoken language, facial expressions, paralinguistics, and physical ac-tions). It is a fundamental yet challenging problem in artifi-cial intelligence [1]. In real-world scenarios, humans rarely communicate through explicit and fully specified instructions. Instead, intentions are implicitly conveyed through a combi-nation of language, visual cues, actions, and social context 
+
+This work was supported by the National Natural Science Foundation of China (Grants No. 62227807 and U24B20186). This work was also supported by the Supercomputing Center of Lanzhou University. Shang Ma, Jisheng Dang, Yifan Zhang, Bimei Wang, and Hong Peng are with the School of information Science and Engineering, Lanzhou University, LanZhou, China (E-mail: dangjisheng@lzu.edu.cn). Bin Hu is with the School of Medical Technology, Beijing Institute of Technology, Beijing 100081, China (E-mail: bh@bit.edu.cn). Qi Tian is with Cloud and AI BU, Huawei, Shenzhen, Guangdong 518129, China (e-mail: tian.qi1@huawei.com). Wencan Zhang and Tat-Seng Chua are with the School of Comput-ing, National University of Singapore, Singapore 119077 (E-mail: dc-scts@nus.edu.sg). *Corresponding author: Jisheng Dang, Bimei Wang and Bin Hu. 
+
+[2]. As a result, intelligent systems must go beyond surface-level perception and develop the ability to infer latent goals, interpret interpersonal dynamics, and reason about evolving interaction process [3]. It is important that human intentions are expressed through diverse signals such as speech, facial expressions, body movements, and environmental evidence, which are tightly coupled and dynamically evolving over time [2] [4]. Effective intention understanding therefore requires integrating perception and action cues and explicitly modeling their interactions, rather than treating them independently [4] [5]. Beyond multi-modal integration, this problem is deeply rooted in social cognition and theory of mind. Humans infer others’ intentions by reasoning about their beliefs, goals, and internal states, a process supported by both action under-standing and higher-level mentalization mechanisms that are dynamically engaged depending on the interaction context. Consequently, affective analysis must account not only for individual behavior but also for multi-agent dynamics, shared goals, and contextual dependencies, making it significantly more complex than traditional perception tasks [6]. To overcome these limitations, in this paper, we propose a lightweight MLLM-based, distillation-augmented, multi-agent collaborative framework for social intelligence reasoning, called a Multi-agent Omni-modal Distilled Framework for So-cial Intelligence Reasoning ( MODF-SIR ) with the following features: (i) MODF-SIR employs a two-stage retrieval mechanism for omni-modal data. The initial retrieval is executed by a prompt-guided foundation model (ELT Retriever Agent), while the subsequent retrieval is performed by a distillation-enhanced model (OMLT Reasoner Agent). Inspired by the psychological “Dual-Process Theory” [7], the first stage acts as a coarse-grained process (System 1) designed to inform the routing decisions of the AKD Router Agent. Conversely, the second stage is a fine-grained process (System 2) that underpins the social intelligence reasoning of the OMLT Reasoner Agent. Crucially, the results from both retrieval stages are serialized into natural language. This textualization explicitly accentuates long-tail events associated with social intelligence, thereby preventing these critical signals from being overshadowed by dominant head events or background noise during the tokenization process. (ii) Guided by the outputs from the OMLT Retriever Agent, the AKD Router Agent within MODF-SIR dictates the sub-sequent reasoning paradigm. It dynamically routes the process toward either standard reasoning or social intelligence reason-ing, with the latter specifically targeting long-tail events within 
+
+> arXiv:2606.12018v1 [cs.AI] 10 Jun 2026
+
+2Baseline: Single Agent 
+
+> HumanomniV2 HumanomniV2
+> “Why did the
+> man cry ? ”
+> ... your great kindness will never
+> be forgotten ...
+> ... your great kindness will never
+> be forgotten ...
+> “Why did the
+> man cry ? ”
+> ... your great kindness will never
+> be forgotten ...
+
+MODF -SIR:  Multi -agent Omni -modal Social Intelligence Reasoning       
+
+> ELT Retriever Agent ELT Retriever Agent ELT Retriever Agent
+> AKD Router Agent AKD Router Agent AKD Router Agent
+> GRPO Grounder Agent GRPO Grounder Agent GRPO Grounder Agent
+> TTA Reviser Agent TTA Reviser Agent TTA Reviser Agent
+> The question is related to the
+> man. I need to extract the
+> relevant information.
+> The question is related to the
+> man. I need to extract the
+> relevant information.
+> The question is related to the
+> event crying. I need to ground it
+> and answer it.
+> The question is related to the
+> event crying. I need to ground it
+> and answer it.
+> I’m localizing the moment about
+> crying man. Here are some
+> relevant candidate moments.
+> I’m localizing the moment about
+> crying man. Here are some
+> relevant candidate moments.
+> Route:
+> 1. Grounder
+> 2. Answer
+> 3. Reviser
+> Route:
+> 1. Grounder
+> 2. Answer
+> 3. Reviser
+> The man is
+> crying and
+> kneeled to ...
+> The man is
+> crying and
+> kneeled to ...
+> I’m answering with the most
+> relevant moments. Now I have
+> found the answer.
+> I’m answering with the most
+> relevant moments. Now I have
+> found the answer.
+> Moments: Moments:
+> 10, 25
+> 26, 40 26, 40
+> 10, 25
+> 26, 40
+> Moments:
+> 10, 25
+> 26, 40
+> …<answer> Because
+> he was grateful to
+> the man who raise
+> him. </answer>
+> …<answer> Because
+> he was grateful to
+> the man who raise
+> him. </answer>
+> There is an answer about the
+> query. I need to check it and give
+> it a score.
+> There is an answer about the
+> query. I need to check it and give
+> it a score.
+> <score> 8
+> </score>
+> <score> 8
+> </score>
+> <context> …
+> </context><think> …
+> </think><answer> He
+> was grateful.
+> </answer>
+> <context> …
+> </context><think> …
+> </think><answer> He
+> was grateful.
+> </answer>
+> OMLT Reasoner Agent OMLT Reasoner Agent OMLT Reasoner Agent
+> No LoRA
+> P-LoRA
+> G-LoRA
+> R-LoRA
+> No LoRA
+
+Fig. 1: The motivation of our method. Traditional method employs a black-box reasoning paradigm, which may cause problems such as hallucinations. Our method employs multi-agent strategy, visualizing the reasoning steps. the omni-modal data. This conditional routing mechanism ensures the optimal allocation of computational resources. (iii) Long-tail events are inherently subtle and transient. Consequently, conducting an exhaustive global search to identify these events across unconstrained omni-modal data would incur a prohibitive computational overhead for MODF-SIR . To alleviate this, the framework introduces the GRPO Grounder Agent , which precisely localizes the data segments most relevant to the user query, thereby significantly narrowing the effective search space. (iv) The reasoning process within the MODF-SIR frame-work is structured into three distinct stages, which are col-laboratively executed by the OMLT Reasoner Agent and the TTA Reviser Agent. In the initial stage, the OMLT Reasoner Agent executes retrieval on the omni-modal data segments localized by the GRPO Grounder Agent. This step aims to extract query-relevant occurrences, explicitly prioritizing the long-tail events that are indispensable for social intelligence reasoning. Concurrently, the framework incorporates a teacher-guided evaluation loop. An external large model, acting as a teacher, assesses the quality of the retrieved results. If the evaluation indicates suboptimal performance, the base model undergoes dynamic parameter updates via Low-of-Rank Adaptation (LoRA) and iteratively re-executes the retrieval process until the teacher model’s criteria are fully satisfied. In the second phase, the OMLT Reasoner Agent leverages the retrieved evidence to perform query-driven Chain-of-Thought (CoT) reasoning. Mirroring the previous stage, the generated reasoning trajectory is evaluated by the external teacher. Suboptimal outputs trigger iterative, LoRA-based parameter updates and CoT regeneration until the teacher’s criteria are completely satisfied. Finally, the TTA Reviser Agent evaluates the OMLT Reasoner Agent’s output. Suboptimal answers trigger LoRA-based parameter updates and subsequent re-reasoning. This self-correction module explicitly leverages the well-known “generation-evaluation gap” [8], capitalizing on the consensus that LLMs are inherently more proficient at evaluating outputs than generating them. Like the TTA Reviser Agent, MODF-SIR ’s parameter up-dates during inference constitute Test-Time Adaptation (TTA). Specifically, MODF-SIR applies instance-specific LoRA up-dates tailored to the current omni-modal input and query. Post-inference, these LoRA weights are discarded, completely restoring the base model. To evaluate the effectiveness of our method, We tested our method on three benchmarks, including Worldsense [9], Daily-omni [10], IntentBench [11]. Lever-aging a multi-agent design that jointly produces temporally grounded evidence and accurate responses, our framework demonstrates strong capability in modeling human intent and psychological dynamics. Overall, our contributions are as below: 
+
+• We propose MODF-SIR , a unified omni-modal reasoning framework that pioneers the application of multi-agent collaboration in the field of social intelligence reasoning. Our framework introduces dynamic strategy selection via a routing agent, enabling the model to adaptively determine whether to perform temporal grounding or direct reasoning based on input complexity. 
+
+• We introduce GRPO Grounder and TTA Reviser . We train the video locator implemented by the autoregressive method using the GRPO algorithm and fine-tune the rea-soning module during testing using the test-time adaption and REINFORCE with Baseline algorithms. This method enables our framework to have sample-level answering capabilities. 
+
+• We construct a new training data for multi-agent rout-ing by performing knowledge distillation. This distilled data provides high-quality pseudo-labels essential for training the AKD Router Agent, significantly enhancing its decision-making capabilities. With around 30% of training data from IntentTrain [11], we achieve state-of-the-art results. 
+
+• MODF-SIR achieves state-of-the-art results across three Benchmarks: IntentBench [11], Daily-Omni [10], World-Sense [9]. Notably, our approach surpasses a host of com-mercial closed-source and open-source models, including GPT-4o [12], Gemini-2.5-Pro (think) [13]. Extensive ab-lations further confirm its effectiveness. II. R ELATED WORK 
+
+A. Temporal Grounding and Reasoning in Videos 
+
+Significant progress in video understanding has enabled a wide range of tasks, including video captioning, video question answering, and video-text retrieval, which primarily focus on semantic-level understanding of visual content [14] [15] However, these approaches often lack fine-grained temporal 3GRPO Grounder      
+
+> TTA Reviser TTA Reviser
+> <context>The man …
+> </context><think> It
+> seems that …
+> </think><answer> He
+> carried out his
+> wish.</answer>
+> Phase 3 Reflexive Generation & Test -Time Adaptation
+> OMLT Reasoner
+> Agent
+> OMLT Reasoner
+> Agent
+> Phase 1 Global Context Distillation Phase 2 Dynamic
+> Reasoning Routing
+> Adjust parameters Adjust parameters
+> I need to
+> extract the
+> information ……
+> I need to
+> extract the
+> information ……
+> ELT Retriever
+> Agent
+> ELT Retriever
+> Agent
+> Q: Why was the man
+> with the green hat
+> smile?
+> Text
+> Q: Why was the man
+> with the green hat
+> smile?
+> Text
+> Audio Audio
+> Video Video
+> Knowledge base
+> Q: Why was the man
+> with the green hat
+> smile?
+> Text
+> Audio
+> Video
+> Knowledge base
+
+Ctext Ctext  
+
+> I need to
+> extract the
+> information ……
+> ELT Retriever
+> Agent
+> Q: Why was the man
+> with the green hat
+> smile?
+> Text
+> Audio
+> Video
+> Knowledge base
+
+Ctext    
+
+> AKD Router
+> LoRA
+> AKD Router
+> LoRA
+> Qwen2.5 -omni Qwen2.5 -omni
+> AKD
+> Router
+> AKD
+> Router
+> AKD Router
+> LoRA
+> Qwen2.5 -omni
+> AKD
+> Router
+> Grounded Span Grounded Span
+> Instance LoRA Instance LoRA
+> Moments
+> 14, 25 23, 42
+> Moments
+> 14, 25 23, 42
+> I need to search
+> for the video clips
+> most relevant to
+> the query ……
+> I need to search
+> for the video clips
+> most relevant to
+> the query ……
+> Trainable Trainable Frozen Frozen
+
+Fig. 2: The overall workflow of our MODF-SIR. Given a video, audio and query. MODF-SIR would activate different agents based on different situations and perform step-by-step reasoning. alignment between queries and visual evidence, limiting their ability to provide precise and interpretable reasoning, espe-cially in long and complex videos. The task of temporal grounding has addressed this limitation. Existing methods have achieved strong performance in temporal localization. Nevertheless, these models are mainly optimized for boundary prediction and often fail to capture the underlying reasoning process or provide interpretable justifications for their predic-tions [16]. Recent advances in video reasoning and grounded question answering further highlight the need for integrating temporal localization with high-level reasoning. These tasks require models to not only identify relevant segments but also perform multi-step reasoning over temporally distributed evidence. 
+
+B. Model Refinement 
+
+Model refinement has emerged as an important paradigm for improving the performance of LLMs beyond standard one-pass inference. Early approaches focus on inference-time refinement, where models iteratively improve their outputs through strategies such as self-consistency, tool-augmented reasoning, and structured search [17] [18]. Another line of work leverages reinforcement learning (RL) to enhance rea-soning capabilities by optimizing model behavior through reward signals [19]. Recent advances demonstrate that RL can significantly improve multi-step reasoning and decision-making process. Nevertheless, most of these models rely on vision-related tasks heavily, overlooking the omni-modality information. In parallel, parameter-efficient fine-tuning tech-niques, such as loew-rank adaptation, provide a practical way to update model parameters with minimal computational over-head. While effective, these methods are primarily designed for offline adaptation and are rarely integrated into iterative reasoning frameworks for continuous refinement. III. METHOD 
+
+A. Framework 
+
+When processing complex real-world human interactions, MLLMs typically rely on a flat, black-box end-to-end rea-soning paradigm [20]. When confronted with long-duration, information-dense audio-visual streams, this paradigm often suffers from severe “cognitive overload” [21], impairing the model’s ability to capture implicit human intentions, subtle emotional dynamics, and evolving psychological states. More-over, the lack of a self-reflection mechanism implies that early hallucinations in spatio-temporal grounding can propagate, leading to irreversible error cascades in downstream reasoning [22] [23]. To address these limitations, we draw inspiration from the “Dual-Process Theory” [7] and propose MODF-SIR (Fig. 2), a multi-agent collaborative framework designed for Social In-telligent Reasoning. It leverages knowledge distillation across training and inference, while incorporating TTA and Episodic LoRA for instance-level, self-corrective reasoning. MODF-SIR is designed to extract and analyze long-tail multimodal events, such as subtle behavioral or facial shifts, to decode human intent and emotion. Using extended CoT reasoning, it answers implicit user queries regarding emotional and in-tentional dynamics. The framework consists of the following agents: 
+
+Endogenous Long-Tail (ELT) Retriever Agent. The ELT Retriever Agent, a System-1 module [7], rapidly scans multi-modal inputs for long-tail events. It converts these observations into text to provide routing criteria for MODF-SIR’s subse-quent reasoning. 
+
+Asymmetric Knowledge Distilled (AKD) Router Agent. 
+
+Trained via Asymmetric Knowledge Distillation, the AKD Router Agent utilizes the ELT Retriever Agent’s textual event descriptions to route the instance to the appropriate down-stream pathway. Additionally, it rewrites ambiguous implicit user queries to prevent alignment errors in subsequent pro-cessing. 
+
+GRPO Grounder Agent. The GRPO Grounder Agent is designed to pinpoint the precise multi-modal elements that align with the user query. Inspired by its effectiveness in LLM training, we adopt GRPO to train the Grounder [24]. 
+
+Omni-Modal Long-Tail Intention Understanding (OMLT) Reasoner Agent. Acting as a System-2 module 4
+
+[7], the OMLT Reasoner Agent applies instance-specific knowledge distillation to deeply analyze long-tail events rich in human intent and emotion. Utilizing CoT reasoning, it step-by-step resolves the user query based on these omni-modal observations. 
+
+Test-Time Adaption (TTA) Reviser Agent. TTA Reviser Agent assesses the OMLT Reasoner’s output, initiating aclosed feedback loop if the answer is suboptimal. Through Episodic LoRA Refinement, it dynamically updates the Rea-soner’s parameters during inference to regenerate the response. Importantly, once a satisfactory answer is produced, all LoRA-induced modifications are instantly discarded to protect the base model from catastrophic forgetting [25]. Social MLLMs remain a primary challenge, reliant on both intrinsic model capabilities and strategic agent-level orchestra-tion. In MODF-SIR, we employ targeted prompting to force the MLLM to extract and linguistically amplify hidden long-tail events via detailed textual descriptions. This linguistic amplification prevents critical but subtle cues from being drowned out by dominant visual features or background noise during text tokenization. As a result, the LLM can reliably attend to these nuances, anchoring its extended CoT reasoning on these explicit social signals. 
+
+Dynamic Cognitive Workflow. Unlike unidirectional pipelines, MODF-SIR employs a dynamic, closed-loop work-flow comprising three phases: Phase 1 Global Context Distilla-tion. The ELT Retriever Agent extracts multi-modal cues from downsampled inputs to produce a concise semantic summary. 
+
+Phase 2 Dynamic Reasoning Routing. The AKD Router Agent determines the processing path. Sufficient evidence takes Path A directly to the OMLT Reasoner. Complex queries take Path B, where the GRPO Grounder Agent performs precise spatio-temporal localization before reasoning to mitigate frag-mentation errors. Phase 3 Reflexive Generation & Test-Time Adaptation. The OMLT Reasoner Agent generates a candidate response and reasoning chain. The TTA Reviser Agent then self-evaluates, applying dynamic rewards for test-time adapta-tion to correct any logical inconsistencies or hallucinations. 
+
+B. ELT Retriever Agent 
+
+Multi-modal representation learning has shifted from coarse-grained alignment to fine-grained reasoning. Early con-trastive models (e.g., CLIP [26], HowTo100M [27]) excel at clip-level retrieval but use static vectors that miss fine-grained temporal and affective details in long videos. Sub-sequent methods introduced temporal grounding and dense fusion (e.g., TALL [28], MERLOT [29]) for context-aware reasoning. However, relying on frozen feature extractors re-stricts their ability to generate interpretable, semantically rich natural language representations. Retrieval-Augmented Gen-eration (RAG) [30] mitigates LLM hallucinations by retriev-ing external knowledge, a paradigm increasingly extended to multi-modal domains. However, conventional RAG relies on pre-segmented databases and shallow similarity metrics, limiting its effectiveness in long-form video reasoning. In such videos, implicit signals (e.g., intentions, emotional dynamics) are embedded within continuous streams, discrete chunking disrupts their temporal coherence. This necessitates a new paradigm: internal, generative information extraction directly from continuous audio-visual streams, replacing external, dis-crete feature matching. To avoid the prohibitive costs and semantic noise of pro-cessing uncompressed audio-visual streams, the ELT Retriever Agent extracts query-relevant long-tail events (encapsulating subtle intents and emotions). It generates a natural language description, Ctext , which guides the subsequent AKD Router Agent’s decisions. Given a raw video stream V and its corresponding audio stream A, we first apply a downsampling operator D(·) to extract keyframes and reduce spatio-temporal resolution, yielding compressed representations V ′ = D(V )
+
+and A′ = D(A). The ELT Retriever Agent is instantiated using an omni-modal foundation model, such as Qwen2.5-Omni [31]. It takes as input the compressed streams V ′ and 
+
+A′, the user query Q, and a system prompt P .The objective of this module is to proactively scan the multimodal inputs, identify query-relevant cues, and synthe-size them into a concise textual context Ctext . Formally, this generative extraction process is defined as: 
+
+Ctext = Mretriever (V ′, A ′, Q, P ). (1) Here, the foundational MLLM Mretriever powers our ELT Retriever Agent to directly output natural language ( Ctext ), rather than rigid timestamps or vectors. This text explicitly captures query-relevant audio-visual cues as a semantic prior. It then directly guides the downstream AKD Router Agent’s reasoning, effectively filtering out redundant backgrounds and reducing cognitive load. 
+
+C. AKD Router Agent 
+
+C1 Routing Decision. To address the trade-off between performance and efficiency, we draw inspiration from the intuitive, fast-thinking mechanism of human “System 1” [7] and propose an Adaptive Reasoning AKD Router Agent. The AKD Router Agent dictates the subsequent processing pathway by evaluating two factors: whether the user query is explicit or implicit, and whether the ELT Retriever Agent’s textual output, Ctext , describes a head or long-tail event. Specifically, an explicit query is defined as a direct and un-ambiguous request that provides a comprehensive description of the user’s intent and clear target objectives. Conversely, an implicit query is characterized by indirect formulation, where the true underlying objective is obscured beneath the surface statement and must be inferred through contextual or situational cues. Formally, head events are defined as high-GRPO Grounder GRPO Grounder  Reasoner Agent Reasoner Agent  
+
+> AKD Router AKD Router
+> TTA Reviser TTA Reviser
+> Reasoner Agent Reasoner Agent TTA Reviser TTA Reviser
+> i
+> ii
+> ELT Retriever Agent ELT Retriever Agent
+
+Fig. 3: The AKD Router Agent activates other agents based on the video, audio and query, providing two strategies for different needs. frequency occurrences within multi-modal data that exhibit 5
+
+significant cross-modal feature consistency [32]. MLLMs can accurately identify these events relying solely on superficial pattern matching, circumventing the need for deep causal reasoning. Conversely, long-tail events are infrequent occur-rences characterized by subtle, and often contradictory, cross-modal signals [33]. Robust identification of these events forces models to move beyond statistical averages, demanding dy-namic, fine-grained semantic grounding and logical inference. In essence, the multi-modal representations of subtle emotional expressions or sudden shifts in human intent fundamentally constitute long-tail events [34]. When the AKD Router Agent identifies an explicit query accompanied predominantly by head events in Ctext , it out-puts a [{"type": "Answer" }] flag. This signals the framework to directly activate the OMLT Reasoner, en-abling it to infer the response directly from the raw multi-modal data stream without requiring further complex rout-ing. If the AKD Router Agent detects an implicit query coupled predominantly with long-tail events in Ctext , it generates the routing sequence [{"type": "Grounder", "value": " Qground "}, {"type": "Answer" }]. This triggers a mandatory grounding phase before final reasoning. The Router explicitly disambiguates the obscure query into a highly comprehensible format, Qground . Using this Qground ,the subsequent GRPO Grounder performs spatiotemporal lo-calization on the multimodal data, providing the foundation for the final reasoning stage. 
+
+C2 Training via Asymmetric Knowledge Distillation and Cognitive Compression. Despite the effectiveness of the proposed AKD Router Agent, training is hindered by a scarcity of supervision for multimodal routing of human intent. To address this limitation, we introduce an asymmetric knowledge distillation paradigm that enables cognitive compression, elim-inating the need for costly and error-prone manual annotations. During data construction, we employ a large-scale omni-modal foundation model, such as Qwen3-Omni-30B-A3B-Thinking [31], as the teacher. Given multimodal inputs rich in human in-tent, along with carefully designed expert prompts, the teacher performs unconstrained offline reasoning via CoT to generate pseudo-labels, including optimal routing decision trees and reformulated queries Qground , conditioned on query complexity. We then instantiate the AKD Router Agent using a lightweight student model, such as Qwen2.5-Omni-7B [31]. The student is trained via SFT with LoRA on the high-quality pseudo-labels produced by the teacher. This process effectively distills the teacher’s computationally intensive planning capability into a compact model, compressing the high-level strategic reasoning of a 30B-parameter model into a 7B-parameter network. As a result, the AKD Router Agent acquires a level of strategic competence that exceeds its parameter scale at inference time. It can efficiently orchestrate the multi-agent system with precise routing decisions while maintaining low computational overhead and latency. 
+
+D. GRPO Grounder Agent 
+
+The GRPO Grounder operates exclusively within Path B of the AKD Router’s architecture. Routing to this path im-plies the query requires complex intent or emotion analysis derived from long-tail cues. Given the subtle and diverse nature of long-tail events, exhaustive global extraction across the unconstrained multi-modal data stream is computationally prohibitive [35]. Consequently, the GRPO Grounder is de-signed to spatio temporally localize the most query-relevant data segments. This critical step restricts the search space for subsequent event extraction and extended reasoning to a computationally tractable scale. Video remains the most prominent and widely used data modality. For video inputs, the GRPO Grounder’s objective is to temporally localize the segment most relevant to the user query. During supervised training, the GRPO Grounder takes the raw video and query as inputs to predict a temporal bound-ary. The deviation between this predicted segment and the ground-truth annotation is used to construct a loss function. By backpropagating the resulting gradients, the GRPO Grounder’s parameters are dynamically updated, iteratively refining the model to generate predictions that closely approximate the ground-truth boundaries. Most existing video grounders are anchored by a Vision Transformer (ViT) backbone [36]. As a form of MLLM, these architectures combine video feature extractors with LLMs. Inspired by the performance gains achieved by GRPO [37] in LLM optimization, we adopt the GRPO paradigm to train and refine our GRPO Grounder agent. To address the challenges of long-form video processing and the semantic ambiguity of user queries, the Grounder outputs a set of N candidate segments {y1, · · · , y N } with associated confidence scores {c1, · · · , c N }. The reward for each proposed segment is computed as its degree of overlap with the ground-truth segment z, providing a supervised signal for the grounding task: 
+
+R(yt) = area (z ∩ yt)
+
+area (z ∪ yt) or R(yt) = area (z ∩ yt)
+
+area (z) . (2) Here, area (•)represents the duration of the video segment. Thus, we can calculate the relative rewards within the group of GRPO: 
+
+˜R(yt) = R(yt) − μσ , (3) where μ = 1
+
+> N
+
+PNt=1 R(yt) and σ =
+
+q 1
+
+> N
+
+PNt=1 (R(yt) − μ)2
+
+represent group mean and group standard deviation respec-tively. Then we calculate: 
+
+r(y|x; θ) = π(y|x; θ)
+
+πold (y|x) =
+
+> N
+
+Y
+
+> t=1
+
+π(yt|x; θ)
+
+πold (yt|x) ∈ R. (4) Here θ denotes the GRPO Grounder parameters and x the input (video and query). The conditional probability of outputting segment y, denoted as πθ (y|x), is computed via Softmax over the confidence scores {c1, . . . , c N }:
+
+ρ(•| x; θ) = softmax 
+
+
+
+ˆci1
+
+...
+
+ˆciN
+
+ =
+
+ 
+
+> eˆci1
+> PNt=1 eˆcit
+
+... 
+
+> eˆciN
+> PNt=1 eˆcit
+
+ ∈ RN , (5) 
+
+π(y|x; θ) = 
+
+> N
+
+Y
+
+> t=1
+
+ρ(yt|x; θ) ∈ R. (6) 6AKD 
+
+Router 
+
+Agent 
+
+1. use grounder = flase 
+
+2. Reasoning Agent 
+
+3. TTA Reviser 
+
+1. use grounder = flase 
+
+2. Reasoning Agent 
+
+3. TTA Reviser 
+
+AKD 
+
+Router 
+
+Agent 
+
+1. use grounder = flase 
+
+2. Reasoning Agent 
+
+3. TTA Reviser 
+
+Question: What visual coincides with the announcer ’s statement about Ryback being ‘one of the most popular talents in the company between 2012 to 2013 ’?
+
+Options: 
+
+... Trafficking and gross misconduct WWE were quick to act when it came to Lesnar as he was removed from all oreative plans, and this included a planned return at the 2024 royal rumble as well as sub sequent ple 
+
+matches against dominik mysterio ... 
+
+A. Crowd shown around wrestling ring.  B. Close -up of Ryback ’s injured eye.  C. Text ‘RYBACK WAS OVER ’appears.  D. Ryback screaming against black backdrop 
+
+ELT Retriever Agent 
+
+The visual that coincides 
+
+with the announcer's 
+
+statement about Ryback 
+
+being 'one of the most 
+
+popular talents in the 
+
+company between 2012 to 
+
+2013'. 
+
+The visual that coincides 
+
+with the announcer's 
+
+statement about Ryback 
+
+being 'one of the most 
+
+popular talents in the 
+
+company between 2012 to 
+
+2013'. 
+
+ELT Retriever Agent 
+
+The visual that coincides 
+
+with the announcer's 
+
+statement about Ryback 
+
+being 'one of the most 
+
+popular talents in the 
+
+company between 2012 to 
+
+2013'. 
+
+ELT Retriever Agent 
+
+The visual that coincides 
+
+with the announcer's 
+
+statement about Ryback 
+
+being 'one of the most 
+
+popular talents in the 
+
+company between 2012 to 
+
+2013'. 
+
+Iter 1 for OMLT Reasoner 
+
+Agent 
+
+Iter 1 for OMLT Reasoner 
+
+Agent 
+
+Iter 1 for OMLT Reasoner 
+
+Agent 
+
+<context>The announcer states 
+
+that Ryback was 'one of  ...  </ 
+
+context><think>As I watch the 
+
+video, I  ...  .</think><answer>A</ 
+
+answer> 
+
+<context>The announcer states 
+
+that Ryback was 'one of  ...  </ 
+
+context><think>As I watch the 
+
+video, I  ...  .</think><answer>A</ 
+
+answer> 
+
+<context>The announcer states 
+
+that Ryback was 'one of  ...  </ 
+
+context><think>As I watch the 
+
+video, I  ...  .</think><answer>A</ 
+
+answer> 
+
+TTA Reviser output 
+
+<score> 2 </score> <score> 2 </score> 
+
+Iter 1 for OMLT Reasoner 
+
+Agent 
+
+<context>The announcer states 
+
+that Ryback was 'one of  ...  </ 
+
+context><think>As I watch the 
+
+video, I  ...  .</think><answer>A</ 
+
+answer> 
+
+TTA Reviser output 
+
+<score> 2 </score> 
+
+Iter 1 for OMLT Reasoner 
+
+Agent 
+
+<context>The announcer states 
+
+that Ryback was 'one of  ...  </ 
+
+context><think>As I watch the 
+
+video, I  ...  .</think><answer>A</ 
+
+answer> 
+
+TTA Reviser output 
+
+<score> 2 </score> 
+
+Iter 2 for OMLT Reasoner 
+
+Agent 
+
+Iter 2 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output TTA Reviser output 
+
+<context>The video displays text 
+
+that  ...  </context><think>I start 
+
+by noticing the  ...  against a 
+
+black backdrop.</ 
+
+think><answer>D</answer> 
+
+<context>The video displays text 
+
+that  ...  </context><think>I start 
+
+by noticing the  ...  against a 
+
+black backdrop.</ 
+
+think><answer>D</answer> 
+
+<score> 7 </score> <score> 7 </score> 
+
+Iter 2 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output 
+
+<context>The video displays text 
+
+that  ...  </context><think>I start 
+
+by noticing the  ...  against a 
+
+black backdrop.</ 
+
+think><answer>D</answer> 
+
+<score> 7 </score> 
+
+Iter 2 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output 
+
+<context>The video displays text 
+
+that  ...  </context><think>I start 
+
+by noticing the  ...  against a 
+
+black backdrop.</ 
+
+think><answer>D</answer> 
+
+<score> 7 </score> 
+
+Iter 3 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output TTA Reviser output 
+
+<context>The video shows a 
+
+sequence of events  ...  </ 
+
+context><think>As I watch the 
+
+video  ...  </think><answer>D</ 
+
+answer> 
+
+<context>The video shows a 
+
+sequence of events  ...  </ 
+
+context><think>As I watch the 
+
+video  ...  </think><answer>D</ 
+
+answer> 
+
+<score> 8 </score> <score> 8 </score> 
+
+Iter 3 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output 
+
+<context>The video shows a 
+
+sequence of events  ...  </ 
+
+context><think>As I watch the 
+
+video  ...  </think><answer>D</ 
+
+answer> 
+
+<score> 8 </score> 
+
+Iter 3 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output 
+
+<context>The video shows a 
+
+sequence of events  ...  </ 
+
+context><think>As I watch the 
+
+video  ...  </think><answer>D</ 
+
+answer> 
+
+<score> 8 </score> 
+
+Iter 3 for OMLT Reasoner 
+
+Agent 
+
+TTA Reviser output 
+
+<context>The video shows a 
+
+sequence of events  ...  </ 
+
+context><think>As I watch the 
+
+video  ...  </think><answer>D</ 
+
+answer> 
+
+<score> 8 </score> 
+
+Final output Final output 
+
+<context>The video shows a 
+
+sequence of events related to 
+
+wrestler  ...  </context><think>As 
+
+I watch the video, the caption  …
+
+, as it directly reflects the peak 
+
+of his popularity and presence in 
+
+the company.</ 
+
+think><answer>D</answer> 
+
+<context>The video shows a 
+
+sequence of events related to 
+
+wrestler  ...  </context><think>As 
+
+I watch the video, the caption  …
+
+, as it directly reflects the peak 
+
+of his popularity and presence in 
+
+the company.</ 
+
+think><answer>D</answer> 
+
+Final output 
+
+<context>The video shows a 
+
+sequence of events related to 
+
+wrestler  ...  </context><think>As 
+
+I watch the video, the caption  …
+
+, as it directly reflects the peak 
+
+of his popularity and presence in 
+
+the company.</ 
+
+think><answer>D</answer> 
+
+Final output 
+
+<context>The video shows a 
+
+sequence of events related to 
+
+wrestler  ...  </context><think>As 
+
+I watch the video, the caption  …
+
+, as it directly reflects the peak 
+
+of his popularity and presence in 
+
+the company.</ 
+
+think><answer>D</answer> 
+
+Fig. 4: Visualization of our MODF-SIR. ELT Retriever Agent would first collect the information from the video, audio and query. The AKD Router Agent would first determine which mode to use. In this sample, AKD Router Agent decide to use OMLT Reasoner Agent directly. OMLT Reasoner Agent generates responses, and TTA Reviser scores these responses. If the score is below the satisfaction threshold, LoRA fine-tuning is performed on OMLT Reasoner Agent, and then the answers are regenerated. Within the iterative training process, πold represents the model state from the preceding step, with the current πθ
+
+becoming the new πold for the next iteration. Accordingly, the loss function for the GRPO Grounder is defined as: 
+
+Lact (x, θ ) = 1
+
+N
+
+NX
+
+t=1 
+
+min {r(yt, x, θ ) ˜R(yt),
+
+clip (r(yt, x, θ ), 1 − ε, 1 + ε) ˜R(yt)}, (7) 
+
+LGRPO (θ) = Lact (x, θ ) + βKL (π ∥ πold ; x, θ ). (8) Here, the clipping function and the KL divergence are defined as: clip (r, 1 − ε, 1 + ε) = 
+
+
+
+r, 1 − ε ≤ r ≤ 1 + ε
+
+1 − ε, r < 1 − ε
+
+1 + ε, r > 1 + ε
+
+= min(max( r, 1 − ε), 1 + ε), (9) KL (π ∥ πold ; x, θ ) = 
+
+NX
+
+t=1 
+
+π(yt|x; θ) log π(yt|x; θ)
+
+πold (yt|x) . (10) By optimizing the GRPO objective, the Grounder learns to perform precise continuous-time localization that is directly aligned with the global IoU metric. By constraining the reasoning process to these grounded segments, the frame-work effectively suppresses irrelevant context and mitigates shortcut-induced hallucinations. 
+
+E. OMLT Reasoner Agent 
+
+In social intelligence reasoning, true intentions are often revealed not by explicit speech, but by subtle, long-tail micro-events (e.g., micro-expressions, vocal tremors) [38]– [40]. However, modeling these presents two challenges: (i) Sparse Signal Concentration, due to an extremely low signal-to-noise ratio in high-dimensional omni-modal streams [41] and (ii) Implicit Causal Coupling, which requires integrating asynchronous, sometimes contradictory multi-modal cues to resolve ambiguity [42]. To navigate this complex, open-ended problem space, we propose the OMLT Reasoner Agent . Anchored by a lightweight MLLM, the OMLT Reasoner Agent uti-lizes extended CoT reasoning to deduce the answer to the user’s query. This inference is systematically guided by the input multi-modal data, the original query, and the AKD Router Agent’s control sequence. If the AKD Router Agent outputs the [{"type": "Answer" }] control se-quence, the OMLT Reasoner Agent directly infer the re-sponse from the raw multi-modal data. Conversely, if the Router generates [{"type": "Grounder", "value": "Qground "}, {"type": "Answer" }], it signifies that the user’s input is an implicit query demanding human intent or emotional dynamics. In this scenario, the OMLT Rea-soner must first extract the nuanced long-tail events from the grounded multi-modal data. It executes CoT reasoning to systematically deduce the final answer. To achieve this, the operational workflow of the OMLT Reasoner proceeds as fol-lows: (i) OMLT Reasoner Agent dynamically extracts query-relevant and long-tail events from the multi-modal stream, formulating a textual description termed Context. Although ostensibly similar to the ELT Retriever, the two modules have fundamentally differences. First, their inputs differ significantly. The ELT Retriever ingests raw audio-visual data and the original user query. Conversely, the OMLT Reasoner operates on the AKD Router’s disambiguated query and the GRPO Grounder’s precisely localized video. Sec-7
+
+ond, their operational objectives differ. The ELT Retriever acts solely as an objective evidence gatherer to inform the AKD Router. Conversely, the OMLT Reasoner operates on the premise of social intelligence analysis, meticulously ex-amining the grounded video to extract query-specific long-tail events. Grounded in “Dual-Process” Theory, the Re-triever performs System-1 heuristic scanning, whereas the Reasoner executes System-2 analytical processing. (ii) The OMLT Reasoner submits Context, Vground , and Qground to a powerful external MLLM for evaluation. If the assigned score is below a predefined threshold, the Reasoner’s base model applies LoRA to regenerate the Context. This process acts as an iterative Teacher-Student knowledge distillation loop. The external MLLM (Teacher) critiques the output of the base model (Student), enforcing iterative LoRA updates until the generated Context satisfies the required quality criteria. (iii) Upon approval of the Context, the OMLT Reasoner executes extended CoT reasoning based on Context and Qground to generate the reasoning trace Think, the conclusion of which serves as the answer. Consistent with the context validation step, the Reasoner submits Think, Context, and Qground to an external LLM for scoring. Scores below a predefined threshold trigger LoRA-based fine-tuning of the base model to regenerate Think. This teacher-student distillation process culminates in the final answer, which is output to the TTA Reviser. Crucially, the OMLT Reasoner’s parameter updates are subject to two constraints. First, the LoRA fine-tuning is an additive adjustment, formulated as W = W0 + ∆ W , where 
+
+W0 represents the original base parameters and ∆W is the adaptive update. Second, this adaptation is entirely instance-specific. Once a satisfactory inference is achieved for the current video and query, the ∆W weights are discarded, reverting the base model to its initial state to completely prevent catastrophic forgetting. 
+
+F. TTA Reviser Agent 
+
+F1 Test-Time Adaption. The TTA Reviser evaluates the final answer generated by the OMLT Reasoner. Its integration is driven by the well-established generation-evaluation gap, which posits that an LLM’s capacity to assess a result in-herently surpasses its ability to generate one [43]. The TTA Reviser and OMLT Reasoner share a single base model. While the Reasoner uses this foundation for generation, the Reviser leverages the exact same model for evaluation. Rooted in the generation-evaluation gap, this shared-architecture approach yields a highly robust and credible assessment. Using targeted prompting, the TTA Reviser tasks the shared base model with scoring the OMLT Reasoner’s output. Should the score fall below a set threshold, the Reviser employs TTA via LoRA fine-tuning to dynamically adjust the Reasoner and yield an improved answer. The OMLT Reasoner updates the base model via LoRA to generate an initial answer, expressed as: 
+
+Wreason = W0 + ∆ ϕ, ∆ϕ = BA, (11) where W0 represents the base parameters, and A and B are optimized low-rank matrices. To refine this output, the TTA Reviser sequentially applies another LoRA-based update to the OMLT Reasoner’s modified weights: 
+
+Wreviser = Wreason + ∆ φ, ∆φ = CD. (12) Here, optimizing the secondary low-rank matrices C and D
+
+enables the TTA Reviser to dynamically generate an improved answer. This procedure functions as an iterative feedback loop. The TTA Reviser continuously evaluates the OMLT Rea-soner’s output, enforcing iterative regeneration until a quality threshold is met or a maximum iteration limit is reached. Post-inference, the learned incremental weights ( ∆ϕ and ∆φ) are instantly discarded, restoring the parameters Wreviser directly to the original base weights W0. This ephemeral parameter update paradigm formally constitutes our TTA approach. 
+
+F2 Single sample optimizations Reinforce algorithm. In contrast to the GRPO Grounder, which relies on multiple samples for relative reward computation, the TTA Reviser processes only a single output from the OMLT Reasoner, ren-dering GRPO inapplicable. Moreover, the Reasoner’s discrete text output is non-differentiable. To resolve this, we model the text generation process as a Markov Decision Process (MDP). This allows us to treat the Reviser’s evaluation as a parameter-independent reward and apply the REINFORCE algorithm, which is ideal for single-sample optimization, to effectively fine-tune the Reasoner’s parameters. The objective function for single sample optimizations Reinforce algorithm is as follows: 
+
+J (∆ ϕ) = Ey∼πθ+∆ ϕ(·| x)
+
+h
+
+rψ (x, y )
+
+− βDKL 
+
+ πθ+∆ ϕ(·| x) ∥ πθ (·| x)i
+
+. (13) Here, x represents the OMLT Reasoner’s input (video, audio and query), and y represents its output answer, which is sub-sequently evaluated by the TTA Reviser. The reward rψ (x, y )
+
+is the TTA Reviser’s score, generated by the base model via targeted prompting. Let θ denote the OMLT Reasoner’s original parameters, πθ+∆ ϕ(·| x) and πθ (·| x) then define the output conditional probabilities post and pre-update, respec-tively. DKL denotes the KL regularization term. Though formally identical to the KL penalty in GRPO, its objective here differs: within our REINFORCE setup, it mitigates large training oscillations induced by high iteration variance, whereas in GRPO, it serves to prevent reward hacking [44]. Furthermore, by using the Log-Derivative Trick, the gradient of J (∆ ϕ)can be obtained: 
+
+∇∆ϕJ (∆ ϕ) = Ey∼πθ+∆ ϕ [∇∆ϕ log πθ+∆ ϕ(y|x)(˜ r(x, y ) − bt)] , (14) 
+
+˜r(x, y ) = rψ (x, y ) − β log πθ+∆ ϕ(y|x)
+
+πθ (y|x) . (15) Here bt serves as an adaptive baseline employed for variance reduction. When tackling exceptionally complex spatio-temporal rea-soning, the TTA Reviser adheres to a rigorous exploration-exploitation and backtracking mechanism: (i) Action Sam-pling and Evaluation. The policy network samples a candi-date response yt, which is scored by the isomorphic evaluator 8
+
+TABLE I: Comparison with other methods on Daily-Omni [10]                                                                                                            
+
+> Methods LLM Size AV Event Alignment Comparative Context Understanding Event Sequence Inference Reasoning 30s Subset 60s Subset Avg
+> Proprietary MLLMs
+> Gemini 2.0 Flash -62.2 73.3 63.7 63.7 76.6 75.4 62.3 56.6 67.8 Gemini 2.0 Flash Lite -55.0 64.9 58.0 54.3 74.0 72.0 60.6 53.0 61.3
+> Open-Source Video-Audio MLLMs
+> Unified-IO-2 [45] 8B 25.6 31.3 26.4 25.8 35.1 29.7 26.7 30.0 28.2 VideoLLaMA2 [46] 7B 35.7 35.9 35.8 31.7 40.9 34.3 38.0 31.8 35.2 Qwen2.5-Omni [31] 3B 38.7 48.1 33.7 34.0 54.56 44.0 46.7 48.4 40.5 Qwen2.5-Omini [31] 7B 44.1 51.2 38.9 40.5 57.8 61.7 42.4 38.4 47.5 Ola [47] 7B 40.3 60.3 39.9 44.1 61.0 66.3 50.9 48.7 49.9 MiniCPM-o [47] 7B 40.3 61.1 49.2 48.4 68.8 61.1 54.1 52.0 53.1 HumanOmniV2 [11] 7B 46.6 67.9 51.8 51.6 72.7 74.3 63.1 53.1 58.5
+> MODF-SIR (Ours) 7B 56.4 73.2 61.3 57.2 75.9 78.2 67.2 61.7 64.9
+
+as rt = rψ (x, y t). If rt ≥ τ , where τ denotes a predefined satisfaction threshold, the iteration terminates, indicating con-vergence. (ii) Advantage-Driven Update. If the response is suboptimal, the advantage is computed as At = ˜ r(x, y t)−bt−1.The transient parameters ∆ϕ are then updated via a single-step gradient ascent using this advantage signal. (iii) Baseline Smoothing. To reduce variance under limited sampling, the baseline is updated using an exponential moving average (EMA): bt = αb t−1 + (1 − α)˜ r(x, y t), where α means attenuation rate of change. (iv) Fail-Safe Backtracking. Amaximum iteration budget Tmax is imposed. If the threshold 
+
+τ is not reached, the system backtracks and selects the best response y∗ = arg max y∈H rψ (x, y ) from the trajectory set 
+
+H = {y1, . . . , y Tmax }, ensuring robustness and a bounded performance guarantee. IV. E XPERIMENTS 
+
+A. Main Results 
+
+In Tab. I, we compare our model on the Daily-Omni [10] across multiple dimensions. MODF-SIR achieves an overall average of 64.9% , outperforming all existing open-source video-audio MLLMs and significantly narrowing the gap with proprietary systems. Compared with prior methods such as Unified-IO-2 [45], VideoLLaMA2 [46], and Qwen2.5-Omni [31], MODF-SIR shows consistent and substantial improvements across all metrics, highlighting the robustness of our unified multi-modal modeling framework. Despite using a comparable model size of 7B, MODF-SIR approaches proprietary systems such as Gemini 2.0 Flash, highlighting its competitive efficiency and scalability. Overall, MODF-SIR 
+
+establishes a new state-of-the-art among open-source video-audio MLLMs on Daily-Omni [10], demonstrating superior multi-modal perception, reasoning, and temporal understand-ing capabilities. We report results on IntentBench [11] in Tab. II. MODF-SIR achieves an average score of 70.3% , outperforming the strongest open-source baseline, HumanOmniV2 [11], and remaining competitive with proprietary models such as GPT-o1 [48] and Gemini-2.5-Pro [13]. This demonstrates the strong capability of MODF-SIR in human intentions understand-ing under a comparable model scale. These improvements suggest that MODF-SIR is more effective in capturing both explicit intent signals and implicit contextual cues, enabling more precise and reliable user-centric multi-modal reasoning. Furthermore, as illustrated in Fig. 5, increasing the number of iterations T and max frames consistently improves perfor-mance on IntentBench [11]. In Tab. III, we evaluate our model on WorldSense [9], which assesses world knowledge and domain-specific understanding across diverse categories. MODF-SIR achieves an average score of 51.5% , significantly outperforming the strongest open-source baseline, HumanOmniV2 (47.1%) [11], while also approaching the performance of proprietary models. This demonstrates the effectiveness of MODF-SIR in modeling knowledge-intensive multimodal scenarios under a comparable model scale. 
+
+B. Ablation Studies 
+
+Effect of Individual Agents. We conduct ablation studies on Daily-Omni [10] (Tab. IV) to evaluate each module: (i) TTA Reviser Agent: It significantly improves the HumanOm-niV2 [11] baseline from 58.5% to 64.0%. By utilizing isomor-phic self-evaluation and ephemeral LoRA updates, the TTA Reviser Agent enables dynamic self-reflection, overcoming the limitations of conventional one-pass inference. (ii) AKD Router Agent: Adding the GRPO Grounder without the AKD Router Agent drops performance to 58.6%, as indiscriminately applying temporal grounding introduces unnecessary visual noise. Reintroducing the AKD Router Agent restores perfor-mance to 59.4%, proving the necessity of dynamic routing. (iii) ELT Retriever Agent : Comparing the 59.4% configuration to the full model (64.9%) highlights the ELT Retriever Agent’s role. Without this initial abstraction module, the AKD Router Agent struggles with raw, uncompressed audio-visual inputs. 
+
+(iv) GRPO Grounder: Although it causes noise in simple queries without the AKD Router Agent, it is crucial for precise evidence localization in complex, long-horizon queries. Properly integrated within the dynamic routing framework, it enables the system to achieve its peak score of 64.9%. 
+
+Effect of GRPO for Grounder. To explicitly evaluate the proposed grounding optimization strategy, we compare the GRPO based Grounder with the conventional VideoMind Grounder under the same rigid routing setting. As shown in Table IV, the GRPO Grounder achieves an average score of 58.6%, outperforming the VideoMind Grounder (57.3%). This improvement stems from the difference in optimization objec-9
+
+TABLE II: Comparison with other methods on IntentBench [11] 
+
+Methods LLM Size Social Avg Why How When Who/Which Other 
+
+Proprietary MLLMs 
+
+GPT-4o [12] - 61.5 55.7 35.7 76.0 63.3 60.0 GPT-o1 [48] - 68.2 65.8 57.1 76.0 68.3 66.7 Gemini-2.5-Pro (think) [13] - 68.6 67.4 57.1 64.0 70.0 67.2 
+
+Open-Source Video-Audio MLLMs 
+
+MiniCPM-o [49] 8B 57.9 53.5 57.1 68.0 61.1 54.5 VITA-1.5 [50] 7B 53.2 49.4 71.4 64.0 61.1 54.2 Ola [47] 7B 60.6 55.4 64.3 76.0 62.9 57.4 Qwen2.5-Omni [31] 7B 62.6 63.4 57.1 76.0 69.0 64.2 HumanOmniV2 [11] 7B 66.8 67.1 50.0 84.0 72.4 69.3 
+
+MODF-SIR (Ours) 7B 67.2 69.5 64.3 84.0 75.5 70.3 
+
+> Fig. 5: T means the TTA Reviser’s maximum iterations (left axis, bars), while “max frames” means the OMLT Reasoner Agent’s maximum input frames (right axis, line).
+
+TABLE III: Comparison with other methods on WorldSense [9] 
+
+Methods LLM Size Tech& Science Culture& Politics Daily Life Film& TV Performance Games Sports Music Avg 
+
+Proprietary MLLMs 
+
+Claude 3.5 Sonnet [51] - 43.7 31.7 30.6 36.5 30.7 31.9 36.6 33.9 34.8 GPT 4o [12] - 48.0 44.0 38.3 43.5 41.9 41.2 42.6 42.6 42.6 Gemini 1.5 Pro [52] - 53.7 47.2 50.3 5.4 52.4 46.8 40.2 42.0 48.0 
+
+Open-Source Video-Audio MLLMs 
+
+Unified-IO-2 XXL [45] 7B 27.1 31.7 23.9 23.7 25.5 23.7 25.7 27.3 25.9 VideoLLaMA2 [46] 7B 29.4 25.4 21.8 24.5 26.2 24.6 25.5 27.1 25.4 VITA-1.5 [50] 7B 38.2 35.9 34.3 39.8 41.2 32.6 34.7 39.9 36.9 Qwen2.5-Omini [31] 7B 47.8 49.8 43.6 43.8 48.3 39.1 43.5 47.3 45.4 HumanOmniV2 [11] 7B 50.2 51.7 47.6 44.8 47.3 44.3 45.2 44.2 47.1 
+
+MODF-SIR (Ours) 7B 54.7 58.2 50.3 49.6 52.1 51.5 47.7 50.0 51.5 
+
+TABLE IV: Ablation results on our method.        
+
+> Method Avg HumanomniV2 (Baseline) [11] 58.5
+> Our (Full) 64.9 OMLT Reasoner Agent + TTA Reviser 64.0 OMLT Reasoner Agent + TTA Reviser + GRPO Grounder 58.6
+> OMLT Reasoner Agent + TTA Reviser + VideoMind Grounder 57.3 OMLT Reasoner Agent + TTA Reviser + GRPO Grounder + AKD Router 59.4
+
+tives. Conventional grounding methods rely on local, pixel-level supervision, which is misaligned with the global temporal boundary metric. In contrast, our approach directly optimizes the non-differentiable IoU reward via GRPO, enabling better alignment with the evaluation criterion. These results demon-strate that GRPO facilitates more accurate continuous-time lo-calization, producing higher-fidelity spatio-temporal segments that more effectively support downstream reasoning. V. C ONCLUSIONS 
+
+In this paper, we introduced MODF-SIR, a pioneering multi-agent collaborative framework explicitly designed for omni-modal social intelligence reasoning. Comprehensive evalua-tions across the Daily-Omni, IntentBench, and WorldSense benchmarks demonstrate that our framework establishes new state-of-the-art standards for open-source models. Establishing cross-temporal causal links between implicit long-tail events and preceding head events remains a core challenge in social intelligence reasoning. To address this, our future work pro-poses constructing a dedicated video shot segmentation agent, leveraging extensive computer vision research in shot bound-ary detection. This agent will partition videos into discrete, semantically stable segments, enabling an MLLM to generate localized textual descriptions. Subsequently, a LLM will be utilized to mine semantic correlations across these transcripts, effectively bridging the temporal gap between isolated shots to achieve comprehensive, cross-temporal reasoning. REFERENCES [1] N. Rabinowitz, F. Perbet, F. Song, C. Zhang, S. A. Eslami, and M. Botvinick, “Machine theory of mind,” in International conference on machine learning . PMLR, 2018, pp. 4218–4227. [2] M. Tomasello, M. Carpenter, J. Call, T. Behne, and H. Moll, “Un-derstanding and sharing intentions: The origins of cultural cognition,” 
+
+Behavioral and brain sciences , vol. 28, no. 5, pp. 675–691, 2005. [3] S. M. Schaafsma, D. W. Pfaff, R. P. Spunt, and R. Adolphs, “De-constructing and reconstructing theory of mind,” Trends in cognitive sciences , vol. 19, no. 2, pp. 65–72, 2015. [4] C. D. Frith and U. Frith, “The neural basis of mentalizing,” Neuron ,vol. 50, no. 4, pp. 531–534, 2006. [5] J. Yang, Y. Wang, R. Yi, Y. Zhu, A. Rehman, A. Zadeh, S. Poria, and L.-P. Morency, “Mtag: Modal-temporal attention graph for unaligned human multimodal language sequences,” in Proceedings of the 2021 conference of the North American chapter of the association for com-putational linguistics: human language technologies , 2021, pp. 1009– 1021. [6] L. Drijvers and J. Holler, “The multimodal facilitation effect in human communication,” Psychonomic Bulletin & Review , vol. 30, no. 2, pp. 792–801, 2023. [7] D. Kahneman, Thinking, fast and slow . macmillan, 2011. [8] L. Zheng, W.-L. Chiang, Y. Sheng, S. Zhuang, Z. Wu, Y. Zhuang, Z. Lin, Z. Li, D. Li, E. Xing et al. , “Judging llm-as-a-judge with mt-bench and chatbot arena,” Advances in neural information processing systems ,vol. 36, pp. 46 595–46 623, 2023. [9] J. Hong, S. Yan, J. Cai, X. Jiang, Y. Hu, and W. Xie, “Worldsense: Evaluating real-world omnimodal understanding for multimodal llms,” 
+
+arXiv preprint arXiv:2502.04326 , 2025. 10 
+
+[10] Z. Zhou, R. Wang, and Z. Wu, “Daily-omni: Towards audio-visual reasoning with temporal alignment across modalities,” arXiv preprint arXiv:2505.17862 , 2025. [11] Q. Yang, S. Yao, W. Chen, S. Fu, D. Bai, J. Zhao, B. Sun, B. Yin, X. Wei, and J. Zhou, “Humanomniv2: From understanding to omni-modal reasoning with context,” arXiv preprint arXiv:2506.21277 , 2025. [12] A. Hurst, A. Lerer, A. P. Goucher, A. Perelman, A. Ramesh, A. Clark, A. Ostrow, A. Welihinda, A. Hayes, A. Radford et al. , “Gpt-4o system card,” arXiv preprint arXiv:2410.21276 , 2024. [13] Google, “Gemini 2.5 Pro,” https://deepmind.google/technologies/gemini/ pro/, 2025. [14] O. Vinyals, A. Toshev, S. Bengio, and D. Erhan, “Show and tell: Lessons learned from the 2015 mscoco image captioning challenge,” 
+
+IEEE transactions on pattern analysis and machine intelligence , vol. 39, no. 4, pp. 652–663, 2016. [15] Y. Jang, Y. Song, Y. Yu, Y. Kim, and G. Kim, “Tgif-qa: Toward spatio-temporal reasoning in visual question answering,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2017, pp. 2758–2766. [16] M. Liu, L. Nie, Y. Wang, M. Wang, and Y. Rui, “A survey on video moment localization,” ACM Computing Surveys , vol. 55, no. 9, pp. 1–37, 2023. [17] X. Wang, J. Wei, D. Schuurmans, Q. Le, E. Chi, S. Narang, A. Chowdh-ery, and D. Zhou, “Self-consistency improves chain of thought reasoning in language models,” arXiv preprint arXiv:2203.11171 , 2022. [18] N. Shinn, F. Cassano, A. Gopinath, K. Narasimhan, and S. Yao, “Re-flexion: Language agents with verbal reinforcement learning,” Advances in neural information processing systems , vol. 36, pp. 8634–8652, 2023. [19] L. Ouyang, J. Wu, X. Jiang, D. Almeida, C. Wainwright, P. Mishkin, C. Zhang, S. Agarwal, K. Slama, A. Ray et al. , “Training language models to follow instructions with human feedback,” Advances in neural information processing systems , vol. 35, pp. 27 730–27 744, 2022. [20] Z. Song, X. Wang, Z. Qian, H. Chen, L. Huang, H. Xue, and W. Zhu, “Modularized self-reflected video reasoner for multimodal llm with application to video question answering,” in Forty-second International Conference on Machine Learning , 2025. [21] N. Lian, Y. Wang, H. Yao, J. Wang, B. Chen, Y. Wang, M. Zhang, and S.-T. Xia, “From verbatim to gist: Distilling pyramidal multimodal memory via semantic information bottleneck for long-horizon video agents,” arXiv preprint arXiv:2603.01455 , 2026. [22] K. Zhu, Z. Liu, B. Li, M. Tian, Y. Yang, J. Zhang, P. Han, Q. Xie, F. Cui, W. Zhang et al. , “Where llm agents fail and how they can learn from failures,” arXiv preprint arXiv:2509.25370 , 2025. [23] Y. Ji, T. Wang, Y. Ge, Z. Liu, S. Yang, Y. Shan, and P. Luo, “From denoising to refining: A corrective framework for vision-language dif-fusion model,” arXiv preprint arXiv:2510.19871 , 2025. [24] D. Guo, D. Yang, H. Zhang, J. Song, P. Wang, Q. Zhu, R. Xu, R. Zhang, S. Ma, X. Bi et al. , “Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning,” arXiv preprint arXiv:2501.12948 ,2025. [25] Y. Luo, Z. Yang, F. Meng, Y. Li, J. Zhou, and Y. Zhang, “An empirical study of catastrophic forgetting in large language models during con-tinual fine-tuning,” IEEE Transactions on Audio, Speech and Language Processing , 2025. [26] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark et al. , “Learning transferable visual models from natural language supervision,” in International conference on machine learning . PmLR, 2021, pp. 8748–8763. [27] A. Miech, D. Zhukov, J.-B. Alayrac, M. Tapaswi, I. Laptev, and J. Sivic, “Howto100m: Learning a text-video embedding by watching hundred million narrated video clips,” in Proceedings of the IEEE/CVF international conference on computer vision , 2019, pp. 2630–2640. [28] J. Gao, C. Sun, Z. Yang, and R. Nevatia, “Tall: Temporal activity local-ization via language query,” in Proceedings of the IEEE international conference on computer vision , 2017, pp. 5267–5275. [29] R. Zellers, X. Lu, J. Hessel, Y. Yu, J. S. Park, J. Cao, A. Farhadi, and Y. Choi, “Merlot: Multimodal neural script knowledge models,” 
+
+Advances in neural information processing systems , vol. 34, pp. 23 634– 23 651, 2021. [30] P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal, H. K¨ uttler, M. Lewis, W.-t. Yih, T. Rockt¨ aschel et al. , “Retrieval-augmented generation for knowledge-intensive nlp tasks,” Advances in neural information processing systems , vol. 33, pp. 9459–9474, 2020. [31] J. Xu, Z. Guo, H. Hu, Y. Chu, X. Wang, J. He, Y. Wang, X. Shi, T. He, X. Zhu et al. , “Qwen3-omni technical report,” arXiv preprint arXiv:2509.17765 , 2025. [32] R. Geirhos, J.-H. Jacobsen, C. Michaelis, R. Zemel, W. Brendel, M. Bethge, and F. A. Wichmann, “Shortcut learning in deep neural networks,” Nature Machine Intelligence , vol. 2, no. 11, pp. 665–673, 2020. [33] T. Thrush, R. Jiang, M. Bartolo, A. Singh, A. Williams, D. Kiela, and C. Ross, “Winoground: Probing vision and language models for visio-linguistic compositionality,” in Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition , 2022, pp. 5238–5248. [34] Z. Lian, H. Sun, L. Sun, H. Chen, L. Chen, H. Gu, Z. Wen, S. Chen, S. Zhang, H. Yao et al. , “Ov-mer: Towards open-vocabulary multimodal emotion recognition,” arXiv preprint arXiv:2410.01495 , 2024. [35] Y. Zhang, B. Kang, B. Hooi, S. Yan, and J. Feng, “Deep long-tailed learning: A survey,” IEEE transactions on pattern analysis and machine intelligence , vol. 45, no. 9, pp. 10 795–10 816, 2023. [36] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly et al. ,“An image is worth 16x16 words: Transformers for image recognition at scale,” arXiv preprint arXiv:2010.11929 , 2020. [37] Z. Shao, P. Wang, Q. Zhu, R. Xu, J. Song, X. Bi, H. Zhang, M. Zhang, Y. Li, Y. Wu et al. , “Deepseekmath: Pushing the limits of mathematical reasoning in open language models,” arXiv preprint arXiv:2402.03300 ,2024. [38] B. Schuller, A. Batliner, S. Amiriparian, C. Bergler, M. Gerczuk, N. Holz, P. Larrouy-Maestri, S. Bayerl, K. Riedhammer, A. Mallol-Ragolta et al. , “The acm multimedia 2022 computational paralinguistics challenge: Vocalisations, stuttering, activity, & mosquitoes,” in Proceed-ings of the 30th ACM International Conference on Multimedia , 2022, pp. 7120–7124. [39] P. Ekman, “Darwin, deception, and facial expression,” Annals of the new York Academy of sciences , vol. 1000, no. 1, pp. 205–221, 2003. [40] R. Goyal, S. Ebrahimi Kahou, V. Michalski, J. Materzynska, S. West-phal, H. Kim, V. Haenel, I. Fruend, P. Yianilos, M. Mueller-Freitag et al. ,“The” something something” video database for learning and evaluat-ing visual common sense,” in Proceedings of the IEEE international conference on computer vision , 2017, pp. 5842–5850. [41] C. Feichtenhofer, H. Fan, J. Malik, and K. He, “Slowfast networks for video recognition,” in Proceedings of the IEEE/CVF international conference on computer vision , 2019, pp. 6202–6211. [42] Y.-H. H. Tsai, S. Bai, P. P. Liang, J. Z. Kolter, L.-P. Morency, and R. Salakhutdinov, “Multimodal transformer for unaligned multimodal language sequences,” in Proceedings of the 57th annual meeting of the association for computational linguistics , 2019, pp. 6558–6569. [43] H. Lightman, V. Kosaraju, Y. Burda, H. Edwards, B. Baker, T. Lee, J. Leike, J. Schulman, I. Sutskever, and K. Cobbe, “Let’s verify step by step,” in The twelfth international conference on learning represen-tations , 2023. [44] D. Amodei, C. Olah, J. Steinhardt, P. Christiano, J. Schulman, and D. Man´ e, “Concrete problems in ai safety,” arXiv preprint arXiv:1606.06565 , 2016. [45] J. Lu, C. Clark, S. Lee, Z. Zhang, S. Khosla, R. Marten, D. Hoiem, and A. Kembhavi, “Unified-io 2: Scaling autoregressive multimodal models with vision language audio and action,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 26 439–26 455. [46] Z. Cheng, S. Leng, H. Zhang, Y. Xin, X. Li, G. Chen, Y. Zhu, W. Zhang, Z. Luo, D. Zhao et al. , “Videollama 2: Advancing spatial-temporal modeling and audio understanding in video-llms,” arXiv preprint arXiv:2406.07476 , 2024. [47] Z. Liu, Y. Dong, J. Wang, Z. Liu, W. Hu, J. Lu, and Y. Rao, “Ola: Pushing the frontiers of omni-modal language model,” arXiv preprint arXiv:2502.04328 , 2025. [48] A. Jaech, A. Kalai, A. Lerer, A. Richardson, A. El-Kishky, A. Low, A. Helyar, A. Madry, A. Beutel, A. Carney et al. , “Openai o1 system card,” arXiv preprint arXiv:2412.16720 , 2024. [49] Y. Yao, T. Yu, A. Zhang, C. Wang, J. Cui, H. Zhu, T. Cai, H. Li, W. Zhao, Z. He et al. , “Minicpm-v: A gpt-4v level mllm on your phone,” arXiv preprint arXiv:2408.01800 , 2024. [50] C. Fu, H. Lin, X. Wang, Y.-F. Zhang, Y. Shen, X. Liu, H. Cao, Z. Long, H. Gao, K. Li et al. , “Vita-1.5: Towards gpt-4o level real-time vision and speech interaction,” arXiv preprint arXiv:2501.01957 , 2025. [51] A. Anthropic, “Introducing the next generation of claude,” https://www. anthropic. com/news/claude-3-family , 2024. [52] G. Team, P. Georgiev, V. I. Lei, R. Burnell, L. Bai, A. Gulati, G. Tanzer, D. Vincent, Z. Pan, S. Wang et al. , “Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context,” arXiv preprint arXiv:2403.05530 , 2024.
