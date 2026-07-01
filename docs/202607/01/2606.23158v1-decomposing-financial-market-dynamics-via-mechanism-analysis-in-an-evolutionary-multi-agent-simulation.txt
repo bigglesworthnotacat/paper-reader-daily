@@ -1,0 +1,163 @@
+Title: Decomposing Financial Market Dynamics via Mechanism Analysis in an Evolutionary Multi-Agent Simulation
+
+URL Source: https://arxiv.org/pdf/2606.23158v1
+
+Published Time: Tue, 23 Jun 2026 03:00:50 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# Decomposing Financial Market Dynamics via Mechanism Analysis in an Evolutionary Multi-Agent Simulation 
+
+## Zhibao Chen 
+
+Abstract 
+
+Evolutionary agent-based markets (ABMs) couple several mechanisms—who reproduces, how price forms, how biased the agents are, how consensus propagates—yet these are usually fixed by convention, so it is unclear which mechanism controls which emergent property . In a coevolving, endogenous-price simulator with 120 heterogeneous behavioral agents, we make four mechanisms pluggable and run matched 3 × 20 -seed interventions. We find the levers are largely separable . (1) Selection → diversity : a Quality-Diversity (QD/MAP-Elites) operator robustly raises strategy-mix entropy over truncation top-k (paired ∆ entropy +0 .27 to +1 .12 bits; sign-test p < 0.001 ; CIs exclude 0) and sustains more strategy cycling (a coarse cycling proxy, strongest in crisis: ∆=+0 .070 , p=0 .0004 ). (2) Selection ̸ → realism : even a per-agent realism reward that provably steers selection does not raise 5-fact realism (∆5= − 0.11 , −0.08 , +0 .03 ; not significant). (3) Microstructure → realism : enabling reflexive price feedback 
+
+does raise realism ( ∆5= + 0 .13 , +0 .20 , +0 .20 ; crisis/bull p < 0.05 , all CIs positive). (4) Behavior → fragility :amplifying behavioral bias raises a genomic fragility proxy ( ∆= + 10 .5, +11 .1, +14 .4; bull p < 0.001 , all CIs positive) while leaving realism flat. The remaining mechanism—consensus network topology—shows no robust effect (honest null). The contribution is a decomposition: in these single-mechanism sweeps the mechanisms behave as approximately distinct control knobs over diversity, realism, and fragility. 
+
+# 1 Introduction 
+
+Agent-based models (ABMs) of financial markets explain aggregate market behavior as the emergent product of many heterogeneous, boundedly rational traders, and have been argued to be essential where equilibrium theory fails [7]; see LeBaron [11] and Hommes [10] for surveys. Two largely disjoint literatures use evolutionary ABMs. The realism 
+
+camp—e.g. the Santa Fe Artificial Stock Market [2], adaptive-belief systems [3], and minimal-ingredient models [1]— calibrates or hand-tunes heterogeneous agents to reproduce empirical stylized facts [4]. The discovery camp evolves profitable trading rules, typically against a fixed historical price path. Such models couple several mechanisms at once—a selection rule, a price-formation rule, a behavioral-bias profile, a consensus process—but these are fixed by convention, so a basic mechanistic question goes unanswered: which mechanism controls which emergent property of the market? We make four mechanisms pluggable in one coevolving, endogenous-price multi-agent simulator and run matched single-mechanism interventions, decomposing which mechanism drives which facet of the market’s emergent dynamics. Our contributions: • Selection is a diversity lever , not a realism lever: QD selection raises strategy-mix entropy and strategy cycling, but no tested selection variant—even a functional per-agent realism reward—improves stylized-fact realism. • Microstructure is the realism lever : a reflexivity intervention with selection held fixed raises realism. • Behavioral bias is a fragility lever : amplifying agent biases raises a genomic fragility proxy while leaving realism flat. • An honest null : consensus network topology has no robust effect on cascades or realism, so we keep it off by default. Together these give a separability picture: in these single-mechanism sweeps, distinct mechanisms act as approxi-mately distinct knobs over diversity, realism, and fragility (single-factor interventions, so interactions are not ruled out). 
+
+# 2 Model 
+
+The arena holds N =120 agents, each carrying a 16-dimensional behavioral genome (cognitive biases, strategy weights, risk limits, adaptation). Price is endogenous: each day agents perceive momentum, a fundamental gap, and sentiment, 1
+
+> arXiv:2606.23158v1 [cs.AI] 22 Jun 2026
+
+emit orders, and the price responds to net order flow plus noise (optionally with reflexive feedback). Fundamen-tals can follow historical scenarios. Each generation runs D=20 trading days, scores agents by risk-adjusted return 
+
+fi = ri/std( last-20 trade PnL ) with ri = ( ci − c0)/c 0, selects parents via a pluggable operator, and breeds the next generation by uniform crossover and Gaussian mutation. 
+
+Selection operators. (i) Truncation : top-k by fitness ( k = max(2 , ⌊ρN ⌋), ρ=0 .2), the legacy baseline. (ii) QD (MAP-Elites) : keep the fittest agent per behavior niche ⟨archetype × leverage-bin × horizon-bin ⟩, then fill the quota from niche elites; this preserves behavioral coverage [13, 12]. (iii) NSGA-II : non-dominated sort on per-agent ob-jectives (fi, −leverage i) with crowding distance [5]. The truncation path is byte-identical to the legacy engine and pinned by a regression test; only non-default operators receive the niche descriptor and objectives. 
+
+Other pluggable mechanisms. Beyond selection we expose three further knobs, each varied in isolation with all else at default. Reflexivity : the price-impact multiplier feeds back on order flow, firing a herding cascade (and a leverage spiral) when a high-bias/high-leverage majority aligns (off / on / strong). Behavioral bias : a scalar amplifies the five bias genes (overconfidence, loss aversion, herding, recency, sentiment sensitivity) about their neutral points, clamped to legal ranges (factor 0.5/1.0/1.6 = weak / normal / strong); non-bias genes are untouched. Consensus topology : the herding term reads a consensus signal from a neighbor graph instead of the global order-flow sign— global (default), 
+
+ring (k=4 nearest by index), or small-world (ring plus ∼10% random long links). 
+
+# 3 Metrics 
+
+Diversity : Shannon entropy (bits) of the four-class strategy mix of the surviving population. Strategy cycling : mean 
+
+L1 churn of the four-class mix vector between consecutive generations ( 0 static, up to 2 full flip per generation), a rock– paper–scissors / Red-Queen proxy. Realism : fraction of six stylized-fact tests passed (fat tails, volatility clustering, leverage effect, volume–volatility correlation, mean-reversion/Hurst-range test, bubble–crash emergence); we also report a 5-fact variant excluding bubble–crash, which is weakened by a fundamental-history proxy. Archetypes are value ( f s> 0.6, mw< 0.2), momentum ( mw> 0.5), herding ( ht> 0.6), else mixed; QD bins leverage by ⌊L/ 2⌋ (capped at 4) and horizon by ⌊H/ 40 ⌋ (capped at 4). Genomic fragility proxy : a 0–100 index of leverage concentration, herding, and mortality. Cascade days : count of trading days (arena steps) on which a herding cascade fires (for the topology intervention). 
+
+# 4 Experiments 
+
+The diversity, realism, and cycling claims sweep {truncation, QD, NSGA-II }×{ random, crisis 2008, leveraged bull 2015 }× 
+
+20 seeds, 50 generations each. The single-mechanism interventions reuse the same 3 × 20 grid with selection fixed to truncation: reflexivity (off/on/strong), behavioral bias (weak/normal/strong), and topology (global/ring/small-world). The topology sweep keeps reflexivity on (cascades require reflexive feedback); the bias sweep keeps it off. Throughout we pair runs by seed and report mean ∆, the fraction of seeds with ∆ > 0, an exact two-sided sign-test p-value (on non-tied pairs where ties occur), and a percentile bootstrap 95% confidence interval of the mean ∆ [6]. 
+
+# 5 Results 
+
+C1: QD increases diversity (confirmed). Table 1 and Fig. 1 show QD beats truncation on strategy-mix entropy in every regime, with all CIs excluding zero and p < 0.001 (random, crisis) / p=0 .0004 (bull). Table 1: Paired ∆ entropy (QD − truncation), n=20 seeds.                         
+
+> Scenario mean ∆% seeds ∆>0sign-test pbootstrap 95% CI Random +0 .902 95% <0.001 [+0 .652 ,+1 .161]
+> Crisis’08 +1 .118 95% <0.001 [+0 .842 ,+1 .374]
+> Lev. Bull’15 +0 .274 90% 0.0004 [+0 .128 ,+0 .463]
+
+2Random Crisis'08 Lev.Bull'15 
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> Strategy-mix entropy (bits)
+
+Strategy diversity by selection operator (n=20 seeds, mean ± std) 
+
+> Truncation
+> QD (MAP-Elites)
+> NSGA-II
+
+Figure 1: Strategy-mix entropy by selection operator (mean ± std, n=20 ). QD (blue) dominates truncation (grey); NSGA-II (amber) is lower-diversity than QD. 
+
+C2: diversity does not buy realism (negative). We test this with a functional per-agent realism reward: each agent’s QD quality becomes its fitness plus a weight times its stylized-fact alignment (PnL excess kurtosis + | · | 
+
+lag-1 autocorrelation), which provably reorders intra-niche selection (the results sfa rerun). Table 2 reports the paired ∆ on 5-fact realism (sign test on non-tied pairs). The pattern is no positive realism effect: random and crisis have negative means with a negative bootstrap CI on random, but neither is sign-test significant after excluding ties (p = 0 .065 , 0.070 ); bull is noise ( p = 0 .45 ). A weight ablation (reward weight 1 vs 0, same seeds) confirms the reward buys nothing: it costs ≈ 0.2 bits of entropy in random/crisis and does not raise realism. The more diverse QD populations are thus no more (and if anything less) faithful to stylized facts—so we recommend running QD with the realism weight at 0. We therefore state, narrowly, that the selection operator does not control emergent realism in this arena ; we do not claim a causal mechanism, only that selection is the wrong lever. Table 2: Paired ∆ 5-fact realism (functional QD − truncation), n=20 ; sign test on non-tied pairs.                     
+
+> Scenario mean ∆non-tie n% (non-tie) ∆>0sign-test p
+> Random −0.110 11 18% 0.065
+> Crisis’08 −0.080 812% 0.070
+> Lev. Bull’15 +0 .030 771% 0.453
+
+C3: NSGA-II lowers diversity (exploratory). Selecting on (return, −leverage) is lower-diversity than QD in all regimes (entropy means 0.43 , 0.47 , 1.08 vs QD 1.36 , 1.54 , 1.88 ) and lowers the genomic fragility proxy ( ≈25 vs ≈55 for truncation). We flag this as a genome-composition effect, not measured systemic fragility: the proxy penalizes leverage > 5 while effective trade leverage is capped at 3 and reflexivity is off. 
+
+C4: reflexivity is the realism lever (intervention). To test whether realism is steerable at all, we intervene on the price-formation mechanism instead of selection: holding selection fixed (truncation), we vary the arena’s reflexive feedback (off / on / strong) over the same 3 × 20 grid. Enabling reflexivity raises 5-fact realism (Table 3): paired ∆5 =+0 .13 , +0 .20 , +0 .20 for random/crisis/bull, significant under crisis ( p=0 .049 ) and bull ( p=0 .0005 ) and directional on random (positive bootstrap CI). This is the positive counterpart to C2: the lever that moves realism is microstructure, not selection. This aligns with structural ABM estimation, where a time-varying herding/feedback component is the ingredient that best reproduces the stylized facts [8]. 3Table 3: Paired ∆ 5-fact realism (reflexivity ON − OFF), n=20 , truncation selection.                            
+
+> Scenario mean ∆sign-test pbootstrap 95% CI off →on Random +0 .130 0.065 [+0 .04 ,+0 .23] 0.51 →0.64
+> Crisis’08 +0 .200 0.049 [+0 .08 ,+0 .31] 0.20 →0.40
+> Lev. Bull’15 +0 .200 0.0005 [+0 .12 ,+0 .28] 0.26 →0.46
+
+C5: QD sustains strategy cycling (game dynamics). Diversity (C1) is a static snapshot; we also ask whether QD keeps the ecology moving . Table 4 reports the paired ∆ on strategy cycling. QD sustains more inter-generation mix churn than truncation in every regime (all bootstrap CIs positive), significant under crisis ( p=0 .0004 ) and directional elsewhere. The sign test and the CI here measure different things: the CI is positive in all three regimes (the mean effect is robust), but the per-seed sign only reaches significance in crisis, because in the calmer random/bull regimes the per-seed effect is small relative to seed noise and signs split near 50 /50 . The effect concentrates in the regime that most exercises the lever: crisis stress forces the most strategy turnover, so a diversity-preserving operator has the most room to keep the ecology moving. Truncation collapses to a static winner; QD maintains an oscillating multi-archetype ecology—a coarse cycling signature (strongest in crisis), the dynamical counterpart of the C1 diversity result. We measure churn of the coarse 4-class mix, not a formal evolutionary-stable-strategy or invasion test (a deferred next step), so we read this as a cycling signature , not an ESS claim. Table 4: Paired ∆ strategy cycling (QD − truncation), n=20 .                      
+
+> Scenario mean ∆% seeds ∆>0sign-test pbootstrap 95% CI Random +0 .037 55% 0.824 [+0 .007 ,+0 .069]
+> Crisis’08 +0 .070 90% 0.0004 [+0 .045 ,+0 .093]
+> Lev. Bull’15 +0 .018 70% 0.115 [+0 .006 ,+0 .030]
+
+C6: behavioral bias is the fragility lever (intervention). A third intervention amplifies the agents’ behavioral biases (weak / normal / strong) with selection (truncation) and reflexivity (off) held fixed. Table 5 shows that stronger bias raises the genomic fragility proxy in every regime (all bootstrap CIs positive), significant under bull ( p < 0.001 ), while 5-fact realism stays roughly flat (weak/normal/strong means: random 0.53 /0.51 /0.48 , crisis 0.14 /0.20 /0.18 ,bull 0.24 /0.26 /0.32 ). So behavioral bias moves fragility, not realism—a third independent knob. As in C5, the mean effect is robust across regimes (all CIs positive) while per-seed sign significance concentrates in one regime—here the leveraged bull, which most exercises the fragility channel: a rising, leverage-friendly regime is where amplified overconfidence/herding translates most directly into crowded leveraged positioning, and hence the largest, most sign-consistent rise in the systemic-risk proxy. “Fragility” here is the genomic composition proxy, not measured tail risk, and bias scaling is a coarse linear amplification rather than a calibrated behavioral model. Table 5: Paired ∆ genomic fragility peak (strong − weak bias), n=20 , truncation selection, reflexivity off.                             
+
+> Scenario mean ∆sign-test pbootstrap 95% CI weak →strong Random +10 .50.115 [+4 .9,+16 .9] 53 .4→63 .9
+> Crisis’08 +11 .10.503 [+3 .5,+19 .0] 47 .2→58 .4
+> Lev. Bull’15 +14 .4<0.001 [+10 .8,+18 .3] 40 .5→54 .8
+
+C7: consensus topology has no robust effect (honest null). Finally we route the herding consensus through a neighbor graph (global / ring / small-world) instead of the global order-flow sign. Table 6 reports the paired ∆ on herding-cascade days (ring − global). Local clustering (ring) raises cascade frequency only in the random regime (sign-test p=0 .041 , though the bootstrap CI [−0.2, +74 .8] still spans zero); crisis and bull are non-significant with wide CIs spanning zero. Realism shows no consistent topology effect (5-fact means within about 0.1 of global, with no consistent direction). A 6-seed pilot looked stronger but did not survive n=20 . We log this as an honest negative: in 4this model the consensus network structure is not a robust lever—unlike selection, microstructure, and bias—and we keep topology at global by default. Prior work does find topology effects in stylized models with local belief-switching [14]; the null here may reflect that our herding term reads only a localized consensus signal rather than propagating state agent-to-agent—a mechanism that would be needed for robust topology sensitivity. Table 6: Paired ∆ herding-cascade days (ring − global topology), n=20 .
+
+Scenario mean ∆ sign-test p bootstrap 95% CI global/ring/sw Random +36 .1 0.041 [−0.2, +74 .8] 77 /113 /100 
+
+Crisis’08 +13 .0 0.263 [−107 , +129] 353 /366 /296 
+
+Lev. Bull’15 +3 .0 1.000 [−16 , +22] 92 /95 /99 0.0 0.5 1.0                   
+
+> entropy (bits)
+> Random
+> Crisis'08
+> Lev.Bull'15
+> C1 Selection diversity
+> 0.0 0.1 0.2 0.3
+> realism
+> Random
+> Crisis'08
+> Lev.Bull'15
+> C4 Microstructure realism
+> 0.00 0.05
+> cycling
+> Random
+> Crisis'08
+> Lev.Bull'15
+> C5 Selection cycling
+> 010
+> fragility
+> Random
+> Crisis'08
+> Lev.Bull'15
+> C6 Bias fragility
+> 100 0100
+> cascade days
+> Random
+> Crisis'08
+> Lev.Bull'15
+> C7 Topology propagation
+> Separability: each mechanism's paired (point) with bootstrap 95% CI (bar); grey = CI spans 0
+
+Figure 2: Separability at a glance. Each panel is one mechanism’s paired ∆ (point) with its bootstrap 95% CI (bar) across the three regimes; the dashed line marks ∆=0 . Diversity (C1), realism (C4), cycling (C5), and fragility (C6) sit on the positive side with CIs off zero; only topology (C7) straddles zero in every regime (grey), the honest null. The four active levers move four different properties. 
+
+# 6 Discussion and Limitations 
+
+The interventions give a separability picture rather than one big effect (Fig. 2): changing who reproduces (selection) moves diversity and strategy cycling but not realism (C1, C2, C5); changing how price forms (reflexivity) moves realism (C4); changing how biased the agents are moves a fragility proxy but not realism (C6); and changing how consensus propagates (topology) moves nothing robustly (C7). Because each is a single-mechanism intervention with the others held fixed, the results are consistent with distinct mechanism-level controls within this simulator and con-figuration: diversity, realism, and fragility respond to largely different knobs (single-factor sweeps, not a full factorial, so interactions are not ruled out). Pursuing more faithful markets should target microstructure (reflexive feedback, and likely a real limit order book / nonlinear impact); pursuing fragility stress tests should target behavioral bias; and smarter selection should be reserved for the diversity and cycling it actually controls. Closest to our decomposition approach, Hashimoto and Izumi [9] incrementally introduce behavioral components into an artificial market and use optimal transport to assess each component’s contribution to the power-law distribution of returns; they find price-informational effects dominant. Our setting differs in three respects: the agent population evolves under pluggable selection operators; we decompose across three emergent properties (diversity, realism, fragility) rather than a single stylized fact; and we use a paired-seed statistical design with sign tests and bootstrap CIs. We attempted the obvious counter—making the realism reward a genuine per-agent signal that provably steers selection—and it did not help: realism trended negative (not significant after tie handling) and the weight ablation showed the reward only costs di-versity. We thus did not find a selection-side realism lever, even when actively searching for one. Limitations: realism uses a fundamental-history proxy (hence the 5-fact report excluding bubble–crash); the volume–volatility test never passes in any condition, so the realism scalar is effectively over 5 facts of which one is structurally unreachable here; a single simulator; synthetic/semi-historical scenarios; both “fragility” (a genome-composition proxy, not measured systemic risk) and “cycling” (coarse 4-class mix churn, not a formal ESS/invasion test) are proxies; several effects are 5CI-positive but not sign-test significant (only one scenario each reaches p < 0.05 for C5/C6, and topology is null). A natural informal mechanism for the realism non-result—that high-sf align agents are extreme/over-leveraged and distort the price process—remains a conjecture we did not verify against stored order-flow. 
+
+# 7 Conclusion 
+
+Treating selection, price-formation, behavioral bias, and consensus topology as pluggable design variables in one evolutionary ABM yields an approximate decomposition into largely distinct control knobs: diversity-preserving (QD) selection sustains a cycling strategy ecology that truncation collapses, while tested selection variants do not improve realism; reflexive price feedback raises stylized-fact realism with selection held fixed; amplified behavioral bias raises a fragility proxy without touching realism; and consensus network topology moves nothing robustly. Selection is the diversity (and cycling) knob, microstructure is the realism knob, behavior is the fragility knob—and not every plausible mechanism is a lever. 
+
+# References 
+
+[1] V. Alfi, M. Cristelli, L. Pietronero, and A. Zaccaria. Minimal agent based model for financial markets I: Origin and self-organization of stylized facts. The European Physical Journal B , 67(3):385–397, 2009. doi: 10.1140/epjb/e2009-00028-4. [2] W Brian Arthur, John H Holland, Blake LeBaron, Richard Palmer, and Paul Tayler. Asset pricing under endogenous ex-pectations in an artificial stock market. In The Economy as an Evolving Complex System II , pages 15–44. Addison-Wesley, 1997. [3] William A Brock and Cars H Hommes. Heterogeneous beliefs and routes to chaos in a simple asset pricing model. Journal of Economic Dynamics and Control , 22(8-9):1235–1274, 1998. [4] Rama Cont. Empirical properties of asset returns: stylized facts and statistical issues. Quantitative Finance , 1(2):223–236, 2001. [5] Kalyanmoy Deb, Amrit Pratap, Sameer Agarwal, and T Meyarivan. A fast and elitist multiobjective genetic algorithm: NSGA-II. IEEE Transactions on Evolutionary Computation , 6(2):182–197, 2002. [6] Bradley Efron and Robert J. Tibshirani. An Introduction to the Bootstrap . Chapman & Hall, New York, 1993. ISBN 0-412-04231-2. [7] J. Doyne Farmer and Duncan Foley. The economy needs agent-based modelling. Nature , 460(7256):685–686, 2009. doi: 10.1038/460685a. [8] Reiner Franke and Frank Westerhoff. Structural stochastic volatility in asset pricing dynamics: Estimation and model contest. 
+
+Journal of Economic Dynamics and Control , 36(8):1193–1211, 2012. doi: 10.1016/j.jedc.2011.10.004. [9] Ryuji Hashimoto and Kiyoshi Izumi. Towards realistic and interpretable market simulations: Factorizing financial power law using optimal transport. arXiv preprint arXiv:2507.09863 , 2025. doi: 10.48550/arXiv.2507.09863. [10] Cars H. Hommes. Heterogeneous agent models in economics and finance. In Leigh Tesfatsion and Kenneth L. Judd, ed-itors, Handbook of Computational Economics , volume 2, chapter 23, pages 1109–1186. Elsevier, 2006. doi: 10.1016/ S1574-0021(05)02023-X. [11] Blake LeBaron. Agent-based computational finance. In Leigh Tesfatsion and Kenneth L. Judd, editors, Handbook of Compu-tational Economics , volume 2, chapter 24, pages 1187–1233. Elsevier, 2006. doi: 10.1016/S1574-0021(05)02024-1. [12] Joel Lehman and Kenneth O Stanley. Abandoning objectives: Evolution through the search for novelty alone. Evolutionary Computation , 19(2):189–223, 2011. [13] Jean-Baptiste Mouret and Jeff Clune. Illuminating search spaces by mapping elites. arXiv preprint arXiv:1504.04909 , 2015. [14] Valentyn Panchenko, Sergiy Gerasymchuk, and Oleg V. Pavlov. Asset price dynamics with heterogeneous beliefs and local network interactions. Journal of Economic Dynamics and Control , 37(12):2623–2642, 2013. doi: 10.1016/j.jedc.2013.06.015. 
+
+6
