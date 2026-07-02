@@ -1,0 +1,308 @@
+Title: AURORA: Asymmetry and Update-Induced Rotation for Robust Hallucination Detection in Large Language Models
+
+URL Source: https://arxiv.org/pdf/2606.29545v1
+
+Published Time: Tue, 30 Jun 2026 01:23:42 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# AURORA: Asymmetry and Update-Induced Rotation for Robust Hallucination Detection in Large Language Models 
+
+## Zishuai Zhang 1,2 Hainan Zhang ∗1,2 Zhiming Zheng 1,21School of Artificial Intelligence, Beihang University, China 
+
+> 2
+
+## Beijing Advanced Innovation Center for Future Blockchain and Privacy Computing, Beihang University, China 
+
+## zhangzishuai@buaa.edu.cn zhanghainan@buaa.edu.cn zhengzhiming0130@163.com 
+
+## Abstract 
+
+Large Language Models (LLMs) have demonstrated remarkable capabilities across a wide range of natural language process-ing tasks. However, their tendency to gen-erate hallucinations, namely factually incor-rect or unfaithful outputs, poses a critical obstacle to their deployment in high-stakes applications. Although recent hallucina-tion detection methods have made encour-aging progress, they typically rely on costly output-level consistency checks or static hidden-state probes that capture shallow dataset-specific patterns, leading to substan-tial degradation under cross-dataset evalua-tion. In this work, we propose AURORA, a novel hallucination detection framework that shifts the focus from static represen-tations to the weight–gradient dynamics of LLMs. Our key insight is that hallucinated and faithful answers induce qualitatively different gradient update patterns on the model’s parameters. Specifically, halluci-nated samples trigger asymmetric and struc-turally misaligned gradients, which can be captured through two complementary fea-tures: (1) the skewness of the cosine similar-ity distribution between weight matrices and their gradient update directions, and (2) the rotation ratio, which quantifies how much the gradient update reorients the singular-vector basis of weight matrices via SVD. AURORA achieves strong hallucination de-tection performance across four model fam-ilies and four benchmark datasets. Further analyses demonstrate that our method scales effectively across model sizes and transfers to out-of-domain tasks, including mathe-matical reasoning and vision-language sce-narios.  
+
+> ∗Corresponding author.
+
+## 1 Introduction 
+
+Large Language Models (LLMs) have demon-strated unprecedented capabilities across awide spectrum of natural language processing tasks, from question answering and sum-marization to code generation and scientific reasoning (Grattafiori et al., 2024; Yang et al., 2025; Team et al., 2025). However, their practical deployment in high-stakes domains—including healthcare, law, finance, and education—remains severely constrained by the persistent problem of hallucination : the generation of outputs that are fluent and plausible-sounding, yet factually incorrect or unfaithful (Li et al., 2023). Re-liable hallucination detection is therefore not only essential for improving the safety of LLM deployments, but also provides a principled tool for identifying abnormal generations, filtering unreliable data, and probing how models in-ternally respond to faithful versus hallucinated content. Understanding such internal dynamics is particularly important for developing detection signals that generalize beyond dataset-specific surface patterns. A diverse body of research has emerged to ad-dress this challenge, which can be broadly catego-rized along two axes. The first axis concerns the level of access to the model: black-box methods operate solely on generated text, typically by as-sessing consistency among sampled responses or by validating a generated answer through query re-construction and semantic comparison (Manakul et al., 2023; Yehuda et al., 2024); white-box meth-ods leverage internal model signals such as hidden states, attention patterns, or output logits (Zhang et al., 2025; Su et al., 2024). The second axis concerns the nature of the detection signal: some methods (Hu et al., 2025) extract features directly from forward-pass representations, while others rely on the model’s uncertainty as reflected in 
+
+> arXiv:2606.29545v1 [cs.CL] 28 Jun 2026
+
+token-level probabilities (Farquhar et al., 2024; Fadeeva et al., 2024). Despite the steady progress, most existing white-box methods share a fundamental limita-tion: they operate exclusively on static repre-sentations extracted during the forward pass— hidden states, attention maps, or output embed-dings. While such representations encode what the model “knows” at inference time, they do not capture how the model would change if it were updated to better fit a given sample. We ar-gue that this gradient-level information—the di-rection of parameter updates induced by a specific input—carries a complementary and more gener-alizable signal for hallucination detection. Intu-itively, when an LLM produces a faithful answer grounded in its parametric knowledge, the gradi-ent update should be relatively aligned with the existing weight matrices. In contrast, when the model fabricates information, the resulting gra-dient signal should exhibit pronounced bias and structural misalignment, as the model attempts to reconcile an internally inconsistent generation with its learned parameterization. To verify this hypothesis, we first finetune Qwen3-8B on hal-lucinated and correct samples, respectively. We then compute the layer-wise skewness and the ro-tation ratio between the finetuned model and the base model. The results are shown in Figure 1. It can be observed that finetuning on hallucinated samples leads to noticeably larger weight rota-tions than finetuning on correct samples, particu-larly in the deeper transformer layers. In addition, the cosine-similarity distribution exhibits consis-tently higher skewness along the output dimen-sion, suggesting that hallucination learning up-dates are concentrated on fewer dominant direc-tions rather than being evenly distributed. These observations indicate that hallucinated samples in-duce more anisotropic parameter updates, motivat-ing us to exploit skewness and weight rotation as potential indicators for hallucination detection. Building on this insight, we propose AURORA ,a novel white-box hallucination detection frame-work that, to the best of our knowledge, is the first to exploit weight–update dynamics for this task. Rather than inspecting hidden states, AURORA extracts features from the relationship between a frozen LLM’s weight matrices and the gradient update directions induced by individual training samples. Concretely, we equip the LLM with  
+
+> Figure 1: Hallucination vs. correct: Faithful answers induce relatively symmetric weight–update alignment with modest rotation from the original singular vec-tor basis. Hallucinated answers produce skewed align-ments and substantial basis rotation, reflecting the model’s internal tension when fabricating information.
+
+lightweight LoRA adapters (Hu et al., 2022) and, for each query–answer pair, perform a forward– backward pass to obtain gradients. From these gradients, we compute two complementary types of features for each target layer: 1. Skewness of Cosine Similarity Distribu-tion: We compute the row-wise and column-wise cosine similarity between the current weight matrix and its gradient-updated coun-terpart, then measure the skewness of the resulting similarity distribution. A highly skewed distribution indicates that the gradi-ent update asymmetrically affects different output or input dimensions, which often is a signature of hallucinated content. 2. Rotation Ratio via SVD: We decompose each target weight matrix via SVD, project the gradient-direction weight onto the origi-nal singular subspaces, and quantify the off-diagonal energy, namely, rotation ratio. Ahigh rotation ratio indicates that the gradient update substantially reorients the weight ma-trix away from its learned singular vector ba-sis, reflecting the model’s internal inconsis-tency when processing hallucinated answers. These features are standardized via per-layer, per-module z-score normalization and then fed into a MLP classifier. The full pipeline operates in two stages: (i) feature collection, where the frozen LLM with LoRA adapters processes train-ing samples to extract gradient-level features, and (ii) probe training, where the MLP classifier is trained on these pre-extracted features with binary cross-entropy loss. We conduct comprehensive experiments across four model families and different scales and four standard hallucination benchmarks (HaluE-val, HotpotQA, TriviaQA, and SQuAD). Our main findings are: • Novel features from weight update dynam-ics. We discover that hallucinated and faith-ful samples induce qualitatively different pa-rameter update patterns: the skewness of co-sine similarity between weights and their gra-dient updates, and a rotation ratio via SVD. Unlike prior work that probes static hidden states, our features characterize the dynamic interaction between model knowledge and outer claims. • Superior cross-dataset generalization. AMLP classifier trained on these features achieves competitive in-domain accuracy and substantially outperforms existing white-box methods under cross-dataset transfer. This pronounced transferability suggests that gradient-level features capture a more fun-damental, model-intrinsic signature of hallu-cination rather than dataset-specific correla-tions. • Extensive validation across scales, archi-tectures, and modalities. We verify the ef-fectiveness of AURORA across model sizes spanning 0.8B to 70B parameters, and out-of-domain tasks including mathematical rea-soning and vision-language scenarios. Abla-tion studies further reveal the complementary roles of individual features and identify the most informative transformer components for detection. The rest of the paper proceeds as follows. Sec-tion 3 introduces our weight–update feature ex-traction framework and the downstream probe. Section 4 presents in-domain and cross-dataset evaluations, ablation analyses of individual fea-tures, layers and modules, together with cross-model scaling and out-of-domain transfer exper-iments. Section 5 concludes. 
+
+## 2 Related Work 
+
+Hallucination detection aims to determine whether an LLM-generated answer is faithful to the given query, context, or underlying facts. Existing meth-ods can be broadly organized according to where the detection signal is obtained: output-level be-havior, forward-pass internal representations, or spectral structures of model states. 
+
+Output-level consistency and uncertainty methods. A common line of work treats the LLM as a black box and detects hallucinations from generated text alone. SelfCheckGPT (Man-akul et al., 2023) is based on the intuition that factual answers should remain consistent across multiple stochastic generations, whereas hallu-cinated answers tend to produce divergent or contradictory samples. InterrogateLLM (Yehuda et al., 2024) instead validates a generated answer by asking the model to reconstruct the original query from that answer and then measuring semantic consistency between the reconstructed and original queries. Related uncertainty-based methods estimate hallucination risk from token-level probabilities (Fadeeva et al., 2024), semantic entropy over sampled answers (Farquhar et al., 2024), or embedding-space variability across sampled generations (Chen et al., 2024). These methods are attractive because they require little or no access to model internals. However, many of them require multiple generations, external entailment or embedding models, or carefully designed prompts. Moreover, because their signals are derived from output variability, they may conflate hallucination with benign diversity among plausible answers. 
+
+White-box methods based on forward-pass rep-resentations. Another major direction exploits internal model signals, including hidden states, contextualized embeddings, attention patterns, and logits. MIND (Su et al., 2024) uses in-ternal states to construct an unsupervised detec-tor for real-time hallucination detection. ICR Probe (Zhang et al., 2025) tracks the evolution of hidden states across layers and measures the con-tribution of different modules to residual-stream updates. Compared with black-box methods, these approaches are often more sample-efficient and can operate with a single forward pass. How-ever, because these methods rely on forward-pass representations under fixed model param-eters, they may capture dataset-specific surface patterns rather than general hallucination-related signals. As a result, they often achieve strong in-domain performance but degrade under cross-dataset evaluation, indicating limited ability to identify hallucinations beyond the training distri-bution. 
+
+Spectral and subspace-based detection. Spec-tral methods provide another way to charac-terize hallucination-related structures in LLMs. HARP (Hu et al., 2025) decomposes the unem-bedding matrix with SVD and projects hidden states onto a reasoning subspace for hallucina-tion detection. EigenScore (Chen et al., 2024) analyze the covariance or effective rank of em-beddings obtained from multiple sampled gener-ations. Although these methods demonstrate the usefulness of spectral signals, they mainly decom-pose forward-pass activations, sampled-response embeddings, attention structures, or the unembed-ding matrix. In contrast, AURORA applies SVD to weight matrices and measures how sample-induced gradient updates reorient their singular-vector basis. Therefore, our use of SVD is not merely a spectral summary of representations, but a way to quantify structural changes in the model’s parameter geometry. AURORA differs from prior detectors by ex-ploiting weight-update dynamics rather than out-put consistency or static forward-pass represen-tations. It characterizes the interaction be-tween weights and sample-induced gradient up-dates through two features: skewness, which mea-sures asymmetric weight-gradient alignment, and rotation ratio, which quantifies the reorientation of the original singular-vector basis. By captur-ing how the model would change in response to each sample, AURORA avoids repeated sampling, is less dependent on dataset-specific hidden-state patterns, and provides a more transferable signal for hallucination detection and abnormal data fil-tering. 
+
+## 3 Methodology 
+
+3.1 Problem Formulation 
+
+Let a dataset D = {(qi, ai, y i)}Ni=1 consist of user queries qi and LLM-generated answers ai, where each pair is labeled yi ∈ { 0, 1} indicating whether 
+
+ai is faithful ( yi = 0 ) or hallucinated ( yi = 1 )with respect to qi. Our goal is to learn a binary classifier 
+
+fθ(q, a) → { 0, 1} (1) that predicts whether a given answer is halluci-nated. The classifier fθ does not operate on raw text directly. Instead, it consumes a compact fea-ture vector z ∈ RF extracted from the inter-nal weight–gradient dynamics of a trainable LLM. Formally, 
+
+fθ(q, a) = fθ
+
+ Φ( q, a; M), (2) where M denotes the LLM adapted via LoRA (Hu et al., 2022), which is employed to keep the training lightweight while efficiently obtaining the model update direction. Φ( ·) denotes the feature extractor (detailed in 3.2), and fθ is the lightweight MLP trained with binary cross-entropy loss. This formulation supports two practical deploy-ment scenarios. (1) Post-hoc hallucination de-tection: given a deployed QA system, after the LLM produces an answer a to a user query q, fθ
+
+can flag the answer as potentially hallucinated be-fore it reaches the end user. (2) Training data fil-tering: when constructing supervised fine-tuning datasets from LLM-generated outputs, one can score each (q, a) pair using fθ and discard sam-ples whose predicted hallucination probability ex-ceeds a threshold, thereby improving training data quality without manual verification. 
+
+3.2 AURORA 
+
+We extract features from the LoRA-adapted lay-ers of the LLM. For each target module (e.g., 
+
+v_proj , gate_proj ), let W0 ∈ Rdout ×din de-note the frozen pre-trained weight matrix. LoRA introduces two low-rank matrices B ∈ Rdout ×r and 
+
+A ∈ Rr×din , where B is initialized to zero and A
+
+is randomly initialized. The effective weight ma-trix is: 
+
+W = W0 + αr BA . (3) Given an input pair (q, a), we perform a forward pass through the model to compute the language modeling loss L(a | q; W). We then perform a backward pass, which yields gradients ∇BL
+
+and ∇AL with respect to the LoRA parameters. Since W0 is frozen, the effective weight change induced by one gradient step is propagated solely through the low-rank adapters. We approximate this change via a first-order expansion: 
+
+δW = ( ∇BL) A + B (∇AL), (4) where we omit the second-order term 
+
+(∇BL)( ∇AL), which is negligible relative to the first-order contributions. Equation (4) captures how the effective weight W would shift under one gradient step, projected through the low-rank LoRA subspace. We then define the gradient-direction weight as: 
+
+G = W − γ · δW, (5) representing the hypothetical weight matrix after a single gradient update, where γ is the strength factor. All subsequent features are derived from the pair (W, G).
+
+Skewness of Cosine Similarity Distribution 
+
+For each module, we compute the row-wise cosine similarity between W and G:
+
+cos θ(row ) 
+
+> i
+
+= Wi, : · Gi, :
+
+∥Wi, :∥ ∥ Gi, :∥ , i = 1 , . . . , d out .
+
+(6) This yields a distribution of dout cosine simi-larity values, each quantifying how much the i-th output direction rotates under the gradient update. We compute the skewness of this distribution: 
+
+γ(row ) = 1
+
+dout 
+
+> dout
+
+X
+
+> i=1
+
+cos θ(row ) 
+
+> i
+
+− μrow 
+
+σrow 
+
+!3
+
+, (7) where μrow and σrow are the empirical mean and standard deviation of {cos θ(row ) 
+
+> i
+
+}. Analogously, we compute column-wise cosine similarities along the input dimension din (replacing Wi, : with W:,j 
+
+in Eq. (6)), producing a column-wise skewness 
+
+γ(col ).These two skewness measures capture comple-mentary asymmetry patterns: • Row-wise skewness (γ(row ), referred to as 
+
+skew_dim_minus1 in our code): a highly positive skew means a small fraction of output dimensions experience disproportion-ately large directional shifts, while most re-main nearly unchanged. A negative skew indicates that the directional shifts are more uniformly spread across output dimensions, with a long tail of dimensions shifting in the opposite direction. • Column-wise skewness (γ(col ), referred to as 
+
+skew_dim_0 ): analogously measures the asymmetry across input channels, reflecting how selectively different input features con-tribute to the gradient-induced rotation. After extraction, each skewness value is stan-dardized via per-layer, per-module z-score nor-malization using pre-computed mean and standard deviation statistics (see Appendix A.3.1). 
+
+Rotation Ratio via SVD While skewness cap-tures per-vector asymmetry, the rotation ratio mea-sures the global structural rotation of the weight matrix induced by the gradient update. Given the effective weight W ∈ Rdout ×din , we perform rank-
+
+r truncated SVD: 
+
+W ≈ UrSrV⊤ 
+
+> r
+
+, (8) where Ur ∈ Rdout ×r and Vr ∈ Rdin ×r have orthonormal columns spanning the top-r left and right singular subspaces, and Sr ∈ Rr×r is diago-nal. We then project the gradient-direction weight 
+
+G (Eq. (5)) onto these original singular subspaces: 
+
+˜S = U⊤ 
+
+> r
+
+GV r. (9) If the gradient update merely rescales the ex-isting singular directions without rotating them, ˜S
+
+remains diagonal. Conversely, if the update intro-duces new directions not aligned with Ur or Vr,the off-diagonal entries of ˜S become non-zero. We quantify this via the rotation ratio: 
+
+ρ = λ ·
+
+˜S − diag( ˜S) F
+
+∥˜S∥F + ϵ , (10) where λ = 500 is a scaling constant (chosen to bring the raw ratio, typically in [0 , 0.002] , to a numerically convenient range), ∥ · ∥ F denotes the Frobenius norm, and ϵ = 10 −8 prevents division by zero. A higher ρ indicates that the gradient up-date substantially rotates the weight matrix away from its original singular vector basis, reorienting the model’s internal representations. The rotation ratio is also standardized via per-layer, per-module z-score normalization. The weights of the LLMs are high-dimensional, leading to prohibitive computational cost when performing SVD for downstream analysis. To mit-igate this issue, we adopt truncated SVD, which approximates the original feature matrix by retain-ing only the top r singular components. This not only reduces the computational overhead but also highlights the most discriminative directions. 
+
+## 4 Experiments 
+
+4.1 Experiment Setup Datasets 
+
+• HaluEval (Li et al., 2023): a large-scale hal-lucination evaluation benchmark containing both faithful and hallucinated responses. • HotpotQA (Yang et al., 2018): a multi-hop QA dataset that requires reasoning over mul-tiple supporting facts. • TriviaQA (Joshi et al., 2017): an open-domain QA benchmark with diverse fact-seeking questions. • SQuAD (Rajpurkar et al., 2018): a reading comprehension benchmark for evaluating an-swer faithfulness to given passages. 
+
+Metrics 
+
+• Balanced Accuracy (B-ACC). We use balanced accuracy as the primary metric to account for potential class imbalance: B-ACC = 12
+
+  TP TP +FN + TN TN +FP 
+
+. The decision threshold is fixed at 0.5 for all AURORA ex-periments. Unless otherwise specified by the original paper, we report B-ACC at the opti-mal threshold for baselines. • Generalization Accuracy (Gen-ACC). For cross-dataset evaluation, we compute the mean value of B-ACC across the four eval-uation datasets using the same checkpoints, weighting each dataset equally: Gen-ACC =
+
+> 14
+
+P4 
+
+> d=1
+
+B-ACC d.
+
+Baselines 
+
+• ICR Probe (Zhang et al., 2025): a white-box detector that tracks the cross-layer evolution of hidden states. It computes the Information contribution to residual stream (ICR) score to quantify how different modules contribute to hidden-state updates, and trains a lightweight probe for hallucination classification. • HARP (Hu et al., 2025): a reasoning-subspace based detector. It applies SVD to the unembedding matrix to separate seman-tic and reasoning subspaces, projects hidden states onto the reasoning subspace, and uses the resulting projections as hallucination de-tection features. • InterrogateLLM (Yehuda et al., 2024): azero-resource black-box method that vali-dates a generated answer through backward query reconstruction. It asks the LLM to re-construct the original query from the gener-ated answer and measures the semantic con-sistency between the reconstructed and origi-nal queries. 
+
+Parameter Settings We conduct experiments on four widely adopted LLMs, including Qwen3-8B-Instruct(Yang et al., 2025), LLaMA3-8B-Instruct(Grattafiori et al., 2024), Ministral3-8B-Base-2512(Liu et al., 2026), and Gemma-3-12B-Instruct(Team et al., 2025). These models cover both base and instruction-tuned variants, while also spanning different architectural families. We train AURORA and all baseline LLMs in BF16, using LoRA with rank 16 and α = 32. All models are optimized with a learning rate of 1e-5 and trained with early stopping to ensure that each baseline achieves its best performance. For AU-RORA, the classifier is trained with a learning rate of 3e-5, using 16 layers with a hidden dimension of 4096 and an SVD rank of 128. Other parame-ters are in A.3.1. 
+
+4.2 Cross-dataset Results 
+
+The generalization results is shown in 1. 
+
+4.3 In-domain Results 
+
+The in-domain results are shown in 2. Table 1: Performance comparison across four datasets. 
+
+Method Train dataset Test dataset Avg. ↑ Std. ↓
+
+HaluEval HotpotQA TriviaQA SQuAD 
+
+Llama-3-8B-it 
+
+HARP HaluEval 0.987 0.569 0.5635 0.5615 0.6703 0.0335 Ours 0.9615 0.7610 0.8340 0.6540 0.8026 0.0125 HARP HotpotQA 0.647 0.9670 0.9720 0.609 0.7988 0.0293 Ours 0.5625 0.9620 0.9670 0.6375 0.7823 0.0339 HARP TriviaQA 0.72 0.825 0.9095 0.5935 0.7620 0.0140 Ours 0.5850 0.9450 0.9795 0.6480 0.7894 0.0305 ICR SQuAD 0.5665 0.7185 0.7180 0.7575 0.6901 0.0054 HARP 0.779 0.6765 0.7330 0.8540 0.7606 0.0042 Ours 0.7285 0.7415 0.7915 0.8405 0.7755 0.0020 
+
+Qwen-3-8B-it 
+
+HARP HaluEval 0.9905 0.8275 0.845 0.5935 0.8141 0.0202 Ours 0.9505 0.8305 0.8910 0.6815 0.8384 0.0100 HARP HotpotQA 0.6865 0.9805 0.9885 0.621 0.8191 0.0279 Ours 0.6460 0.9660 0.9680 0.7080 0.8220 0.0215 HARP TriviaQA 0.6755 0.9625 0.9895 0.6375 0.8163 0.0258 Ours 0.7680 0.9390 0.9780 0.6960 0.8453 0.0137 ICR SQuAD 0.7785 0.5840 0.6075 0.6600 0.6575 0.0056 HARP 0.9045 0.8825 0.9445 0.872 0.9009 0.0008 Ours 0.8050 0.8580 0.9100 0.8335 0.8516 0.0015 
+
+Ministral3-8B-Base 
+
+ICR HaluEval 0.9590 0.6170 0.5945 0.5150 0.6714 0.0290 HARP 0.985 0.6835 0.6621 0.535 0.7164 0.0273 Ours 0.9695 0.8500 0.9205 0.6975 0.8594 0.0105 HARP HotpotQA 0.8045 0.919 0.9185 0.64 0.8205 0.0130 Ours 0.6730 0.9775 0.9760 0.6955 0.8305 0.0215 HARP TriviaQA 0.8125 0.8945 0.9276 0.617 0.8129 0.0145 Ours 0.6680 0.9480 0.9830 0.7285 0.8319 0.0185 HARP SQuAD 0.8765 0.7085 0.8546 0.8975 0.8343 0.0055 Ours 0.7435 0.8495 0.9070 0.8395 0.8349 0.0034 
+
+Gemma3-12B-it 
+
+HARP HaluEval 0.987 0.8755 0.8785 0.6645 0.8514 0.0137 Ours 0.9780 0.8910 0.9250 0.8135 0.9019 0.0036 HARP HotpotQA 0.6335 0.9565 0.9565 0.7735 0.8300 0.0185 Ours 0.7500 0.9795 0.9835 0.8385 0.8879 0.0097 ICR HotpotQA 0.6215 0.9595 0.9710 0.5125 0.7661 0.0412 HARP 0.6975 0.953 0.98 0.7885 0.8548 0.0136 Ours 0.8000 0.9480 0.9895 0.8200 0.8894 0.0066 HARP SQuAD 0.831 0.875 0.9205 0.917 0.8859 0.0013 Ours 0.8300 0.8855 0.9325 0.9100 0.8895 0.0015 
+
+4.4 Analysis 4.4.1 Ablation Study Ablation on Individual Features To assess the independent contribution of each feature, we train separate models where only one feature group is provided as input. Specifically, we fine-tune Gemma3-12B-it on the HaluEval training set for 5 epochs with a learning rate of 3e-5. We re-port the highest Acc. on the HaluEval test set, and the highest Generalization Acc. across the Table 2: In-domain Results                                                                                          
+
+> Model HaluEval HotpotQA TriviaQA SQuAD Avg % Acc. % Acc. % Acc. % Acc. % Acc.
+> Llama-3-8B-it
+> + ICR probe 0.9625 0.9355 0.9375 0.7880 0.9059 + InterrogateLLM 0.5050 0.6050 0.573 0.696 0.5948 + HARP 0.986 0.9675 0.982 0.8745 0.9525 + AURORA 0.9675 0.9640 0.9825 0.8520 0.9415
+> Gemma3-12B-it
+> + InterrogateLLM 0.5705 0.595 0.6905 0.672 0.6320 + ICR probe 0.9775 0.9710 0.9765 0.7325 0.9144 + HARP 0.989 0.983 0.9865 0.9195 0.9695 + AURORA 0.9800 0.9825 0.9910 0.9220 0.9689
+> Ministral3-8B-Base
+> + InterrogateLLM 0.5 0.677 0.841 0.642 0.6650 + ICR probe 0.9655 0.9280 0.9340 0.7675 0.8988 + HARP 0.984 0.9795 0.9905 0.8925 0.9616 + AURORA 0.9730 0.9820 0.9845 0.8505 0.9475
+> Qwen3-8B-it
+> + InterrogateLLM 0.5 0.683 0.7645 0.728 0.6689 + ICR probe 0.9680 0.9475 0.9500 0.6815 0.8868 + HARP 0.991 0.9805 0.99 0.8705 0.9580 + AURORA 0.9580 0.9705 0.9790 0.8520 0.9399
+
+four test sets. Table 3 summarizes the results. The results show that jointly leveraging all fea-tures achieves the best overall performance, with an in-domain accuracy of 0.9810 and a general-ization accuracy of 0.8914, confirming the bene-fits of feature complementarity. Among the in-dividual feature groups, skewness_0 yields the strongest standalone performance, which indi-cates that it captures the most direct hallucination-related signal. Removing skewness_0 causes the largest drop in in-domain accuracy (0.9660), fur-ther validating its central role. In contrast, exclud-ing rotation_ratio leaves the HaluEval accuracy unchanged at 0.9810 but reduces generalization to 0.8796, revealing that rotation_ratio primar-ily enhances out-of-distribution robustness rather than in-domain separation. Removing skewness leads to a substantial generalization degradation (0.8391), suggesting that this feature is critical for cross-dataset transfer. The omission of normaliza-tion severely damages both metrics, underscoring its necessity for stable optimization. 
+
+Ablation on SVD rank and classifier architec-ture In this ablation study, we aim to investigate the sensitivity of our binary classification task to the choice of the truncated rank r. Specifically, we apply truncated SVD to the weight matrices and vary the rank r ∈ { 8, 16 , 32 , 64 , 128 , 512 }. The rotation_ratio is fed into the same linear classifier used in the main experiments, keeping all other settings fixed to isolate the effect of rank. We eval-uate in-domain accuracy on HaluEval and gener-alization accuracy across the four test sets. The resulting performance curves are plotted in Fig-ure 3 of Appendix B.2. The in-domain accuracy (Acc) stays nearly constant (0.968–0.971) across all ranks, indicating that the task-relevant signal is highly concentrated in the top singular directions. In contrast, the generalization accuracy (Gen_acc) varies more noticeably: it reaches its highest value of 0.8220 at r=128, while lower or higher ranks yield worse cross-domain performance. Impor-tantly, the computational cost of truncated SVD grows with the rank. We measured the decom-position time for each setting: r=128 takes 649 minutes, whereas r=256 requires 1037 minutes, a nearly 60% increase without improving general-ization. Therefore, we select r=128 as the default rank, balancing optimal generalization and man-ageable computational overhead. To investigate whether hallucination detec-Table 3: Ablation on Individual Features 
+
+Feature Selection Acc. Generalization Acc. 
+
+Only skewness 0.9605 0.8267 Only rotation_ratio 0.9750 0.8463 Only skewness_0 0.9760 0.8671 w/o skewness 0.9740 0.8391 w/o rotation_ratio 0.9810 0.8796 w/o skewness_0 0.9660 0.8555 w/o normalize 0.9485 0.8250 All Features 0.9810 0.8914 
+
+tion benefits from higher-capacity classifiers, we sweep the depth and width of the downstream MLP. Using the full feature set and the SVD rank of 128, we instantiate classifiers with L hidden layers, L ∈ { 2, 4, 8, 16 }, and hidden dimension 
+
+dh ∈ { 512 , 1024 , 2048 , 4096 , 8192 }. All models are trained with identical hyperparameters, shown in Appendix A.3.2, and we report in-domain and generalization accuracy. The complete results are shown in Fig 2 of Appendix B.2. We observe that within a certain range, increasing either the network depth or the width consistently yields higher performance. Notably, the performance gains demonstrate a clear trend of diminishing re-turns. The in-domain accuracy curves begin to sat-urate once the hidden size exceeds 4096 . A similar plateauing effect is observed in the Generalization Accuracy, where the margin of improvement be-tween the 16-layer and 32-layer configurations be-comes marginal across larger hidden dimensions (e.g., dh ≥ 4096 ). Interestingly, for the 32-layer variant, a slight degradation in-domain accuracy occurs when the hidden size reaches 8192 , poten-tially due to overfitting or optimization challenges associated with excessive depth and width. Bal-ancing the trade-off between computational effi-ciency and classification performance, we select the detector configuration with 16 layers and a hid-den size of 4096 as the default architecture for all main experiments and generalization studies. 
+
+4.4.2 Which Layers Best Encode Hallucinations? 
+
+To investigate which parts of the model most ef-fectively capture hallucination-related signals, we divide the transformer layers into early, last, and all layers groups and examine several key mod-ules, including the MLP, the attention block as a whole, and the individual projection inside at-tention and MLP. For each configuration, we ex-tract the corresponding features and train a hallu-cination detector with our method under the same training setup. We then compare their hallucina-tion detection performance on the same test sets. Results of LLaMA3-8B are shown in Tab 4, and those of Qwen3-8B are shown in Tab 7 of Ap-pendix B. 
+
+4.4.3 More Than QA 
+
+To examine whether AURORA generalizes be-yond standard text QA-style hallucination de-tection, we further evaluate it on mathematical reasoning and vision-language hallucination sce-narios. Specifically, we use MATH-Reasoning-Paths (Zhou et al., 2026) to test hallucination de-tection in reasoning-intensive mathematical prob-lems, and Hal-Eval (Jiang et al., 2024) to evalu-ate hallucinations in vision-language models. As shown in Table 5, AURORA maintains strong out-of-domain performance across both settings. These results suggest that the proposed weight-update features capture a general model-sample inconsistency signal rather than dataset-specific QA patterns. 
+
+4.4.4 Generality across Model Scales and Architectures 
+
+The previous ablation focuses on a single model, leaving open the question of whether the identified hallucination-sensitive signals and our detection method generalize across model sizes. In practical deployment, hallucination detectors may need to operate on LLMs ranging from lightweight mod-els to large-scale models. To this end, we evaluate AURORA under a unified protocol across models of different scales. For each tested model, we ex-tract the same type of weight-update features from correct and hallucinated question-answer pairs and Table 4: Ablation on Moudules of LLaMA3-8B 
+
+Module Selection Acc. Generalization Acc. 
+
+Last Blocks + MLP 0.9555 0.7645 Last Blocks + Attention 0.9645 0.7941 Last Blocks + Both Modules 0.9680 0.801 
+
+Early Blocks + MLP 0.8900 0.6730 Last Blocks + MLP 0.9555 0.7653 All Blocks + MLP 0.9630 0.7720 
+
+Last Blocks + up_proj 0.9535 0.7235 Last Blocks + gate_proj 0.9450 0.7414 Last Blocks + down_proj 0.9440 0.7144 Last Blocks + q_proj 0.9375 0.6749 Last Blocks + k_proj 0.9325 0.6932 Last Blocks + v_proj 0.9615 0.7799 
+
+Last Blocks + o_proj 0.9515 0.7519 Both Modules + All Blocks 0.9760 0.8163                     
+
+> Table 5: Generalization Performance across Out-Of-Distribution Datasets.
+> Model MATH-Reasoning-Paths Hal-Eval
+> Objective Attributive Spatial-Relationship Event
+> Llama-3.2-11B-Vision-Instruct
+> Ours 0.793 0.844 0.814 0.828 0.979
+> Qwen3.5-9B (it)
+> Ours(lately blocks) 0.766 0.791 0.768 0.680 0.979 Ours(all blocks) 0.766 0.79 0.795 0.704 0.985
+
+train a classifier using the identical procedure as in our main experiments. This setup isolates the effect of model scale while holding the data and training protocol fixed. We select a diverse suite of dense LLMs spanning from 0.8B to 70B parameters, in-cluding Qwen3.5-0.8B-Base, Qwen3.5-2B-Base, Qwen3.5-4B-Base (Qwen Team, 2026), Qwen3.5-9B-Base, Qwen3-14B-Base, Llama-3.2-1B-Instruct, Llama-3.2-3B-Instruct, Meta-Llama-3-8B-Instruct, and Llama-3.3-70B-Instruct. All models are evaluated on the same held-out test set. This comparison allows us to assess whether the proposed weight-update features remain effective as model capacity changes. 
+
+## 5 Conclusion 
+
+In this paper, we proposed AURORA, a hallu-cination detection framework that shifts the de-tection signal from static forward-pass represen-tations to weight-update dynamics. By analyz-ing how sample-induced gradients interact with model weights, AURORA captures two comple-mentary features: the skewness of weight-gradient alignment and the SVD-based rotation ratio of the singular-vector basis. Extensive experiments across four model families and four benchmark datasets show that AURORA achieves competi-tive in-domain performance and stronger cross-dataset generalization than existing white-box de-tectors. Further analyses demonstrate that the proposed features scale across model sizes from 0.8B to 70B parameters and transfer to out-of-domain settings, including mathematical reason-ing and vision-language hallucination detection. These results suggest that weight-update dynam-ics provide a general and transferable signal for detecting hallucinations, filtering abnormal gen-erations, and understanding how LLMs internally respond to faithful versus hallucinated content. Table 6: Across Model Scales 
+
+Models Acc. Generalization Acc. 
+
+Qwen3.5-0.8B-Base 0.9570 0.7683 Qwen3.5-2B-Base 0.9755 0.8123 Qwen3.5-4B-Base 0.9730 0.8464 Qwen3.5-9B-Base 0.9575 0.8191 Qwen3-14B-Base 0.9740 0.8155 Llama-3.2-1B-Instruct 0.9580 0.7728 Llama-3.2-3B-Instruct 0.9605 0.7660 Meta-Llama-3-8B-Instruct 0.9675 0.8026 Llama-3.3-70B-Instruct 0.9690 0.8303 
+
+## 6 Acknowledgments References 
+
+Chao Chen, Kai Liu, Ze Chen, Yi Gu, Yue Wu, Mingyuan Tao, Zhihang Fu, and Jieping Ye. 2024. Inside: Llms’ internal states retain the power of hallucination detection. arXiv preprint arXiv:2402.03744. Ekaterina Fadeeva, Aleksandr Rubashevskii, Artem Shelmanov, Sergey Petrakov, Haonan Li, Hamdy Mubarak, Evgenii Tsymbalov, Gleb Kuzmin, Alexander Panchenko, Timothy Bald-win, Preslav Nakov, and Maxim Panov. 2024. Fact-checking the output of large language models via token-level uncertainty quantifi-cation. In Findings of the Association for Computational Linguistics: ACL 2024, pages 9367–9385, Bangkok, Thailand. Association for Computational Linguistics. Sebastian Farquhar, Jannik Kossen, Lorenz Kuhn, and Yarin Gal. 2024. Detecting hallucinations in large language models using semantic en-tropy. Nature, 630(8017):625–630. Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek Kadian, Ah-mad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan, et al. 2024. The llama 3 herd of models. arXiv preprint arXiv:2407.21783. Edward J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2022. LoRA: Low-rank adaptation of large language mod-els. In International Conference on Learning Representations. Junjie Hu, Gang Tu, ShengYu Cheng, Jinxin Li, Jinting Wang, Rui Chen, Zhilong Zhou, and Dongbo Shan. 2025. Harp: Hallucination de-tection via reasoning subspace projection. Chaoya Jiang, Hongrui Jia, Mengfan Dong, Wei Ye, Haiyang Xu, Ming Yan, Ji Zhang, and Shikun Zhang. 2024. Hal-eval: A univer-sal and fine-grained hallucination evaluation framework for large vision language models. In Proceedings of the 32nd ACM International Conference on Multimedia, MM ’24, page 525–534, New York, NY, USA. Association for Computing Machinery. Mandar Joshi, Eunsol Choi, Daniel S. Weld, and Luke Zettlemoyer. 2017. Triviaqa: A large scale distantly supervised challenge dataset for reading comprehension. In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics, Vancouver, Canada. Association for Computational Linguistics. Junyi Li, Xiaoxue Cheng, Xin Zhao, Jian-Yun Nie, and Ji-Rong Wen. 2023. HaluEval: Alarge-scale hallucination evaluation benchmark for large language models. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, pages 6449– 6464, Singapore. Association for Computa-tional Linguistics. Alexander H. Liu, Kartik Khandelwal, Sandeep Subramanian, Victor Jouault, Abhinav Ras-togi, Adrien Sadé, Alan Jeffares, Albert Jiang, Alexandre Cahill, Alexandre Gavaudan, Alexandre Sablayrolles, Amélie Héliou, Amos You, Andy Ehrenberg, Andy Lo, Anton Eliseev, Antonia Calvi, Avinash Sooriyarachchi, Bap-tiste Bout, Baptiste Rozière, Baudouin De Mon-icault, Clémence Lanfranchi, Corentin Bar-reau, Cyprien Courtot, Daniele Grattarola, Dar-ius Dabert, Diego de las Casas, Elliot Chane-Sane, Faruk Ahmed, Gabrielle Berrada, Gaëtan Ecrepont, Gauthier Guinet, Georgii Novikov, Guillaume Kunsch, Guillaume Lample, Guil-laume Martin, Gunshi Gupta, Jan Ludziejew-ski, Jason Rute, Joachim Studnia, Jonas Amar, Joséphine Delas, Josselin Somerville Roberts, Karmesh Yadav, Khyathi Chandu, Kush Jain, Laurence Aitchison, Laurent Fainsin, Léonard Blier, Lingxiao Zhao, Louis Martin, Lucile Saulnier, Luyu Gao, Maarten Buyl, Margaret Jennings, Marie Pellat, Mark Prins, Mathieu Poirée, Mathilde Guillaumin, Matthieu Dinot, Matthieu Futeral, Maxime Darrin, Maximil-ian Augustin, Mia Chiquier, Michel Schimpf, Nathan Grinsztajn, Neha Gupta, Nikhil Raghu-raman, Olivier Bousquet, Olivier Duchenne, Pa-tricia Wang, Patrick von Platen, Paul Jacob, Paul Wambergue, Paula Kurylowicz, Pavanku-mar Reddy Muddireddy, Philomène Chagniot, Pierre Stock, Pravesh Agrawal, Quentin Tor-roba, Romain Sauvestre, Roman Soletskyi, Rupert Menneer, Sagar Vaze, Samuel Barry, Sanchit Gandhi, Siddhant Waghjale, Siddharth Gandhi, Soham Ghosh, Srijan Mishra, Sumukh Aithal, Szymon Antoniak, Teven Le Scao, Théo Cachet, Theo Simon Sorg, Thibaut Lavril, Thiziri Nait Saada, Thomas Chabal, Thomas Foubert, Thomas Robert, Thomas Wang, Tim Lawson, Tom Bewley, Tom Bewley, Tom Ed-wards, Umar Jamil, Umberto Tomasini, Valeriia Nemychnikova, Van Phung, Vincent Maladière, Virgile Richard, Wassim Bouaziz, Wen-Ding Li, William Marshall, Xinghui Li, Xinyu Yang, Yassine El Ouahidi, Yihan Wang, Yunhao Tang, and Zaccharie Ramzi. 2026. Ministral 3. Potsawee Manakul, Adian Liusie, and Mark Gales. 2023. SelfCheckGPT: Zero-resource black-box hallucination detection for genera-tive large language models. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, pages 9004– 9017, Singapore. Association for Computa-tional Linguistics. Qwen Team. 2026. Qwen3.5: Towards native multimodal agents. Pranav Rajpurkar, Robin Jia, and Percy Liang. 2018. Know what you don’t know: Unan-swerable questions for SQuAD. In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers), pages 784–789, Melbourne, Australia. Association for Computational Linguistics. Weihang Su, Changyue Wang, Qingyao Ai, Yiran Hu, Zhijing Wu, Yujia Zhou, and Yiqun Liu. 2024. Unsupervised real-time hallucination de-tection based on the internal states of large lan-guage models. In Findings of the Association for Computational Linguistics: ACL 2024, pages 14379–14391, Bangkok, Thailand. Asso-ciation for Computational Linguistics. Gemma Team, Aishwarya Kamath, Johan Fer-ret, Shreya Pathak, Nino Vieillard, Ramona Merhej, Sarah Perrin, Tatiana Matejovicova, Alexandre Ramé, Morgane Rivière, Louis Rouillard, Thomas Mesnard, Geoffrey Cideron, Jean bastien Grill, Sabela Ramos, Edouard Yvinec, Michelle Casbon, Etienne Pot, Ivo Penchev, Gaël Liu, Francesco Visin, Kath-leen Kenealy, Lucas Beyer, Xiaohai Zhai, Anton Tsitsulin, Robert Busa-Fekete, Alex Feng, Noveen Sachdeva, Benjamin Coleman, Yi Gao, Basil Mustafa, Iain Barr, Emilio Parisotto, David Tian, Matan Eyal, Colin Cherry, Jan-Thorsten Peter, Danila Sinopal-nikov, Surya Bhupatiraju, Rishabh Agarwal, Mehran Kazemi, Dan Malkin, Ravin Ku-mar, David Vilar, Idan Brusilovsky, Jiaming Luo, Andreas Steiner, Abe Friesen, Abhan-shu Sharma, Abheesht Sharma, Adi Mayrav Gilady, Adrian Goedeckemeyer, Alaa Saade, Alex Feng, Alexander Kolesnikov, Alexei Ben-debury, Alvin Abdagic, Amit Vadi, András György, André Susano Pinto, Anil Das, Ankur Bapna, Antoine Miech, Antoine Yang, Anto-nia Paterson, Ashish Shenoy, Ayan Chakrabarti, Bilal Piot, Bo Wu, Bobak Shahriari, Bryce Petrini, Charlie Chen, Charline Le Lan, Christo-pher A. Choquette-Choo, CJ Carey, Cor-mac Brick, Daniel Deutsch, Danielle Eisen-bud, Dee Cattle, Derek Cheng, Dimitris Pa-paras, Divyashree Shivakumar Sreepathihalli, Doug Reid, Dustin Tran, Dustin Zelle, Eric Noland, Erwin Huizenga, Eugene Kharitonov, Frederick Liu, Gagik Amirkhanyan, Glenn Cameron, Hadi Hashemi, Hanna Klimczak-Pluci´ nska, Harman Singh, Harsh Mehta, Har-shal Tushar Lehri, Hussein Hazimeh, Ian Bal-lantyne, Idan Szpektor, Ivan Nardini, Jean Pouget-Abadie, Jetha Chan, Joe Stanton, John Wieting, Jonathan Lai, Jordi Orbay, Joseph Fer-nandez, Josh Newlan, Ju yeong Ji, Jyotinder Singh, Kat Black, Kathy Yu, Kevin Hui, Ki-ran Vodrahalli, Klaus Greff, Linhai Qiu, Mar-cella Valentine, Marina Coelho, Marvin Rit-ter, Matt Hoffman, Matthew Watson, Mayank Chaturvedi, Michael Moynihan, Min Ma, Nabila Babar, Natasha Noy, Nathan Byrd, Nick Roy, Nikola Momchev, Nilay Chauhan, Noveen Sachdeva, Oskar Bunyan, Pankil Botarda, Paul Caron, Paul Kishan Rubenstein, Phil Culliton, Philipp Schmid, Pier Giuseppe Sessa, Ping-mei Xu, Piotr Stanczyk, Pouya Tafti, Rakesh Shivanna, Renjie Wu, Renke Pan, Reza Rokni, Rob Willoughby, Rohith Vallu, Ryan Mullins, Sammy Jerome, Sara Smoot, Sertan Girgin, Shariq Iqbal, Shashir Reddy, Shruti Sheth, Siim Põder, Sijal Bhatnagar, Sindhu Raghuram Pa-nyam, Sivan Eiger, Susan Zhang, Tianqi Liu, Trevor Yacovone, Tyler Liechty, Uday Kalra, Utku Evci, Vedant Misra, Vincent Roseberry, Vlad Feinberg, Vlad Kolesnikov, Woohyun Han, Woosuk Kwon, Xi Chen, Yinlam Chow, Yuvein Zhu, Zichuan Wei, Zoltan Egyed, Victor Cotruta, Minh Giang, Phoebe Kirk, Anand Rao, Kat Black, Nabila Babar, Jessica Lo, Erica Mor-eira, Luiz Gustavo Martins, Omar Sanseviero, Lucas Gonzalez, Zach Gleicher, Tris Warkentin, Vahab Mirrokni, Evan Senter, Eli Collins, Joelle Barral, Zoubin Ghahramani, Raia Had-sell, Yossi Matias, D. Sculley, Slav Petrov, Noah Fiedel, Noam Shazeer, Oriol Vinyals, Jeff Dean, Demis Hassabis, Koray Kavukcuoglu, Clement Farabet, Elena Buchatskaya, Jean-Baptiste Alayrac, Rohan Anil, Dmitry, Lep-ikhin, Sebastian Borgeaud, Olivier Bachem, Ar-mand Joulin, Alek Andreev, Cassidy Hardin, Robert Dadashi, and Léonard Hussenot. 2025. Gemma 3 technical report. An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chu-jie Zheng, Dayiheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jia-long Tang, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jing Zhou, Jingren Zhou, Junyang Lin, Kai Dang, Keqin Bao, Kexin Yang, Le Yu, Lianghao Deng, Mei Li, Mingfeng Xue, Mingze Li, Pei Zhang, Peng Wang, Qin Zhu, Rui Men, Ruize Gao, Shix-uan Liu, Shuang Luo, Tianhao Li, Tianyi Tang, Wenbiao Yin, Xingzhang Ren, Xinyu Wang, Xinyu Zhang, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yinger Zhang, Yu Wan, Yuqiong Liu, Zekun Wang, Zeyu Cui, Zhenru Zhang, Zhipeng Zhou, and Zihan Qiu. 2025. Qwen3 technical report. Zhilin Yang, Peng Qi, Saizheng Zhang, Yoshua Bengio, William W. Cohen, Ruslan Salakhut-dinov, and Christopher D. Manning. 2018. HotpotQA: A dataset for diverse, explainable multi-hop question answering. In Conference on Empirical Methods in Natural Language Processing (EMNLP). Yakir Yehuda, Itzik Malkiel, Oren Barkan, Jonathan Weill, Royi Ronen, and Noam Koenigstein. 2024. InterrogateLLM: Zero-resource hallucination detection in LLM-generated answers. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 9333–9347, Bangkok, Thailand. Association for Computational Linguistics. Zhenliang Zhang, Xinyu Hu, Huixuan Zhang, Jun-zhe Zhang, and Xiaojun Wan. 2025. ICR probe: Tracking hidden state dynamics for reliable hal-lucination detection in LLMs. In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 17986–18002, Vienna, Austria. Association for Computational Linguistics. Zhi Zhou, Tan Yuhao, Zenan Li, Yuan Yao, Lan-Zhe Guo, Yu-Feng Li, and Xiaoxing Ma. 2026. A theoretical study on bridging internal prob-ability and self-consistency for llm reasoning. Advances in Neural Information Processing Systems, 38:87380–87413. A More Experimental Details 
+
+A.1 Datasets 
+
+For each dataset, we randomly sample 10,000 instances and split them into training and test sets with a ratio of 0.8 to 0.2. Specifically, we use the qa_data subset of HaluEval and randomly sample instances labeled as either correct or incorrect responses, while ensuring balanced label distributions in both the training and test sets. AURORA and all baselines are evaluated on the same sampled data to ensure a fair comparison. 
+
+A.2 Baselines 
+
+• MIND (Su et al., 2024):We treat the complete supporting context together with the user query as w′
+
+> i
+
+and the answer to the query as ei. If the beginning of the first sentence Gi generated by the LLM matches ei, we regard the generation as non-hallucinatory. Conversely, if Gi does not start with ei,we consider it to exhibit hallucination. • InterrogateLLM (Yehuda et al., 2024):We evaluate InterrogateLLM in its single-model configura-tion, where the same LLM serves as both the forward generator and the backward reconstructor. This ensures a fair comparison with SKEW-SVD, as both methods operate under the same resource constraint of accessing only one model. 
+
+A.3 All Experimental Setups A.3.1 Main Results A.3.2 Ablation on classifier architecture 
+
+## B More Experimental Results 
+
+B.1 generalization_appendix B.2 More Ablation Results 
+
+> Table 7: Ablation on Modules of Qwen3-8B
+
+Module Selection Acc. Generalization Acc. 
+
+Last Blocks + up_proj 0.9255 0.7740 Last Blocks + gate_proj 0.9335 0.7658 Last Blocks + down_proj 0.9170 0.7723 Last Blocks + q_proj 0.9215 0.7375 Last Blocks + k_proj 0.9050 0.7094 Last Blocks + v_proj 0.9440 0.7845 
+
+Last Blocks + o_proj 0.9325 0.7703 All Blocks + Both Modules 0.9530 0.8388 Figure 2: Ablation on classifier architecture 
+
+Figure 3: Acc/Generalization Acc over SVD Truncated Ranks
