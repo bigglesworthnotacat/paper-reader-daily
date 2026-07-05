@@ -1,0 +1,1131 @@
+Title: JD Oxygen AI Item Center (Oxygen AIIC) V1: An Industrial-Scale LLM/VLM-Centric Solution for Item Understanding, Management, and Applications
+
+URL Source: https://arxiv.org/pdf/2606.28070v1
+
+Published Time: Mon, 29 Jun 2026 00:58:47 GMT
+
+Number of Pages: 40
+
+Markdown Content:
+JD Oxygen AI Item Center ( Oxygen AIIC )
+
+# AI Item Center (Oxygen AIIC ) V1: An Industrial-Scale LLM/VLM-Centric Solution for Item Understanding, Management, and Applications 
+
+Oxygen AIIC, Chan Long, Chao Liu, Chaofan Chen, Chaohui Dong, Chunyuan Guo, Danping Liu, Debin Liu, Deping Xiang, Fulai Xu, Guangyue Liu, Hao Li, Huichun Hu, Jian Yang, Jianan Wang, Jianbo Zhao, Jiaoyang Li, Jiaxing Wang, Jinglong Li, Jinjin Guo, Jun Fang, Jun Liu, Kai Zhou, Li Wang, Lili Gao, Liying Chen, Luning Yang, Mengdi Zhou, Pengzhang Liu, Qi Lv, Qianyun Wang, Qixia Jiang, Ruyue Li, Shimu Liang, Shuxing Wang, Sijie Zhang, Siqi Li, Tianhao Gao, Wang Ke, Weihu Huang, Wencan Lai, Wenjie Zhang, Xiaohui Zhang, Xiaojing Dong, Ya Liu, Yifeng Zhang, Yixiang Wang, Yongtai Zhang, Yongyi Liao, Zhaoru Chen, Zhen Chen, Zhiyong Ma, Zhiyuan Liu, Zhongwei Liu, Ziyan Xing ∗
+
+oxygen-aiic@jd.com 
+
+## Abstract 
+
+JD.com 1, one of the world’s largest e-commerce platforms, serves over 700 million active users and millions of merchants, with a catalog of tens of billions of SKUs. At this scale, high-quality, structured item knowledge underpins a better consumer experience, lower management costs, and higher operational efficiency—yet pro-ducing and serving it poses three industrial-scale challenges: fast-emerging con-cepts, high-quality knowledge production for massive SKUs, and diverse down-stream requirements. To address these challenges, we present the JD Oxygen AI Item Center ( Oxygen AIIC ), an industrial-scale platform built on LLMs/VLMs for item-knowledge production and service. Oxygen AIIC is built around four core pillars: (i) ontology engineering driven by efficient human–AI collaboration, which supports the dynamic evolution and agile expansion of an ontology with mil-lions of entries; (ii) a “Semantic Search then Discrimination” ( S2D) knowledge-identification architecture that, combined with throughput-improvement strate-gies, enables scalable, extensible, and high-throughput AI Item Library production for tens of billions of SKUs; (iii) self-evolving item-understanding LLMs/VLMs that improve in a stable and controllable manner, enabling knowledge production with 94.2% precision and 82.8% recall; and (iv) a unified item tunnel that serves as the data and service hub, delivering item knowledge with tiered freshness. Oxy-gen AIIC now covers tens of thousands of JD categories and processes hundreds of millions of item updates per day on Huawei Ascend NPUs. It has accumulated hun-dreds of billions of item-knowledge assets and increased item-information richness to 3.35 × its previous level. Deployed across core business scenarios—including search, recommendation, operations, and category planning— Oxygen AIIC has delivered measurable gains at scale. For example, search-traffic coverage reaches 80.4%, item-information quality issues drop by 37%, the automated fill rate of core attributes during item listing exceeds 80%, and intelligent optimization of item creatives increases click-through rate by 9%. 
+
+## 1 Introduction 
+
+JD.com is a leading e-commerce platform that serves over 700 million active users and millions of merchants, and manages a catalog of tens of billions of SKUs. To deliver on its retail value proposition of broader selection, faster delivery, better quality, and lower cost , JD has made “cost, 
+
+> ∗
+
+Authors are listed in alphabetical order of first name. 
+
+> 1
+
+About JD.com: https://corporate.jd.com/ 
+
+1
+
+> arXiv:2606.28070v1 [cs.AI] 26 Jun 2026
+
+JD Oxygen AI Item Center ( Oxygen AIIC )Sophisticated gray outdoor jacket        
+
+> Cannot understand advanced colors (e.g., Sophisticated gray, Morandi palette), resulting in poor user experience and traffic allocation efficiency.
+> Demand Side
+> Item Management (Manual)
+> Merchant-managed Item Data
+> Color Sophisticated gray
+> Applicable Gender Male
+> Function Windproof, Waterproof
+> Applicable Season Summer
+> Category Outdoor Jacket
+> Supply Side
+> Manual maintenance of multidimensional item information is costly and inefficient, degrading item info quality.
+> Operations Side
+> New trend: Softshell outdoor jacket
+> # Softshell # Outdoor Jacket
+> Failed to effectively align user intent
+> Fast-emerging Concepts Massive SKUs Diversified Requirements
+> Low Operational Efficiency, Missed Opportunities
+
+Figure 1: Typical failure cases in traditional item knowledge systems across the demand, supply, and operations sides. efficiency, and experience” its core strategic priorities. As e-commerce has grown rapidly, traditional item knowledge systems can no longer support this strategy effectively, giving rise to three industrial-scale bottlenecks across the demand, supply, and operations sides, as illustrated in Figure 1: • Demand side: incomplete item information and semantic gaps. Incomplete item information, combined with the varied ways users describe their needs—e.g., “charcoal gray” vs. “Morandi palette”—leads to semantic mismatches that degrade the user experience and reduce traffic-allocation efficiency (Nigam et al., 2019). • Supply side: costly item management and inefficient traffic acquisition. Merchants are re-quired to provide and continuously maintain multi-dimensional product information. However, the manual nature of this process makes it costly and inefficient, leading to lower product infor-mation quality and limiting merchants’ ability to attract traffic. • Operations side: fast-changing market trends and growing demand for fine-grained oper-ations. Frequent trend shifts and increasingly fine-grained operational requirements make trend sensing and item operations more difficult, ultimately constraining the platform’s efficiency. To address these bottlenecks, earlier industrial systems adopted traditional NLP techniques and pre-trained models, such as BERT-based architectures for named entity recognition (NER) (Luo et al., 2020). However, these methods remain limited in two major respects. First, owing to their limited model capacity and reliance on task-specific fine-tuning, they struggle to bridge distributional gaps across heterogeneous e-commerce data sources and lack robustness to emerging concepts. Second, they suffer from a “manual-annotation bottleneck”, in which system accuracy is tightly coupled with costly and unsustainable human labeling. As a result, these methods are difficult to deploy at scale while keeping costs low and quality high. The rapid progress of LLMs/VLMs offers a way out of the long-standing impasse of high labor cost and weak generalization (Brown et al., 2020; Ouyang et al., 2022; Radford et al., 2021; Liu et al., 2023). Benefiting from extensive world knowledge, strong zero-/few-shot generalization, and rea-soning ability, these models enable more accurate, comprehensive, and timely ontology engineering and item-knowledge production. Academia and industry have advanced intelligent item understanding along four directions: (1) 
+
+Domain-specific Foundation Models , which inject e-commerce knowledge into general-purpose LLMs/VLMs to equip them with retail-domain knowledge (Shi et al., 2025; Peng et al., 2024; Herold et al., 2024); (2) Automated Ontology Expansion , which turns the traditional expert-driven paradigm into a semi-automated, human–AI collaboration for dynamic ontology evolution (Shen et al., 2020; Mao et al., 2020; Er-Rahmadi et al., 2023); (3) Large-scale Attribute Extraction , which moves item attribute recognition from closed-domain entity extraction to retrieval-augmented generation (RAG) and multimodal understanding (Zheng et al., 2018; Wang et al., 2020b; Zhang et al., 2025); and (4) Web-scale Item Knowledge Graphs , which build large, well-aligned retail knowledge networks linking items, attributes, and complex user intents (Luo et al., 2020; 2021; Zalmout et al., 2021). 2JD Oxygen AI Item Center ( Oxygen AIIC )Applications          
+
+> Category Planning
+> Market Growth Rate
+> Low
+> 3-in-1 Jacket
+> Baby's Jacket
+> Waterproof Jacket
+> High Low Automated attributes fill rate 80%
+> High Soft Shell Jacket
+> Market Share
+> Merchant Product Listing
+> Product Name Soft Shell Jacket
+> Black
+> L
+> Publish Applicable Gender Male
+> Color Size
+> User Understanding
+> Feature Focus
+> Outdoor Enthusiast Age: 25 - 30
+> Gender: Male
+> Interests: Hiking...
+> Price Sensitivity
+> Recommendation
+> Recommended for you
+> Merchants Sourcing & Inventory
+> Soft Shell Jacket
+> Total Inventory
+> 12,680
+> Selling SKUs
+> 680
+> Product Operations
+> Waterproof
+> Search
+> Soft Shell Jacket Traffic coverage reaches 80.4%, and product information-related issues have decreased by 37%.
+
+Item Tunnel 
+
+Soft Shell Jacket; Waterproof; Hiking... SKU 1, SKU 2, SKU 3 ... SKU N          
+
+> Ontology
+> Function
+> Waterproof Warm
+> Apparel
+> Top Shoes
+> Jacket Climbing Shoes
+> Waterproof Jacket Warm Climbing Shoes
+> AI Item Library
+> Waterproof Soft Shell Men's Jacket, Obsidian Black, Size S
+> AI Product Database
+> Category Jacket
+> Function Waterproof
+> Color Obsidian Black
+> Size S
+> ... ...
+> Scenario Soft Shell Jacket Millions of ontologies hundreds of billions
+> item Knowledge assets Decision cycles are
+> reduced from
+> weeks to days
+> Soft Shell Jacket
+> Hiking
+> Spring Hiking
+
+Figure 2: Overview of Oxygen AIIC across the item lifecycle. Ontology, and AI Item Library jointly support category planning, merchant workflows, user understanding, search, recommendation, and platform operations. These efforts confirm the feasibility of large models for intelligent item understanding. However, deploying them at JD, a platform that spans virtually every retail category and manages tens of billions of items, remains challenging. To build a highly available, high-throughput item-knowledge infrastructure, the following three fundamental challenges must be addressed: • Evolving the ontology to keep pace with heterogeneous sources and fast-emerging concepts. 
+
+Item knowledge is multi-source and heterogeneous, scattered across product information (titles, main images, detail pages, etc.), user queries, and public web content. New market segments and concepts emerge constantly, and the required granularity of detail continues to increase. Cap-turing this knowledge comprehensively and in a timely manner, while expanding the ontology backbone quickly enough to keep pace, is the first challenge for industrial deployment. • Scalable, high-throughput, low-cost, and high-quality knowledge production at massive item scale. At the scale of tens of billions of items, the AI Item Library must satisfy several stringent requirements at once: it must scale seamlessly as the ontology evolves, sustain high-throughput production across the full catalog, and keep inference cost and latency within tight budgets, all while keeping knowledge quality consistently high. Directly invoking large models to produce and update item knowledge would incur prohibitive inference cost and unaccept-able latency (Dao et al., 2022; Kwon et al., 2023a), and still fall short on quality. Building an industrial-scale AI Item Library therefore demands a solution that is scalable and extensible by design. • Efficient support for common and scenario-specific needs. JD’s downstream ecosystem places highly diverse demands on the format and freshness of item knowledge. These scenarios rest on a shared knowledge foundation, yet each carries distinct service requirements: item gov-ernance (e.g., information pre-fill and compliance checks) depends on real-time services; search 3JD Oxygen AI Item Center ( Oxygen AIIC )and recommendation need high-throughput nearline features; and category operations require of-fline post-processing driven by business logic. A single platform must serve all of these highly concurrent, domain-specific demands at once, efficiently building on what the scenarios share while supporting what makes each distinct. To bridge the gap between the potential of LLMs/VLMs and the realities of industrial deployment, we build the JD Oxygen AI Item Center ( Oxygen AIIC ). Oxygen AIIC constructs an item ontology with millions of entries and produces high-quality item knowledge at high throughput across tens of thousands of categories and tens of billions of SKUs. It achieves a knowledge-production preci-sion/recall of 94.2%/82.8% with a more than 10 × gain in throughput efficiency on Huawei Ascend NPUs, and has accumulated hundreds of billions of clean item-knowledge assets, increasing item-information richness to 3.35 × its previous level. As shown in Figure 2, Oxygen AIIC serves as an item-knowledge hub across the full item lifecycle. In the search scenario, Oxygen AIIC covers 80.4% of traffic and reduces item-information quality issues by 37%, thereby improving the shopping expe-rience. For category planning, Oxygen AIIC shortens decision cycles from weeks to days compared with manual workflows. The automated fill rate of core attributes exceeds 80%, and optimization of item creatives improves click-through rate by about 9%. This paper presents an industrial-scale deployment of LLMs/VLMs for item-knowledge infrastruc-ture. Our main contributions are threefold: • An extensible, generalizable, and self-evolving item-understanding LLMs/VLMs frame-work. Leveraging the extensive world knowledge and strong reasoning capabilities of large models, we develop item-understanding LLMs/VLMs through incremental learning and model self-evolution, thereby improving knowledge-production quality in a continuous and control-lable manner. • Knowledge production at the scale of tens of billions of items. We rapidly enrich the on-tology through human–AI collaboration, decouple it from model parameters through the S2D
+
+mechanism to accommodate continuous ontology changes and mitigate model hallucinations, and reduce computational cost so that knowledge production at the hundred-billion scale stays efficient. • A unified item tunnel and application matrix. To address diverse requirements across busi-ness scenarios, we build an “item tunnel” as the shared data and service hub. It maintains data freshness through tiered service levels and, together with the application matrix, supports a wide range of downstream applications, forming a sustainable business ecosystem. 
+
+## 2 Architecture Overview  
+
+> Oxygen AIIC
+
+adopts a modular architecture with high cohesion and low coupling: core capabil-ity modules are decoupled and can be iterated independently, improving development efficiency, maintainability, and the platform’s ability to evolve in a stable and controlled manner. As shown in Figure 3, the architecture consists of five tightly coordinated modules: 
+
+Ontology Engineering The ontology is the knowledge foundation of Oxygen AIIC and determines the upper bound of item-knowledge quality and application potential. Through efficient human–AI collaboration, Oxygen AIIC combines more than 20 years of JD expert knowledge with the world knowledge and reasoning capabilities of LLMs/VLMs to produce a high-quality, comprehensive, and timely ontology. Experts focus on distilling industry knowledge, while algorithms learn from it to scale ontology construction and drive continuous evolution. 
+
+AI Item Library The AI Item Library maps items to the ontology and serves as the source of item knowledge for downstream applications. Given a continuously evolving ontology and tens of billions of items, we achieve scalable, high-throughput production by constructing a jointly opti-mized model-data-engineering pipeline. Decoupling the ontology from the model parameters re-duces hallucinations and improves generalization, while computational load reduction, cache reuse, and asynchronous pipeline parallelism ensure efficient production at scale. 4JD Oxygen AI Item Center ( Oxygen AIIC )Applications 
+
+> Merchant&Business Operations
+> Consumer-facing Applications
+
+Item Understanding LLMs/VLMs 
+
+Model Self-Evolution 
+
+AI Computing Platform 
+
+Item Tunnel   
+
+> Data & Service Hub
+> Consistency
+> Tiered Freshness
+> Unified Services
+> Storage Computing efficiency
+> Sec Min Day
+> Platform Ecosystem
+> Marketing Operations
+> Listing...
+> Category Planning
+> AI Assistant...
+> Search & Recomm
+> Platform Operations
+
+Ontology Engine 
+
+> Human Expertise Ontology LLMs/VLMs
+
+AI Item Library 
+
+Throughput Improvement 
+
+Item Knowledge Recognition  
+
+> Cache Reuse
+> Computational Load Reduction
+> Semantic Search Discrimination
+> Multi-Task SFT
+> Incremental Learning
+> Instruct-Following Representation
+> Asynchronous Pipeline Parallelism
+
+Figure 3: Overall architecture of JD Oxygen AI Item Center. Oxygen AIIC integrates ontology engi-neering, AI Item Library, the item understanding LLMs/VLMs, the item tunnel, and the application matrix into a closed-loop industrial system. 
+
+Item-Understanding LLMs/VLMs The item-understanding LLMs/VLMs support both ontology construction and AI Item Library production, serving as the foundation for continuous improvement in Oxygen AIIC ’s data quality. We integrate the algorithmic capabilities required by Oxygen AIIC into a highly generalizable and scalable foundation model. Through incremental learning and model self-evolution, the system fills targeted knowledge gaps and mitigates catastrophic forgetting, enabling model capabilities to evolve in a stable and controlled manner. 
+
+Item Tunnel The item tunnel is the central hub between Oxygen AIIC and business applications, providing a unified service layer. To meet downstream requirements for different levels of freshness and throughput, it supports daily-, minute-, and second-level production and distribution pipelines while preserving data consistency. It enables downstream applications to consume Oxygen AIIC 
+
+capabilities efficiently. 
+
+Applications The application matrix is where Oxygen AIIC delivers its value. It turns the item-knowledge assets and model capabilities exposed by the tunnel into standardized services and de-ploys them at scale across business formats, scenarios, and the end-to-end item lifecycle. It bridges technology and business, serving as core infrastructure for the platform’s AI-driven e-commerce transformation and sustainable growth. In summary, the five modules of Oxygen AIIC are tightly integrated rather than operating in isola-tion. Together, they form an end-to-end loop spanning large-scale ontology construction, massive knowledge production, centralized asset management, tiered access, and cross-domain feedback. This loop preserves stable, high-quality item knowledge while allowing the system to evolve con-tinuously. The following sections introduce each module in detail. 5JD Oxygen AI Item Center ( Oxygen AIIC )
+
+## 3 Ontology Engineering 
+
+Ontology engineering aims to build a high-quality, comprehensive, and timely item-knowledge foun-dation (Luo et al., 2020; 2021; Yu et al., 2024; 2023; Dong et al., 2020; Huang et al., 2025b). To achieve this goal, it is essential to effectively combine the domain expertise accumulated by JD over more than two decades with the large-scale concept-mining capabilities of LLMs/VLMs. However, several practical challenges arise in this process: • Continuously emerging concepts: The volume of new concepts emerging daily makes fully manual ontology construction increasingly inadequate in both timeliness and coverage. • High semantic redundancy: Knowledge extracted from heterogeneous data sources often con-tains numerous synonymous or highly overlapping concepts, which can quickly inflate the on-tology and reduce its consistency. • Achieving scale and quality at once: Ontology construction must simultaneously scale to broad coverage and maintain high, controllable quality. Expert-driven construction ensures quality but cannot scale, whereas large-scale automated generation by LLMs/VLMs scales but, without sufficient oversight, introduces hallucinations and quality issues. To address these challenges, we adopt a human–AI collaborative framework in which experts define ontology standards and perform final quality audits, while LLMs conduct large-scale ontology dis-covery, expansion, and refinement under expert guidance. This framework enables the ontology to evolve continuously while maintaining both high quality and broad coverage. 
+
+3.1 Method Overview 
+
+As shown in Figure 4, the ontology is organized around downstream business requirements. Experts define four core element types: (i) Category , the item taxonomy (e.g., apparel and underwear →
+
+men’s clothing → men’s shirts); (ii) Attribute Key , an item feature dimension (e.g., sleeve length for men’s shirts); (iii) Attribute Value , a specific instantiation of an attribute (e.g., long sleeve for sleeve length); and (iv) Scenario Tag , a higher-level composite concept that captures a consumption context (e.g., World Cup Watch Party Bundle). Categories, attribute keys and attribute values constitute the backbone of the ontology, carrying atomic item knowledge that supports the platform’s core business operations. Scenario tags provide an additional semantic layer by aggregating atomic knowledge into higher-level concepts, capturing multi-dimensional semantic relationships and enabling rapid support for downstream scenario-based demands. Our human–AI collaborative framework operates in an expert-guided, AI-driven loop. Initially, ex-perts establish the ontology backbone, which supplies structural prior knowledge and serves as a semantic anchor. Based on this foundation, the automated pipeline implements a three-stage work-flow: knowledge discovery, fusion, and validation. This pipeline continuously harvests emerging high-frequency concepts from heterogeneous data sources and integrates them into the ontology, ensuring scalable and dynamic infrastructure evolution. 
+
+3.2 Ontology Construction 3.2.1 Expert-defined ontology backbone (top-down) 
+
+The category knowledge accumulated by JD’s domain experts provides a strong foundation for iden-tifying the item attributes that influence purchase decisions and capture business-relevant distinc-tions. To transform this expertise into structured priors that can guide algorithmic discovery, we establish a standardized expert workflow that defines the backbone of the ontology. Specifically, experts curate the major category hierarchy together with its core attribute sets, representative at-tribute values, and characteristic scenario tags. At this stage, experts focus only on high-value and representative knowledge rather than pursuing exhaustive coverage. This top-down design effectively constrains the space of knowledge genera-tion and establishes clear semantic boundaries for the algorithms’ automated, large-scale knowledge mining (Lippolis et al., 2024; Saeedizade and Blomqvist, 2024; Lippolis et al., 2025; Babaei Giglou et al., 2023; Mateiu and Groza, 2023; Fathallah et al., 2024a;b; Sun et al., 2025). 6JD Oxygen AI Item Center ( Oxygen AIIC )Expert-defined Ontology Backbone (Top-Down) 
+
+> Iteration Driven by Expert Feedback
+> Expert Review of Algorithmic Production
+
+Product Ontology         
+
+> Apparel and Underwear Men's Clothing Men's Shirts
+> Sleeve Length Style ...
+> Long Sleeve Business Style Maillard Style Japanese Style
+> Scenario Tag: Versatile for Business Commuting ...
+
+Algorithm-driven Ontology Growth (Bottom-Up) 
+
+> Knowledge Discovery
+> Open Extraction
+> Targeted Attribute Filling
+> Knowledge Validation
+> Importance Assessment
+
+Multi-source Heterogeneous Data       
+
+> ...
+> Broaden Coverage Define Standards
+> Quality Validation
+> Expert Validation and Insertion
+> Industry Survey Trend Analysis Domain Expertise
+> Applicable Scenario
+> Commuting School Home
+> Knowledge Fusion
+> Ontology Representation
+> Ontology Clustering
+> Ontology Selection
+> Product Information User Queries Web Content
+
+Figure 4: Human–AI collaborative ontology engineering. Human experts establish the fundamental ontology backbone, while an automated pipeline dynamically discovers, fuses, and validates emerg-ing concepts from multi-source heterogeneous data. 
+
+3.2.2 Algorithm-driven ontology growth (bottom-up) 
+
+Building upon the expert-defined ontology backbone and continuously incorporating signals from user behavior and industry trends, the algorithms expand the ontology at scale through a bottom-up “discovery–fusion–validation” pipeline. Taking attribute-value expansion as an example, the discov-ery stage identifies emerging concepts from heterogeneous data sources; the fusion stage consolidates synonymous and semantically related concepts into normalized candidates; and the validation stage evaluates each candidate for both quality and business importance. Guided by continuous expert feedback, validated concepts are incorporated into the ontology in a controlled and scalable manner, enabling its sustained evolution while preserving high quality (Edge et al., 2024; Tiwari et al., 2025; Zhang and Soh, 2024; Ye et al., 2023; Bai et al., 2025). 
+
+(1) Knowledge discovery. Knowledge discovery aims to identify latent concepts from large-scale heterogeneous data. Although LLMs/VLMs can assist with this task, general-purpose models are not explicitly aligned with the e-commerce ontology and often fail to capture domain-specific con-cepts, industry standards, and emerging terminology. To address this limitation, we train a dedicated knowledge-discovery model for the e-commerce domain. 
+
+Training data construction. To support latent-concept discovery, we organize the training data into a unified triple format ⟨x, k, v ⟩, where x denotes product information, user queries, or external web content; k denotes an attribute key; and v denotes the corresponding attribute value. We construct 7JD Oxygen AI Item Center ( Oxygen AIIC )the training data using state-of-the-art LLMs/VLMs with hundreds of billions of parameters (strong reasoning and generalization capabilities), via two strategies: open information extraction (OpenIE) (Wang et al., 2023; Gui et al., 2023; Han et al., 2023) and targeted attribute filling (Lu et al., 2022). (i) OpenIE: This method is suitable for mining large-scale corpora. The model discovers potential attribute keys ki and their corresponding attribute value sets Vki from x:
+
+fOpenIE (x) → { (k1, V k1 ), (k2, V k2 ), . . . , (kn, V kn )}.
+
+For each extracted pair (ki, V ki ), we combine it with the original input x to form triple samples: 
+
+TOpenIE = {⟨ x, k i, v ij ⟩ | vij ∈ Vki }.
+
+For example, given the item title “summer ice-silk sun-protective cardigan”, the model extracts {“material”: “ice silk”, “applicable season”: “summer”, “function”: “sun protection”}. (ii) Targeted attribute filling: This method is implemented as an attribute-specific NER task and is suitable for completing attribute values for expert-defined or core attributes. Given an attribute k
+
+and its business definition dk, the model is required to extract Vk for that attribute from x:
+
+fNER (x, k, d k) → { k : Vk}.
+
+Each vj in Vk is similarly converted into a triple sample: 
+
+TNER = {⟨ x, k, v j ⟩ | vj ∈ Vk}.
+
+For example, given the input “men’s business commuting non-iron three-quarter-sleeve white shirt” and the key “sleeve length” with the description “including long sleeve, short sleeve, etc.”, the model extracts sleeve length: [“three-quarter-sleeve”]. 
+
+Discovery model training. We adopt a unified supervised fine-tuning (SFT) framework and formu-late the two tasks above as follows: 
+
+fext_kv (x, I OpenIE ) → { ki : [ vi1, v i2, . . . ]},fext_v (x, k, d k, I NER ) → { v1, v 2, . . . , v m}.
+
+Both IOpenIE and INER denote task instructions that explicitly constrain the model’s extraction objec-tive. After training, the model achieves 91% precision and 79% recall on the candidate knowledge extraction task. Unless otherwise stated, all experiments use an 8B-parameter base model. We observe that after SFT, different base models exhibit comparable performance, with variations of less than 2% across evaluation metrics. Therefore, the remainder of the paper focuses on the framework rather than base-model selection. Applying the trained discovery model to multi-source corpora, including item information, user queries, and external web content, yields approximately 4.5 million latent attribute values. Each value is represented as a standardized knowledge unit ⟨c, x, k, d k, v ⟩, where c denotes the category. 
+
+(2) Knowledge fusion. Knowledge discovery improves ontology coverage but also introduces a large number of heterogeneous synonymous expressions, resulting in redundancy. To address this issue, we adopt a three-stage knowledge fusion strategy consisting of representation, clustering, and selection. • Representation stage: latent concepts are encoded into vector representations. • Clustering stage: semantically identical entities are grouped together. • Selection stage: a standard ontology concept is extracted from each cluster. Because general-purpose representation models lack sufficient understanding of e-commerce seman-tics, we train a domain-adapted encoder. The encoder captures contextual semantics in e-commerce scenarios, providing high-fidelity and effective representations of latent concepts. This section con-sists of three parts: training data construction, representation model training, and ontology fusion. 
+
+Training data construction. Given the input ⟨c, x, k, d k, v ⟩ above, the instruction for the encoder is defined as Ifuse (c, k, d k). This instruction explicitly injects category c, attribute key k, and attribute description dk into the encoder as context, so that attribute value v is encoded as: 
+
+fenc 
+
+(v, I fuse (c, k, d k)) → e
+
+8JD Oxygen AI Item Center ( Oxygen AIIC )Training sample construction focuses on two questions: which ontology entries should be pulled closer as positives, and which should be pushed apart as negatives. For an attribute value v, the LLM generates N synonymous rewrites as the positive set V + = {v+1 , . . . , v + 
+
+> |V+|
+
+}. For the current 
+
+⟨c, k ⟩, a general encoder retrieves expressions similar to v, and an LLM then judges synonymy among the retrieved results. Synonymous pairs are removed, while the near-neighbor but non-synonymous expressions are retained as V − = {v− 
+
+> 1
+
+, . . . , v −|V −|}.Each training sample consists of an anchor v, a positive set V +, and a negative set V −. All samples share the same category–attribute context ⟨c, k, d k⟩, forcing the encoder to learn fine-grained seman-tic distinctions among attribute values. To improve representation quality for infrequent concepts, long-tail attribute values are additionally oversampled during training. 
+
+Representation model training. The representation model adopts a bi-encoder architecture with shared parameters across the two towers and an 8B-parameter LLM as the backbone. Given an input sequence, we append a special ⟨eos ⟩ token to its end and use the final-layer hidden state at this position as the sequence representation. The resulting embedding is L2-normalized, yielding the final sentence vector e. The training objective is the InfoNCE loss (Oord et al., 2018): 
+
+LInfoNCE = − 1
+
+|V +| 
+
+> |V+|
+
+∑
+
+> i=1
+
+log exp (sim (e, e+ 
+
+> i
+
+)/ τ )
+
+exp (sim (e, e+ 
+
+> i
+
+)/ τ ) + ∑|V −| 
+
+> j=1
+
+exp (sim (e, e− 
+
+> j
+
+)/ τ ) .
+
+Here, e, e+ 
+
+> i
+
+, and e− 
+
+> j
+
+are the vectors obtained by encoding the anchor v, the i-th positive sample v+ 
+
+> i
+
+,and the j-th negative sample v− 
+
+> j
+
+through fenc , respectively; sim (·, ·) denotes cosine similarity, and τ
+
+denotes the temperature coefficient. The loss is averaged over all |V +| positive samples. On the ontology-similarity test set, our encoder raises the Spearman correlation coefficient from 0.62 (general-purpose encoder) to 0.86. 
+
+Ontology fusion. Based on the representation model above, all candidate ontology units ⟨c, k, v ⟩
+
+are processed as follows: • Representation: each attribute value is encoded into a vector within its corresponding category– attribute context ⟨c, k ⟩.• Clustering: vectors belonging to the same ⟨c, k ⟩ subspace are grouped using hierarchical clus-tering (Murtagh and Legendre, 2014) to identify semantically equivalent concepts. • Selection: within each cluster, candidate terms are ranked based on their occurrence frequency and LLM-driven semantic evaluation. The highest-ranked term, v∗, is designated as the canoni-cal ontology entry, while the remaining terms form its synonym set, Vsyn .The fusion stage produces standardized ontology candidates of the form ⟨c, x, k, d k, v ∗, V syn ⟩, which are subsequently passed to the validation stage. Applying the fusion pipeline reduces the number of discovered concepts from 4.5 million to 2.1 million candidate ontology concepts, consolidating approximately 2.4 million redundant concepts into their corresponding synonym sets Vsyn .
+
+(3) Knowledge validation. Knowledge validation aims to ensure the quality of ontology candi-dates generated through large-scale discovery and fusion. While task-specific models achieve strong performance within their training distribution, they often suffer from limited generalization when confronted with emerging concepts and distribution shifts (Huang et al., 2025a; Wataoka et al., 2024). In contrast, general LLMs exhibit stronger open-domain reasoning capabilities and broader semantic coverage, enabling more reliable assessment of candidate ontology concepts. To combine these complementary strengths, we propose a Multi-LLM Collaborative Verification Framework that integrates multiple LLM validators with expert knowledge. The framework eval-uates candidate ontology concepts through a sequence of quality and business-importance assess-ments, ensuring that only high-quality, important concepts are incorporated into the ontology. 
+
+Knowledge quality validation. To strictly control ontology quality, the validation process follows a sequential procedure: a candidate ontology entry must pass plausibility and duplication checks in order. If any step returns “Reject”, the process stops and the candidate is blocked. 9JD Oxygen AI Item Center ( Oxygen AIIC )• Plausibility validation: the system checks whether the candidate makes common sense and sat-isfies category–attribute constraints. For example, “spicy-flavored computer” violates common sense and is rejected outright; “operating system is Android” under “laptop computer” violates category constraints and is also rejected. • Duplication validation: the system incrementally compares the candidate with existing ontol-ogy entries to prevent duplicate insertion. For example, if “CPU model” already exists, “central processing unit model” is rejected. To reduce variation and one-off misjudgments from any single model, each validation stage intro-duces a multi-model majority-voting mechanism (Schoenegger et al., 2024): M general LLMs are called simultaneously, and each model independently outputs yi ∈ { Pass , Reject , Unclear }. The final decision follows majority voting: 
+
+y =
+
+
+
+Pass , if ∑Mi=1 I(yi = Pass ) > M
+
+2 ,
+
+Reject , otherwise. where I(·) is the indicator function and yi is the judgment of the i-th model. Only when a majority of models output “Pass” does the candidate enter the next stage; otherwise, it is immediately blocked and sent to an exception or manual-review pool. 
+
+Knowledge importance assessment. After passing quality validation, candidate knowledge is fur-ther assessed for its business importance and future growth potential to determine its insertion priority and downstream processing strategy. Inspired by the Boston Matrix, we characterize each candidate along two dimensions: scale and trend .• Scale: measures the current prevalence of a candidate concept within the e-commerce ecosystem, including item coverage and query frequency. Concepts with high scale primarily help broaden ontology coverage. • Trend: measures the future growth potential of a candidate concept, including short-term fre-quency growth and changes in search popularity. Concepts with high trend help the ontology track emerging hot topics. Using these two dimensions, the system classifies candidate knowledge into four types: high trend ×
+
+high scale (star concepts), high trend × low scale (emerging-trend concepts), low trend × high scale (stable general concepts), and low trend × low scale (low-value concepts). By default, low-value concepts are not inserted automatically. 
+
+Expert validation and insertion. After completing the importance assessment, the system per-forms tiered ontology insertion based on the evaluation results. Candidate knowledge that receives a unanimous Pass during the quality validation stage is automatically inserted into the ontology. Can-didate knowledge with Unclear judgments or substantial disagreement across models is forwarded to domain experts for final confirmation and boundary determination. In summary, the knowledge validation module focuses not only on whether candidate knowledge is correct, but also on whether it is important. By keeping the ontology accurate, comprehensive, and responsive to emerging hot topics at once, the framework supports continuous and controllable ontology evolution. 
+
+3.3 Results 
+
+Under the human–AI collaborative framework, the system has built a million-scale, high-quality ontology encompassing attributes, product terms, brands, and other entities. Compared with the previous generation, the average number of characterization dimensions per item has increased to 1.44 × the previous level, and the ontology scale has expanded by 64.5%, significantly enhancing product information richness. The resulting ontology covers 80.4% of JD’s user traffic. 
+
+## 4 AI Item Library 
+
+The ontology provides the system with a standardized knowledge foundation, while the core mission of the AI Item Library is to achieve a scalable and extensible semantic mapping from large-scale 10 JD Oxygen AI Item Center ( Oxygen AIIC )unstructured item information to the ontology. Essentially, it identifies ontology elements from items with high precision, thereby building a stable item-to-ontology association chain. The data carried by this association chain exhibits typical industrial-scale characteristics, covering tens of billions of SKUs, tens of thousands of categories, and millions of dynamically evolving ontology entries. It must handle a daily stream of hundreds of millions of item-information changes while supporting JD’s core application scenarios with high freshness. This leads to two core technical challenges: • Scalability under dynamic ontology. In conventional end-to-end models, ontology knowledge is tightly coupled with model parameters, making adaptation to ontology updates costly and often leading to degraded out-of-distribution (OOD) performance. Alternatively, adapting to ontology evolution through frequent fine-tuning or retraining incurs prohibitive computational and time costs. • Throughput bottleneck under massive data. Exhaustively evaluating all attributes for tens of billions of SKUs is highly inefficient. Large groups of homogeneous SKU variants incur redundant processing, while most computations on sparse long-tail attributes yield no useful signals. 
+
+4.1 Method Overview 
+
+Existing methods for item knowledge recognition (Chen et al., 2023; Shinzato et al., 2022; Yang et al., 2022; Yan et al., 2021) still face significant structural limitations in real-world industrial sce-narios. Extraction-and-mapping methods first extract non-standardized values using entity recogni-tion (Zheng et al., 2018; Xu et al., 2019; Yan et al., 2021) or question-answering models (Wang et al., 2020c; Yang et al., 2023), and then map them to standard values. Nevertheless, the ontology knowl-edge is often implicitly encoded in model parameters, making such methods difficult to adapt to ontology updates and leading to degraded generalization. Classification-based methods (Chen et al., 2022) formulate attribute value recognition as a multi-label classification problem over a closed label space. Consequently, they fail to accommodate newly added open-domain attributes, and each on-tology update may require model retraining, making them poorly suited to the dynamically evolving attribute systems of e-commerce platforms. Generative models (Sabeh et al., 2024; Nikolakopou-los et al., 2023; Shinzato et al., 2023) exhibit stronger generalization capabilities and can partially mitigate OOD issues, but their outputs are difficult to constrain and are susceptible to model hal-lucination during direct attribute value generation. Finally, similarity-based retrieval methods (Su et al., 2025) select candidate values via semantic vector matching, but their effectiveness is highly sensitive to threshold settings, resulting in diminished robustness in production environments. Therefore, scalability and high throughput must be treated as joint design objectives to enable effec-tive implementation and long-term stability in industrial-scale business scenarios. In light of these considerations, we propose a collaborative optimization system spanning models, data, and engi-neering. As shown in Figure 5, we propose an industrial-scale “Semantic Search then Discrimination” ( S2D)architecture (Zou et al., 2025) that decouples the ontology from model parameters. In the semantic search stage, the dynamically evolving ontology is externalized as a separate ontology knowledge base, enabling continuous ontology updates without model retraining. Semantic encoders retrieve ontology entries relevant to the given item. In the discrimination stage, the model only determines whether the item matches the retrieved ontology entries. This formulation substantially reduces task complexity, mitigates model hallucination, and enhances generalization to ontology evolution. To further improve efficiency, we apply computational load reduction across both the SKU and attribute dimensions. In the SKU dimension, similarity-based deduplication eliminates redundant computation over homogeneous item variants. In the attribute dimension, the conventional “full-attribute scanning” paradigm is reformulated as “highly relevant attribute probing”, where the S2D
+
+process is initiated only for attributes deemed relevant. In addition, cache reuse and asynchronous pipeline parallelism are employed to minimize redundant computation, optimize NPU utilization, and improve overall system throughput. 11 JD Oxygen AI Item Center ( Oxygen AIIC )Input Data 
+
+Offline SKUs 
+
+Real-time SKUs 
+
+Computational Load Reduction  
+
+> SKU Attribute
+> Valid SKU Sets
+> Valid Attribute Sets
+
+Item Knowledge Recognition 
+
+> Semantic Search Phase
+> Discrimination Phase
+
+Output Data 
+
+Item Knowledge 
+
+Dynamic Ontology   
+
+> iPhone 17 Pro Max
+> sku pool
+> Item 1: i Phone 17 Pro Max
+> Item 2: i Phone 17 Pro
+> Item 3: Phone 17
+> new
+> SKU-level load reduction
+> similarity score >
+> reuse
+> result
+> yes
+> Cosine similarity Ck
+> Semantic Search
+> results
+> Discrimination
+> Ck
+> VLM LLM
+> Attribute-level load reduction
+> VLMs/LLMs
+
+Representation Discrimination 
+
+Inference Engine 
+
+Cache Reuse Asynchronous Parallelism  
+
+> Relevant attributes
+> Affected attributes
+> top-10 results
+> instruction
+> All attributes (K)
+> SKU pair's differential info LLM/VLM LLM/VLM
+> All attributes (K) item info (x)
+> Task A: Single SKU relevance probing Task B: SKU pair relevance probing
+> item info (x) value (v) attribute key (k) attribute desc (d) category (c) item info (x)
+> top-10 results
+> instruction
+
+Dataflow Pipeline 
+
+Figure 5: Production architecture of the AI Item Library. Taking item data and a dynamically evolv-ing ontology as input, the pipeline first mitigates computational redundancy across the SKU and at-tribute dimensions, and then performs precise item-to-ontology recognition through a two-stage “Se-mantic Search then Discrimination” ( S2D) engine, powered by the item understanding LLMs/VLMs. 
+
+4.2 Item Knowledge Recognition 
+
+The S2D architecture formulates item knowledge recognition as a two-stage process. The detailed implementation is described below. 
+
+4.2.1 Semantic Search Stage 
+
+The primary objective of this stage is to model the matching relationships between items and ontol-ogy entries. Given item information, the system retrieves the Top-K most relevant ontology entries from the dynamically evolving ontology as candidates. As in Section 3.2.2, this stage injects do-main knowledge into the representation model, aligning items and ontology entries within a unified semantic space. 
+
+(1) Representation model training. Data construction. In contrast to Section 3.2.2, this stage adjusts both the encoding inputs and the positive/negative sample construction method. For item encoding, the category c serves as contextual information and is injected through the in-struction template Isku (c). Given an item x, its representation is derived as: 
+
+fenc 
+
+(x, I sku (c)) → esku .
+
+For ontology encoding, the category c, attribute key k, and attribute description dk serve as contextual information and are injected through the instruction template Ival (c, k, d k). Given an attribute value 
+
+v, its representation is derived as: 
+
+fenc 
+
+(v, I val (c, k, d k)) → eval .
+
+Both input types share the same encoder parameters fenc and are differentiated solely by their re-spective instruction templates. 12 JD Oxygen AI Item Center ( Oxygen AIIC )
+
+Positive and negative sample construction. Positive samples V + 
+
+> k
+
+are derived from high-confidence results generated during knowledge discovery. Negative samples V − 
+
+> k
+
+are drawn from other attribute values under the same category c and attribute key k. These candidate values are further screened by a large language model, and only those that are not semantically grounded in the item x are designated as negative samples. This strategy prioritizes standard values within the same category and attribute, which are the hardest to distinguish and therefore provide highly informative contrastive signals. 
+
+Model training. The model architecture, loss function, and training strategies are consistent with those described in Section 3.2.2. Furthermore, we perform multi-task joint training to consolidate interrelated capabilities into a unified model, using instruction templates Ifuse , Isku , and Ival to dis-tinguish the different tasks. This design aligns items and ontology entries within a unified semantic space. Moreover, because the large-scale representation model generalizes robustly, newly added ontology entries can be directly encoded by the same encoder and integrated into retrieval without model retraining. 
+
+(2) Knowledge retrieval. Retrieval with the representation model. For offline retrieval, the system maintains two vector indexes generated by the same encoder. The first is an attribute-value index, which encodes at-tribute values under each category and attribute key. The second is an item index, which encodes comprehensive item information. Both indexes store vector representations along with their corre-sponding metadata and support incremental updates. Consequently, newly added ontology entries can be rapidly integrated without triggering model retraining. During semantic search, for each target category and attribute key, the system calculates the cosine similarity between the item representation and the attribute-value representations. Then, it retrieves the Top-K candidate attribute values: 
+
+Ck = {v1, v 2, . . . , v K },
+
+where K = 10 is empirically chosen to achieve strong recall while keeping downstream discrimi-nation cost low. Thus, the initial candidate space is reduced to a compact set of Top-K candidates, significantly alleviating the computational burden of the subsequent discrimination stage. 
+
+4.2.2 Discrimination Stage 
+
+Using the Top-K candidate set from the semantic search stage, the discrimination stage performs fine-grained matching between the item and its retrieved candidates. Although general LLMs/VLMs contain hundreds of billions of parameters, their lack of domain-specific knowledge prevents them from achieving high precision, typically keeping it below 80%. Such models often cannot meet throughput and recognition-accuracy requirements at the same time, motivating the need for a spe-cialized discrimination model. This section comprises two primary phases: discrimination model training and knowledge recognition. 
+
+(1) Discrimination model training. Training data construction. Based on the extraction training data constructed in Section 3.2.2, given item information x and a target attribute key k, the input to the discrimination model is for-malized as ⟨x, k, C k⟩, where Ck represents the candidate attribute value set under k. The model is tasked with identifying which values in Ck are semantically consistent with the item and outputting the corresponding matching subset C∗ 
+
+> k
+
+⊆ Ck.Training data construction consists of two steps: constructing the candidate set Ck and deriving the supervised label set C∗ 
+
+> k
+
+. The candidate set comprises potential positive samples and same-attribute negative samples: 
+
+Ck = V + 
+
+> k
+
+∪ V − 
+
+> k
+
+,
+
+where V + 
+
+> k
+
+denotes the set of potential positives and V − 
+
+> k
+
+denotes the set of negatives. The construc-tion of V + 
+
+> k
+
+and V − 
+
+> k
+
+aligns with the strategy employed for representation model training within the semantic search stage, as described in Section 4.2.1. 13 JD Oxygen AI Item Center ( Oxygen AIIC )After obtaining Ck, we further generate the supervised output C∗ 
+
+> k
+
+to guide model training. Since the candidate values are highly relevant to the target attribute key, standard off-the-shelf LLMs are prone to generating false positives or false negatives when encountering closely related values, implicit item descriptions, or ambiguous boundary samples. Therefore, we first fine-tune an industrial-scale foundation model on a small set of high-quality data to derive a reference model MT . This reference model offers more stable attribute value recognition and stronger boundary discrimination. To construct large-scale supervision data, we use the reference model MT to generate pseudo labels, distilling its discrimination capability into the training corpus: 
+
+MT (x, k, C k) → C∗ 
+
+> k
+
+.
+
+To further improve robustness in production scenarios, we implement multi-granularity data aug-mentation during training, including candidate-set augmentation and sample-distribution calibration. Candidate-set augmentation randomly shuffles the order of candidate values, mitigating the model’s reliance on spurious correlations arising from candidate sequencing, attribute combinations, or tem-plate positions. Sample-distribution calibration controls the ratio of positive to negative samples, preventing the model from overfitting to distributions dominated by negative candidates and thereby avoiding overly conservative rejection behavior. 
+
+Model training. The discrimination model is trained via supervised fine-tuning. Let Idis (x, k ) rep-resent the discrimination instruction formulated from item information x and the target attribute key 
+
+k. Conditioned on the candidate set Ck, the model is optimized to generate the supervised label set 
+
+C∗ 
+
+> k
+
+:
+
+fdis 
+
+(Ck, I dis (x, k )) → C∗ 
+
+> k
+
+.
+
+Through this training paradigm, the model learns to perform set-based filtering within a constrained candidate space. This design minimizes the risk of model hallucination and enhances output con-trollability, as the model is restricted to selecting values from the ontology-constrained candidate set instead of freely generating unconstrained attribute values. Furthermore, the expertise of the large-scale reference model is transferred to a more efficient 8B-parameter model, substantially reducing inference cost in production scenarios. 
+
+(2) Knowledge recognition. 
+
+During online knowledge recognition, given an item xi and an attribute key k, the recall module initially returns the Top-K candidate attribute value set Ck. The discrimination model then uses the formulation above to select the subset C∗ 
+
+> k
+
+that is semantically consistent with the item. If no candidate value matches the item information, the model outputs an empty set, indicating that the item has no compatible attribute value for the specified k.Finally, the predicted result is converted into structured item knowledge: 
+
+Ri,k = {⟨ xi, k, v ⟩ | v ∈ C∗ 
+
+> k
+
+}.
+
+Thus, the discrimination model performs precise knowledge recognition within the recalled candi-date space. The output is strictly constrained by the item ontology, which enhances system reliability and mitigates model hallucination. Furthermore, newly added ontology entries can be readily incor-porated into the online recognition workflow as soon as they are encoded into the ontology index. 
+
+4.2.3 Results 
+
+To assess the efficacy of S2D, we conducted random sampling of items across diverse categories to evaluate their knowledge recognition results. Ground-truth labels were established through a machine-assisted pre-labeling and human-verification procedure: the system first generated prelim-inary labels, which human annotators then validated against item information and item ontology definitions to produce final gold labels. The resulting samples are aggregated into the item knowl-edge test set , constituting the unified evaluation benchmark for subsequent model iterations. Following this evaluation protocol, S2D achieves 92% precision and 78.3% recall. In terms of item knowledge asset gain, compared with merchant-provided data, the average number of attributes per 14 JD Oxygen AI Item Center ( Oxygen AIIC )SKU increased to 1.5 × the original level, while the total volume of item-knowledge assets (SKU ×
+
+attribute key × attribute value) expanded by a factor of 3.35, reaching hundreds of billions. Of this total, merchant data accounts for 30% and AI-generated data for 70%. These results demonstrate that 
+
+S2D effectively enhances item knowledge coverage while maintaining high recognition accuracy. Although the methods in Sections 3.2 and 4.2 have addressed item knowledge discovery and recog-nition, stable and controllable iteration remains an open challenge. In Section 5, we consolidate and extend these capabilities into the item understanding LLMs/VLMs with a controllable, continuously evolving training framework. 
+
+4.3 Throughput Efficiency Improvement 
+
+The S2D architecture effectively resolves the scalability challenges associated with item knowledge recognition. Nevertheless, in industrial-scale production environments, tens of billions of items still impose stringent requirements on data freshness and system throughput. Consequently, throughput optimization must be grounded in a rigorous analysis of the intrinsic characteristics of large-scale e-commerce data. We summarize three key observations: • Homogeneity of item features. A substantial number of redundant SKU listings exist for iden-tical physical items (e.g., the iPhone 17 Pro Max). • Skewed attribute distribution. Common attributes are invoked frequently, whereas long-tail attributes, such as “cuff pleat type”, are extremely sparse. • Repetitive computation across SKUs. Multiple SKUs associated with the same SPU share the vast majority of core knowledge, resulting in redundant recognition computations if processed in isolation. These observations inform our primary optimization objective: shifting the computational paradigm from “all SKUs × all attributes” to “differentiated SKUs × highly relevant attributes”. This transfor-mation substantially reduces compute costs while preserving recognition accuracy. To this end, we enhance throughput through three complementary strategies: computational load reduction, cache reuse, and asynchronous pipeline parallelism. 
+
+4.3.1 Computational Load Reduction 
+
+Computational load reduction implements this paradigm shift across two dimensions: SKU-level load reduction and attribute-level load reduction. 
+
+(1) SKU-level load reduction. SKU-level load reduction condenses “all SKUs” into a smaller set of differentiated SKUs. In large-scale item catalogs, many SKUs are homogeneous variants char-acterized by highly similar item information and attributes. To reduce computational redundancy, the system first determines through semantic retrieval whether the current item can reuse existing attribute recognition results. Specifically, given an item x, we use the encoder fenc trained in Section 4.2.1 to derive its semantic representation. We then construct a category-stratified vector retrieval index. Rather than conducting an exhaustive search over the entire item space S, the system constrains retrieval to the same-category candidate set Sc ⊂ S, where |Sc| ≪ | S|. Within this reduced candidate set, the system computes cosine similarity to retrieve the Top-1 most similar item. If the similarity score of the Top-1 item exceeds a predefined threshold, the system directly reuses that item’s existing attribute recognition results for the current item. This mechanism effectively reduces redundant computations caused by homogeneous SKU variants. 
+
+(2) Attribute-level load reduction. Attribute-level load reduction further recasts “full-attribute scanning” as “highly relevant attribute probing”. Rather than running S2D across all attributes within a category, the system adaptively constrains the attribute space through two relevance-probing tasks: single-SKU attribute relevance probing (Task A) and SKU-pair attribute relevance probing (Task B). 
+
+Task definition and data construction. To enable attribute-level load reduction, we train an at-tribute relevance-probing model prior to the S2D stage. The training data are uniformly structured 15 JD Oxygen AI Item Center ( Oxygen AIIC )as discrimination triples ⟨x, K, K ∗⟩, where K denotes the complete set of attribute keys under a category and K∗ denotes the subset of highly relevant attribute keys predicted by the model. By injecting the relevance instruction Idis-k , the task is formulated as: 
+
+fdis-k (x, K, I dis-k ) → K∗, where K∗ ⊆ K. 
+
+The model jointly learns two sparsification strategies under a unified multi-task supervised fine-tuning framework: • Task A: single-SKU attribute relevance probing. Given an item p with item information xp
+
+and the complete category-level attribute key set K, the objective is to identify the subset of attributes K∗(p) that are relevant to the item. • Task B: SKU-pair attribute relevance probing. Given a new item p and a reference item p′
+
+associated with the same SPU, the input x is formulated as the differential fields ∆( xp, x p′ ). The objective is to identify the subset of attributes K∗ 
+
+> ∆
+
+that are affected by the differences between p
+
+and p′.
+
+Multi-task training and unified optimization. We integrate Task A and Task B into a unified multi-task SFT framework and use a dynamic mixing strategy to balance their data distributions during training. The model is optimized using the following autoregressive objective: 
+
+L = − ∑
+
+> t
+
+log P (K∗ 
+
+> t
+
+| K∗
+
+> <t
+
+, x, K, I dis-k ) .
+
+This training objective encourages the model to acquire a generalized mapping from item semantics to attribute relevance, thereby enhancing its ability to determine which attributes require further processing by the S2D pipeline. 
+
+Inference. During inference, different capabilities are activated through task-specific instruction prefixes, enabling a unified model interface with task-adaptive behavior. • Task A inference. For an individual item p, the model receives xp and the category-level at-tribute key set K as input and generates the highly relevant attribute subset K∗(p). The sub-sequent S2D process is initiated exclusively for attributes within K∗(p), whereas irrelevant at-tributes are assigned null values. • Task B inference. For an item pair (p, p ′), where the attribute recognition results of the reference item p′ are accessible, the model uses the differential fields ∆( xp, x p′ ) and the attribute key set K
+
+as input to predict the affected attribute subset K∗
+
+> ∆
+
+. Attributes excluded from this affected subset (K \ K∗
+
+> ∆
+
+) directly inherit the recognition results of the reference item p′, thereby substantially reducing computational redundancy. Through SKU-level semantic deduplication and attribute-level sparsification alone, the Oxygen AIIC 
+
+production pipeline achieves a threefold improvement in throughput efficiency. 
+
+4.3.2 Extreme Cache Reuse 
+
+The S2D inference prompt comprises task instructions, item information, attribute keys, and candi-date values. In practice, different SKUs under the same SPU share approximately 85% of their item information, such as item descriptions and other detailed technical content. Nevertheless, conven-tional approaches compute the entire prompt independently for each SKU, resulting in substantial redundancy in both memory consumption and computation. To mitigate this inefficiency, we imple-ment SPU-level prefix cache reuse. • Prompt structure optimization. We place invariant information shared within an SPU, such as item descriptions, at the start of the prompt to establish a shared prefix, thereby maximizing prefix-cache hit rates. • Cache-aware locality guarantee. Requests are grouped by SPU and routed to designated NPU devices, preventing frequent cache eviction caused by stateless load balancing. 16 JD Oxygen AI Item Center ( Oxygen AIIC )• Memory management tuning. Given the structured nature of our prompts, we conduct source-code-level tuning of the block_size parameter in vLLM (Kwon et al., 2023a). By keep-ing cache hit rates high while limiting block-management overhead, we empirically identify 
+
+block_size=16 as the optimal configuration for this scenario, compared with the default value of 128. This adjustment substantially enhances memory efficiency. These optimizations alone improve production throughput by more than sixfold. 
+
+4.3.3 Asynchronous Pipeline Parallelism 
+
+The three-stage Oxygen AIIC production workflow, comprising vector generation, semantic search, and discrimination, requires coordination between heterogeneous hardware, specifically NPUs and CPUs. In this architecture, vector generation and discrimination are offloaded to NPUs, while se-mantic search is processed by a Faiss-based CPU cluster. However, data dependencies and inter-processor communication introduce idle intervals, resulting in compute resource underutilization and the formation of compute bubbles. To address these inefficiencies, we propose a hierarchical architecture that integrates L0 fine-grained data parallelism with an L1 cross-chunk asynchronous pipeline. • L0 fine-grained data parallelism. Rather than employing conventional coarse-grained SPU-level chunk partitioning, we partition large SPUs into fine-grained SKU chunks and implement dynamic load balancing. This prevents a single large chunk from occupying CPU resources for an extended period and blocking the entire pipeline. • L1 cross-chunk asynchronous pipeline. We decouple sequential dependencies across chunks temporally, enabling the three stages to operate seamlessly and asynchronously. In the vec-tor generation stage on NPUs, vLLM workers perform dynamic sharding and process different chunks according to available memory, eliminating the need to wait for an entire chunk to be ready. In the retrieval stage on CPUs, embeddings from multiple chunks are aggregated asyn-chronously to construct optimized batches, thereby maximizing vector database throughput. In the discrimination stage on NPUs, recalled sub-tasks are dynamically scheduled according to memory pressure, guaranteeing sustained utilization of NPU compute resources. This architecture alone reduces waiting latency across heterogeneous hardware and achieves more than a twofold improvement in overall system throughput. 
+
+4.3.4 Overall Effectiveness 
+
+While each of the aforementioned strategies yields significant throughput gains, they are difficult to stack efficiently in practice. To assess the comprehensive benefits of the integrated system, we conducted controlled experiments under a uniform physical environment (a single Huawei Ascend 910C NPU), using the identical ontology and sampled item set. We measure throughput by the num-ber of SKU × attribute key pairs processed per unit time per unit of compute, thereby reflecting the system’s capability to perform large-scale knowledge inference. Under identical evaluation condi-tions, we executed the end-to-end inference pipeline before and after optimization and compared the total execution times to determine the throughput improvement ratio. All efficiency gains reported in this paper are computed according to this evaluation protocol. By jointly applying the three-stage optimization strategies (computational load reduction, cache reuse, and asynchronous pipeline parallelism), the overall throughput efficiency is improved by more than tenfold. As the dynamically evolving ontology expands and the attribute dimension increases, all three optimizations exhibit strong scaling effects: a larger attribute space provides greater poten-tial for sparsification and enhances prefix cache reuse. Consequently, system-level throughput gains are expected to become even more pronounced as the attribute dimension continues to expand. 
+
+## 5 Item Understanding LLMs/VLMs 
+
+Along two dimensions—ontology engineering and the AI Item Library—the previous sections present an end-to-end pipeline that spans from dynamically evolving ontology construction to large-scale item knowledge production. Sustaining the long-term reliability of this system, while enabling 17 JD Oxygen AI Item Center ( Oxygen AIIC )Task Capabilities 
+
+> Ontology Construction
+> Semantic Search Then Discrimination
+> Computational Load Reduction
+
+Incremental Adaptation 
+
+Instruction-following Knowledge Representation 
+
+> Rapid Adaptation
+> Expert-Pool Scheduling
+> Latent CoT Distillation
+> Robustness Enhancement
+
+Multi-task Foundation  
+
+> Knowledge Extraction
+> Knowledge Discrimination Multi-task SFT
+
+Model Self-evolution 
+
+> Data Evaluation
+> Data Analysis
+> Data Synthesis
+> Data Selection
+
+1 2 3 4
+
+Item Understanding VLMs/LLMs 
+
+Figure 6: Overview of the Oxygen AIIC framework for the item understanding LLMs/VLMs. Con-structed upon a unified multi-task item understanding foundation model, the framework supports incremental capability expansion, incorporates instruction-following knowledge representation, and implements a closed-loop model self-evolution mechanism to continuously enhance model perfor-mance and data quality. its continuous evolution, requires a robust and controllable iteration framework. Building such a framework poses the following challenges: • Weak off-the-shelf performance in knowledge-intensive domains: Oxygen AIIC draws on exten-sive industry knowledge that off-the-shelf models lack, which limits their effectiveness (Guru-rangan et al., 2020). • Costly full fine-tuning under frequent incremental updates: Oxygen AIIC continually expands with new domains, ontology entries, and tasks; static models cannot keep pace, while frequent full retraining is inefficient and risks catastrophic forgetting (McCloskey and Cohen, 1989; Kirk-patrick et al., 2017). • Key features buried in strong noise: items carry rich information, and their implicit fine-grained features are easily obscured by irrelevant signals; this problem is especially pronounced for rep-resentation models. • Subtle, hard-to-fix recognition defects: as the overall quality of item knowledge improves, the model still performs poorly on a small number of ontology recognition cases; such failures are 18 JD Oxygen AI Item Center ( Oxygen AIIC )subtle, rarely surface in aggregate metrics, cannot be resolved simply by adding training data, and instead require tailored data for repair. To address these challenges, and building on the stable, controllable production pipeline established before, this section introduces the item understanding LLMs/VLMs framework of Oxygen AIIC (Fig-ure 6). Developed upon a unified multi-task item understanding LLMs/VLMs foundation, it supports incremental capability expansion, instruction-following knowledge representation, and a closed-loop self-evolution mechanism, continuously enhancing model performance while supporting both ontol-ogy engineering and the AI Item Library. 
+
+5.1 Multi-task Item Understanding LLMs/VLMs Foundation  
+
+> Oxygen AIIC
+
+originally trained separate models for scenarios such as knowledge discovery, semantic representation, and discrimination-based knowledge recognition. Although their training data all describe similar item–ontology semantics, such isolated training limited data reuse and knowledge transfer across capabilities while increasing model-management overhead (Ruder, 2017; Raffel et al., 2020). In the unified foundation, we organize the generative (non-representation) knowledge-production tasks across these scenarios into two families: knowledge extraction and knowledge recognition. We therefore reorganize the existing training data into a multi-task supervised fine-tuning (multi-task SFT) format (Wei et al., 2022a; Chung et al., 2024) and consolidate these capabilities into the item understanding LLMs/VLMs: 1. Knowledge extraction: autonomously identifies and extracts knowledge from item information, encompassing tasks such as attribute key extraction, attribute value extraction, and key-value extraction. 2. Knowledge recognition: executes authenticity judgment or subset selection based on item infor-mation and a specified candidate space, including key discrimination, value discrimination, and key-value discrimination. Through unified modeling of these tasks, the item understanding LLMs/VLMs acquire a generalized understanding of items, ontology entries, and other task patterns, thereby serving as the foundation for Oxygen AIIC ’s model capabilities. 
+
+5.2 Incremental Adaptation 
+
+The multi-task foundation provides strong, general item understanding, but it exhibits limited gen-eralization to continuously emerging ontology entries (such as a newly added “pet food” category), and frequent full retraining significantly reduces iteration efficiency. To address this, we introduce a task-free, lightweight incremental learning mechanism to expand the model’s capability boundaries without fully retraining the foundation model, while preserving existing capabilities (Houlsby et al., 2019; Biesialska et al., 2020). The core method is to build on the robust multi-task foundation, develop lightweight “expert modules” for incremental requirements, and dynamically integrate them into the expert pool, enabling agile capability expansion. Figure 7 illustrates the incremental adaptation mechanism. 
+
+(1) Rapid adaptation to incremental tasks. To keep up with ontology iteration, the system in-crementally trains the corresponding expert modules, such as “pet food” and “beauty and skincare” domain experts. Low-Rank Adaptation (LoRA) has become the preferred method for incremental adaptation owing to its high parameter efficiency (Hu et al., 2022). It implements weight updates via the product of low-rank matrices: ∆W = ρr BA , where B ∈ Rn×r , A ∈ Rr×m, and r and ρ represent the rank and the scaling factor, respectively. However, conventional LoRA is constrained by its inherent low-rank structure, and the magnitude of its weight updates is significantly lower than that of full fine-tuning. This impairs the early-stage fitting dynamics, slows convergence, and prevents the model from reaching the desired accuracy 19 JD Oxygen AI Item Center ( Oxygen AIIC )x
+
+# x
+
+> ...
+> LoRAM Experts Frozen SFT Backbone
+> Dirichlet Distribution Selector Action Groups
+> Negative loss
+> <>
+> GRPO update outputs
+
+Figure 7: Incremental adaptation based on LoRAM experts and adaptive expert composition. Afrozen SFT backbone is combined with multiple lightweight expert updates, and GRPO optimizes expert composition via task feedback. under limited business data, even when the learning rate is increased. Consequently, we introduce LoRAM initialization based on the Magnitude Principle (Zhang et al., 2026b). By directly construct-ing an initial state with stronger update momentum, LoRAM accelerates convergence and enhances accuracy. The strategy uses the discrete sine transform (DST) to construct deterministic orthogonal bases ξ and integrates them with a pretrained-weight-based gain coefficient β to define the initial states of the low-rank matrices: 
+
+B(0) = β · ξn, A(0) = β · ξ⊤
+
+> m
+
+.
+
+To guarantee that the model’s initial behavior matches that of the original foundation model, the system simultaneously performs weight compensation: 
+
+W ← W − β2ξnξ⊤
+
+> m
+
+.
+
+LoRAM optimizes the adapter’s magnitude dynamics without additional memory overhead or pre-processing cost, improving the fitting efficiency while raising the performance ceiling for incremen-tal requirements. 
+
+(2) Expert-pool scheduling. LoRAM produces single-scenario experts. However, during infer-ence, the model achieves higher recognition precision by dynamically aggregating multiple expert capabilities and sharing knowledge across all categories. To this end, we propose GROLE, an incremental learning strategy based on adaptive LoRA expert composition (Liao et al., 2026). We establish a modular expert pool in which each ∆WLoRAM ,i 
+
+represents an independent capability unit. An adaptive selector gϕ estimates the fusion weights α of incremental experts from input x and task instruction I, with weights constrained to be nonnegative and to sum to one. The model output is determined by the linear combination of the foundation and experts: 
+
+h =
+
+(
+
+W0 +
+
+> n
+
+∑
+
+> i=1
+
+αi∆WLoRAM ,i 
+
+)
+
+x. 
+
+where W0 represents the multi-task foundation model and n is the number of experts. This mecha-nism enables the model to achieve both general semantic understanding and specific logical judgment within a unified architecture. Given that expert weights lack explicit labels, we employ Group Relative Policy Optimization (GRPO) (Shao et al., 2024) to model the allocation process as feedback-driven policy learning. The system samples G groups of expert weights {αj }Gj=1 from a Dirichlet distribution and calculates relative advantages {Aj }Gj=1 :
+
+Aj = rj − mean (R)
+
+std (R) .
+
+20 JD Oxygen AI Item Center ( Oxygen AIIC )where rj denotes the overall reward of the j-th weight vector αj across mixed tasks (defined as the negative loss), and R is the set of rewards for the current group {rj }Gj=1 . The selector identifies the optimal policy by optimizing: 
+
+JGRP O (ϕ) = 1
+
+G
+
+> G
+
+∑
+
+> j=1
+
+min [ρj Aj , clip (ρj , 1 − ϵ, 1 + ϵ)Aj ] .
+
+where ρj denotes the importance sampling ratio of the selector with respect to αj , and ϵ is the clipping coefficient. This mechanism enables the flexible composition of novel knowledge and task logic while preserving foundation capabilities, thereby supporting the ongoing expansion of item understanding. This approach enables Oxygen AIIC to iterate rapidly. Meanwhile, to share item knowledge across all categories, the system periodically performs full fine-tuning, consolidating distributed incremen-tal capabilities back into the foundation model. This supports the continuous integration of expert capabilities and the long-term evolution of the foundation model. 
+
+5.3 Instruction-following Knowledge Representation 
+
+In contrast to the generation-oriented item understanding LLMs/VLMs, knowledge representation aims to build a unified semantic space that maps item information, user queries, standardized ontol-ogy entries, and related information into the same vector space, supporting efficient alignment and retrieval at an industrial scale. The knowledge representation component illustrated in Figure 8 is trained to follow task instructions while maintaining robust fine-grained semantic alignment. Input Learnable Tokens Input Output 
+
+🔥 Knowledge Representation Large Model  ❄ Knowledge Representation Large Model   
+
+> +FANoise
+> +
+> <think> s1<eos> sL
+> ... ...
+> ... ...
+> Ldistill
+> LCL
+> rotate
+> scale SVD
+> </think>
+
+Figure 8: Instruction-following knowledge representation training. The framework transfers reason-ing capability through latent chain-of-thought (Latent CoT) distillation and enhances representational robustness via adaptive feature-space perturbation. In e-commerce, representation models must extract knowledge signals from comprehensive item information. Traditional embeddings are susceptible to interference from literal similarity and noise, often failing to capture fine-grained details. For example, a product detail page may obscure the “waterproof level” within text such as “waterproofing has been further upgraded, supporting IP68-grade dust and water resistance, and passing the TÜV SÜD 2-meter, 24-hour test.” To address this challenge, we propose a “Reasoning-then-Embedding” framework that performs reasoning prior to generating an embedding vector, distinguishing essential knowledge from redundant noise (Wei et al., 2022b). The framework is underpinned by two mechanisms. First, a reasoning-based representation mech-anism built on Latent CoT distillation (Deng et al., 2023) transfers the teacher model’s reasoning capability into the hidden states of the student model. Second, a spectral-structure-based adaptive noise injection strategy (Li et al., 2026; Guo et al., 2026) dynamically adjusts perturbation intensity 21 JD Oxygen AI Item Center ( Oxygen AIIC )according to the representation distribution, strengthening the model’s semantic robustness. Col-lectively, these mechanisms enable complex semantic modeling while remaining both efficient and accurate. 
+
+(1) Implicit reasoning representation. In retrieval scenarios, representations need instruction-following capability to suppress irrelevant information and noise. To avoid the high latency associ-ated with explicit CoT decoding (Wei et al., 2022b), following InstEmb (Gao et al., 2026), we adopt implicit reasoning, completing the reasoning process within a single forward pass. We append L learnable tokens s = [ ⟨think ⟩, s 1, s 2, . . . , s L, ⟨/think ⟩, ⟨eos ⟩] after the input sequence 
+
+x as carriers for reasoning. During training, a frozen teacher model provides supervision (Hinton et al., 2015). The inputs are defined as follows: 
+
+xstudent = [ x; s], xteacher = [ x; rcot ]
+
+where rcot is the explicit reasoning chain generated by the teacher model. For example, for the attribute “waterproof level”, the teacher model can infer from wording such as “...supports IP68-grade dust and water resistance...” that “IP68-grade” is the core information, guiding the student model to internalize deeper semantics. We design a position-aligned distillation loss that constrains the student model’s hidden state hSi at implicit-token positions to align with the teacher model’s hidden state hTi−1 when processing the corresponding reasoning logic: 
+
+Ldistill = 1
+
+L
+
+> |x|+L+1
+
+∑
+
+> i=|x|+2
+
+∣∣hSi − hTi−1
+
+∣∣22 .
+
+During inference, the hidden state of the last token ⟨eos ⟩ in the implicit sequence is extracted as the reasoning-based representation vector: e = hS
+
+> ⟨eos ⟩
+
+. Without introducing autoregressive overhead, this method compresses core knowledge from unstructured descriptions into vector representations and enhances recall accuracy for fine-grained knowledge. 
+
+(2) Representation robustness enhancement. After the reasoning-based representation e is ob-tained, high-frequency marketing terms and redundant descriptions in e-commerce text may still cause the model to overfit superficial noise, weakening generalization in practical alignment scenar-ios. To address this, we propose a spectral-structure-based adaptive noise injection strategy at the feature layer to enhance representation robustness. Given the batch representation set E ∈ RB×d, we perform singular value decomposition (SVD): 
+
+E = P ΣQ⊤. The singular value matrix Σ reflects the energy distribution across semantic directions. Based on this structure, we dynamically adjust noise intensity: perturbation is increased in dominant directions, which often correspond to high-frequency noise patterns, to suppress overfitting, whereas perturbation is constrained in weak-signal directions to preserve fine-grained logical signals. The noise modulation process is defined as follows: 
+
+Nscaled = Nrand ⊙ S(Σ diag ), where S ∈
+
+
+
+Σdiag 
+
+Σdiag 
+
+,
+
+√Σdiag 
+
+√
+
+Σdiag 
+
+ .
+
+where Nrand denotes Gaussian noise, Σdiag is the diagonal singular-value vector, and Σdiag repre-sents the mean singular value. The noise is subsequently projected back to the representation space through a basis transformation and normalized by dimension to generate the perturbed reasoning representation ˜e:
+
+N ′ = Nscaled Q⊤, ˜e = e + δ
+
+√n N ′.
+
+where δ is the global noise intensity coefficient and n is the feature dimension. In the contrastive learning stage, we follow the InfoNCE loss defined in Section 3.2.2 and replace e
+
+with ˜e to explicitly strengthen the semantic alignment: 
+
+L ˜InfoNCE = − 1
+
+|V +| 
+
+> |V+|
+
+∑
+
+> i=1
+
+log exp (sim (˜ e, ˜e+ 
+
+> i
+
+)/ τ )
+
+exp (sim (˜ e, ˜e+ 
+
+> i
+
+)/ τ ) + ∑|V −| 
+
+> j=1
+
+exp (sim (˜ e, ˜e− 
+
+> j
+
+)/ τ ) .
+
+22 JD Oxygen AI Item Center ( Oxygen AIIC )The final training objective comprises the distillation loss and the modified InfoNCE loss, where ζ
+
+is a weighting coefficient: 
+
+Ltotal = Ldistill + ζ · L ˜InfoNCE .
+
+In summary, the model accurately extracts core semantics from complex e-commerce item informa-tion and achieves high-quality alignment and retrieval of atomic knowledge in vector space. 
+
+5.4 Model Self-evolution 
+
+As Oxygen AIIC developed, the item understanding LLMs/VLMs have achieved relatively stable performance on tasks such as knowledge extraction and recognition. However, in practical business scenarios, model issues gradually shift from explicit errors to more subtle long-tail defects. Relying solely on full-data expansion or periodic fine-tuning makes stable, low-cost continuous optimization difficult. We consequently develop a self-evolution framework for the item understanding LLMs/VLMs (Ze-likman et al., 2022; Madaan et al., 2023). The process comprises four stages (data evaluation, data analysis, data synthesis, and data selection) and establishes a closed-loop system through model iteration. Figure 9 provides a system-level view of the self-evolution loop; the following paragraphs delineate its four modules. Module 1: Data Evaluation 
+
+> Hardcase Set
+> Consistency
+> Confidence
+> Stability
+> Badcase Set
+> Module 2: Data Analysis
+
+Item Understanding LLMs/VLMs 
+
+> Boundary Confusion
+> Hallucination
+> Expression Deviation
+> Module 3: Data Synthesis
+> Factual Constraints
+> Boundary Calibration
+> Fact Alignment
+> Module 4: Data Selection
+> Synthetic Data
+> Historical Data
+> High-Utility
+> Noisy & Ambiguous
+> Redundant
+> Static Offline Selection Dynamic Online Selection
+> Source2: Online Feedback
+
+Train Source1: Actively Probed Samples <x,k,v>  
+
+> Rule Omission Rule Enhancement
+> Sample Utility Measurement
+
+Figure 9: Model self-evolution framework. Online feedback and proactive mining yield bad cases and hard cases, which are analyzed, converted into targeted synthetic data, prioritized based on sam-ple value, and used for controlled model iteration. 
+
+Module 1: Data evaluation. The data evaluation module identifies bad cases and hard cases from online feedback and actively probed samples. Samples are assessed along three dimensions: evi-dence consistency, model confidence, and perturbation stability. First, the system implements prompt-constrained evidence consistency judgment, namely an LLM-as-a-judge mechanism (Zheng et al., 2023), to validate the triples ⟨x, k, v ⟩ produced by the model. Here, x denotes item information, k denotes the attribute key, and v denotes the attribute value. The evaluation criterion is whether v can be rigorously derived from the current input x alone. If the evidence is contradictory or unsupported, the sample is assigned to the bad-case set. Second, the system performs confidence estimation based on the model output distribution under greedy decoding. At each decoding step i, the system computes token-level confidence as the prob-ability margin between the top-ranked token and the second-ranked candidate token across the vo-cabulary V , and subsequently determines sequence-level confidence: 
+
+Ci = max  
+
+> j∈V
+
+Pi(j) − secondmax  
+
+> k∈V
+
+Pi(k),Cavg = 1
+
+N
+
+> N
+
+∑
+
+> i=1
+
+Ci.
+
+23 JD Oxygen AI Item Center ( Oxygen AIIC )where N is the output sequence length. Low overall confidence indicates ambiguity among multiple candidate answers, and the sample is designated as a hard-case candidate. Finally, the system checks stability under input perturbation. While preserving core semantics, it introduces minor perturbations to the order of candidate attributes and item descriptions. If the output varies, the sample is also designated as a hard-case candidate. The data evaluation module yields two sample types: bad cases and hard cases. Bad cases are used for defect attribution and corrective data synthesis, while hard cases help identify the model’s capability boundaries. 
+
+Module 2: Data analysis. The data analysis module uses large models to perform defect attribu-tion for bad cases and hard cases. For bad cases, it analyzes erroneous outputs to identify underlying defect causes. For hard cases, it investigates sources of instability and categorizes samples for cor-rective training, boundary enhancement, or manual review. Common defects include evidence-missing hallucination, where the input lacks explicit evidence for the target attribute while the model predicts an attribute value based on category commonsense; attribute-boundary confusion, where the model identifies valid evidence but incorrectly associates it with a semantically similar attribute, resulting in an incorrect key-value binding; attribute-value ex-pression deviation, where the output drifts semantically from the original evidence or over-refines it by introducing unexpressed modifiers; and missing category-specific rules, where the same attribute has different judgment criteria across categories and the model fails to capture category-context dif-ferences. Using “lampshade material” as an example, if the item information only describes a “Nordic-style desk lamp” but the model outputs “wood”, this is evidence-missing hallucination. If the text contains “metal lamp base, glass lampshade” but the model associates “metal” with “lampshade material”, this is attribute-boundary confusion. If the source text only states “glass material” but the model outputs “frosted glass”, this is attribute-value expression deviation. The module outputs the defect type, impact scope, and suggested repair strategy, transitioning model iteration from indiscriminate data expansion to defect-targeted remediation. 
+
+Module 3: Data synthesis. The data synthesis module uses large models to synthesize targeted training samples based on identified defect types and repair suggestions. Rather than merely increas-ing data volume, its primary goal is to produce information-dense repair samples. For evidence-missing hallucination, the system employs constrained synthesis to generate input sam-ples lacking explicit evidence for the target attribute while constraining the target output to “not mentioned” or “cannot determine”, thereby reinforcing the model’s awareness of evidence bound-aries. For attribute-boundary confusion, the system uses boundary-calibration synthesis to formulate contrastive samples targeting easily confused attributes, helping the model learn the correct bindings between attributes and evidence spans. For attribute-value expression deviation, the system imple-ments fact-alignment synthesis to generate strictly consistent standardized outputs based on factual anchors in the source input, preventing the introduction of extraneous semantics during extraction. For missing category-specific rules, the system applies category-rule enhancement synthesis, in-tegrating category ontology definitions, attribute value spaces, and historical error distributions to generate training samples that align with the business interpretations of specific categories. For example, for the “lampshade material” issue, the system generates negative samples devoid of material evidence and trains the model to output “not mentioned”. It also constructs contrastive samples containing both “metal lamp base” and “glass lampshade” to help the model distinguish the attribute boundaries between diverse components. To ensure the quality of synthetic data, all samples undergo evidence consistency validation and format validation; high-risk samples are further evaluated via manual spot checks. The module generates candidate training data accompanied by defect labels, repair objectives, and sample-source markers. 24 JD Oxygen AI Item Center ( Oxygen AIIC )
+
+Module 4: Data selection. The data selection module identifies high-utility samples from syn-thetic samples, historical samples, and online feedback samples to enhance iteration efficiency and model performance. We introduce a sample utility measurement strategy grounded in the cognitive gap (Xie et al., 2023; Wang et al., 2026a;b). For a candidate sample x, we calculate the losses of the current model u and the expert model w on the sample, and define the sample utility score as: 
+
+Lexcess (x) = Lu(x) − L w(x).
+
+where the current model u represents the active online model or the model to be optimized, and the expert model w can be a higher-capacity teacher model, a strong baseline model, or a domain model. A high Lexcess indicates that the current model has not yet mastered the sample, whereas the expert model exhibits proficiency, making the sample highly informative and valuable for training. If both losses are low, the sample is likely redundant and may be reserved for distribution preservation or deferred. If both losses are high, the sample may suffer from label noise, insufficient evidence, or semantic ambiguity, and is subsequently directed to the hard-case pool for manual verification. Data selection operates in two modes. Static offline selection evaluates the candidate sample pool at scale prior to training and constructs a specialized training set. Dynamic online selection adaptively adjusts training batches based on model convergence during incremental training, allowing the model to prioritize the hardest and most informative samples. The module categorizes candidate samples based on their respective roles in the subsequent iteration: (1) Training set. High-utility samples are incorporated into the training set for model optimization. (2) Current-round test set. Representative bad cases and stability hard cases identified in the cur-rent iteration are maintained as test samples for the attributes currently being optimized. After each iteration, these samples are annotated via the procedure described in Section 4.2.3 and then merged into the item knowledge test set, ensuring the benchmark continuously expands and supports all sub-sequent evaluation scenarios. Samples identified as redundant, low-utility, ambiguous, insufficiently grounded, or confirmed noisy are excluded from both training and validation. 
+
+5.5 Metrics 
+
+Throughout the continuous iteration of the item understanding LLMs/VLMs, we conduct offline validation by computing metrics on end-to-end item knowledge production results using the unified 
+
+item knowledge test set .After incorporating multi-task SFT, incremental scenario adaptation, instruction-following knowl-edge representation training, and model self-evolution, the latest model attains 94.2% precision and 82.8% recall in end-to-end AI Item Library production. Compared with the results in Section 4.2.3, precision and recall exhibit increases of 2.2% and 4.5%, respectively. The evaluation results further demonstrate that only 0.8% of attributes undergo a precision degrada-tion of more than 5%, indicating that the model enhances overall item knowledge production quality while maintaining stable performance on the continuously growing benchmark. For newly added ontology entries, the end-to-end turnaround time from attribute mining to finalized production data is reduced from over 30 days to approximately two weeks, representing a substantial improvement in production efficiency. 
+
+5.6 Platform Capabilities 
+
+During the large-scale deployment of Oxygen AIIC , the underlying compute platform encounters two primary technical challenges: model training and inference on Huawei Ascend NPUs, and the efficient use of compute resources. At the model level, the compute platform offers a unified training and inference framework compatible with Huawei Ascend NPUs, ensuring the robust and efficient execution of the end-to-end Oxygen AIIC pipeline. At the resource level, the compute platform incorporates elastic resource scheduling for offline NPU clusters, enabling compute resource reuse across the production workflow and improving overall compute utilization. 25 JD Oxygen AI Item Center ( Oxygen AIIC )
+
+## 6 Item Tunnel 
+
+To support ontology construction, AI Item Library production, and model self-evolution, while en-abling efficient consumption by downstream applications, we designed and implemented Oxygen AIIC ’s unified item tunnel as a data and compute hub between production and applications. The system must address four engineering challenges. First, there is an inherent trade-off between data freshness and cost, while downstream consumers differ substantially in freshness requirements, item scope, and ontology coverage. Second, the evolution of the AI Item Library relies on mul-tiple hybrid stream-batch pipelines; long cascades across heterogeneous engines may introduce distributed-state synchronization problems and data inconsistencies. Third, data flows covering tens of billions of items consume CPU, NPU, and distributed-storage resources across the full stack, so even local inefficiencies can affect global stability and compute-cost amortization. Fourth, business scenarios share a common foundation, take multimodal inputs, and differ only in service details; ad hoc customization would fragment interfaces, undermine contract governance, waste resources, and weaken SLA guarantees. To address these challenges, we developed the item tunnel, a unified infrastructure for large-scale knowledge management. The item tunnel supports hundreds of millions of AI Item Library updates per day, delivers tiered freshness spanning seconds, minutes, and days, and maintains eventual con-sistency across heterogeneous service modalities with convergence achieved within minutes. Pow-ered by this infrastructure, Oxygen AIIC has built a dynamic AI Item Library covering tens of billions of items. The system is now deployed across a broad spectrum of production applications, including search, advertising, marketing, shopping assistants, item operations, product listing, and platform governance. The following four engineering practices correspond to the four challenges above. • Tiered-freshness pipelines: inference tasks are assigned based on data-change frequency and business value to provide freshness tiers from seconds to days. Inference is the key factor governing both freshness and cost: offline inference has high throughput and NPU utilization but longer end-to-end latency, whereas real-time inference responds quickly but may repeatedly process transient intermediate states and amplify compute cost (Kwon et al., 2023b; Agrawal et al., 2024). We therefore divide computation into three paths. The offline path uses batch computation and offline inference to build a low-cost item-knowledge baseline, and decouples CPU processing and NPU inference into a pipeline to improve NPU utilization. The nearline path refreshes minute-level increments through micro-batches. The real-time path is reserved for high-value, highly time-sensitive items and triggers online inference only after staged pruning, retrieval, and discrimination. Together, the real-time, nearline, and offline paths deliver second-, minute-, and day-level freshness, respectively, balancing latency, freshness, and cost (Akidau et al., 2015). • Eventual consistency: the system resolves data-version divergence across cascaded produc-tion paths and controls convergence time by freshness tier, down to the minute level. The tiered-freshness design is essentially a hybrid stream-batch, Lambda-style architecture (Marz and Warren, 2015; Akidau et al., 2015), so it must prevent incorrect version overwrites and data loss caused by distributed production, replay, or delayed data. At the same time, it must guaran-tee convergence under the eventual-consistency model used in large distributed stores (Vogels, 2009; DeCandia et al., 2007). We achieve consistency through three mechanisms. For merge-conflict resolution, we introduce monotonically increasing version markers: streaming results use event time and batch results use snapshot time. Based on Hudi’s MVCC and ACID capa-bilities, the system applies last-write-wins semantics at the item-attribute granularity, so higher versions overwrite lower versions (Apache Hudi, 2026a;b; Amazon Web Services, 2026). For computational consistency, operators are separated into stateless and stateful classes; stateful operators always read the latest item state, and Spark partition-level atomic commit, together with Flink checkpoint persistence and alignment, provides At-Least-Once recovery from per-sisted checkpoints (Zaharia et al., 2012; Carbone et al., 2017). For concurrency control, com-pute and storage partitions are aligned by item ID, and read-write locks plus scheduler mutual exclusion prevent read-write conflicts and duplicate processing. High-freshness scenarios there-fore converge within minutes, while the remaining data is exposed through daily fully consistent snapshots. 26 JD Oxygen AI Item Center ( Oxygen AIIC )• Storage-compute efficiency: physical decoupling and elastic scheduling support stable pro-duction over data flows covering tens of billions of items. Heterogeneous cross-cluster co-ordination between Spark/Flink and the vLLM inference cluster depends on three mechanisms. First, storage and computation are aligned via a unified data contract: offline production is an-chored on Parquet-formatted shards in HDFS, real-time production is anchored on Kafka parti-tions, and upstream computation pre-aggregates by category and SPU to produce strict-schema shards (Apache Parquet, 2026; Kreps et al., 2011). Second, vLLM workers dynamically claim work shards and reuse the prefix cache, turning fixed assignment into a dynamic pipeline and reducing the impact of straggler nodes (Kwon et al., 2023b). Third, checkpointed operator state is keyed by item ID, so after a failure the system retries only unfinished shards at fine granular-ity. This design preserves compute efficiency while preventing data loss. Overall, this yields a production system that provides on-demand resource allocation, retryable tasks, and end-to-end monitoring. • Unified services: a standard service matrix replaces fragmented integrations and supports scalable reuse across business scenarios. On top of algorithmic and engineering infrastructure, the tunnel unifies offline storage, containerization, inference engines, and service frameworks, and exposes two standard service classes. Item data services provide online lookup of ontology and item instances, large-scale relational tables for high-throughput consumption, and event-driven full or incremental change streams, covering both static retrieval and dynamic subscrip-tion. Item algorithm services use the item understanding LLMs/VLMs to embed algorithmic capabilities into item-lifecycle stages such as product listing validation and compliance gov-ernance, and expose high-precision category prediction, fine-grained attribute recognition, and long- and short-title generation as online AI services. This turns scenario-specific model use into platform-level reuse. 
+
+## 7 Applications  
+
+> Oxygen AIIC
+
+has constructed millions of ontology entries and hundreds of billions of high-quality item-knowledge assets, covering all major JD categories. To make these core knowledge assets broadly usable across diverse business scenarios, Oxygen AIIC standardizes and productizes its foun-dational resources through the item tunnel’s unified delivery layer, exposing them as a portfolio of reusable capabilities. This design closes the loop across scenarios, roles, and feedback channels, making Oxygen AIIC a strategic digital knowledge infrastructure for high-quality business growth across the group. 
+
+7.1 Consumer-facing Applications 
+
+By improving the quality and richness of item-information at the source, Oxygen AIIC has been integrated into core consumer shopping flows. It supports more precise traffic distribution, improves the shopping experience, and better serves users’ diverse and personalized needs as well as emerging forms of intelligent shopping interaction. 
+
+Search. Oxygen AIIC has been integrated into core search traffic-allocation stages, including recall, relevance ranking, and query understanding. It improves the quality of item information and raises its richness to 3.35 × the previous level, reducing the share of item-information defects in search by 37% and thereby lowering the overall search bad-case rate. The AI Item Library and ontology also support search guidance and faceted filtering, helping users find desired items more quickly and accurately. 
+
+Item detail pages. Oxygen AIIC improves the content displayed on product detail pages by extract-ing the core structured information that users care about and presenting it in a form that is easy to read and understand. Traditional detail pages often contain inconsistent information across touchpoints, repeated content, and overly technical specifications, all of which increase users’ decision-making cost. Oxygen AIIC mitigates information conflicts at the source, surfaces intelligent short titles, core selling points, and core attributes, and adds AI explanations, such as product-function summaries and parameter comparisons. These capabilities turn dense technical specifications into plain-language descriptions, helping users quickly grasp an item’s core value and improving both user experience and conversion efficiency. 27 JD Oxygen AI Item Center ( Oxygen AIIC )
+
+AI shopping assistants. With Oxygen AIIC as the item-knowledge foundation, AI shopping assis-tants can access structured and standardized knowledge across categories, enabling more accurate understanding of both items and user intent, driving a smarter shopping experience. Representative applications include: • Conversational e-commerce. Moving beyond keyword search and static shopping pages, conversational e-commerce uses large-scale structured item knowledge to handle fragmented, scenario-based, and long-tail shopping needs through natural-language dialogue. Users can find items, check specifications, and ask about matching or usage scenarios through casual conver-sation. • AI comparison. The platform automatically identifies users’ comparison needs and initiates an AI-powered comparison flow. It generates structured reports covering product highlights, core parameters, and user reviews, helping users compare candidate items efficiently and make decisions with less effort. 
+
+7.2 Merchant and Business Operations 
+
+For item management across JD’s domestic and international businesses, self-operated and platform sellers, and B2C/B2B/O2O formats, Oxygen AIIC combines the AI Item Library with AI-based item understanding and generation capabilities to form an end-to-end operational loop spanning category planning, product listing, and product operations. This loop improves operational efficiency, raises data quality, and supports more precise traffic acquisition. 
+
+Category planning. Through intelligent analysis of platform-wide data, Oxygen AIIC shortens the decision cycle from two or three weeks to a few days and helps identify category growth oppor-tunities more precisely. Built on the standardized item-knowledge system in the AI Item Library, and combined with user behavior, industry trends, and on- and off-site market-performance data, this capability is delivered to merchants and category buyers as a productized tool. Integrated AI explanations and automated reports surface supply-demand gaps, category competition, and user-demand preferences, helping operators identify growth opportunities and design differentiated oper-ating strategies. 
+
+Product listing. The automated fill rate of core attributes exceeds 80%, improving item-data qual-ity at the source while reducing operating costs for category buyers and merchants. With the item understanding LLMs/VLMs as the model foundation and the AI Item Library and ontology as the knowledge foundation, Oxygen AIIC enables AI-assisted product listing with end-to-end informa-tion pre-filling. Merchants and category buyers only need to upload a main image or a title, and the system automatically performs category recognition, brand recognition, and attribute filling. 
+
+Product operations. Based on category expertise, Oxygen AIIC optimizes item creatives at scale and increases click-through rate by about 9%. Through multimodal learning, the system distills optimal visual standards, including resolution, color, composition, and information hierarchy, from high-conversion item images. It then standardizes and enhances image creatives, reorganizes shopping-guide information, and iterates through A/B testing, achieving click-through gains at very low com-pute cost. Copy optimization reuses the same standards to accumulate industry best practices and support merchant self-service optimization. In addition, a fully managed AI service allows category buyers and merchants to delegate bulk creative optimization. 
+
+7.3 Platform Operations 
+
+For platform-side scenarios involving ecosystem governance and platform-wide resource orchestra-tion, Oxygen AIIC drives a shift from experience-driven operations to data-driven and AI-assisted decision-making. It covers core scenarios such as merchant recruitment and assortment review, cam-paign page construction, audience operations, targeted advertising, product information governance, and price governance. By linking supply and demand, Oxygen AIIC increases the utilization and value of item assets across the platform, improves operational efficiency and marketplace gover-nance, and supports the long-term healthy growth of the platform ecosystem. 
+
+Marketing operations. 
+
+28 JD Oxygen AI Item Center ( Oxygen AIIC )• Assortment selection. The assortment selection platform improves product information quality and richness across all categories, supporting more efficient marketing operations. Traditional assortment selection is often constrained by poor product information quality and fragmented information systems, leading to incomplete or inaccurate selection results. The AI Item Library enriches product information across categories and is integrated with the assortment selection platform. During rule configuration, it recommends categories and attributes to avoid manual omissions, reduce configuration cost, and improve both the richness and precision of assortment results. • Audience profiling. By combining product information with user behavior, Oxygen AIIC sup-ports fine-grained audience profiling and attribute-based identification of high-potential users, improving advertising conversion and lowering customer acquisition cost. Item attributes ac-cumulated in the AI Item Library are linked with user-behavior data to characterize segmented customer groups. These attributes can also support reverse audience discovery, producing pre-cise audience segments, such as high-potential interest groups and competitor-intent groups, for on-site and off-site advertising, push notifications, and other targeted operations. 
+
+Platform-ecosystem development. 
+
+• Product information governance. Through an end-to-end item-information governance loop, we substantially reduce the share of item-information-related negative exposure, improving platform-wide item-information compliance and quality. The system establishes full-lifecycle product information governance, proactively intercepts non-compliant submissions during prod-uct listing, and, after products are listed, uses intelligent inspection tools to automatically verify items across the platform, identify category and attribute errors in bulk, and prompt category buyers and merchants to correct them. • Price governance. Oxygen AIIC provides identical-item recognition with over 90% accuracy across all physical categories in JD Retail, helping maintain a fair and orderly pricing environ-ment. Category buyers need to compare prices during sourcing, procurement, and selling-price decisions to keep prices competitive while protecting profit margins. At the same time, the platform uses a price-rating system to guide merchants and category buyers toward more com-petitive and standardized pricing. Built on high-dimensional product information and image-text information in the AI Item Library, the identical-item recognition capability supports price gov-ernance, identical-item price comparison, price control during major promotions, and abnormal-price detection. 
+
+## 8 Related Work 
+
+Research on e-commerce item knowledge falls into four lines: e-commerce knowledge graphs, on-tology expansion, item knowledge production, and e-commerce domain foundation models. Existing works have made notable progress, but most focus on isolated point solutions rather than providing a top-level, systematic solution to the integrated infrastructure required for the production, quality inspection, consumption, and feedback of large-scale item knowledge. Without that closed-loop foundation, knowledge assets cannot be reused and improved efficiently across large-scale business scenarios. 
+
+8.1 E-commerce Knowledge Graphs 
+
+Early e-commerce knowledge graph research mainly focused on semantic relations among items, concepts, and user needs. AliCoCo pointed out that the traditional category–property–value (CPV) system is insufficient to express real shopping needs. Therefore, it introduced “e-commerce con-cepts” as intermediate semantic entries to connect high-level intents such as “outdoor barbecue” and “gifts for the elderly” with item organization (Luo et al., 2020). AliCoCo2 further extended this to e-commerce commonsense relation modeling, characterizing commonsense mappings among scenar-ios, concepts, and item features so that graphs can better support search rewriting, recommendation expansion, and semantic matching (Luo et al., 2021). Subsequently, research began to mine implicit intent knowledge from user behavior. FolkScope combines the generative capabilities of LLMs with a human-in-the-loop process to distill purchase 29 JD Oxygen AI Item Center ( Oxygen AIIC )intents from co-purchase behavior and build an intent knowledge graph (Yu et al., 2023). COSMO scales e-commerce commonsense knowledge production to industrial settings through a pipeline of “LLM generation–human-feedback-trained critic/classifier–small-model scalable generation” (Yu et al., 2024). In addition, item knowledge graphs have been applied to item relation modeling, rec-ommendation, and explainable ranking. Representative studies include systematic graph construc-tion pipelines with taxonomy enrichment, knowledge extraction, and quality control (Zalmout et al., 2021), as well as relation learning for complements, substitutes, and co-viewed items based on user behavior and multimodal product information (Xu et al., 2020). Recently, LLM-PKG further ex-plored distilling recommendation relations and explanations inferred by LLMs into item knowledge graphs to reduce the risk of hallucination in generative models (Wang et al., 2024). Overall, these works improve the structured representation of item relations, user intents, and e-commerce commonsense. However, they focus on individual stages of graph construction or appli-cation, leaving closed-loop coordination among knowledge production, validation, deployment, and feedback insufficiently explored. 
+
+8.2 Ontology Expansion 
+
+Ontology and category taxonomy expansion form another important direction in e-commerce knowl-edge construction. Since e-commerce catalogs involve rapidly changing item types, complex cat-egory hierarchies, and dynamically evolving attribute systems, statically and manually maintained taxonomies are difficult to sustain for large-scale item understanding. General taxonomy expansion research has proposed various automated methods, such as taxonomy expansion based on hierarchi-cal topic models (Zhang et al., 2018), HiExpan’s task-guided taxonomy construction (Shen et al., 2018), TaxoExpan’s framework for predicting parent-child nodes when inserting new concepts into an existing taxonomy (Shen et al., 2020), and STEAM’s mini-path-based self-supervised taxonomy expansion (Yu et al., 2020). In e-commerce scenarios, Octet formulates taxonomy expansion as a taxonomy enrichment prob-lem for online item catalogs and uses heterogeneous relations among queries, items, and categories for self-supervised training to adapt to continuously emerging new item types (Mao et al., 2020). KATIE further focuses on category-attribute relation discovery, attribute importance modeling, and attribute synonym merging, showing that e-commerce ontology expansion has shifted from simple entry expansion to fine-grained schema learning for search, recommendation, and item understand-ing (Er-Rahmadi et al., 2023). Overall, related studies mainly address how to expand an ontology and which attributes are ap-plicable to a given category. However, these methods model ontology evolution, attribute schema recognition, and SKU-level knowledge completion separately, making it difficult to achieve efficient system-level coordination. 
+
+8.3 Item Knowledge Production 
+
+One core task of item knowledge production is to automatically extract attribute values from titles, descriptions, parameter tables, and images. OpenTag formulates attribute value extraction as an open-world extraction problem, eliminating the dependence on closed-set dictionaries (Zheng et al., 2018). SUOpenTag extends extraction tasks to thousands of attributes for industrial-scale scenar-ios (Xu et al., 2019). AVEQA formalizes attribute value extraction as a question-answering task, treating attributes as questions and extracting answer spans from item contexts, thereby improving adaptability to large-scale and unseen attributes (Wang et al., 2020b). As item detail pages contain increasingly rich sources of information, research has further shifted to-ward multi-source and multimodal attribute extraction. MAVE constructs a large-scale multi-source item attribute value extraction dataset (Yang et al., 2022). Subsequent studies jointly model text and image signals for attribute prediction and attribute value extraction (Zhu et al., 2020), and further ex-plore cross-category visual attribute extraction (Lin et al., 2021), structured multimodal Transformer encoding (Wang et al., 2022), and large-scale multimodal attribute extraction based on generative question answering (Khandelwal et al., 2023). These works show that item knowledge completion has gradually evolved from text sequence labeling into a unified extraction problem involving open attributes, multi-source inputs, and multimodal fusion. 30 JD Oxygen AI Item Center ( Oxygen AIIC )Beyond extraction, industrial-scale item knowledge systems must also determine whether extraction results are trustworthy. Existing work formulates attribute value verification as a low-resource task to identify whether attribute values are consistent with item descriptions (Wang et al., 2020a). In recent years, LLMs have also been used for attribute extraction, normalization, and catalog qual-ity governance. Representative studies include evaluations of GPT-series models for item attribute extraction and normalization (Brinkmann et al., 2024), CatalogRAG for retrieval-augmented LLM-based attribute completion (Zhang et al., 2025), combining brand knowledge bases with LLM agents for attribute repair and item matching (Ceker et al., 2026), and multimodal self-correcting instruction tuning for open attribute discovery (Li et al., 2025). Overall, attribute extraction and knowledge completion have progressed from open extraction and large-scale label expansion to multi-source modeling, multimodal fusion, and automatic validation. However, most methods devote limited attention to production and management efficiency at mas-sive scale, which limits their feasibility in industrial deployments. 
+
+8.4 E-commerce Domain Foundation Models 
+
+As large language models and large multimodal models have advanced, researchers have begun to build e-commerce domain foundation models to reduce fragmentation across task-specific models. LLaMA-E introduces instruction tuning into e-commerce scenarios, covering tasks such as ad gener-ation, title rewriting, item classification, purchase intent inference, and question answering (Shi et al., 2025). eCeLLM further constructs the ECInstruct dataset, covering attribute extraction, item relation prediction, item matching, sentiment analysis, sequential recommendation, query-item ranking, item question answering, and other tasks, demonstrating the generalization capability of instruction-tuned LLMs in e-commerce scenarios (Peng et al., 2024). At the same time, research has also begun to introduce e-commerce knowledge during pretraining. LiLiuM adapts the tokenizer, training data, and multilingual capabilities for eBay’s e-commerce set-ting (Herold et al., 2024). e-Llama adapts a general foundation model to the e-commerce domain through continued pretraining (Herold et al., 2025). Compass-v3 trains an MoE domain model for multilingual e-commerce scenarios in Southeast Asia, reflecting the development trend toward mul-tilingual, domain-specific, and scalable deployment (Maria, 2025). For multimodal item understanding, MOON proposes a generative multimodal representation learn-ing framework for e-commerce to handle multiple images paired with a single text description, back-ground noise, and multi-task transfer (Zhang et al., 2026a). MOON2.0 further improves item mul-timodal representation learning through dynamic modality balancing, multi-granularity image-text alignment, and collaborative image-text enhancement (Nie et al., 2025). These works show that e-commerce domain models are moving from single-task fine-tuning toward multi-task, multilingual, multimodal, and scalable foundation models. Although e-commerce domain foundation models have significantly improved item semantic un-derstanding, cross-task transfer, and cold-start generalization, they still focus primarily on model capabilities. In contrast, industrial-scale item knowledge infrastructure must also address dynamic ontology evolution, knowledge production costs, result verifiability, hybrid online-offline serving, and downstream feedback loops. Therefore, integrating domain foundation models, ontology, and the AI Item Library into a sustainably evolving item knowledge system remains a key challenge for both research and industrial deployment. 
+
+## 9 Conclusion 
+
+This paper presents the JD Oxygen AI Item Center ( Oxygen AIIC ), an industrial-scale, LLM/VLM-centric infrastructure for item knowledge production and serving in large-scale e-commerce scenar-ios. Oxygen AIIC establishes an end-to-end system spanning ontology construction, item knowledge production, model evolution, item tunnel, and downstream business applications. For ontology engineering, Oxygen AIIC combines expert domain knowledge with the generalization and reasoning capabilities of large models through efficient human–AI collaboration. This enables the dynamic discovery, fusion, validation, and continuous expansion of the ontology, forming a high-quality, comprehensive, and timely updated item knowledge backbone. 31 JD Oxygen AI Item Center ( Oxygen AIIC )For the AI Item Library, Oxygen AIIC adopts a “semantic search then discrimination” architecture, decoupling the dynamic ontology from model parameters so that newly added ontology entries can be quickly incorporated into the production pipeline. With computational load reduction, cache reuse, and asynchronous pipeline parallelism, Oxygen AIIC achieves high-throughput and low-cost item knowledge production at the scale of tens of billions of SKUs. For the model system, Oxygen AIIC builds a multi-task large model for item understanding and com-bines incremental learning, instruction-following representations, and model self-evolution. This al-lows the model to steadily improve in a constantly changing item ecosystem, repair long-tail defects, and avoid systemic degradation. On the engineering side, the item tunnel delivers AI-generated item knowledge efficiently, securely, and reliably to a wide range of business scenarios, including search, recommendation, product listing, governance, operations, merchant recruitment and assortment review, and identical-item recognition, through tiered freshness pipelines, eventual consistency guarantees, and a unified service framework.  
+
+> Oxygen AIIC
+
+currently supports knowledge production across tens of thousands of categories and tens of billions of SKUs at JD, accumulating hundreds of billions of item-knowledge assets and deliv-ering significant business impact in item management, traffic distribution, and platform operations. Our practice shows that, for industrial-scale e-commerce knowledge construction, relying solely on isolated model capabilities is insufficient for scalable deployment. Only by systematically coordi-nating large-model capabilities, ontology engineering, knowledge production, engineering systems, and business feedback loops can we build a scalable and continuously evolving item knowledge in-frastructure. The development of Oxygen AIIC validates the industrial feasibility of LLMs/VLMs for large-scale e-commerce item understanding and provides a reusable technical path for future AI-driven item management, intelligent operations, and e-commerce infrastructure upgrades. 
+
+## 10 Limitations and Future Work 
+
+Although Oxygen AIIC V1 has delivered significant results at its current stage of development, ultra-large-scale industrial deployment still poses several fundamental challenges. (1) Ontology engineer-ing: the current version has substantially expanded the ontology’s conceptual coverage. However, relation modeling within the ontology remains preliminary and has not yet reached scale. This limits 
+
+> Oxygen AIIC
+
+’s potential to empower applications and makes it difficult to store and use JD’s ac-cumulated industry knowledge efficiently. (2) AI Item Library: although the generated knowledge is already of high quality, the scale of tens of billions of items inevitably leads to numerous online failure cases that affect user experience. Making these defects detectable and correctable in a timely manner therefore remains the central challenge. (3) Item understanding LLMs/VLMs: supervised fine-tuning can lead to catastrophic forgetting. The key challenge is to improve domain-specific capabilities without degrading the model’s general capabilities. In future work, we will address these challenges along three directions. First, we will strengthen ontology engineering by expanding relation modeling, enriching the ontology, and enabling graph-based reasoning. We will further incorporate expert e-commerce knowledge and industry know-how into Oxygen AIIC , so that domain experience can be reused efficiently across business scenarios. Sec-ond, we will develop an online mechanism for bad-case discovery. Coupled with a data flywheel and model self-evolution, this mechanism will allow knowledge consumption to feed back into and drive knowledge production. Finally, we will investigate more effective ways to mitigate catastrophic for-getting during domain adaptation. Potential directions include scaling the number of experts in MoE architectures, simplifying task complexity through improved problem formulation, and enhancing prompts with explicit knowledge injection. 
+
+## References 
+
+Amey Agrawal, Nitin Kedia, Ashish Panwar, Jayashree Mohan, Nipun Kwatra, Bhargav Gulavani, Alexey Tumanov, and Ramachandran Ramjee. 2024. Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve. In 18th USENIX Symposium on Operating Systems Design and Implementation (OSDI 24) . USENIX Association, Santa Clara, CA, 117–134. https:// www.usenix.org/conference/osdi24/presentation/agrawal 
+
+32 JD Oxygen AI Item Center ( Oxygen AIIC )Tyler Akidau, Robert Bradshaw, Craig Chambers, Slava Chernyak, Rafael J. Fernández-Moctezuma, Reuven Lax, Sam McVeety, Daniel Mills, Frances Perry, Eric Schmidt, and Sam Whittle. 2015. The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing. Proceedings of the VLDB Endow-ment 8, 12 (2015), 1792–1803. doi: 10.14778/2824032.2824076 
+
+Amazon Web Services. 2026. Global Tables: How It Works - Amazon DynamoDB. 
+
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ globaltables_HowItWorks.html . Accessed 2026-06-10. Apache Hudi. 2026a. Concurrency Control. https://hudi.apache.org/docs/concurrency_ control/ . Version 1.2.0; accessed 2026-06-10. Apache Hudi. 2026b. Record Merger. https://hudi.apache.org/docs/record_merger/ .Version 1.2.0; accessed 2026-06-10. Apache Parquet. 2026. Overview. https://parquet.apache.org/docs/overview/ . Accessed 2026-06-10. Hamed Babaei Giglou, Jennifer D’Souza, and Sören Auer. 2023. LLMs4OL: Large language models for ontology learning. In International semantic web conference . 408–427. Jiaxin Bai, Wei Fan, Qi Hu, Qing Zong, Chunyang Li, Hong Ting Tsang, Hongyu Luo, Yauwai Yim, Haoyu Huang, Xiao Zhou, et al. 2025. Autoschemakg: Autonomous knowledge graph construc-tion through dynamic schema induction from web-scale corpora. arXiv preprint arXiv:2505.23628 
+
+(2025). Magdalena Biesialska, Katarzyna Biesialska, and Marta R Costa-Jussa. 2020. Continual lifelong learning in natural language processing: A survey. In Proceedings of the 28th international con-ference on computational linguistics . 6523–6541. Alexander Brinkmann, Nick Baumann, and Christian Bizer. 2024. Using LLMs for the Extraction and Normalization of Product Attribute Values. In Advances in Databases and Information Sys-tems . Springer Nature Switzerland, 217–230. doi: 10.1007/978-3-031-70626-4_15 
+
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon Child, Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens Winter, Chris Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language Models are Few-Shot Learners. In Advances in Neural In-formation Processing Systems , H. Larochelle, M. Ranzato, R. Hadsell, M.F. Balcan, and H. Lin (Eds.), Vol. 33. Curran Associates, Inc., 1877–1901. Paris Carbone, Stephan Ewen, Gyula Fóra, Seif Haridi, Stefan Richter, and Kostas Tzoumas. 2017. State Management in Apache Flink: Consistent Stateful Distributed Stream Processing. Proceed-ings of the VLDB Endowment 10, 12 (2017), 1718–1729. doi: 10.14778/3137765.3137777 
+
+Hayreddin Ceker, Gang Luo, Kee Kiat Koo, Prashant Mathur, Wencong You, Atharva Amdekar, Rob Barton, Navaneet KL, Vidit Bansal, and Karim Bouyarmane. 2026. Using Brand Knowledge Bases and LLM Agents to Enhance E-commerce Retailers’ Catalog Quality. In Proceedings of the Nineteenth ACM International Conference on Web Search and Data Mining . 1343–1344. doi: 10. 1145/3773966.3784969 
+
+Wei-Te Chen, Keiji Shinzato, Naoki Yoshinaga, and Yandi Xia. 2023. Does Named Entity Recogni-tion Truly Not Scale up to Real-world Product Attribute Extraction?. In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing: Industry Track . 152–159. Wei-Te Chen, Yandi Xia, and Keiji Shinzato. 2022. Extreme multi-label classification with la-bel masking for product attribute value extraction. In Proceedings of the Fifth Workshop on e-Commerce and NLP (ECNLP 5) . 134–140. 33 JD Oxygen AI Item Center ( Oxygen AIIC )Hyung Won Chung, Le Hou, Shayne Longpre, Barret Zoph, Yi Tay, William Fedus, Yunxuan Li, Xuezhi Wang, Mostafa Dehghani, Siddhartha Brahma, et al. 2024. Scaling instruction-finetuned language models. Journal of Machine Learning Research 25, 70 (2024), 1–53. Tri Dao, Dan Fu, Stefano Ermon, Atri Rudra, and Christopher Ré. 2022. Flashattention: Fast and memory-efficient exact attention with io-awareness. Advances in neural information processing systems 35 (2022), 16344–16359. Giuseppe DeCandia, Deniz Hastorun, Madan Jampani, Gunavardhan Kakulapati, Avinash Laksh-man, Alex Pilchin, Swaminathan Sivasubramanian, Peter Vosshall, and Werner Vogels. 2007. Dynamo: Amazon’s Highly Available Key-Value Store. In Proceedings of Twenty-First ACM SIGOPS Symposium on Operating Systems Principles (SOSP ’07) . Association for Computing Machinery, New York, NY, USA, 205–220. doi: 10.1145/1294261.1294281 
+
+Yuntian Deng, Kiran Prasad, Roland Fernandez, Paul Smolensky, Vishrav Chaudhary, and Stuart Shieber. 2023. Implicit chain of thought reasoning via knowledge distillation. arXiv preprint arXiv:2311.01460 (2023). Xin Luna Dong, Xiang He, Andrey Kan, Xian Li, Yan Liang, Jun Ma, Yifan Ethan Xu, Chenwei Zhang, Tong Zhao, Gabriel Blanco Saldana, et al. 2020. Autoknow: Self-driving knowledge col-lection for products of thousands of types. In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining . 2724–2734. Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, Dasha Metropolitansky, Robert Osazuwa Ness, and Jonathan Larson. 2024. From local to global: A graph rag approach to query-focused summarization. arXiv preprint arXiv:2404.16130 (2024). Btissam Er-Rahmadi, Arturo Oncevay, Yuanyi Ji, and Jeff Z Pan. 2023. KATIE: a system for key attributes identification in product knowledge graph construction. In Proceedings of the 46th Inter-national ACM SIGIR Conference on Research and Development in Information Retrieval . 3320– 3324. Nadeen Fathallah, Arunav Das, Stefano De Giorgis, Andrea Poltronieri, Peter Haase, and Liubov Kovriguina. 2024a. Neon-gpt: a large language model-powered pipeline for ontology learning. In 
+
+European Semantic Web Conference . 36–50. Nadeen Fathallah, Steffen Staab, and Alsayed Algergawy. 2024b. Llms4life: Large language models for ontology learning in life sciences. arXiv preprint arXiv:2412.02035 (2024). Tianhao Gao, Jun Fang, Xiaohui Zhang, Zhiyuan Liu, Chao Liu, Pengzhang Liu, and Qixia Jiang. 2026. InstEmb: Instruction-Following Embeddings through Glimpses of the Future. In Forty-third International Conference on Machine Learning . https://openreview.net/forum?id= fwWvqAOXMT 
+
+Honghao Gui, Jintian Zhang, Hongbin Ye, and Ningyu Zhang. 2023. Instructie: A chinese instruc-tionbased information extraction dataset. arXiv preprint arXiv:2305.11527 10 (2023). Jinjin Guo, Yexin Li, Zhichao Huang, Jun Fang, Zhiyuan Liu, Chao Liu, Pengzhang Liu, and Qixia Jiang. 2026. Spectral Disentanglement and Enhancement: A Dual-domain Contrastive Framework for Representation Learning. In Proceedings of the ACM Web Conference 2026 . 4127–4136. Suchin Gururangan, Ana Marasović, Swabha Swayamdipta, Kyle Lo, Iz Beltagy, Doug Downey, and Noah A Smith. 2020. Don’t stop pretraining: Adapt language models to domains and tasks. In Proceedings of the 58th annual meeting of the association for computational linguistics . 8342– 8360. Ridong Han, Chaohao Yang, Tao Peng, Prayag Tiwari, Xiang Wan, Lu Liu, and Benyou Wang. 2023. An empirical study on information extraction using large language models. arXiv preprint arXiv:2305.14450 (2023). Christian Herold, Michael Kozielski, Tala Bazazo, Pavel Petrushkov, Yannick Versley, Seyyed Hadi Hashemi, Patrycja Cieplicka, Dominika Basaj, and Shahram Khadivi. 2025. Domain Adaptation of Foundation LLMs for e-Commerce. In Proceedings of the 63rd Annual Meeting of the Associ-ation for Computational Linguistics (Volume 6: Industry Track) . 1039–1049. doi: 10.18653/v1/ 2025.acl-industry.74 
+
+34 JD Oxygen AI Item Center ( Oxygen AIIC )Christian Herold, Michael Kozielski, Leonid Ekimov, Pavel Petrushkov, Pierre-Yves Vandenbuss-che, and Shahram Khadivi. 2024. LiLiuM: eBay’s Large Language Models for e-commerce. arXiv preprint arXiv:2406.12023 (2024). Geoffrey Hinton, Oriol Vinyals, and Jeff Dean. 2015. Distilling the knowledge in a neural network. 
+
+arXiv preprint arXiv:1503.02531 (2015). Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, An-drea Gesmundo, Mona Attariyan, and Sylvain Gelly. 2019. Parameter-efficient transfer learning for NLP. In International conference on machine learning . PMLR, 2790–2799. Edward J Hu, yelong shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2022. LoRA: Low-Rank Adaptation of Large Language Models. In Inter-national Conference on Learning Representations . https://openreview.net/forum?id= nZeVKeeFYf9 
+
+Hui Huang, Xingyuan Bu, Hongli Zhou, Yingqi Qu, Jing Liu, Muyun Yang, Bing Xu, and Tiejun Zhao. 2025a. An empirical study of llm-as-a-judge for llm evaluation: Fine-tuned judge model is not a general substitute for gpt-4. In Findings of the Association for Computational Linguistics: ACL 2025 . 5880–5895. Yunhan Huang, Klevis Ramo, Andrea Iovine, Melvin Monteiro, Sedat Gokalp, Arjun Bakshi, Hasan Turalic, Arsh Kumar, Jona Neumeier, Ripley Yates, et al. 2025b. AttributeForge: An Agentic LLM Framework for Automated Product Schema Modeling. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing: Industry Track . 2106–2121. Anant Khandelwal, Happy Mittal, Shreyas Kulkarni, and Deepak Gupta. 2023. Large Scale Gen-erative Multimodal Attribute Extraction for E-commerce Attributes. In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 5: Industry Track) .305–312. doi: 10.18653/v1/2023.acl-industry.29 
+
+James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume Desjardins, Andrei A Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka Grabska-Barwinska, et al. 2017. Overcoming catastrophic forgetting in neural networks. Proceedings of the national academy of sciences 114, 13 (2017), 3521–3526. Jay Kreps, Neha Narkhede, and Jun Rao. 2011. Kafka: A Distributed Messaging System for Log Processing. In Proceedings of the NetDB 2011 Workshop . 1–7. Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody Hao Yu, Joseph Gonzalez, Hao Zhang, and Ion Stoica. 2023a. Efficient memory management for large language model serving with pagedattention. In Proceedings of the 29th symposium on operating systems principles . 611–626. Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody Hao Yu, Joseph E. Gonzalez, Hao Zhang, and Ion Stoica. 2023b. Efficient Memory Management for Large Language Model Serving with PagedAttention. In Proceedings of the 29th ACM Symposium on Operating Systems Principles (SOSP ’23) . Association for Computing Machinery, New York, NY, USA, 611–626. doi: 10.1145/3600006.3613165 
+
+Jiaoyang Li, Jun Fang, Tianhao Gao, Xiaohui Zhang, Zhiyuan Liu, Chao Liu, Pengzhang Liu, and Qixia Jiang. 2026. FANoise: Singular Value-Adaptive Noise Modulation for Robust Multi-modal Representation Learning. In Proceedings of the AAAI Conference on Artificial Intelligence ,Vol. 40. 6199–6207. Jiaqi Li, Yanming Li, Xiaoli Shen, Chuanyi Zhang, Guilin Qi, and Sheng Bi. 2025. Open-World At-tribute Mining for E-Commerce Products with Multimodal Self-Correction Instruction Tuning. In 
+
+Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) . 1702–1714. doi: 10.18653/v1/2025.acl-long.85 
+
+Yongyi Liao, Wencan Lai, Jun Fang, Jinjin Guo, Xiaohui Zhang, Zhiyuan Liu, Chao Liu, Pengzhang Liu, and Qixia Jiang. 2026. GROLE: Instance-Level Group Relative Optimization for LoRA Experts in Incremental Learning. In Findings of the Association for Computational Linguistics: ACL 2026 . 39170–39182. 35 JD Oxygen AI Item Center ( Oxygen AIIC )Rongmei Lin, Xiang He, Jie Feng, Nasser Zalmout, Yan Liang, Li Xiong, and Xin Luna Dong. 2021. PAM: Understanding Product Images in Cross Product Category Attribute Extraction. In 
+
+Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining .3262–3270. doi: 10.1145/3447548.3467164 
+
+Anna Sofia Lippolis, Miguel Ceriani, Sara Zuppiroli, and Andrea Giovanni Nuzzolese. 2024. Onto-genia: Ontology generation with metacognitive prompting in large language models. In European Semantic Web Conference . 259–265. Anna Sofia Lippolis, Mohammad Javad Saeedizade, Robin Keskisärkkä, Sara Zuppiroli, Miguel Ce-riani, Aldo Gangemi, Eva Blomqvist, and Andrea Giovanni Nuzzolese. 2025. Ontology generation using large language models. In European Semantic Web Conference . 321–341. Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee. 2023. Visual instruction tuning. Ad-vances in neural information processing systems 36 (2023), 34892–34916. Yaojie Lu, Qing Liu, Dai Dai, Xinyan Xiao, Hongyu Lin, Xianpei Han, Le Sun, and Hua Wu. 2022. Unified structure generation for universal information extraction. In Proceedings of the 60th an-nual meeting of the association for computational linguistics (volume 1: long papers) . 5755–5772. Xusheng Luo, Le Bo, Jinhang Wu, Lin Li, Zhiy Luo, Yonghua Yang, and Keping Yang. 2021. Al-icoco2: Commonsense knowledge extraction, representation and application in e-commerce. In 
+
+Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining .3385–3393. Xusheng Luo, Luxin Liu, Yonghua Yang, Le Bo, Yuanpeng Cao, Jinghang Wu, Qiang Li, Keping Yang, and Kenny Q Zhu. 2020. Alicoco: Alibaba e-commerce cognitive concept net. In Proceed-ings of the 2020 ACM SIGMOD international conference on management of data . 313–327. Aman Madaan, Niket Tandon, Prakhar Gupta, Skyler Hallinan, Luyu Gao, Sarah Wiegreffe, Uri Alon, Nouha Dziri, Shrimai Prabhumoye, Yiming Yang, et al. 2023. Self-refine: Iterative refine-ment with self-feedback. Advances in neural information processing systems 36 (2023), 46534– 46594. Yuning Mao, Tong Zhao, Andrey Kan, Chenwei Zhang, Xin Luna Dong, Christos Faloutsos, and Jiawei Han. 2020. Octet: Online catalog taxonomy enrichment with self-supervision. In Proceed-ings of the 26th ACM SIGKDD international conference on knowledge discovery & data mining .2247–2257. Sophia Maria. 2025. Compass-v3: Scaling Domain-Specific LLMs for Multilingual E-Commerce in Southeast Asia. arXiv preprint arXiv:2509.09121 (2025). Nathan Marz and James Warren. 2015. Big Data: Principles and Best Practices of Scalable Realtime Data Systems . Manning Publications, Shelter Island, NY. Patricia Mateiu and Adrian Groza. 2023. Ontology engineering with large language models. In 2023 25th International Symposium on Symbolic and Numeric Algorithms for Scientific Computing (SYNASC) . 226–229. Michael McCloskey and Neal J Cohen. 1989. Catastrophic interference in connectionist networks: The sequential learning problem. In Psychology of learning and motivation . Vol. 24. Elsevier, 109–165. Fionn Murtagh and Pierre Legendre. 2014. Ward’s hierarchical agglomerative clustering method: which algorithms implement Ward’s criterion? Journal of classification 31, 3 (2014), 274–295. Zhanheng Nie, Chenghan Fu, Daoze Zhang, Junxian Wu, Wanxian Guan, Pengjie Wang, Jian Xu, and Bo Zheng. 2025. MOON2.0: Dynamic Modality-balanced Multimodal Representation Learning for E-commerce Product Understanding. arXiv preprint arXiv:2511.12449 (2025). Priyanka Nigam, Yiwei Song, Vijai Mohan, Vihan Lakshman, Weitian Ding, Ankit Shingavi, Choon Hui Teo, Hao Gu, and Bing Yin. 2019. Semantic product search. In Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining . 2876– 2885. 36 JD Oxygen AI Item Center ( Oxygen AIIC )Athanasios N Nikolakopoulos, Swati Kaul, Siva Karthik Gade, Bella Dubrov, Umit Batur, and Suleiman Ali Khan. 2023. Sage: Structured attribute value generation for billion-scale product catalogs. arXiv preprint arXiv:2309.05920 (2023). Aaron van den Oord, Yazhe Li, and Oriol Vinyals. 2018. Representation learning with contrastive predictive coding. arXiv preprint arXiv:1807.03748 (2018). Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et al. 2022. Training language models to follow instructions with human feedback. Advances in neural information processing systems 35 (2022), 27730–27744. Bo Peng, Xinyi Ling, Ziru Chen, Huan Sun, and Xia Ning. 2024. eCeLLM: Generalizing Large Language Models for E-commerce from Large-scale, High-quality Instruction Data. In Forty-first International Conference on Machine Learning . https://openreview.net/forum?id= LWRI4uPG2X 
+
+Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. 2021. Learning transferable vi-sual models from natural language supervision. In International conference on machine learning .PmLR, 8748–8763. Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. 2020. Exploring the limits of transfer learning with a unified text-to-text transformer. Journal of machine learning research 21, 140 (2020), 1–67. Sebastian Ruder. 2017. An overview of multi-task learning in deep neural networks. arXiv preprint arXiv:1706.05098 (2017). Kassem Sabeh, Robert Litschko, Mouna Kacimi, Barbara Plank, and Johann Gamper. 2024. An empirical comparison of generative approaches for product attribute-value identification. arXiv preprint arXiv:2407.01137 (2024). Mohammad Javad Saeedizade and Eva Blomqvist. 2024. Navigating ontology development with large language models. In European semantic web conference . 143–161. Philipp Schoenegger, Indre Tuminauskaite, Peter S Park, Rafael Valdece Sousa Bastos, and Philip E Tetlock. 2024. Wisdom of the silicon crowd: LLM ensemble prediction capabilities rival human crowd accuracy. Science Advances 10, 45 (2024), eadp1528. Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, YK Li, et al. 2024. Deepseekmath: Pushing the limits of mathematical rea-soning in open language models. arXiv preprint arXiv:2402.03300 (2024). Jiaming Shen, Zhihong Shen, Chenyan Xiong, Chi Wang, Kuansan Wang, and Jiawei Han. 2020. TaxoExpan: Self-supervised taxonomy expansion with position-enhanced graph neural network. In Proceedings of the web conference 2020 . 486–497. Jiaming Shen, Zeqiu Wu, Dongming Lei, Chao Zhang, Xiang Ren, Michelle T. Vanni, Brian M. Sadler, and Jiawei Han. 2018. HiExpan: Task-Guided Taxonomy Construction by Hierarchical Tree Expansion. In Proceedings of the 24th ACM SIGKDD International Conference on Knowl-edge Discovery & Data Mining . 2180–2189. doi: 10.1145/3219819.3220115 
+
+Kaize Shi, Xueyao Sun, Dingxian Wang, Yinlin Fu, Guandong Xu, and Qing Li. 2025. LLaMA-E: Empowering E-commerce authoring with object-interleaved instruction following. In Proceedings of the 31st International Conference on Computational Linguistics . 870–885. Keiji Shinzato, Naoki Yoshinaga, Yandi Xia, and Wei-Te Chen. 2022. Simple and effective knowledge-driven query expansion for QA-based product attribute extraction. In Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics . 227–234. Keiji Shinzato, Naoki Yoshinaga, Yandi Xia, and Wei-Te Chen. 2023. A unified generative ap-proach to product attribute-value identification. In Findings of the Association for Computational Linguistics: ACL 2023 . 6599–6612. 37 JD Oxygen AI Item Center ( Oxygen AIIC )Yindu Su, Huike Zou, Lin Sun, Ting Zhang, Haiyang Yang, Chen Li Yu, David Lo, Qingheng Zhang, Shuguang Han, and Jufeng Chen. 2025. Taclr: A scalable and efficient retrieval-based method for industrial product attribute value identification. In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) . 31526–31538. Jiaqi Sun, Shiyou Qian, Zhangchi Han, Wei Li, Zelin Qian, Dingyu Yang, Jian Cao, and Guangtao Xue. 2025. LKD-KGC: Domain-specific KG construction via LLM-driven knowledge depen-dency parsing. arXiv preprint arXiv:2505.24163 (2025). Yash Tiwari, Owais Ahmad Lone, and Mayukha Pal. 2025. OntoRAG: Enhancing question-answering through automated ontology derivation from unstructured knowledge bases. arXiv preprint arXiv:2506.00664 (2025). Werner Vogels. 2009. Eventually Consistent. Commun. ACM 52, 1 (2009), 40–44. doi: 10.1145/ 1435417.1435432 
+
+Jiaxing Wang, Deping Xiang, Jin Xu, Mingyang Yi, Guoqiang Gong, Zicheng Zhang, Haoran Li, Pengzhang Liu, Zhen Chen, Ke Zhang, et al. 2026a. TANDEM: Bi-Level Data Mixture Opti-mization with Twin Networks. Advances in Neural Information Processing Systems 38 (2026), 144720–144752. Jiaxing Wang, Deping Xiang, Jin Xu, Zicheng Zhang Zirui Liu, Guoqiang Gong, Jun Fang, Chao Liu, Pengzhang Liu, Tongxuan Liu, Ke Zhang, and Qixia Jiang. 2026b. BLADE: Scalable Bi-level Adaptive Data Selection for LLM Training. arXiv preprint arXiv:2606.18650 (2026). Menghan Wang, Yuchen Guo, Duanfeng Zhang, Jianian Jin, Minnie Li, Dan Schonfeld, and Shawn Zhou. 2024. Enabling Explainable Recommendation in E-commerce with LLM-powered Product Knowledge Graph. arXiv preprint arXiv:2412.01837 (2024). Qifan Wang, Li Yang, Bhargav Kanagal, Sumit Sanghai, D Sivakumar, Bin Shu, Zac Yu, and Jon Elsas. 2020b. Learning to extract attribute value from product via question answering: A multi-task approach. In Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery & data mining . 47–55. Qifan Wang, Li Yang, Bhargav Kanagal, Sumit Sanghai, D Sivakumar, Bin Shu, Zac Yu, and Jon Elsas. 2020c. Learning to extract attribute value from product via question answering: A multi-task approach. In Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery & data mining . 47–55. Qifan Wang, Li Yang, Jingang Wang, Jitin Krishnan, Bo Dai, Sinong Wang, Zenglin Xu, Madian Khabsa, and Hao Ma. 2022. SMARTAVE: Structured Multimodal Transformer for Product At-tribute Value Extraction. In Findings of the Association for Computational Linguistics: EMNLP 2022 . 263–276. doi: 10.18653/v1/2022.findings-emnlp.20 
+
+Xiao Wang, Weikang Zhou, Can Zu, Han Xia, Tianze Chen, Yuansen Zhang, Rui Zheng, Junjie Ye, Qi Zhang, Tao Gui, et al. 2023. Instructuie: Multi-task instruction tuning for unified information extraction. arXiv preprint arXiv:2304.08085 (2023). Yaqing Wang, Yifan Ethan Xu, Xian Li, Xin Luna Dong, and Jing Gao. 2020a. Automatic Validation of Textual Attribute Values in E-commerce Catalog by Learning with Limited Labeled Data. In 
+
+Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining . 2533–2541. doi: 10.1145/3394486.3403303 
+
+Koki Wataoka, Tsubasa Takahashi, and Ryokan Ri. 2024. Self-preference bias in llm-as-a-judge. 
+
+arXiv preprint arXiv:2410.21819 (2024). Jason Wei, Maarten Bosma, Vincent Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M. Dai, and Quoc V Le. 2022a. Finetuned Language Models are Zero-Shot Learners. In 
+
+International Conference on Learning Representations . https://openreview.net/forum? id=gEZrGCozdqR 
+
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, et al. 2022b. Chain-of-thought prompting elicits reasoning in large language models. Ad-vances in neural information processing systems 35 (2022), 24824–24837. 38 JD Oxygen AI Item Center ( Oxygen AIIC )Sang Michael Xie, Hieu Pham, Xuanyi Dong, Nan Du, Hanxiao Liu, Yifeng Lu, Percy S Liang, Quoc V Le, Tengyu Ma, and Adams Wei Yu. 2023. Doremi: Optimizing data mixtures speeds up language model pretraining. Advances in Neural Information Processing Systems 36 (2023), 69798–69818. Da Xu, Chuanwei Ruan, Evren Korpeoglu, Sushant Kumar, and Kannan Achan. 2020. Product Knowledge Graph Embedding for E-commerce. In Proceedings of the 13th International Confer-ence on Web Search and Data Mining . 672–680. doi: 10.1145/3336191.3371778 
+
+Huimin Xu, Wenting Wang, Xin Mao, Xinyu Jiang, and Man Lan. 2019. Scaling up Open Tagging from Tens to Thousands: Comprehension Empowered Attribute Value Extraction from Product Title. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics .5214–5223. doi: 10.18653/v1/P19-1514 
+
+Jun Yan, Nasser Zalmout, Yan Liang, Christan Grant, Xiang Ren, and Xin Luna Dong. 2021. Adatag: Multi-attribute value extraction from product profiles with adaptive decoding. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th Interna-tional Joint Conference on Natural Language Processing (Volume 1: Long Papers) . 4694–4705. Li Yang, Qifan Wang, Jingang Wang, Xiaojun Quan, Fuli Feng, Yu Chen, Madian Khabsa, Sinong Wang, Zenglin Xu, and Dongfang Liu. 2023. MixPAVE: Mix-prompt tuning for few-shot product attribute value extraction. In Findings of the association for computational linguistics: ACL 2023 .9978–9991. Li Yang, Qifan Wang, Zac Yu, Anand Kulkarni, Sumit Sanghai, Bin Shu, Jon Elsas, and Bhar-gav Kanagal. 2022. MAVE: A Product Dataset for Multi-source Attribute Value Extraction. In 
+
+Proceedings of the Fifteenth ACM International Conference on Web Search and Data Mining .1256–1265. doi: 10.1145/3488560.3498377 
+
+Hongbin Ye, Honghao Gui, Xin Xu, Xi Chen, Huajun Chen, and Ningyu Zhang. 2023. Schema-adaptable knowledge graph construction. In Findings of the Association for Computational Lin-guistics: EMNLP 2023 . 6408–6431. Changlong Yu, Xin Liu, Jefferson Maia, Yang Li, Tianyu Cao, Yifan Gao, Yangqiu Song, Rahul Goutam, Haiyang Zhang, Bing Yin, and Zheng Li. 2024. COSMO: A Large-Scale E-commerce Common Sense Knowledge Generation and Serving System at Amazon. In Companion of the 2024 International Conference on Management of Data . 148–160. Changlong Yu, Weiqi Wang, Xin Liu, Jiaxin Bai, Yangqiu Song, Zheng Li, Yifan Gao, Tianyu Cao, and Bing Yin. 2023. FolkScope: Intention Knowledge Graph Construction for E-commerce Com-monsense Discovery. In Findings of the Association for Computational Linguistics: ACL 2023 .1173–1191. Yue Yu, Yinghao Li, Jiaming Shen, Hao Feng, Jimeng Sun, and Chao Zhang. 2020. STEAM: Self-Supervised Taxonomy Expansion with Mini-Paths. In Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining . 1026–1035. doi: 10.1145/ 3394486.3403145 
+
+Matei Zaharia, Mosharaf Chowdhury, Tathagata Das, Ankur Dave, Justin Ma, Murphy McCauley, Michael J. Franklin, Scott Shenker, and Ion Stoica. 2012. Resilient Distributed Datasets: AFault-Tolerant Abstraction for In-Memory Cluster Computing. In 9th USENIX Symposium on Networked Systems Design and Implementation (NSDI 12) . USENIX Association, San Jose, CA, 15–28. https://www.usenix.org/conference/nsdi12/technical-sessions/ presentation/zaharia 
+
+Nasser Zalmout, Chenwei Zhang, Xian Li, Yan Liang, and Xin Luna Dong. 2021. All you need to know to build a product knowledge graph. In Proceedings of the 27th ACM SIGKDD Conference on knowledge discovery & data mining . 4090–4091. Eric Zelikman, Yuhuai Wu, Jesse Mu, and Noah Goodman. 2022. Star: Bootstrapping reasoning with reasoning. Advances in Neural Information Processing Systems 35 (2022), 15476–15488. 39 JD Oxygen AI Item Center ( Oxygen AIIC )Bryan Zhang, Suleiman Khan, and Stephan Walter. 2025. CatalogRAG: Retrieval-guided LLM prediction for multilingual e-commerce product attributes. (2025). Bowen Zhang and Harold Soh. 2024. Extract, define, canonicalize: An llm-based framework for knowledge graph construction. In Proceedings of the 2024 conference on empirical methods in natural language processing . 9820–9836. Chao Zhang, Fangbo Tao, Xiusi Chen, Jiaming Shen, Meng Jiang, Brian Sadler, Michelle Vanni, and Jiawei Han. 2018. TaxoGen: Unsupervised Topic Taxonomy Construction by Adaptive Term Embedding and Clustering. In Proceedings of the 24th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining . 2701–2709. doi: 10.1145/3219819.3220064 
+
+Daoze Zhang, Chenghan Fu, Zhanheng Nie, Jianyu Liu, Wanxian Guan, Yuan Gao, Jun Song, Pengjie Wang, Jian Xu, and Bo Zheng. 2026a. MOON: Generative MLLM-based Multimodal Represen-tation Learning for E-commerce Product Understanding. In Proceedings of the Nineteenth ACM International Conference on Web Search and Data Mining . 924–933. doi: 10.1145/3773966. 3777958 
+
+Zicheng Zhang, Haoran Li, Yifeng Zhang, Guoqiang Gong, Jiaxing Wang, Junxing Hu, Pengzhang Liu, and Qixia Jiang. 2026b. The primacy of magnitude in low-rank adaptation. Advances in Neural Information Processing Systems 38 (2026), 39–69. Guineng Zheng, Subhabrata Mukherjee, Xin Luna Dong, and Feifei Li. 2018. Opentag: Open at-tribute value extraction from product profiles. In Proceedings of the 24th ACM SIGKDD interna-tional conference on knowledge discovery & data mining . 1049–1058. Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric Xing, et al. 2023. Judging llm-as-a-judge with mt-bench and chatbot arena. Advances in neural information processing systems 36 (2023), 46595–46623. Tiangang Zhu, Yue Wang, Haoran Li, Youzheng Wu, Xiaodong He, and Bowen Zhou. 2020. Mul-timodal Joint Attribute Prediction and Value Extraction for E-commerce Product. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP) . 2129– 2139. doi: 10.18653/v1/2020.emnlp-main.166 
+
+Huike Zou, Haiyang Yang, Yindu Su, Chen Li Yu, Qinye Xie, Chengbao Lian, Qingheng Zhang, Shuguang Han, Fei Huang, and Jufeng Chen. 2025. Multi-Value-Product Retrieval-Augmented Generation for Industrial Product Attribute Value Identification. In Proceedings of the 2025 Con-ference on Empirical Methods in Natural Language Processing: Industry Track . 2096–2105. 40
