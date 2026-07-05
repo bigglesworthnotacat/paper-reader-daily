@@ -6,107 +6,85 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-26 ~ 2026-07-05
-- 运行时间：2026-07-05 13:51:27 UTC
+- 最新运行日期：2026-07-05
+- 运行时间：2026-07-05 21:37:03 UTC
 - 运行状态：成功
-- 本次总论文数：29
-- 精读区：15
-- 速读区：14
+- 本次总论文数：21
+- 精读区：8
+- 速读区：13
 
 ### 今日简报（AI）
-本期日报聚焦自主智能体与LLM安全两大前沿，精读中最高分研究展示了自进化智能体系统和多语言提示注入攻击的新发现。建议重点关注《Next-Generation Agentic Reinforcement Learning Systems》和《An Empirical Evaluation of Prompt Injection Vulnerabilities》两篇论文，它们分别揭示了智能体自我进化机制和跨语言攻击的隐蔽性，对当前AI系统设计与防护具有直接参考价值。
-- 详情：[/20260626-20260705/README](/20260626-20260705/README)
+今日精选21篇AI研究，精读8篇，核心聚焦自主智能体治理与自进化强化学习系统。  
+最值得关注的是两篇9.0高分工作：《Behavioral Governance for Autonomous AI Agents: The AgentBound Framework》提出智能体行为治理框架，以及《Next-Generation Agentic Reinforcement Learning Systems Enable Self-Evolving Agents》实现智能体自进化。  
+建议普通读者优先阅读AgentBound框架的治理逻辑，并留意多智能体安全控制方向（如8.0分的《A Systematic Approach to Multi-Agent AI from Advanced Regulatory Control Theory》）。
+- 详情：[/202607/05/README](/202607/05/README)
 
 ### 精读区论文标签
-1. [Next-Generation Agentic Reinforcement Learning Systems Enable Self-Evolving Agents](/20260626-20260705/2607.01120v2-next-generation-agentic-reinforcement-learning-systems-enable-self-evolving-agents)  
-   标签：评分：10.0/10、query:agent-evol
-   evidence：论证基于agent强化学习系统实现自我进化agent
-2. [An Empirical Evaluation of Prompt Injection Vulnerabilities in Large Language Models Across Multilingual and Obfuscated Attack Scenarios](/20260626-20260705/2606.29602v1-an-empirical-evaluation-of-prompt-injection-vulnerabilities-in-large-language-models-across-multilingual-and-obfuscated-attack-scenarios)  
+1. [Behavioral Governance for Autonomous AI Agents: The AgentBound Framework](/202607/05/2606.30970v2-behavioral-governance-for-autonomous-ai-agents-the-agentbound-framework)  
    标签：评分：9.0/10、query:llm-security
-   evidence：对包括DeepSeek、GPT、Gemini等在内的六个LLM进行了提示注入漏洞实证评估
-3. [ECHO: Learning Epistemically Adaptive Language Agents with Turn-Level Credit](/20260626-20260705/2606.29745v1-echo-learning-epistemically-adaptive-language-agents-with-turn-level-credit)  
-   标签：评分：9.0/10、query:company
-   evidence：认知自适应的语言智能体
-4. [MAS-Lab: A Specification-Driven Validation Framework for Reliable Multi-Agent Systems](/20260626-20260705/2606.30546v1-mas-lab-a-specification-driven-validation-framework-for-reliable-multi-agent-systems)  
-   标签：评分：9.0/10、query:llm-agent
-   evidence：多智能体系统验证框架
-5. [Towards Transparent Checkpointing with AI-driven Code Generation](/20260626-20260705/2606.30921v1-towards-transparent-checkpointing-with-ai-driven-code-generation)  
-   标签：评分：9.0/10、query:company
-   evidence：直接使用Anthropic的Claude Opus 4.7模型
-6. [Behavioral Governance for Autonomous AI Agents: The AgentBound Framework](/20260626-20260705/2606.30970v2-behavioral-governance-for-autonomous-ai-agents-the-agentbound-framework)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：面向自主AI智能体的行为治理，关注安全与可审计性
-7. [ClawArena-Team: Benchmarking Subagent Orchestration and Dynamic Workflows in Language-Model Agents](/20260626-20260705/2606.31174v2-clawarena-team-benchmarking-subagent-orchestration-and-dynamic-workflows-in-language-model-agents)  
-   标签：评分：9.0/10、query:llm-agent
-   evidence：LLM代理中子代理编排与动态工作流的基准测试
-8. [Moral Safety in LLMs: Exposing Performative Compliance with Puzzled Cues](/20260626-20260705/2606.31644v2-moral-safety-in-llms-exposing-performative-compliance-with-puzzled-cues)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：揭露大语言模型道德安全评估中的表面合规现象
-9. [MemSyco-Bench: Benchmarking Sycophancy in Agent Memory](/20260626-20260705/2607.01071v1-memsyco-bench-benchmarking-sycophancy-in-agent-memory)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：基于LLM的智能体中记忆引发的谄媚行为基准
-10. [MemSyco-Bench: Benchmarking Sycophancy in Agent Memory](/20260626-20260705/2607.01071v2-memsyco-bench-benchmarking-sycophancy-in-agent-memory)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：基于LLM的智能体中记忆引发的谄媚行为基准
-11. [Can Agents Generalize to the Open World? Unveiling the Fragility of Static Training in Tool Use](/20260626-20260705/2607.01084v1-can-agents-generalize-to-the-open-world-unveiling-the-fragility-of-static-training-in-tool-use)  
-   标签：评分：9.0/10、query:llm-agent
-   evidence：分析工具使用智能体在开放世界泛化中静态训练的脆弱性
-12. [COMFYCLAW: Self-Evolving Skill Harnesses for Image Generation Workflows](/20260626-20260705/2607.01709v1-comfyclaw-self-evolving-skill-harnesses-for-image-generation-workflows)  
+   evidence：自治AI Agent的运行时行为治理框架
+2. [Next-Generation Agentic Reinforcement Learning Systems Enable Self-Evolving Agents](/202607/05/2607.01120v2-next-generation-agentic-reinforcement-learning-systems-enable-self-evolving-agents)  
    标签：评分：9.0/10、query:agent-evol
-   evidence：标题中包含Self-Evolving Agent
-13. [ElephantAgent: Contextual State Continuity in Agentic Systems](/20260626-20260705/2607.01919v1-elephantagent-contextual-state-continuity-in-agentic-systems)  
+   evidence：通过强化学习实现自我进化的代理
+3. [When Agents Do Not Stop: Uncovering Infinite Agentic Loops in LLM Agents](/202607/05/2607.01641v1-when-agents-do-not-stop-uncovering-infinite-agentic-loops-in-llm-agents)  
    标签：评分：9.0/10、query:llm-security
-   evidence：针对智能体上下文状态投毒防御
-14. [Bayesian Sparse Low-Rank Adaptation for Large Language Model Uncertainty Estimation](/20260626-20260705/2607.02182v1-bayesian-sparse-low-rank-adaptation-for-large-language-model-uncertainty-estimation)  
-   标签：评分：9.0/10、query:company
-   evidence：贝叶斯稀疏低秩自适应用于大语言模型不确定性估计
-15. [Distributed Attacks in Persistent-State AI Control](/20260626-20260705/2607.02514v1-distributed-attacks-in-persistent-state-ai-control)  
+   evidence：直接针对LLM代理的安全漏洞：无限代理循环导致成本消耗和模型拒绝服务
+4. [ContextNest: Verifiable Context Governance for Autonomous AI Agent](/202607/05/2607.02116v1-contextnest-verifiable-context-governance-for-autonomous-ai-agent)  
    标签：评分：9.0/10、query:llm-security
-   evidence：针对持久状态AI编码智能体的分布式攻击框架
+   evidence：自治AI Agent的可验证上下文治理
+5. [SkillFuzz: Fuzzing Skill Composition for Implicit Intents Discovery in Open Skill Marketplaces](/202607/05/2607.02345v1-skillfuzz-fuzzing-skill-composition-for-implicit-intents-discovery-in-open-skill-marketplaces)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：安全漏洞与防御：对技能组合进行模糊测试发现隐含意图
+6. [Hardware-Enforced Semantic Coordination for Safety-Critical Real-Time Autonomous Systems](/202607/05/2607.02376v1-hardware-enforced-semantic-coordination-for-safety-critical-real-time-autonomous-systems)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：直接关注含LLM代理的自主系统中的安全关键协调
+7. [EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive Environments](/202607/05/2607.02440v1-evopolicygym-evaluating-autonomous-policy-evolution-in-interactive-environments)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：评估自主策略进化，自我进化智能体
+8. [AutoTrainess: Teaching Language Models to Improve Language Models Autonomously](/202607/05/2606.31551v1-autotrainess-teaching-language-models-to-improve-language-models-autonomously)  
+   标签：评分：8.0/10、query:agent-evol
+   evidence：语言模型智能体自主改进自身，自我进化
 
 ### 速读区论文标签
-1. [ATOD: Annealed Turn-aware On-policy Distillation for Multi-turn Autonomous Agents](/20260626-20260705/2606.27814v1-atod-annealed-turn-aware-on-policy-distillation-for-multi-turn-autonomous-agents)  
+1. [Mixture of Debaters: Learn to Debate at Architectural Level in Multi-Agent Reasoning](/202607/05/2606.29425v1-mixture-of-debaters-learn-to-debate-at-architectural-level-in-multi-agent-reasoning)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：自主代理模型训练方法
-2. [From Detection to Action: Using LLM Agents for Fault-Tolerant Control](/20260626-20260705/2606.28011v1-from-detection-to-action-using-llm-agents-for-fault-tolerant-control)  
-   标签：评分：8.0/10、query:llm-agent
-   evidence：用于容错控制的LLM代理框架
-3. [SWE-MeM: Learning Adaptive Memory Management for Long-Horizon Coding Agents](/20260626-20260705/2606.28434v1-swe-mem-learning-adaptive-memory-management-for-long-horizon-coding-agents)  
-   标签：评分：8.0/10、query:llm-agent
-   evidence：面向长时编码智能体的自适应记忆管理训练框架
-4. [Agentic Abstention: Do Agents Know When to Stop Instead of Act?](/20260626-20260705/2606.28733v1-agentic-abstention-do-agents-know-when-to-stop-instead-of-act)  
+   evidence：通过混合专家实现多代理推理中的动态自辩论
+2. [A Systematic Approach to Multi-Agent AI from Advanced Regulatory Control Theory: Safe and Auditable LLM Operator Agents for Process Control](/202607/05/2606.30877v1-a-systematic-approach-to-multi-agent-ai-from-advanced-regulatory-control-theory-safe-and-auditable-llm-operator-agents-for-process-control)  
    标签：评分：8.0/10、query:llm-security
-   evidence：定义了智能体戒断作为LLM智能体在不确定时停止行动的安全机制
-5. [Characterizing Large Language Model Agentic Workflows: A Study on N8n Ecosystem](/20260626-20260705/2606.29116v1-characterizing-large-language-model-agentic-workflows-a-study-on-n8n-ecosystem)  
+   evidence：基于控制理论的安全可审计LLM操作代理用于过程控制
+3. [ReGRPO: Reflection-Augmented Policy Optimization for Tool-Using Agents](/202607/05/2606.31392v1-regrpo-reflection-augmented-policy-optimization-for-tool-using-agents)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：N8n生态系统中LLM代理工作流的大规模实证研究
-6. [When Search Agents Should Ask: DiscoBench for Clarification-Aware Deep Search](/20260626-20260705/2606.27669v1-when-search-agents-should-ask-discobench-for-clarification-aware-deep-search)  
+   evidence：用于工具使用代理的反思增强策略优化
+4. [Moral Safety in LLMs: Exposing Performative Compliance with Puzzled Cues](/202607/05/2606.31644v1-moral-safety-in-llms-exposing-performative-compliance-with-puzzled-cues)  
+   标签：评分：8.0/10、query:llm-security
+   evidence：LLM道德安全与对齐评估
+5. [Harnessing the Latent Space: From Steering Vectors to Model Calibrators for Control and Trust](/202607/05/2607.00083v1-harnessing-the-latent-space-from-steering-vectors-to-model-calibrators-for-control-and-trust)  
+   标签：评分：8.0/10、query:llm-security
+   evidence：语言模型安全机制：用于控制和信任的操控向量与校准器
+6. [Metric Aggregation Divergence: A Hidden Validity Threat in Agent-Based Policy Optimization and a Contractual Remedy](/202607/05/2606.29038v1-metric-aggregation-divergence-a-hidden-validity-threat-in-agent-based-policy-optimization-and-a-contractual-remedy)  
+   标签：评分：7.0/10、query:agent-evol
+   evidence：基于智能体模型与多目标进化算法中的度量聚合差异，进化算法
+7. [ECHO: Learning Epistemically Adaptive Language Agents with Turn-Level Credit](/202607/05/2606.29745v1-echo-learning-epistemically-adaptive-language-agents-with-turn-level-credit)  
+   标签：评分：7.0/10、query:agent-evol
+   evidence：通过认知决策过程学习自适应语言智能体
+8. [KbSD: Knowledge Boundary aware Self-Distillation for Behavioral Calibration in Agentic Search](/202607/05/2606.29863v1-kbsd-knowledge-boundary-aware-self-distillation-for-behavioral-calibration-in-agentic-search)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向深度搜索智能体的澄清感知基准
-7. [When Multi-Robot Systems Meet Agentic AI:Towards Embodied Collective Intelligence](/20260626-20260705/2606.27929v1-when-multi-robot-systems-meet-agentic-aitowards-embodied-collective-intelligence)  
+   evidence：研究代理搜索中的行为校准，使用自我蒸馏方法，与工具使用代理相关
+9. [LLM Agents Are Latent Context Managers: Eliciting Self-Managed Context via a Proprioceptive Dashboard](/202607/05/2606.30005v1-llm-agents-are-latent-context-managers-eliciting-self-managed-context-via-a-proprioceptive-dashboard)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：探索多机器人系统与智能体AI融合以实现具身集体智能
-8. [LLawCo: Learning Laws of Cooperation for Modeling Embodied Multi-Agent Behavior](/20260626-20260705/2606.28182v1-llawco-learning-laws-of-cooperation-for-modeling-embodied-multi-agent-behavior)  
-   标签：评分：7.0/10、query:llm-agent
-   evidence：基于LLM的具身多智能体协作框架
-9. [HyphaeDB: A Living Knowledge Topology for Agent-First Memory](/20260626-20260705/2606.28781v1-hyphaedb-a-living-knowledge-topology-for-agent-first-memory)  
-   标签：评分：7.0/10、query:llm-agent
-   evidence：面向LLM智能体的原生记忆基础设施
-10. [Labeling Training Data for Entity Matching Using Large Language Models](/20260626-20260705/2606.28823v1-labeling-training-data-for-entity-matching-using-large-language-models)  
-   标签：评分：7.0/10、query:company
-   evidence：使用LLM通过知识蒸馏进行数据标注
-11. [Triadic Werewolf: A Jester Role for Multi-Hop Theory of Mind in LLMs](/20260626-20260705/2606.27909v1-triadic-werewolf-a-jester-role-for-multi-hop-theory-of-mind-in-llms)  
-   标签：评分：6.0/10、query:company
-   evidence：评估了近期LLM（GPT-4.1、DeepSeek-V3.1、Llama-3.3-70B）的心智理论能力
-12. [JD Oxygen AI Item Center (Oxygen AIIC) V1: An Industrial-Scale LLM/VLM-Centric Solution for Item Understanding, Management, and Applications](/20260626-20260705/2606.28070v1-jd-oxygen-ai-item-center-oxygen-aiic-v1-an-industrial-scale-llmvlm-centric-solution-for-item-understanding-management-and-applications)  
+   evidence：大语言模型智能体架构：本体感觉上下文管理
+10. [SEATauBench: Adapting Tool-Agent-User Evaluation Into Low-Resource Southeast Asian Languages](/202607/05/2606.28715v1-seataubench-adapting-tool-agent-user-evaluation-into-low-resource-southeast-asian-languages)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：工业级LLM/VLM平台用于电商商品理解
-13. [JD Oxygen AI Item Center (Oxygen AIIC) V1: An Industrial-Scale LLM/VLM-Centric Solution for Item Understanding, Management, and Applications](/20260626-20260705/2606.28070v2-jd-oxygen-ai-item-center-oxygen-aiic-v1-an-industrial-scale-llmvlm-centric-solution-for-item-understanding-management-and-applications)  
+   evidence：首个面向东南亚语言的代理评估框架，关注LLM代理能力
+11. [From Determinism to Delegation: AI-Native Software Engineering and the Evolution of the Agentic Engineer](/202607/05/2606.28791v1-from-determinism-to-delegation-ai-native-software-engineering-and-the-evolution-of-the-agentic-engineer)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：基于LLM/VLM的工业级商品理解平台
-14. [SEATauBench: Adapting Tool-Agent-User Evaluation Into Low-Resource Southeast Asian Languages](/20260626-20260705/2606.28715v1-seataubench-adapting-tool-agent-user-evaluation-into-low-resource-southeast-asian-languages)  
+   evidence：论述LLM驱动的代理系统与软件工程演化，属于LLM代理研究范畴
+12. [Langshaw: Declarative Interaction Protocols Based on Sayso and Conflict](/202607/05/2606.29601v1-langshaw-declarative-interaction-protocols-based-on-sayso-and-conflict)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：针对东南亚低资源语言的智能体评估框架，改编自TauBench
+   evidence：提出Langshaw，一种多代理系统声明式协议语言，关注安全性和活跃性
+13. [Do Recommendation Algorithms Work When Users Are LLM Agents? A Case Study on Moltbook](/202607/05/2606.29762v1-do-recommendation-algorithms-work-when-users-are-llm-agents-a-case-study-on-moltbook)  
+   标签：评分：6.0/10、query:llm-agent
+   evidence：研究LLM代理作为社交平台用户的行为
 
 
 <div class="dpr-home-promo-card">
