@@ -6,86 +6,86 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-26
-- 运行时间：2026-07-26 20:08:46 UTC
+- 最新运行日期：2026-07-27
+- 运行时间：2026-07-27 21:54:35 UTC
 - 运行状态：成功
 - 本次总论文数：22
 - 精读区：9
 - 速读区：13
 
 ### 今日简报（AI）
-今日精读Agentic AI时间持久性欺骗与显式世界模型反事实推理两大高分研究，速读通用基准、技能生态与长时工具强化学习。最值得关注Agentic AI记忆欺骗分类学，以及基于数据本体构建的世界模型验证方法。建议普通读者优先了解AI代理的安全漏洞与记忆风险，再从技能编排入手跟踪工具集成进展。
-- 详情：[/202607/26/README](/202607/26/README)
+今日精选22篇论文，精读聚焦连续动作空间自演化默认动作与LLM代理对网页防御的重新评估。最值得关注：自演化机制优化合作任务效率，LLM代理正颠覆传统安全防御假设。建议优先精读这两篇9分论文，并速览自动驾驶漏洞的结构化威胁测试方法。
+- 详情：[/202607/27/README](/202607/27/README)
 
 ### 精读区论文标签
-1. [The Chronos Vulnerability: A Taxonomy of Temporal Persistence and Memory-Based Deception in Agentic AI](/202607/26/2607.19433v1-the-chronos-vulnerability-a-taxonomy-of-temporal-persistence-and-memory-based-deception-in-agentic-ai)  
-   标签：评分：10.0/10、query:llm-security
-   evidence：智能体AI中时态持久性和基于记忆欺骗的分类学
-2. [An Explicit World Model Based on Data-First Ontology: DaoQL Multimodal Storage Validation and Counterfactual Reasoning Evaluation](/202607/26/2607.17269v1-an-explicit-world-model-based-on-data-first-ontology-daoql-multimodal-storage-validation-and-counterfactual-reasoning-evaluation)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：解决LLM的结构性风险：幻觉、知识冻结、可解释性差和可修改性差，提出显式世界模型提升安全性
-3. [Retain or Consolidate? Budget-Dependent Operator Selection for Language Agent Memory](/202607/26/2607.17545v2-retain-or-consolidate-budget-dependent-operator-selection-for-language-agent-memory)  
-   标签：评分：9.0/10、query:llm-agent
-   evidence：语言代理内存管理，预算相关的操作符选择
-4. [Trusted Credentials, Untrusted Behavior: Benchmarking LLM-Agent Security in High-Performance Computing](/202607/26/2607.18485v1-trusted-credentials-untrusted-behavior-benchmarking-llm-agent-security-in-high-performance-computing)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：直接研究LLM代理在高性能计算中的安全问题
-5. [A Self-Evolving Default Action for Cooperative Tasks with Continuous Action Space](/202607/26/2607.18597v2-a-self-evolving-default-action-for-cooperative-tasks-with-continuous-action-space)  
+1. [A Self-Evolving Default Action for Cooperative Tasks with Continuous Action Space](/202607/27/2607.18597v1-a-self-evolving-default-action-for-cooperative-tasks-with-continuous-action-space)  
    标签：评分：9.0/10、query:agent-evol
-   evidence：自演化默认动作用于多智能体强化学习
-6. [Cross-Agent Campaign Attribution: Linking Asynchronous Attacks Across LLM Agents](/202607/26/2607.18826v1-cross-agent-campaign-attribution-linking-asynchronous-attacks-across-llm-agents)  
+   evidence：基于默认动作自我演化的多智能体强化学习方法
+2. [Broken Gates: Re-evaluating Web Bot Defenses in the Age of LLM Agents](/202607/27/2607.18659v1-broken-gates-re-evaluating-web-bot-defenses-in-the-age-of-llm-agents)  
    标签：评分：9.0/10、query:llm-security
-   evidence：研究跨代理攻击归因，属于安全脆弱性与防御范畴
-7. [ChannelGuard: Safe Models Do Not Compose into Safe Multi-Agent Systems](/202607/26/2607.19430v1-channelguard-safe-models-do-not-compose-into-safe-multi-agent-systems)  
+   evidence：LLM代理对Web机器人防御的威胁
+3. [VirtualSet: Typed Ontology Worlds as an LLM Generation Target for Grounded Queries and Guarded Decisions](/202607/27/2607.18821v2-virtualset-typed-ontology-worlds-as-an-llm-generation-target-for-grounded-queries-and-guarded-decisions)  
    标签：评分：9.0/10、query:llm-security
-   evidence：多智能体系统中的安全漏洞
-8. [D2VBench: Benchmarking Large Language Models with Value Dilemmas in Daily Scenarios](/202607/26/2607.19834v1-d2vbench-benchmarking-large-language-models-with-value-dilemmas-in-daily-scenarios)  
+   evidence：为LLM提供类型检查的本体接口，防止幻觉和错误写入
+4. [Euclid-MCP: A Model Context Protocol Server for Deterministic Logical Reasoning via Prolog](/202607/27/2607.21412v1-euclid-mcp-a-model-context-protocol-server-for-deterministic-logical-reasoning-via-prolog)  
    标签：评分：9.0/10、query:llm-security
-   evidence：针对大模型在日常场景中价值对齐和安全机制的基准
-9. [Toward cryptographically verifiable authorization for autonomous AI agents: A security hypothesis, preliminary formal model, and proof-of-concept implementation](/202607/26/2607.21325v1-toward-cryptographically-verifiable-authorization-for-autonomous-ai-agents-a-security-hypothesis-preliminary-formal-model-and-proof-of-concept-implementation)  
+   evidence：为安全关键域提供确定性推理以提升LLM可靠性的MCP服务器
+5. [Protocol-Level Attacks on Agentic Commerce Platforms: A Cross-Platform Taxonomy, AIP-Bench, and Unified Defense](/202607/27/2607.21824v1-protocol-level-attacks-on-agentic-commerce-platforms-a-cross-platform-taxonomy-aip-bench-and-unified-defense)  
    标签：评分：9.0/10、query:llm-security
-   evidence：自主代理的加密可验证授权
+   evidence：自主代理商务平台中的安全漏洞
+6. [Agent Security Needs Redefinition through a Holistic Framework](/202607/27/2607.22024v1-agent-security-needs-redefinition-through-a-holistic-framework)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：重新定义自主智能体安全性为上下文问题
+7. [Learning on the Job: Continual Learning from Deployment Feedback for Frozen-Weights Agents](/202607/27/2607.22157v1-learning-on-the-job-continual-learning-from-deployment-feedback-for-frozen-weights-agents)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：通过部署反馈进行持续学习的冻结权重智能体
+8. [Dynamic Capability Scoping for Enterprise AI Agents: A Synthetic Dataset and Three-Source Permission Architecture](/202607/27/2607.22445v1-dynamic-capability-scoping-for-enterprise-ai-agents-a-synthetic-dataset-and-three-source-permission-architecture)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：智能体动态权限最小化与安全架构
+9. [Skill Self-Play: Pushing the Frontier of LLM Capability with Co-Evolving Skills](/202607/27/2607.22529v1-skill-self-play-pushing-the-frontier-of-llm-capability-with-co-evolving-skills)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：共同进化技能实现LLM自我进化
 
 ### 速读区论文标签
-1. [OmniaBench: Benchmarking General AI Agents Across Diverse Scenarios](/202607/26/2607.14989v1-omniabench-benchmarking-general-ai-agents-across-diverse-scenarios)  
+1. [Evaluating Open-Weight LLMs for Generating Structured Threat Information for Autonomous Vehicle Vulnerabilities](/202607/27/2607.16175v1-evaluating-open-weight-llms-for-generating-structured-threat-information-for-autonomous-vehicle-vulnerabilities)  
+   标签：评分：8.0/10、query:llm-security
+   evidence：评估开源LLM为自动驾驶汽车漏洞生成结构化威胁信息
+2. [AEVAL: From Anecdotal to Deterministic Testing for Agentic Skill Workflows](/202607/27/2607.16345v1-aeval-from-anecdotal-to-deterministic-testing-for-agentic-skill-workflows)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：OmniaBench提供了通用AI智能体的全面基准
-2. [SkillCorpus: Consolidating and Evaluating the Open Skill Ecosystem for Real-World LLM Agents](/202607/26/2607.15557v4-skillcorpus-consolidating-and-evaluating-the-open-skill-ecosystem-for-real-world-llm-agents)  
+   evidence：代理技能工作流的CI集成确定性测试
+3. [AEVAL: From Anecdotal to Deterministic Testing for Agentic Skill Workflows](/202607/27/2607.16345v2-aeval-from-anecdotal-to-deterministic-testing-for-agentic-skill-workflows)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：整合并评估面向LLM智能体的开放技能生态系统
-3. [ToolVerse: Unlocking Massive Environments and Long-Horizon Tasks for Agentic Reinforcement Learning](/202607/26/2607.15660v1-toolverse-unlocking-massive-environments-and-long-horizon-tasks-for-agentic-reinforcement-learning)  
+   evidence：面向LLM智能体技能的CI集成确定性测试框架
+4. [AgentBrew: Lifelong Knowledge Brewing from Strong Teachers to Weak LLM Agents](/202607/27/2607.16851v1-agentbrew-lifelong-knowledge-brewing-from-strong-teachers-to-weak-llm-agents)  
+   标签：评分：8.0/10、query:agent-evol
+   evidence：通过教师经验蒸馏实现弱LLM代理的终身知识酿造
+5. [Environment-free Synthetic Data Generation for API-Calling Agents](/202607/27/2607.16900v1-environment-free-synthetic-data-generation-for-api-calling-agents)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：面向LLM智能体的工具集成推理
-4. [Knowledge-Centric Agents for Workflow Generation](/202607/26/2607.15845v1-knowledge-centric-agents-for-workflow-generation)  
-   标签：评分：8.0/10、query:llm-agent
-   evidence：基于知识中心的大语言模型智能体框架用于工作流生成
-5. [LLM-Powered Agentic AI for 5G/6G Networks: A Tutorial and Survey on Architectures, Protocols, and Standardization](/202607/26/2607.16066v1-llm-powered-agentic-ai-for-5g6g-networks-a-tutorial-and-survey-on-architectures-protocols-and-standardization)  
-   标签：评分：8.0/10、query:llm-agent
-   evidence：面向5G/6G的LLM驱动智能体架构教程
-6. [DataFlow-Harness: A Grounded Code-Agent Platform for Constructing Editable LLM Data Pipelines](/202607/26/2607.16617v1-dataflow-harness-a-grounded-code-agent-platform-for-constructing-editable-llm-data-pipelines)  
+   evidence：为训练API调用（工具使用）的LLM代理生成合成数据
+6. [A Systematic Evaluation of Trajectory Data Curation for LoRA Fine-Tuning of Code Agents](/202607/27/2607.17205v1-a-systematic-evaluation-of-trajectory-data-curation-for-lora-fine-tuning-of-code-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：LLM代理框架用于数据流水线
-7. [Environment-free Synthetic Data Generation for API-Calling Agents](/202607/26/2607.16900v2-environment-free-synthetic-data-generation-for-api-calling-agents)  
+   evidence：代码智能体轨迹数据筛选与微调
+7. [Agentic ERP: Multi-Agent Large Language Model Architecture for Autonomous Enterprise Resource Planning](/202607/27/2607.17331v1-agentic-erp-multi-agent-large-language-model-architecture-for-autonomous-enterprise-resource-planning)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：为API调用智能体合成训练数据
-8. [Otap:Structure-Aware Optimal Transport for Evaluating Planning and Execution in Agent Trajectories](/202607/26/2607.17082v1-otapstructure-aware-optimal-transport-for-evaluating-planning-and-execution-in-agent-trajectories)  
+   evidence：用于企业资源规划的多智能体LLM架构，含角色对齐智能体和图编排器
+8. [Can AI Agents Really Complete RTL-to-GDS? Lessons from Benchmarking Tool-Interactive EDA Workflows](/202607/27/2607.17528v3-can-ai-agents-really-complete-rtl-to-gds-lessons-from-benchmarking-tool-interactive-eda-workflows)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：评估大语言模型智能体的规划与执行轨迹
-9. [Adapting Embedding Models for Agent Capability Retrieval](/202607/26/2607.17347v1-adapting-embedding-models-for-agent-capability-retrieval)  
+   evidence：面向EDA任务自动化的语言智能体
+9. [SR-Agent: An Experience-Driven Agentic Framework for Post-Ranking Strategy Refinement in E-Commerce Recommendation](/202607/27/2607.17719v2-sr-agent-an-experience-driven-agentic-framework-for-post-ranking-strategy-refinement-in-e-commerce-recommendation)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：调整嵌入模型以在开放市场中检索代理能力，与LLM代理搜索发现相关
-10. [Talaria: Session-Aware Serverless Serving of Hundred-Billion-Parameter LLMs](/202607/26/2607.17181v1-talaria-session-aware-serverless-serving-of-hundred-billion-parameter-llms)  
+   evidence：基于LLM的代理框架用于电商推荐策略优化
+10. [EvoGUI: An Evolution-Aware Benchmark for GUI State-Transition Understanding](/202607/27/2607.17050v1-evogui-an-evolution-aware-benchmark-for-gui-state-transition-understanding)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：用于工具使用LLM代理的会话感知无服务器服务
-11. [SR-Agent: An Experience-Driven Agentic Framework for Post-Ranking Strategies Refinement in E-Commerce Recommendation](/202607/26/2607.17719v1-sr-agent-an-experience-driven-agentic-framework-for-post-ranking-strategies-refinement-in-e-commerce-recommendation)  
+   evidence：GUI智能体状态转换理解基准
+11. [Can AI Agents Really Complete RTL-to-GDS? Lessons from Benchmarking Tool-Interactive EDA Workflows](/202607/27/2607.17528v2-can-ai-agents-really-complete-rtl-to-gds-lessons-from-benchmarking-tool-interactive-eda-workflows)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：提出经验驱动的代理框架用于电商后排序优化
-12. [Convolution for Large Language Models](/202607/26/2607.18413v1-convolution-for-large-language-models)  
+   evidence：面向端到端EDA任务自动化的智能体基准测试
+12. [Why Does Feedback-Augmented Self-Distillation Fail to Improve Retrieval-Interleaved Search Agents?](/202607/27/2607.17558v1-why-does-feedback-augmented-self-distillation-fail-to-improve-retrieval-interleaved-search-agents)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：为大语言模型引入卷积操作
-13. [AI Tour Meeting: Group Travel Planning by LLM Agents](/202607/26/2607.18806v1-ai-tour-meeting-group-travel-planning-by-llm-agents)  
+   evidence：面向检索式搜索智能体的自蒸馏方法
+13. [Towards Agentic Agent-based Models: Feasibility, Performance, and Statistical Model Checking](/202607/27/2607.17948v1-towards-agentic-agent-based-models-feasibility-performance-and-statistical-model-checking)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：多LLM代理协作旅行规划
+   evidence：探索用基于LLM的智能体决策替换ABM规则的可行性与影响
 
 
 <div class="dpr-home-promo-card">
