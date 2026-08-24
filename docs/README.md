@@ -6,128 +6,104 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-23
-- 运行时间：2026-08-23 20:46:19 UTC
+- 最新运行日期：2026-08-24
+- 运行时间：2026-08-24 20:55:50 UTC
 - 运行状态：成功
-- 本次总论文数：36
-- 精读区：23
+- 本次总论文数：28
+- 精读区：15
 - 速读区：13
 
 ### 今日简报（AI）
-今日精读23篇，重点关注多智能体隐蔽协调与编码助手工作区攻击向量。最值得看的是《Beyond the Transcript》与《Workspace Topology as an Attack Vector》，分别聚焦潜在通信中的协同检测与Agentic编码助手的安全威胁。建议普通读者优先从这两篇高分论文入手，把握智能体安全与协作的前沿方向。
-- 详情：[/202608/23/README](/202608/23/README)
+今日精读28篇论文，聚焦LLM智能体安全与可信执行，核心亮点为ClawSentry多层级防护框架（10分）与策略代数模型（9分）。速读中LOCAL端侧学习、HxAgent网页测试及Agent Gym反馈评估均值得关注。建议优先深入安全监控方向，并关注端侧与测试类智能体进展。
+- 详情：[/202608/24/README](/202608/24/README)
 
 ### 精读区论文标签
-1. [Beyond the Transcript: Detecting Covert Co ordination in Latent Multi-Agent Communication](/202608/23/2608.19161v1-beyond-the-transcript-detecting-covert-co-ordination-in-latent-multi-agent-communication)  
+1. [ClawSentry: A Progressive Multi-Tier Security Monitor for Safeguarding Autonomous LLM Agents](/202608/24/2608.21101v1-clawsentry-a-progressive-multi-tier-security-monitor-for-safeguarding-autonomous-llm-agents)  
    标签：评分：10.0/10、query:llm-security
-   evidence：检测并引导语言模型智能体通过隐藏潜在通信进行的隐蔽有害协作，直接针对自主智能体安全
-2. [Workspace Topology as an Attack Vector in Agentic Coding Assistants](/202608/23/2608.14876v1-workspace-topology-as-an-attack-vector-in-agentic-coding-assistants)  
+   evidence：面向自主LLM智能体的渐进多层安全监控
+2. [A Policy Algebra for Trust-Preserving Agentic AI Execution](/202608/24/2608.16402v1-a-policy-algebra-for-trust-preserving-agentic-ai-execution)  
    标签：评分：9.0/10、query:llm-security
-   evidence：智能编码助手中基于工作区拓扑的间接提示注入攻击面
-3. [Evo-Harness: Context-to-Harness Skill Compilation for Self-Evolving Agents](/202608/23/2608.15071v1-evo-harness-context-to-harness-skill-compilation-for-self-evolving-agents)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：直接研究自进化智能体，提出在线编排学习机制
-4. [Beyond Direct Access: Resource Hijacking in LLM Agents](/202608/23/2608.15108v1-beyond-direct-access-resource-hijacking-in-llm-agents)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：对LLM智能体的资源劫持攻击
-5. [SkillCommit: Evolving Agent Skills through Behaviorally Validated Scope Expansion](/202608/23/2608.15165v1-skillcommit-evolving-agent-skills-through-behaviorally-validated-scope-expansion)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：基于行为验证范围扩展的在线技能进化框架
-6. [Understanding Cognition-Induced Risks in Agentic AI Systems](/202608/23/2608.15304v1-understanding-cognition-induced-risks-in-agentic-ai-systems)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：智能体AI系统的认知诱发风险
-7. [ARENA: Automated Red-Teaming for Large Audio Language Models](/202608/23/2608.15578v1-arena-automated-red-teaming-for-large-audio-language-models)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：对大音频语言模型进行自动化红队测试，暴露多模态输入下的安全漏洞
-8. [Bounded Agents: Delegation Security for Multi-Agent AI Systems](/202608/23/2608.15888v1-bounded-agents-delegation-security-for-multi-agent-ai-systems)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：通过智能体主链实现多智能体AI系统的委托安全
-9. [HyperSkill: Self-Evolving LLM Agents via Hypergraph-Structured Skill Memory](/202608/23/2608.16114v1-hyperskill-self-evolving-llm-agents-via-hypergraph-structured-skill-memory)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：通过超图技能记忆实现LLM智能体自进化
-10. [Competing at Every Price Point with Agentic Evolution over a Menu of LLMs](/202608/23/2608.16207v1-competing-at-every-price-point-with-agentic-evolution-over-a-menu-of-llms)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：基于LLM菜单的智能体进化与进化元智能体
-11. [Towards Risk-free AI Agent Deployment](/202608/23/2608.16411v1-towards-risk-free-ai-agent-deployment)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：通过基于轨迹的测试来应对LLM智能体的安全、合规与功能风险
-12. [BabelSteering: Multilingual Safety Alignment via English Steering Vectors](/202608/23/2608.16577v1-babelsteering-multilingual-safety-alignment-via-english-steering-vectors)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：利用引导向量实现多语言安全对齐
-13. [Zetta $ζ$: An Efficient Closed-Loop Embodied Harness for Self-Evolving Physical Intelligence](/202608/23/2608.16590v1-zetta--an-efficient-closed-loop-embodied-harness-for-self-evolving-physical-intelligence)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：闭环具身平台实现自进化物理智能
-14. [When State Becomes an Attack Surface: State-Semantic Injection in LLM-Driven Embodied Agents](/202608/23/2608.16806v1-when-state-becomes-an-attack-surface-state-semantic-injection-in-llm-driven-embodied-agents)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：针对LLM驱动具身智能体的状态语义注入攻击
-15. [Breaking Planner Integrity Boundary: Enviroment State-Text Injection Attack on LLM-Driven Embodied Agents](/202608/23/2608.16806v2-breaking-planner-integrity-boundary-enviroment-state-text-injection-attack-on-llm-driven-embodied-agents)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：对LLM驱动具身智能体的环境状态文本注入攻击
-16. [Towards Safer RAG: Only Agents Capable of System 2 Thinking may Access Untrusted Documents](/202608/23/2608.17153v1-towards-safer-rag-only-agents-capable-of-system-2-thinking-may-access-untrusted-documents)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：提出仅允许具备系统2思考能力的智能体访问不受信文档的安全原则
-17. [HarnessRisk: A Lifecycle-Oriented Benchmark for Agent Harness Safety](/202608/23/2608.17597v1-harnessrisk-a-lifecycle-oriented-benchmark-for-agent-harness-safety)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：面向智能体编排安全的全生命周期基准
-18. [Leveraging Association Context Retrieval in Knowledge Edit- ing to Build White-Box Attacks on LLMs](/202608/23/2608.17836v1-leveraging-association-context-retrieval-in-knowledge-edit--ing-to-build-white-box-attacks-on-llms)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：利用知识编辑与关联上下文检索构建LLM白盒攻击
-19. [Task-Conditioned Least-Privilege Learning for Executable Terminal and MCP Agents](/202608/23/2608.18351v1-task-conditioned-least-privilege-learning-for-executable-terminal-and-mcp-agents)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：教会使用工具的LLM智能体选择任务条件的最小权限，防止越权错误并增强安全性
-20. [DART-SD: Diamond-topology Aware Retrieval and Tuning for Self-Distillation of Multi-Turn Tool-Calling Agents](/202608/23/2608.18524v1-dart-sd-diamond-topology-aware-retrieval-and-tuning-for-self-distillation-of-multi-turn-tool-calling-agents)  
+   evidence：在策略约束下保持可信的智能体执行
+3. [When Agents Coordinate: Measuring Coordination in Multi-Agent AI Coding](/202608/24/2608.16801v1-when-agents-coordinate-measuring-coordination-in-multi-agent-ai-coding)  
    标签：评分：9.0/10、query:llm-agent
-   evidence：面向多轮工具调用智能体的拓扑感知自蒸馏；直接研究LLM智能体的工具使用
-21. [SPADE: Self-Play in Adaptive Synthetic Executable Environments](/202608/23/2608.19197v1-spade-self-play-in-adaptive-synthetic-executable-environments)  
+   evidence：提出时间网络工具来度量多智能体AI编程中的协调行为
+4. [DeAR: Decentralized Agentic Reasoning via Capability Grounding and Collaborative Thought Navigation](/202608/24/2608.17282v1-dear-decentralized-agentic-reasoning-via-capability-grounding-and-collaborative-thought-navigation)  
+   标签：评分：9.0/10、query:llm-agent
+   evidence：提出去中心化智能体推理框架，通过自主点对点协作替代集中控制
+5. [Beyond Suspicious Steps: Ontological Trust in Long-Horizon Agents](/202608/24/2608.17718v1-beyond-suspicious-steps-ontological-trust-in-long-horizon-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：面向智能体安全的轨迹级信任监控
+6. [Towards general embodied intelligence: integrating large language models, knowledge bases, and reasoning capabilities to build the next generation of AI agents](/202608/24/2608.19794v1-towards-general-embodied-intelligence-integrating-large-language-models-knowledge-bases-and-reasoning-capabilities-to-build-the-next-generation-of-ai-agents)  
+   标签：评分：9.0/10、query:llm-agent
+   evidence：综述大语言模型智能体与具身智能的研究论文
+7. [Beyond End-to-End Success: Diagnosing Failures in Long-Horizon Security LLM Agents](/202608/24/2608.20563v1-beyond-end-to-end-success-diagnosing-failures-in-long-horizon-security-llm-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：面向长时程安全LLM智能体的失败诊断
+8. [The Claws in Plain Sight: Unauthorized Context Disclosure through LLM Agent Tool Calls](/202608/24/2608.20658v1-the-claws-in-plain-sight-unauthorized-context-disclosure-through-llm-agent-tool-calls)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：通过工具调用参数构造实现未授权上下文泄露的权限压力攻击
+9. [Certified Multi-Turn Robustness for LLM Safety via Compositional Bounds and Safety Persistence](/202608/24/2608.20820v1-certified-multi-turn-robustness-for-llm-safety-via-compositional-bounds-and-safety-persistence)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：面向多轮对话对抗操控的大模型安全认证鲁棒性框架
+10. [ForeDreamer: A Self-Evolving Dual-Agent Memory Architecture for Future Event Prediction](/202608/24/2608.20920v1-foredreamer-a-self-evolving-dual-agent-memory-architecture-for-future-event-prediction)  
    标签：评分：9.0/10、query:agent-evol
-   evidence：通过自我对弈实现智能体自我进化，在自适应合成环境中持续提升能力
-22. [SafeBranch: Branch-Pair Safety Alignment for Embodied Agents](/202608/23/2608.19729v1-safebranch-branch-pair-safety-alignment-for-embodied-agents)  
+   evidence：自进化双智能体记忆架构
+11. [Trustworthy RAG: An Evaluation Agent for Detecting Misinformation and Knowledge Poisoning in Generative AI Systems](/202608/24/2608.21095v1-trustworthy-rag-an-evaluation-agent-for-detecting-misinformation-and-knowledge-poisoning-in-generative-ai-systems)  
    标签：评分：9.0/10、query:llm-security
-   evidence：基于分支对的分支安全对齐方法用于具身智能体
-23. [Inadvertent Context Leakage in Language Models](/202608/23/2608.19857v1-inadvertent-context-leakage-in-language-models)  
+   evidence：使用评估智能体检测RAG中的知识投毒与错误信息
+12. [ReFrame: Evidence-Guided Test-Time Safety Alignment in Multimodal Large Language Models](/202608/24/2608.21100v1-reframe-evidence-guided-test-time-safety-alignment-in-multimodal-large-language-models)  
    标签：评分：9.0/10、query:llm-security
-   evidence：语言模型上下文敏感信息泄露与重建攻击
+   evidence：针对多模态越狱的测试时安全对齐
+13. [TraceGrant: A Contract-Governed Security Framework for the Task-Effect Lifecycle of Networked LLM Agents](/202608/24/2608.21126v1-tracegrant-a-contract-governed-security-framework-for-the-task-effect-lifecycle-of-networked-llm-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：针对网络化LLM代理的安全框架，处理跨任务效果生命周期的间接提示注入
+14. [AID-Guard: Stateful Authorization for Delegated Agent Effects](/202608/24/2608.21159v1-aid-guard-stateful-authorization-for-delegated-agent-effects)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：面向工具使用智能体委托效果的有状态授权安全协议
+15. [CLEAR: Continuous Latent Adapter Routing for Utility-Preserving LLM Safety Alignment](/202608/24/2608.21278v1-clear-continuous-latent-adapter-routing-for-utility-preserving-llm-safety-alignment)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：通过隐藏状态门控控制安全适配器强度的 LLM 安全对齐方法，兼顾效用
 
 ### 速读区论文标签
-1. [SysEvolve: An AI-native, safe, autonomous adversarial attack-defense co-evolutionary system](/202608/23/2608.15012v1-sysevolve-an-ai-native-safe-autonomous-adversarial-attack-defense-co-evolutionary-system)  
+1. [LOCAL: Enabling Learning On-device Contiguously for Agent LLMs](/202608/24/2608.15241v1-local-enabling-learning-on-device-contiguously-for-agent-llms)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：攻防AI智能体通过对抗博弈共同演化，体现智能体通过学习与适应自我进化
-2. [Hierarchical Agentic Incident Response with Digital-Twin-Validated Attack Inference](/202608/23/2608.15016v1-hierarchical-agentic-incident-response-with-digital-twin-validated-attack-inference)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：分层智能体事件响应，结合攻击推理与数字孪生验证
-3. [From LLM Inference to Agentic Workloads: Characterization and Implications for Serving Systems](/202608/23/2608.15127v1-from-llm-inference-to-agentic-workloads-characterization-and-implications-for-serving-systems)  
+   evidence：面向大语言模型智能体的设备端持续学习机制；每次交互后自适应
+2. [HxAgent: Iterative Agent Planning for End-to-End Web Application Testing](/202608/24/2608.15491v1-hxagent-iterative-agent-planning-for-end-to-end-web-application-testing)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：刻画智能体工作负载并提出AgentSysBench基准，面向LLM智能体服务系统
-4. [ACTS-SQL: Agentic and Critic-Oriented Tree-Structured SQL Correctness with Large Language Models](/202608/23/2608.15145v1-acts-sql-agentic-and-critic-oriented-tree-structured-sql-correctness-with-large-language-models)  
+   evidence：用于Web应用自动化测试的大语言模型智能体
+3. [Agent Gym: A Framework for Continuous Evaluation and Evolution of LLM Agents Through Human-in-the-Loop Feedback](/202608/24/2608.15591v1-agent-gym-a-framework-for-continuous-evaluation-and-evolution-of-llm-agents-through-human-in-the-loop-feedback)  
+   标签：评分：8.0/10、query:agent-evol
+   evidence：通过反馈实现智能体持续演化的框架
+4. [HyMem: Hierarchical Context Management for Long-Horizon Agents via Information Isolation](/202608/24/2608.15703v1-hymem-hierarchical-context-management-for-long-horizon-agents-via-information-isolation)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：基于大语言模型的智能体框架，面向SQL正确性检查的任务自动化
-5. [When Deep Research Agents Stagnate: Enhancing Reasoning with Retrieval-Aware Agent Control](/202608/23/2608.15191v1-when-deep-research-agents-stagnate-enhancing-reasoning-with-retrieval-aware-agent-control)  
+   evidence：提出分层上下文管理框架，将LLM智能体上下文按功能分层以支持长程任务
+5. [From Sequence to Structure: Relational Uncertainty Propagation for LLM Agents](/202608/24/2608.16002v2-from-sequence-to-structure-relational-uncertainty-propagation-for-llm-agents)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：面向任务自动化的深度研究智能体，带检索感知控制器
-6. [Handoff-H1: An Orchestrated Vision-Agent System for Material Quantity Takeoff from Construction Blueprints](/202608/23/2608.15032v1-handoff-h1-an-orchestrated-vision-agent-system-for-material-quantity-takeoff-from-construction-blueprints)  
+   evidence：面向LLM智能体的轨迹级不确定性传播框架
+6. [Intent-Driven Situation Tracking for User-Centric Multi-Turn Agents](/202608/24/2608.15755v1-intent-driven-situation-tracking-for-user-centric-multi-turn-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向领域任务的编排式视觉-智能体系统，结合工具使用智能体
-7. [SAPE: Sandwich Adapters for Parameter Efficiency in Large Language Model Fine-Tuning](/202608/23/2608.15360v1-sape-sandwich-adapters-for-parameter-efficiency-in-large-language-model-fine-tuning)  
+   evidence：多轮智能体的显式情境状态跟踪
+7. [Schema-Agnostic Graph Reasoning Agent for Hybrid Knowledge Graphs](/202608/24/2608.15834v1-schema-agnostic-graph-reasoning-agent-for-hybrid-knowledge-graphs)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向大语言模型的参数高效微调框架
-8. [MistyPilot: Enabling Social-Robot Control through Multi-Agent LLM Skill Orchestration](/202608/23/2608.15549v1-mistypilot-enabling-social-robot-control-through-multi-agent-llm-skill-orchestration)  
+   evidence：使用通用原语探索混合知识图谱的LLM工具调用代理
+8. [CAPO: Constraint-Aware Prompt Optimization for LLM Agents](/202608/24/2608.16068v1-capo-constraint-aware-prompt-optimization-for-llm-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：多智能体LLM技能编排实现社交机器人控制
-9. [Agent Gym: A Framework for Continuous Evaluation and Evolution of LLM Agents Through Human-in-the-Loop Feedback](/202608/23/2608.15591v1-agent-gym-a-framework-for-continuous-evaluation-and-evolution-of-llm-agents-through-human-in-the-loop-feedback)  
-   标签：评分：7.0/10、query:agent-evol
-   evidence：通过人类反馈持续评估与进化LLM智能体
-10. [Harness the Memory: A Holistic Evaluation of Memory Substrates in Memory Agents](/202608/23/2608.15008v1-harness-the-memory-a-holistic-evaluation-of-memory-substrates-in-memory-agents)  
+   evidence：面向LLM代理的约束感知提示优化，兼顾安全与格式化策略遵守
+9. [TRCA: Transition-wise Rubric Credit Assignment for Long-horizon LLM Agents](/202608/24/2608.16156v1-trca-transition-wise-rubric-credit-assignment-for-long-horizon-llm-agents)  
+   标签：评分：7.0/10、query:llm-agent
+   evidence：面向长周期LLM智能体的逐转移规则信用分配，改善智能体强化学习
+10. [Where Accountability Lives: Mapping Human Responsibility to Workflow Artifacts in Agentic Software Development](/202608/24/2608.15678v1-where-accountability-lives-mapping-human-responsibility-to-workflow-artifacts-in-agentic-software-development)  
+   标签：评分：6.0/10、query:llm-security
+   evidence：智能体软件开发中的责任映射
+11. [Navigation-Informed Embeddings: Dense-Retriever Adaptation from Agent Search Traces](/202608/24/2608.15956v1-navigation-informed-embeddings-dense-retriever-adaptation-from-agent-search-traces)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：对记忆增强LLM智能体的记忆基质进行全面评估
-11. [When Stories Evolve: Benchmarking LLM Storytelling Across Agent Architectures in Open-Ended World Simulations](/202608/23/2608.15654v1-when-stories-evolve-benchmarking-llm-storytelling-across-agent-architectures-in-open-ended-world-simulations)  
+   evidence：从智能体搜索轨迹自适应稠密检索器，支持语言智能体检索能力
+12. [From Sequence to Structure: Relational Uncertainty Propagation for LLM Agents](/202608/24/2608.16002v1-from-sequence-to-structure-relational-uncertainty-propagation-for-llm-agents)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：在世界模拟中跨智能体架构评测LLM故事生成
-12. [HaReCAP: Habitual-action Grounding for Recursive Large Language Model Agents](/202608/23/2608.16447v1-harecap-habitual-action-grounding-for-recursive-large-language-model-agents)  
+   evidence：面向大模型智能体的轨迹级不确定性传播框架，用于复杂交互环境中的可靠部署
+13. [Skill2Query: Exploiting Skill Structure to Generate Pseudo-Queries for Agent Skill Retrieval](/202608/24/2608.16071v1-skill2query-exploiting-skill-structure-to-generate-pseudo-queries-for-agent-skill-retrieval)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：递归LLM智能体架构减少叶子节点动作落地开销
-13. [SkillEffect: Checked Lowering for Memory-Bounded Agent Tools](/202608/23/2608.17007v1-skilleffect-checked-lowering-for-memory-bounded-agent-tools)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：为智能体工具程序强制执行内存边界的安全降级运行时
+   evidence：利用技能知识图为智能体技能检索生成伪查询
 
 
 <div class="dpr-home-promo-card">
