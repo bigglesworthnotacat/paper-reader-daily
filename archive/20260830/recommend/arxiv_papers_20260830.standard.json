@@ -1,0 +1,2166 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-30T21:33:38.232885+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 3,
+    "deep_divecandidates": 104,
+    "deep_cap": 8,
+    "deep_selected": 36,
+    "quick_candidates": 103,
+    "quick_skim_target": 13,
+    "quick_selected": 13
+  },
+  "deep_dive": [
+    {
+      "id": "2608.22793v1",
+      "source": "arxiv",
+      "title": "TRACE: A Self-Evolving Skill Bank for Consistent, Limit-Aware LLM Agents",
+      "abstract": "Reliable deployment of LLM agents in user-facing products depends not on raw task-solving ability but on consistency and limit-awareness: behaving the same way across repeated trials, and recognizing when a request cannot, or cannot yet, be safely fulfilled. CAR-bench exposes this reliability gap in the domain of in-car assistants: an LLM-simulated user issues incomplete or ambiguous requests, requiring the agent to resolve uncertainty through multi-turn dialogue and tool use while strictly adhering to domain policies. Even frontier models show a substantial gap between what they can solve at least once (Pass@3) and what they solve consistently across trials (Pass^k). We bridge this gap with TRACE (TRAjectory-Contrastive Evolution), which iteratively improves a skill-based agent's behavioral knowledge without modifying model weights. This knowledge is organized as a Skill Bank of modular, retrievable skills, each encoding a self-contained set of tool-use rules and behavioral guidelines. TRACE evolves this bank through an agentic self-evolution loop: after each evaluation round, it groups trajectories by the skills invoked and refines each skill by contrasting successful and failed behaviors. The updated bank then guides subsequent rounds, while during deployment the Actor performs state-conditioned skill orchestration at every turn. On GPT-5.5, TRACE improves consistency (Pass^3) by 34.6 points, from 59.9% to 94.5%, while shrinking the gap between potential and reliable performance to just 4.0 points. On the official hidden set, TRACE achieved first place using GPT-5.6-Sol, attaining a Pass^3 score of 70%-a 40% relative improvement over the baseline. These results show that TRACE converts high model potential into stable, consistent performance gain. Project homepage: https://darwin-agent.github.io/Car-bench-TRACE.",
+      "authors": [
+        "Wenhao Wu",
+        "Menghao Zhang",
+        "Xin Wang",
+        "Zhi Wang",
+        "Kun Shao",
+        "Jian Luan"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-08-24T04:36:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.22793v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "self-evolving skill bank with trajectory-contrastive evolution for LLM agents",
+      "llm_evidence_cn": "基于轨迹对比演化的智能体自进化技能库TRACE",
+      "llm_evidence": "基于轨迹对比演化的智能体自进化技能库TRACE",
+      "canonical_evidence": "基于轨迹对比演化的智能体自进化技能库TRACE",
+      "llm_tldr_en": "TRACE bridges the Pass@3/Pass^k reliability gap for LLM agents via trajectory-contrastive evolution, iteratively building a self-evolving skill bank for consistent, limit-aware behavior in in-car assistant tasks.",
+      "llm_tldr_cn": "LLM智能体在一次成功与稳定复现之间差距显著，阻碍了实际部署。TRACE提出轨迹对比演化机制，从历史轨迹中对比学习，迭代构建自进化技能库，使智能体能保持一致行为并感知自身限制。在车载助手基准CAR-bench上，TRACE显著提升了智能体的Pass^k一致性，同时保持对不合理请求的安全拒绝能力。",
+      "llm_tldr": "LLM智能体在一次成功与稳定复现之间差距显著，阻碍了实际部署。TRACE提出轨迹对比演化机制，从历史轨迹中对比学习，迭代构建自进化技能库，使智能体能保持一致行为并感知自身限制。在车载助手基准CAR-bench上，TRACE显著提升了智能体的Pass^k一致性，同时保持对不合理请求的安全拒绝能力。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "Self-Evolving Agent",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22868v1",
+      "source": "arxiv",
+      "title": "AgentFlow: A Flow-Centric Policy Language and Framework for Securing LLM Agent Systems",
+      "abstract": "LLM agents increasingly read untrusted content, invoke external tools, access private data, and delegate work to other agents. Harm often arises not from a single unsafe action but from the flow of sensitive data across a sequence of otherwise plausible steps. We present AgentFlow, a flow-centric policy language and runtime enforcement model for specifying where data may travel in agent systems. Policies are defined over labeled runtime edges and constrain which tools may receive sensitive fields, which sinks may receive released data, and what authority may cross delegation boundaries. The language supports flow and path rules, task-scoped capabilities, controlled release, and stateful taint semantics. A runtime reference monitor mediates agent actions, and a bounded SMT-based verifier checks safety properties for a structured policy fragment.   We evaluate AgentFlow on multiple agent benchmarks. In our prototype, seven safety properties verify in under 0.5 seconds each, and the verifier catches all seeded unsafe policy variants in our study. On 949 AgentDojo injected cases across four suites, AgentFlow reduces confirmed compromise from 33.0\\% to 0.0\\% while improving aggregate utility from 46.7\\% to 63.3\\%. On a 200-case AgentDyn Dailylife benchmark, it reduces confirmed compromise from 73.5\\% to 0.0\\% while preserving near-baseline utility (44.5\\% to 43.5\\%). Breadth checks across ASB, InjecAgent, BIPIA, AgentHarm, and MCPTox replays suggest that the configured policies block the benchmark-specified policy-visible attacker flows; in ASB's direct-prompt-injection harness, attack success is 0/1{,}200. These results are preliminary and scoped to the modeled policy-visible agent behaviors and evaluated benchmarks.",
+      "authors": [
+        "Basavesh Ammanaghatta Shivakumar",
+        "Swarn Priya",
+        "Peng Gao"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-08-24T06:56:00+00:00",
+      "link": "https://arxiv.org/pdf/2608.22868v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "flow-centric policy language and runtime enforcement model for securing LLM agent systems",
+      "llm_evidence_cn": "面向LLM智能体系统安全的流式策略语言与运行时强制模型",
+      "llm_evidence": "面向LLM智能体系统安全的流式策略语言与运行时强制模型",
+      "canonical_evidence": "面向LLM智能体系统安全的流式策略语言与运行时强制模型",
+      "llm_tldr_en": "AgentFlow presents a flow-centric policy language and runtime enforcement model that constrains how sensitive data may travel across LLM agent tools, sinks, and delegation boundaries using labeled runtime edges.",
+      "llm_tldr_cn": "LLM智能体的危害往往来自敏感数据在多步操作间的流动，而非单次不安全动作。AgentFlow 提出以流为中心的策略语言与运行时强制模型，通过带标签的运行时边定义数据可流向何处，并约束工具接收敏感字段、数据释放到汇点以及委托权限边界。该语言支持流/路径规则、任务范围能力、受控释放和有状态污点语义，由参考监视器实时执行。它为保护LLM智能体系统提供了细粒度的数据流安全框架。",
+      "llm_tldr": "LLM智能体的危害往往来自敏感数据在多步操作间的流动，而非单次不安全动作。AgentFlow 提出以流为中心的策略语言与运行时强制模型，通过带标签的运行时边定义数据可流向何处，并约束工具接收敏感字段、数据释放到汇点以及委托权限边界。该语言支持流/路径规则、任务范围能力、受控释放和有状态污点语义，由参考监视器实时执行。它为保护LLM智能体系统提供了细粒度的数据流安全框架。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of autonomous agents",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25817v1",
+      "source": "arxiv",
+      "title": "SkillShield: Prompt-Space Security Skills for LLM Coding Agents",
+      "abstract": "A coding agent edits files and executes shell commands with its developer's privileges, allowing malicious requests to translate directly into harmful actions or functional malware. Existing defenses have complementary limitations: weight-level alignment is unavailable to API-only deployers, whereas input filters and execution-boundary monitors require auxiliary classification or checking components along the agent's trajectory. We therefore introduce SkillShield, a system-prompt defense that synthesizes security skills offline from known attacks or recorded agent failures. These skills are injected into the system prompt at session start and remain active throughout the tool-use loop. Unlike a reference monitor, they protect the system by defining the security policies the model should follow during execution. Due to the limited system-prompt space, we examine three fixed-budget provisioning scopes: all-classes, with one skill covering all threat classes, per-bundle, with one skill targeting a related subset, and per-class, with one skill dedicated to a single known class and used as the upper-bound reference. None requires runtime request classification or routing. Across six large language models on RedCode, the default all-classes skill reduces malware-generation severity from 3.37 to 0.58 and achieves a 43.6% execution attack success rate, comparable to Llama Guard 3's 42.7% without its separate 8B classifier. The per-bundle and class-fixed per-class settings further reduce this rate to 36.2% and 14.5%, respectively. Under two non-adaptive jailbreak families, SkillShield continues to outperform all baselines on malware generation. Across 731 benign task descriptions, SkillShield yields a mean safety-refusal rate of 0.14%. These results demonstrate the potential of prompt-space security skills to prevent harmful actions and malware generation for LLM coding agents.",
+      "authors": [
+        "Xiaodong Wu",
+        "Zhimin Zhao",
+        "Qi Li",
+        "Xiangman Li",
+        "Yu Shi",
+        "Bram Adams",
+        "Jianbing Ni"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-08-26T14:00:11+00:00",
+      "link": "https://arxiv.org/pdf/2608.25817v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-security"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "prompt-space security skills defense for LLM coding agents as autonomous agents",
+      "llm_evidence_cn": "面向LLM编码智能体（自主智能体）的提示空间安全防御",
+      "llm_evidence": "面向LLM编码智能体（自主智能体）的提示空间安全防御",
+      "canonical_evidence": "面向LLM编码智能体（自主智能体）的提示空间安全防御",
+      "llm_tldr_en": "SkillShield injects security skills synthesized offline from known attacks into the system prompt of LLM coding agents, providing active defense during the tool-use loop without extra monitoring components.",
+      "llm_tldr_cn": "LLM编码智能体以开发者权限编辑文件和执行命令，恶意请求可能转为实际危害。本文针对API部署者无法使用权重级对齐的限制，提出SkillShield，从已知攻击或记录失败中离线合成安全技能并注入系统提示，在工具循环全程生效。该方法不需要额外的输入过滤器或执行边界监控即可增强安全性，为编码智能体提供了一种实用且可扩展的防护手段。",
+      "llm_tldr": "LLM编码智能体以开发者权限编辑文件和执行命令，恶意请求可能转为实际危害。本文针对API部署者无法使用权重级对齐的限制，提出SkillShield，从已知攻击或记录失败中离线合成安全技能并注入系统提示，在工具循环全程生效。该方法不需要额外的输入过滤器或执行边界监控即可增强安全性，为编码智能体提供了一种实用且可扩展的防护手段。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of autonomous agents",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.21656v1",
+      "source": "arxiv",
+      "title": "Mitigating Database Leakage in RAG Systems with Keyword-Grounded Fact Substitution",
+      "abstract": "Retrieval-Augmented Generation (RAG) has emerged as a powerful paradigm for combining large language models (LLMs) with external knowledge sources. However, RAG systems remain vulnerable to prompt injection attacks, which may mislead the retriever or generator to expose sensitive database contents. To address this issue, we propose KFS-RAG, a defense that mitigates information leakage by reformulating the retrieved context. Specifically, our method first identifies a small set of influential keywords from the retrieved context via an attention rollout plus a causal perturbation mechanism. These keywords are then used to guide an auxiliary LLM to generate a compact set of keyword-grounded facts from the retrieved passages. Finally, the original context is substituted with these curated facts, ensuring that the generator operates on sanitized evidence rather than the raw retrieved text. Experimental evaluations demonstrate that KFS-RAG significantly reduces the risk of database leakage under injection attacks while maintaining response accuracy and relevance. This work highlights a practical pathway toward building secure and trustworthy RAG systems.",
+      "authors": [
+        "Ziliang Zhang",
+        "Yubo Zhu",
+        "Wei Tong",
+        "Jingyu Hua",
+        "Zijian Wang",
+        "Yuan Zhang",
+        "Sheng Zhong"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-21T21:57:40+00:00",
+      "link": "https://arxiv.org/pdf/2608.21656v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "prompt injection defense to prevent sensitive database leakage in RAG",
+      "llm_evidence_cn": "防御提示注入以阻止RAG数据库敏感信息泄露",
+      "llm_evidence": "防御提示注入以阻止RAG数据库敏感信息泄露",
+      "canonical_evidence": "防御提示注入以阻止RAG数据库敏感信息泄露",
+      "llm_tldr_en": "KFS-RAG defends RAG systems against prompt-injection-induced database leakage by substituting retrieved context with keyword-grounded facts, reducing information leakage.",
+      "llm_tldr_cn": "RAG系统容易遭受提示注入攻击，导致检索器或生成器泄露敏感数据库内容。KFS-RAG通过注意力展开和因果扰动定位关键关键词，再引导辅助LLM生成关键词支撑的紧凑事实，用重写后的上下文替代原文。在多个数据集上验证了该方法能显著降低信息泄露风险。该防御为RAG安全提供了一种轻量而有效的上下文改写机制。",
+      "llm_tldr": "RAG系统容易遭受提示注入攻击，导致检索器或生成器泄露敏感数据库内容。KFS-RAG通过注意力展开和因果扰动定位关键关键词，再引导辅助LLM生成关键词支撑的紧凑事实，用重写后的上下文替代原文。在多个数据集上验证了该方法能显著降低信息泄露风险。该防御为RAG安全提供了一种轻量而有效的上下文改写机制。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.21775v1",
+      "source": "arxiv",
+      "title": "No One Model Catches Every Harm: Benchmarking Content Moderation Across Safety Scenarios",
+      "abstract": "Large Language Models (LLMs) are increasingly deployed in real-world applications, yet they remain vulnerable to generating harmful content. From adversarial jailbreaks that bypass safety filters to implicit hate that evades detection, the range of risks these models pose continues to grow. While both specialized content moderators and general-purpose LLMs are being used as safety layers, the question of which model is best suited for which type of harmful content remains unanswered. We present the most comprehensive evaluation of LLM safety capabilities to date, systematically testing \\textbf{53} models across \\textbf{11} datasets that we organize into four distinct categories. Our evaluation under both prompt-only and prompt-response settings uncovers critical blind spots: large frontier models that lead on one category fall significantly behind smaller, specialized alternatives on others, and real-world conversational safety remains largely unsolved across all model families. These findings challenge the assumption that scale alone ensures safety, and provide the community with a structured framework for informed model selection.",
+      "authors": [
+        "Afshin Orojlooyjadid",
+        "Hitesh Patel"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-22T04:44:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.21775v1",
+      "tags": [
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "LLM safety benchmarking across jailbreak and implicit hate scenarios",
+      "llm_evidence_cn": "跨越狱与隐性仇恨场景的LLM安全能力基准评测",
+      "llm_evidence": "跨越狱与隐性仇恨场景的LLM安全能力基准评测",
+      "canonical_evidence": "跨越狱与隐性仇恨场景的LLM安全能力基准评测",
+      "llm_tldr_en": "Benchmarks 53 LLMs across 11 content-moderation datasets organized into four safety categories, revealing which models suit which harmful-content types and exposing coverage gaps in LLM safety layers.",
+      "llm_tldr_cn": "针对大型语言模型易生成有害内容、且不同模型在不同类型危害（如对抗性越狱、隐性仇恨）上表现不一的问题，本文进行了迄今最全面的安全能力评测：系统测试53个模型在11个数据集、四大安全类别上的表现，同时评估仅提示与提示-响应两种模式。结果显示不同模型在不同有害内容类型上各有优劣，没有单一模型能捕获所有危害。该基准为安全层选型和进一步防御提供了实证基础。",
+      "llm_tldr": "针对大型语言模型易生成有害内容、且不同模型在不同类型危害（如对抗性越狱、隐性仇恨）上表现不一的问题，本文进行了迄今最全面的安全能力评测：系统测试53个模型在11个数据集、四大安全类别上的表现，同时评估仅提示与提示-响应两种模式。结果显示不同模型在不同有害内容类型上各有优劣，没有单一模型能捕获所有危害。该基准为安全层选型和进一步防御提供了实证基础。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of large language models",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.21918v1",
+      "source": "arxiv",
+      "title": "OptiMAS: Automatically Optimize Multi-Agent System",
+      "abstract": "Automated evolution of Multi-Agent Systems (MAS) holds significant potential for reducing the manual effort required to design and optimize LLM-based agent architectures. However, extant search-based paradigms face a fundamental trade-off, where an expanded optimization scope exacerbates evolutionary instability, while discrete branch-and-discard search isolates insights across lineages. To address these limitations, we propose a continuous, data-driven optimization paradigm built upon a unified ReAct-based infrastructure that reconciles a broad optimization scope with operational stability. Under this paradigm, we present OptiMAS, a task-agnostic agentic optimizer that leverages textual interaction trajectories and task feedback as loss signals for end-to-end MAS evolution. Equipped with a novel dual-track memory mechanism, OptiMAS sustains performance improvement over extended optimization horizons. Evaluation on four heterogeneous agentic benchmarks with three varying scale and accessibility LLM backbones, demonstrates that OptiMAS consistently achieves competitive or superior accuracy relative to both domain-specialized hand-crafted systems and existing evolutionary methods. Our work establishes a practical milestone toward robust, automated MAS evolution.",
+      "authors": [
+        "Yuxin Cheng",
+        "Chang Liu",
+        "Hanxin Yu",
+        "Haochen Tan",
+        "Taiqiang Wu",
+        "Weiqiang Jin",
+        "Jie Ran",
+        "Kaibo Wang",
+        "Xiaoguang Li",
+        "Haoli Bai",
+        "Graziano Chesi",
+        "Ngai Wong"
+      ],
+      "primary_category": "cs.MA",
+      "categories": [
+        "cs.MA"
+      ],
+      "published": "2026-08-22T11:09:04+00:00",
+      "link": "https://arxiv.org/pdf/2608.21918v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "automated evolution of multi-agent systems",
+      "llm_evidence_cn": "多智能体系统的自动演化",
+      "llm_evidence": "多智能体系统的自动演化",
+      "canonical_evidence": "多智能体系统的自动演化",
+      "llm_tldr_en": "OptiMAS introduces a continuous data-driven paradigm for automatically evolving multi-agent systems, balancing optimization breadth with operational stability.",
+      "llm_tldr_cn": "针对多智能体系统设计依赖手工且搜索范式难以兼顾优化广度与稳定性的问题，OptiMAS提出基于统一ReAct基础设施的连续数据驱动优化范式，将交互轨迹和任务反馈作为损失信号进行端到端MAS演化。该方法在扩大优化范围的同时保持运行稳定性，显著降低人工设计成本，为LLM多智能体架构的自动化演化提供了通用高效方案。",
+      "llm_tldr": "针对多智能体系统设计依赖手工且搜索范式难以兼顾优化广度与稳定性的问题，OptiMAS提出基于统一ReAct基础设施的连续数据驱动优化范式，将交互轨迹和任务反馈作为损失信号进行端到端MAS演化。该方法在扩大优化范围的同时保持运行稳定性，显著降低人工设计成本，为LLM多智能体架构的自动化演化提供了通用高效方案。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "agent evolution",
+      "matched_requirement_id": "req-11",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22132v1",
+      "source": "arxiv",
+      "title": "SSE-Bio: A Structured Self-Evolving Agent with Agentic Retrieval Policy for Multi-Hop Biomedical Reasoning",
+      "abstract": "Biomedical multi-hop question answering (QA) requires models to connect evidence across intermediate entities such as diseases, drugs, proteins, and phenotypes. Existing agents typically rely on static retrieval workflows or coarse-grained prompt rewriting, which can lead to instruction drift when reasoning procedures need to be updated. We propose SSE-Bio, a structured self-evolving agent with an agentic retrieval policy for multi-hop biomedical reasoning. Instead of globally rewriting agent instructions, SSE-Bio maintains a structured state, selectively retrieves knowledge triplets and prior templates through a trainable proxy policy, and improves its reasoning memory through fine-grained template editing. To optimise retrieval decisions, we introduce a proxy-training strategy based on group relative policy optimization, where the proxy is improved through decision-contrastive groups over alternative retrieval choices. Experiments on three biomedical multi-hop QA benchmarks show that SSE-Bio consistently outperforms existing baselines, achieving an improvement of 6.56 absolute points over the strongest self-evolving baseline on BioHopR.",
+      "authors": [
+        "Zhaohan Meng",
+        "Zaiqiao Meng",
+        "Siwei Liu",
+        "Hao Xu",
+        "Ke Yuan",
+        "Iadh Ounis"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.CE"
+      ],
+      "published": "2026-08-22T23:08:56+00:00",
+      "link": "https://arxiv.org/pdf/2608.22132v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "structured self-evolving agent with agentic retrieval policy",
+      "llm_evidence_cn": "具备智能体检索策略的结构化自演化智能体",
+      "llm_evidence": "具备智能体检索策略的结构化自演化智能体",
+      "canonical_evidence": "具备智能体检索策略的结构化自演化智能体",
+      "llm_tldr_en": "SSE-Bio is a structured self-evolving agent with trainable retrieval policy and fine-grained template editing, improving multi-hop biomedical reasoning.",
+      "llm_tldr_cn": "针对多跳生物医学推理中静态检索流程导致指令漂移、推理记忆无法更新的问题，SSE-Bio维护结构化状态，通过可训练代理策略选择知识三元组和已有模板，并以细粒度模板编辑动态改进推理记忆。实验表明该方法在生物医学多跳QA上显著提升推理准确率和检索效率，为自演化智能体在专业领域中的应用提供了有效范本。",
+      "llm_tldr": "针对多跳生物医学推理中静态检索流程导致指令漂移、推理记忆无法更新的问题，SSE-Bio维护结构化状态，通过可训练代理策略选择知识三元组和已有模板，并以细粒度模板编辑动态改进推理记忆。实验表明该方法在生物医学多跳QA上显著提升推理准确率和检索效率，为自演化智能体在专业领域中的应用提供了有效范本。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "Self-Evolving Agent",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22312v1",
+      "source": "arxiv",
+      "title": "Text-Anchored Semantic Perturbations for Transferable Jailbreak Attacks on Multimodal Large Language Models",
+      "abstract": "Multimodal Large Language Models (MLLMs) have achieved remarkable progress in vision-language interaction, yet their safety alignment remains vulnerable to jailbreak attacks. A key challenge is that safety behavior learned in the textual space does not reliably transfer to fused cross-modal representations, leaving multimodal inputs exploitable through latent semantic cues. We propose Text-Anchored Semantic Perturbation Attack (TA-SPA), a black-box jailbreak framework that optimizes transferable perturbations in a text-anchored semantic space. TA-SPA integrates Text-Anchored Semantic Factorization (TASF), which encourages the separation of cross-modal semantic factors from modality-specific residuals, with Semantic-Preserving Augmentation (SPA), which diversifies harmful target anchors while preserving semantic consistency. Experiments show strong attack effectiveness and transfer to commercial MLLMs, with competitive performance under representative defenses. Additional controls and probing support the intended factorization without implying perfect disentanglement, motivating representation-level safety alignment beyond input-level filtering.",
+      "authors": [
+        "Wenyun Li",
+        "Guiping Cao",
+        "Xiangyuan Lan",
+        "Zheng Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-23T09:19:43+00:00",
+      "link": "https://arxiv.org/pdf/2608.22312v1",
+      "tags": [
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes black-box jailbreak attacks on multimodal LLMs, a security vulnerability and defense area",
+      "llm_evidence_cn": "提出针对多模态大语言模型的迁移黑盒越狱攻击，直接涉及大模型安全漏洞与防御",
+      "llm_evidence": "提出针对多模态大语言模型的迁移黑盒越狱攻击，直接涉及大模型安全漏洞与防御",
+      "canonical_evidence": "提出针对多模态大语言模型的迁移黑盒越狱攻击，直接涉及大模型安全漏洞与防御",
+      "llm_tldr_en": "Introduces TA-SPA, a black-box jailbreak attack framework that optimizes text-anchored semantic perturbations, transferring textual safety gaps to multimodal representations and exposing safety alignment vulnerabilities in MLLMs.",
+      "llm_tldr_cn": "多模态大语言模型的安全对齐容易受越狱攻击威胁，且文本空间学到的安全行为难以迁移到跨模态表征。本文提出文本锚定语义扰动攻击TA-SPA，在黑盒条件下优化文本锚定语义空间中的可迁移扰动，结合语义因子分解分离跨模态语义与模态私有残差，从而在多模态输入上生成有效越狱样本。实验表明该方法能成功攻击多种MLLM并具有迁移性，揭示了多模态安全对齐的脆弱性。",
+      "llm_tldr": "多模态大语言模型的安全对齐容易受越狱攻击威胁，且文本空间学到的安全行为难以迁移到跨模态表征。本文提出文本锚定语义扰动攻击TA-SPA，在黑盒条件下优化文本锚定语义空间中的可迁移扰动，结合语义因子分解分离跨模态语义与模态私有残差，从而在多模态输入上生成有效越狱样本。实验表明该方法能成功攻击多种MLLM并具有迁移性，揭示了多模态安全对齐的脆弱性。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22339v1",
+      "source": "arxiv",
+      "title": "When Not to Imitate: Boundary-Aware Skill Memory for Reliable Tool-Use LLM Agents",
+      "abstract": "Extracting skills from past successes is critical for the efficient evolution of Large Language Model (LLM) agents. Prevailing agent self-evolution paradigms typically rely on a core assumption: equipping LLMs with skill memories derived from successful trajectories will monotonically improve their problem-solving capabilities. However, probe analyses reveal that extracting skills solely from successful trajectories traps the model in a \\textbf{Skill Imitation Trap}. For tasks that resemble past successes but require different tools, retrieving more skills paradoxically increases the model's confidence in wrong tool calls---procedure skills raise the wrong-tool margin by $47\\%$ over a memory-free baseline. To overcome this limitation, we propose \\textbf{Boundary-Aware Skill Memory} (BASM), which augments each skill with explicit boundary fields---applicability conditions, risk cues, avoidance rules, and recovery notes. These fields transform each retrieved skill from an unconditional action template into state-conditioned guidance: the agent applies the skill when its conditions hold, suppresses inapplicable tool calls when they do not, and issues targeted repairs when execution fails. Across three agent benchmarks and four model scales, BASM consistently outperforms success-distilled skill-memory baselines: it improves task success rate by up to $23.8\\%$ on AppWorld, accuracy by up to $5.0\\%$ on BFCL, and reduces attack success rate by $4.6\\%$ on AgentDojo, while simultaneously reducing average AppWorld steps by up to $6.6\\%$ relative to the memory-free baseline.",
+      "authors": [
+        "Zihan Lin",
+        "Zhenyu Chen",
+        "Jiawen Wei",
+        "Xiaohan Wang",
+        "Jie Cao",
+        "Jiajun Chai",
+        "Wei Lin",
+        "Guojun Yin",
+        "Ran He"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-23T10:16:06+00:00",
+      "link": "https://arxiv.org/pdf/2608.22339v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Boundary-aware skill memory as a mechanism for self-evolving LLM agents",
+      "llm_evidence_cn": "面向自进化LLM智能体的边界感知技能记忆机制",
+      "llm_evidence": "面向自进化LLM智能体的边界感知技能记忆机制",
+      "canonical_evidence": "面向自进化LLM智能体的边界感知技能记忆机制",
+      "llm_tldr_en": "Self-evolving LLM agents can fall into a Skill Imitation Trap where retrieving skills from successes hurts wrong-tool confidence; boundary-aware skill memory selectively imitates to improve reliable tool-use.",
+      "llm_tldr_cn": "从过往成功中提取技能被视为LLM智能体高效进化的核心，但仅从成功轨迹提取技能会使模型陷入技能模仿陷阱：面对相似但需不同工具的任务时，检索更多技能反而增加错误工具调用的置信度，过程技能将错误工具边距提升47%。本文提出边界感知技能记忆，判断何时不应模仿，有选择地从成功与失败经验中总结技能，从而提升工具使用智能体在自进化过程中的可靠性与泛化能力。",
+      "llm_tldr": "从过往成功中提取技能被视为LLM智能体高效进化的核心，但仅从成功轨迹提取技能会使模型陷入技能模仿陷阱：面对相似但需不同工具的任务时，检索更多技能反而增加错误工具调用的置信度，过程技能将错误工具边距提升47%。本文提出边界感知技能记忆，判断何时不应模仿，有选择地从成功与失败经验中总结技能，从而提升工具使用智能体在自进化过程中的可靠性与泛化能力。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "Mechanisms for self evolving agents",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22444v1",
+      "source": "arxiv",
+      "title": "Aligned Alone, Misaligned Together: Forecasting Adversarial Capture in LLM Agent Populations",
+      "abstract": "The unit of AI safety evaluation is still the individual model, yet language-model agents are increasingly deployed in interacting populations that read and write one another's decisions. This raises a question no single-agent audit can answer: an agent that is well-calibrated on its own may still be pulled toward a different decision by the agents around it. We study this on a security-triage task, where populations of language-model monitors decide whether to escalate or dismiss alerts, and into which we can inject a committed minority that always pushes one way. We find that two alerts a single agent judges almost identically on its own can drive collective behavior far apart, so auditing any one member need not reveal what the population will do. Yet that collective behavior can be predicted in advance. From a population's benign, adversary-free operation alone, we calibrate a response function that forecasts, before any attack is run, how far a committed minority will later move it. We then ask what shifts the outcome and find that letting agents see each other's reasoning neutralizes a weak attack, while only delaying it against a strong one, turning the question from whether the population converges on the adversaries' choice into when. Finally, we exclude the hypothesis of capture being an irreversible trap: once the committed agents are removed, the population drifts back toward where it began, so capture is a temporary state. Alignment in isolation is not alignment in a population, yet what a population will do under attack can be read in advance, from how it behaves before any adversary arrives.",
+      "authors": [
+        "Isotta Magistrali",
+        "Chen Shani"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-23T14:49:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.22444v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "forecasting adversarial capture in LLM agent populations for AI safety evaluation",
+      "llm_evidence_cn": "预测LLM智能体群体中的对抗性捕获，关注安全评估的群体效应",
+      "llm_evidence": "预测LLM智能体群体中的对抗性捕获，关注安全评估的群体效应",
+      "canonical_evidence": "预测LLM智能体群体中的对抗性捕获，关注安全评估的群体效应",
+      "llm_tldr_en": "Single-agent safety audits may miss collective effects; the paper studies adversarial capture in interacting populations of LLM monitors on a security-triage task, showing that nearly identical alerts can drive collective behavior far apart.",
+      "llm_tldr_cn": "当前AI安全评估以单模型为单位，但智能体常以群体方式交互。该论文在安全分流任务中研究LLM监控智能体群体，并注入坚持单一方向的少数派。结果显示单智能体判断几乎相同的告警可能导致群体行为截然不同，证明审核单个成员无法预测群体安全风险，为群体层面安全评估提出了新挑战。",
+      "llm_tldr": "当前AI安全评估以单模型为单位，但智能体常以群体方式交互。该论文在安全分流任务中研究LLM监控智能体群体，并注入坚持单一方向的少数派。结果显示单智能体判断几乎相同的告警可能导致群体行为截然不同，证明审核单个成员无法预测群体安全风险，为群体层面安全评估提出了新挑战。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "alignment and safety measures for language model agents",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22444v2",
+      "source": "arxiv",
+      "title": "Aligned Alone, Misaligned Together: Forecasting Adversarial Capture in LLM Agent Populations",
+      "abstract": "The unit of AI safety evaluation is still the individual model, yet language-model agents are increasingly deployed in interacting populations that read and write one another's decisions. This raises a question no single-agent audit can answer: an agent that is well-calibrated on its own may still be pulled toward a different decision by the agents around it. We study this on a security-triage task, where populations of language-model monitors decide whether to escalate or dismiss alerts, and into which we can inject a committed minority that always pushes one way. We find that two alerts a single agent judges almost identically on its own can drive collective behavior far apart, so auditing any one member need not reveal what the population will do. Yet that collective behavior can be predicted in advance. From a population's benign, adversary-free operation alone, we calibrate a response function that forecasts, before any attack is run, how far a committed minority will later move it. We then ask what shifts the outcome and find that letting agents see each other's reasoning neutralizes a weak attack, while only delaying it against a strong one, turning the question from whether the population converges on the adversaries' choice into when. Finally, we exclude the hypothesis of capture being an irreversible trap: once the committed agents are removed, the population drifts back toward where it began, so capture is a temporary state. Alignment in isolation is not alignment in a population, yet what a population will do under attack can be read in advance, from how it behaves before any adversary arrives.",
+      "authors": [
+        "Isotta Magistrali",
+        "Chen Shani"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-23T14:49:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.22444v2",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Safety and alignment evaluation for populations of LLM agents under adversarial capture",
+      "llm_evidence_cn": "针对LLM智能体群体的安全对齐评估，分析对抗性捕获风险",
+      "llm_evidence": "针对LLM智能体群体的安全对齐评估，分析对抗性捕获风险",
+      "canonical_evidence": "针对LLM智能体群体的安全对齐评估，分析对抗性捕获风险",
+      "llm_tldr_en": "Single-agent audits miss population dynamics; this paper studies security-triage LLM agent populations with an injected committed minority, showing that well-calibrated individuals can be collectively captured, motivating population-level safety evaluation.",
+      "llm_tldr_cn": "当前AI安全评估仍以单个模型为单位，但语言模型智能体常以交互群体形式部署，彼此读写对方的决策。本文在安全分流任务中研究智能体群体：向监控告警的LLM群体注入始终朝一个方向推的少数派，发现单智能体判断几乎相同的两条告警可使群体行为差异巨大。结果表明，只审查任一成员无法揭示群体层面的风险，需要将群体动态纳入安全评估，为多智能体环境下的对齐与安全度量提出了新方向。",
+      "llm_tldr": "当前AI安全评估仍以单个模型为单位，但语言模型智能体常以交互群体形式部署，彼此读写对方的决策。本文在安全分流任务中研究智能体群体：向监控告警的LLM群体注入始终朝一个方向推的少数派，发现单智能体判断几乎相同的两条告警可使群体行为差异巨大。结果表明，只审查任一成员无法揭示群体层面的风险，需要将群体动态纳入安全评估，为多智能体环境下的对齐与安全度量提出了新方向。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "alignment and safety measures for language model agents",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22610v1",
+      "source": "arxiv",
+      "title": "Coalition-Aware Skill Reliability for Self-Evolving Agents",
+      "abstract": "Agent skills, structured artifacts distilled from interaction trajectories and dynamically reused from skill banks, have become a central mechanism for enabling large language model (LLM)-based self-evolving agents to learn from past experience. Yet existing work has largely focused on the operational aspects of skills, such as acquisition, evolution, and retrieval, while leaving a more fundamental reliability question unresolved: Do accumulated skills in an agent's skill bank actually make positive mechanistic contributions? We investigate this question through systematic skill-bank audits across alternative bank compositions and deployment domains, measuring the resulting changes in agent behavior. These audits reveal two recurring reliability failures: coalition pollution, where bank-level gains conceal negative coalition-level skill contributions, and cross-domain utility reversal, where source-beneficial skills reverse their effects after transfer. These findings motivate two reliability interventions: coalition-aware skill selection during skill accumulation and label-free skill masking after transfer. Coalition-Aware Skill Selection (CASS) selects more reliable candidate skills for the current bank using sampled Shapley marginals. Unsupervised Skill-Masked Coalition Optimizer (u-SMCO) masks transferred skills whose exclusion improves retrieval quality on unlabeled target-domain data. Agentic experiments on LoCoMo, LongMemEval, HotpotQA, and ALFWorld show that CASS and u-SMCO consistently improve task performance and cross-domain generalization over strong skill-based self-evolving agent baselines. Beyond accuracy, coalition-conditioned reliability modeling reduces sensitivity to noisy outcome-reward fluctuations during reinforcement learning and exposes the limits of isolation-based skill evaluation.",
+      "authors": [
+        "Qiyan Zhao",
+        "Xiaofeng Zhang",
+        "Bo Liu",
+        "Minda Chen",
+        "Wei Xiong",
+        "Jingyang Chen",
+        "Guanting Ye",
+        "Wenhao Yu",
+        "Xiaosong Yuan",
+        "Shijie Han",
+        "Da-Han Wang",
+        "Jianmin Ji",
+        "Fei Huang",
+        "Xu-Yao Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-23T21:35:22+00:00",
+      "link": "https://arxiv.org/pdf/2608.22610v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "self-evolving agents skill bank reliability analysis",
+      "llm_evidence_cn": "自演化智能体技能库可靠性分析",
+      "llm_evidence": "自演化智能体技能库可靠性分析",
+      "canonical_evidence": "自演化智能体技能库可靠性分析",
+      "llm_tldr_en": "This paper audits skill banks of LLM self-evolving agents, uncovering coalition failures and other reliability issues, showing that accumulated skills may not always make positive mechanistic contributions.",
+      "llm_tldr_cn": "针对基于技能库的LLM自演化智能体中专家技能是否真正带来正面机制贡献这一基础问题，本文通过对不同技能库构成与部署领域进行系统审计，发现了两类反复出现的可靠性隐患：联盟失效与其余积累性技能冲突。结果表明，技能库中的技能并非越多越好，可能对智能体行为产生负面或无效贡献。该研究为自演化智能体的技能获取、演化与检索机制提供了可靠性视角与诊断方法。",
+      "llm_tldr": "针对基于技能库的LLM自演化智能体中专家技能是否真正带来正面机制贡献这一基础问题，本文通过对不同技能库构成与部署领域进行系统审计，发现了两类反复出现的可靠性隐患：联盟失效与其余积累性技能冲突。结果表明，技能库中的技能并非越多越好，可能对智能体行为产生负面或无效贡献。该研究为自演化智能体的技能获取、演化与检索机制提供了可靠性视角与诊断方法。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "Self-Evolving Agent",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.22751v1",
+      "source": "arxiv",
+      "title": "Risk-Aware Reranking for Agentic Tool Retrieval",
+      "abstract": "Tool retrieval determines which external tools are exposed to an LLM agent for a user query or task, making retrieval a critical pre-execution safety boundary. Unlike document retrieval, tool retrieval exposes executable actions: a tool that is useful for one task may be unnecessary or risky for another. However, existing tool-retrieval methods primarily optimize semantic relevance, and safety evaluations often focus on failures after tool execution rather than risks introduced during retrieval. We study risk-aware tool retrieval, where the goal is to retrieve useful tools while reducing exposure to higher-risk tools. We propose a lightweight reranking framework on top of a frozen first-stage retriever. The framework models query-conditioned relevance and tool-level exposure risk separately, combines them through an explicit parameter controlling the tradeoff between safety and utility, smooths scores over a ToolGraph, and optionally applies rule-based safety constraints. To support retrieval-time safety evaluation, we annotate 6,108 tools across UltraTool and Seal-Tools with five ordinal risk levels and define metrics that measure risky-tool exposure in the top-$k$ results. Experiments on UltraTool and Seal-Tools show that our approach improves the relevance--safety tradeoff over relevance-only retrievers and reranking baselines, with the rule-filtered variant providing a conservative operating point for safety-critical deployments. These findings indicate that retrieval-stage filtering can reduce the candidate action space exposed to agents before execution, complementing downstream tool-use safeguards. The code and supplementary materials are available at: https://github.com/qli447/risk-aware-tool-retrieval-release.",
+      "authors": [
+        "Qinfei Li",
+        "Xiaoxuan Dong",
+        "Jin Zhang",
+        "Dexu Yu",
+        "Wenhao Deng",
+        "Junchen Fu",
+        "Youhua Li",
+        "Hanwen Du",
+        "Chunxiao Li"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-08-24T03:20:54+00:00",
+      "link": "https://arxiv.org/pdf/2608.22751v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "risk-aware tool retrieval reduces exposure of LLM agents to high-risk tools before execution",
+      "llm_evidence_cn": "面向LLM智能体工具检索的安全风险感知重排序机制",
+      "llm_evidence": "面向LLM智能体工具检索的安全风险感知重排序机制",
+      "canonical_evidence": "面向LLM智能体工具检索的安全风险感知重排序机制",
+      "llm_tldr_en": "Tool retrieval is a critical pre-execution safety boundary for LLM agents; this paper proposes a lightweight reranking framework that models query-conditioned relevance and tool-level exposure to retrieve useful tools while reducing exposure to risky ones.",
+      "llm_tldr_cn": "现有工具检索主要优化语义相关性，忽略了检索阶段引入的风险。本文提出一种轻量级重排序框架，在冻结的一阶段检索器之上建模查询相关的相关性与工具级暴露，实现在保留有用工具的同时降低高风险工具的暴露。该工作将安全考量前置到检索边界，为智能体工具安全提供了一种可部署的防御手段。",
+      "llm_tldr": "现有工具检索主要优化语义相关性，忽略了检索阶段引入的风险。本文提出一种轻量级重排序框架，在冻结的一阶段检索器之上建模查询相关的相关性与工具级暴露，实现在保留有用工具的同时降低高风险工具的暴露。该工作将安全考量前置到检索边界，为智能体工具安全提供了一种可部署的防御手段。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.23078v1",
+      "source": "arxiv",
+      "title": "AgentWeave: Routing Before Reasoning for Efficient Function Calling in Tool-Rich Language Models",
+      "abstract": "Large language models increasingly operate over large collections of tools, functions, APIs, and specialized agents. As the candidate action space grows, a function-calling model must process more schemas, consume more prompt tokens, and distinguish among increasingly similar or irrelevant alternatives. We study a complementary systems strategy: reduce the candidate set before language-model inference while leaving the downstream model unchanged. We introduce AgentWeave, a deterministic pre-inference routing layer that constructs a bounded model-visible action space using eligibility, requirement, capability, and routing signals. We evaluate AgentWeave with a frozen BFCL-derived routing-pressure protocol using the public MadeAgents/Hammer2.1-1.5b model. On 48 fresh BFCL V4 multiple-function tasks, AgentWeave achieves 6/48 (12.5%) native BFCL successes, whereas all-tools, deterministic random top-8, and semantic top-8 baselines each achieve 0/48. The paired success difference is +12.5 percentage points with a 10,000-resample paired bootstrap 95% confidence interval of +4.17 to +22.92 points and exact McNemar p=0.03125. Relative to all-tools exposure, AgentWeave presents 70.18% fewer tools, uses 61.70% fewer input tokens, and exhibits 50.95% lower mean local-model latency. The result is deliberately narrow: this is a BFCL-derived routing-pressure study rather than an official full BFCL leaderboard score, and absolute task success remains low. The evidence nevertheless shows that candidate-space construction can materially affect a fixed model's function-calling behavior and motivates evaluating routing as a distinct stage before model reasoning.",
+      "authors": [
+        "Saurav Singla",
+        "Aarav Singla",
+        "Advik Gupta",
+        "Parnika Gupta"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-24T10:38:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.23078v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "pre-inference routing layer for efficient function calling among many tools",
+      "llm_evidence_cn": "面向工具调用的大模型智能体路由层",
+      "llm_evidence": "面向工具调用的大模型智能体路由层",
+      "canonical_evidence": "面向工具调用的大模型智能体路由层",
+      "llm_tldr_en": "AgentWeave is a deterministic pre-inference routing layer that shrinks the candidate tool set for LLM function calling, reducing token costs and improving accuracy in tool-rich environments.",
+      "llm_tldr_cn": "随着大模型可调用的工具和API不断增多，函数调用模型需要处理大量schema，带来了高昂的提示词开销。为此提出AgentWeave，一个确定性的推理前路由层，通过资格、需求、能力和路由信号构建有界的可见动作空间。在BFCL协议下冻结后端模型进行评估，证明其能降低调用成本并提升效率。该工作为工具丰富的语言模型提供了一种通用的系统级加速方案。",
+      "llm_tldr": "随着大模型可调用的工具和API不断增多，函数调用模型需要处理大量schema，带来了高昂的提示词开销。为此提出AgentWeave，一个确定性的推理前路由层，通过资格、需求、能力和路由信号构建有界的可见动作空间。在BFCL协议下冻结后端模型进行评估，证明其能降低调用成本并提升效率。该工作为工具丰富的语言模型提供了一种通用的系统级加速方案。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent framework for LLM",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.23179v1",
+      "source": "arxiv",
+      "title": "NetConfArena: An Executable Benchmark for LLM Agents in Closed-Loop Network Configuration",
+      "abstract": "Large language model (LLM) agents are increasingly attractive for automating network configuration, yet their reliability and failure patterns are poorly understood. An essential prerequisite is to assess such agents in a realistic but risk-free environment. Existing benchmarks, however, fall short: they often treat configuration as static command generation or rely on overly simplified settings. Such evaluations understate the core challenges of network configuration, where correctness requires reasoning about protocol complexity and topology dependence. We present NetConfArena, an executable benchmark for evaluating LLM agents in closed-loop network configuration. NetConfArena places agents in emulated multi-device networks, provides a standardized and compact action interface for task execution, and evaluates the resulting network behavior with hidden task-specific executable test cases. The benchmark relies on an LLM-assisted, emulation-grounded pipeline, which converts human-oriented network materials into reusable parameterized task templates. We evaluate representative LLM agents on 480 task instances instantiated from 96 protocol-focused task templates, yielding 3840 execution trajectories, and show that failures are not limited to command errors. The failures also reveal gaps in task-specification adherence and robust planning and execution. These findings suggest two future directions: using validated trajectories as supervision signals to improve foundation models, and designing harness mechanisms that make agent execution more reliable and accountable.",
+      "authors": [
+        "Chang Liu",
+        "Xiaohui Xie",
+        "Xinyi Chen",
+        "Yong Cui"
+      ],
+      "primary_category": "cs.NI",
+      "categories": [
+        "cs.NI",
+        "cs.AI"
+      ],
+      "published": "2026-08-24T12:26:37+00:00",
+      "link": "https://arxiv.org/pdf/2608.23179v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "executable benchmark for LLM agents automating network configuration",
+      "llm_evidence_cn": "面向LLM智能体自动化网络配置的可执行基准",
+      "llm_evidence": "面向LLM智能体自动化网络配置的可执行基准",
+      "canonical_evidence": "面向LLM智能体自动化网络配置的可执行基准",
+      "llm_tldr_en": "Presents NetConfArena, an executable benchmark that evaluates LLM agents in emulated multi-device networks for closed-loop network configuration, capturing protocol complexity and topology dependence.",
+      "llm_tldr_cn": "LLM智能体在网络配置自动化中具有潜力，但现有基准往往只做静态命令生成或过度简化环境，低估了配置正确性对协议复杂度和拓扑依赖的要求。NetConfArena在仿真多设备网络中提供可执行的闭环配置环境，使智能体能够真实交互并评估可靠性。该基准能揭示智能体的失败模式，为网络自动化安全部署提供测试平台。",
+      "llm_tldr": "LLM智能体在网络配置自动化中具有潜力，但现有基准往往只做静态命令生成或过度简化环境，低估了配置正确性对协议复杂度和拓扑依赖的要求。NetConfArena在仿真多设备网络中提供可执行的闭环配置环境，使智能体能够真实交互并评估可靠性。该基准能揭示智能体的失败模式，为网络自动化安全部署提供测试平台。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "language agent for task automation",
+      "matched_requirement_id": "req-15",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.23471v1",
+      "source": "arxiv",
+      "title": "InjecMEM: Memory Injection Attack on LLM Agent Memory Systems",
+      "abstract": "Memory is becoming a default subsystem in deployed LLM agents to provide persistent personalization and continuity. This naturally prompts a question: will memory system introduce new vulnerabilities into agents? Thus we propose InjecMEM, a novel memory injection attack paradigm that requires only a single interaction (no read/edit access to memory store) to steer later responses of related queries toward a pre-specified output. Guided by the retrieval-then-generate mechanism of memory systems, we craft the injection with a retriever-agnostic anchor and an adversarial command. The anchor contains high-recall topical cues so that downstream retrieval consistently associates the record with the target topic. The command is a short sequence optimized to remain effective under uncertain fused contexts, variable placements, and long prompts so that it reliably steers outputs once retrieved. We learn the command via gradient-based coordinate search, averaging over synthetic prompt templates and insertion positions, and extend it to joint optimization across backbones to study transfer. Evaluated across multiple memory systems and backbone models, InjecMEM achieves reliable topic-conditioned retrieval and targeted generation, remains effective under memory drift, and leaves non-target queries unaffected. Our results underscore the need to harden memory systems and provide a reproducible framework for studying agent memory.",
+      "authors": [
+        "Hanling Tian",
+        "Gengyu Zhang",
+        "Zeyang Sha",
+        "Jingying Wang",
+        "Yuhang Liu",
+        "Zhehao Huang",
+        "Kun Yang",
+        "Xiaolin Huang"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "published": "2026-08-24T16:37:50+00:00",
+      "link": "https://arxiv.org/pdf/2608.23471v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "memory injection attack on LLM agent memory systems",
+      "llm_evidence_cn": "针对LLM智能体记忆系统的注入攻击",
+      "llm_evidence": "针对LLM智能体记忆系统的注入攻击",
+      "canonical_evidence": "针对LLM智能体记忆系统的注入攻击",
+      "llm_tldr_en": "InjecMEM shows a single interaction can inject adversarial records into an LLM agent memory store to hijack future related responses, revealing new memory-specific vulnerabilities.",
+      "llm_tldr_cn": "随着记忆成为LLM智能体的默认子系统，其安全性值得怀疑。作者提出InjecMEM，只需一次交互即可向记忆系统注入对抗性记录，利用检索器无关锚点与对抗命令将后续相关查询的回复导向指定输出。实验证明该攻击有效且无需读写记忆存储权限。该工作揭示了记忆子系统引入的新型安全漏洞，呼吁加强智能体记忆防护。",
+      "llm_tldr": "随着记忆成为LLM智能体的默认子系统，其安全性值得怀疑。作者提出InjecMEM，只需一次交互即可向记忆系统注入对抗性记录，利用检索器无关锚点与对抗命令将后续相关查询的回复导向指定输出。实验证明该攻击有效且无需读写记忆存储权限。该工作揭示了记忆子系统引入的新型安全漏洞，呼吁加强智能体记忆防护。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.23635v1",
+      "source": "arxiv",
+      "title": "ToolRobustBench: Stage-Wise Perturbation Evaluation and Failure Diagnosis for Tool-Calling Agents",
+      "abstract": "Large language models (LLMs) rely on tool calling as a fundamental agent capability, enabling them to invoke external systems and complete tasks beyond text generation. However, clean end-to-end (E2E) success cannot identify where a tool-use failure originates or how it propagates through a call. We introduce ToolRobustBench, a stage-wise diagnostic benchmark for tool-calling agents, where a tool-calling agent is an LLM system that selects a tool, supplies structured arguments, and interprets its returned feedback. ToolRobustBench aligns four perturbation families with the tool-use pipeline: tool-interface, user-intent, tool-output/observation, and runtime-environment perturbations. It attributes failures to tool selection, schema grounding, argument binding, tool-output/runtime-feedback handling, and E2E task success. Experiments on 15,456 single-family instances across 7 models, 16 sampled local tools, 4 perturbation families, and 14 subtypes show high but non-uniform clean performance and substantial robustness degradation, with tool-output/observation perturbation the dominant bottleneck. Mixed-family experiments reveal non-additive failure patterns that are not explained by isolated single-family results. Thus, ToolRobustBench provides a deterministic and cascade-aware benchmark for diagnosing robustness beyond clean tool-calling accuracy;",
+      "authors": [
+        "YiShan Zheng",
+        "Yuan Wu",
+        "Yi Chang"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE",
+        "cs.AI"
+      ],
+      "published": "2026-08-23T15:22:49+00:00",
+      "link": "https://arxiv.org/pdf/2608.23635v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "benchmark for LLM tool-calling agents with stage-wise perturbations",
+      "llm_evidence_cn": "面向LLM工具调用智能体的分阶段扰动基准",
+      "llm_evidence": "面向LLM工具调用智能体的分阶段扰动基准",
+      "canonical_evidence": "面向LLM工具调用智能体的分阶段扰动基准",
+      "llm_tldr_en": "Presents ToolRobustBench, a stage-wise diagnostic benchmark that perturbs the tool-use pipeline to identify where tool-calling agents fail, covering tool-interface, user-intent, tool-output, and runtime-environment.",
+      "llm_tldr_cn": "工具调用是LLM智能体的核心能力，但端到端成功率无法定位失败来源。本文提出ToolRobustBench，将工具调用流程划分为工具接口、用户意图、工具输出和运行环境四类扰动，进行分阶段故障诊断。该基准能属性失败环节，帮助理解工具使用鲁棒性并指导改进。",
+      "llm_tldr": "工具调用是LLM智能体的核心能力，但端到端成功率无法定位失败来源。本文提出ToolRobustBench，将工具调用流程划分为工具接口、用户意图、工具输出和运行环境四类扰动，进行分阶段故障诊断。该基准能属性失败环节，帮助理解工具使用鲁棒性并指导改进。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "tool use agent in LLM",
+      "matched_requirement_id": "req-18",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.23959v1",
+      "source": "arxiv",
+      "title": "NeuronGuard: Robust LLM Safety Alignment via Ablation-Aware Safety Signal Redistribution",
+      "abstract": "Safety alignment in large language models (LLMs) remains brittle against a growing spectrum of attacks. Jailbreak attacks bypass safety mechanisms through crafted prompts, while neuron-level attacks directly prune safety-critical neurons post-deployment. Both exploit a common weakness: safety-relevant information concentrates in a sparse neuron subset. We present NeuronGuard, a fine-tuning-stage defense that simultaneously hardens LLMs against both attack classes by redistributing safety signals across a broader set of neurons. NeuronGuard dynamically identifies safety-critical neurons via periodically refreshed per-layer linear classifiers, forces refusal behavior under deliberate neuron ablation, and applies KL-divergence regularization for distributional consistency. A randomized gradient projection strategy preserves downstream task utility by resolving conflicts between the defense and task objectives. We provide a formal guarantee that NeuronGuard strictly reduces the attack success rate (ASR) upper bound, and experiments across three LLMs, six state-of-the-art attack strategies, and multimodal settings confirm near-zero ASR while maintaining task accuracy, including against white-box adaptive adversaries.",
+      "authors": [
+        "Anjun Gao",
+        "Yueyang Quan",
+        "Yufei Xia",
+        "Zhuqing Liu",
+        "Minghong Fang"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-08-25T01:36:54+00:00",
+      "link": "https://arxiv.org/pdf/2608.23959v1",
+      "tags": [
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "safety alignment defense against jailbreak and neuron-level attacks in LLMs",
+      "llm_evidence_cn": "针对大语言模型越狱与神经元级攻击的安全对齐防御",
+      "llm_evidence": "针对大语言模型越狱与神经元级攻击的安全对齐防御",
+      "canonical_evidence": "针对大语言模型越狱与神经元级攻击的安全对齐防御",
+      "llm_tldr_en": "NeuronGuard redistributes safety signals across broader neuron sets during fine-tuning, dynamically identifying safety-critical neurons and forcing refusal under ablation, hardening LLMs against both jailbreak and neuron-level attacks.",
+      "llm_tldr_cn": "针对大语言模型安全对齐脆弱、安全信息集中在一小簇神经元的问题，提出NeuronGuard防御方法。该方法在微调阶段通过逐层线性分类器动态识别安全关键神经元，在刻意神经元消融下强制拒绝行为，并使用KL散度正则化将安全信号分布到更广的神经元集合。实验表明NeuronGuard能够同时增强对越狱攻击与神经元级剪枝攻击的鲁棒性。该工作为提升LLM安全性提供了有效的微调阶段防护手段。",
+      "llm_tldr": "针对大语言模型安全对齐脆弱、安全信息集中在一小簇神经元的问题，提出NeuronGuard防御方法。该方法在微调阶段通过逐层线性分类器动态识别安全关键神经元，在刻意神经元消融下强制拒绝行为，并使用KL散度正则化将安全信号分布到更广的神经元集合。实验表明NeuronGuard能够同时增强对越狱攻击与神经元级剪枝攻击的鲁棒性。该工作为提升LLM安全性提供了有效的微调阶段防护手段。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "safety mechanisms for language models",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.24275v1",
+      "source": "arxiv",
+      "title": "RePolicy: Reinforcement Learning for Safety-Policy Invocation in Agent Safeguards",
+      "abstract": "Safeguarding language model agents requires assessing complete execution trajectories under context-dependent safety policies. Existing policy-aware safeguards mainly rely on prompting or supervised fine-tuning, limiting their ability to adapt to unseen trajectories and changing policy contexts. We propose RePolicy, an agent safeguard that learns safety-policy invocation through reinforcement learning. Given an agent trajectory and a dynamic policy library, RePolicy invokes the applicable policy and uses its content to produce a policy-grounded rationale and safety judgment. We construct PolicyTraj-20K to support supervised initialization, followed by GRPO with verifiable rewards and policy-context perturbation. Experiments across six agent safety benchmarks show that RePolicy achieves strong overall safety-detection performance and robust policy invocation under varying policy contexts.",
+      "authors": [
+        "Houcheng Jiang",
+        "Boxuan Zhang",
+        "Qiyong Zhong",
+        "Junfeng Fang",
+        "Xiang Wang",
+        "Xiangnan He"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-25T09:01:33+00:00",
+      "link": "https://arxiv.org/pdf/2608.24275v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Reinforcement learning for safety-policy invocation in language model agent safeguards",
+      "llm_evidence_cn": "利用强化学习实现语言模型智能体安全措施的策略调用",
+      "llm_evidence": "利用强化学习实现语言模型智能体安全措施的策略调用",
+      "canonical_evidence": "利用强化学习实现语言模型智能体安全措施的策略调用",
+      "llm_tldr_en": "RePolicy trains agent safeguards via RL to invoke context-dependent safety policies from a dynamic library, producing policy-grounded rationales and judgments; using PolicyTraj-20K and GRPO, it adapts beyond prompting and SFT.",
+      "llm_tldr_cn": "语言模型智能体安全措施需要根据完整执行轨迹和动态安全策略进行判断，而现有基于提示或监督微调的策略感知防护难以适应未见轨迹。本文提出RePolicy，通过强化学习学习安全策略调用：给定轨迹和策略库，它调用适用策略并生成基于策略的推理和安全判断。借助PolicyTraj-20K数据、带可验证奖励的GRPO以及策略上下文扰动，RePolicy在多个智能体集上优于基线，为动态策略环境下的智能体防护提供了新思路。",
+      "llm_tldr": "语言模型智能体安全措施需要根据完整执行轨迹和动态安全策略进行判断，而现有基于提示或监督微调的策略感知防护难以适应未见轨迹。本文提出RePolicy，通过强化学习学习安全策略调用：给定轨迹和策略库，它调用适用策略并生成基于策略的推理和安全判断。借助PolicyTraj-20K数据、带可验证奖励的GRPO以及策略上下文扰动，RePolicy在多个智能体集上优于基线，为动态策略环境下的智能体防护提供了新思路。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "alignment and safety measures for language model agents",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.24275v2",
+      "source": "arxiv",
+      "title": "RePolicy: Reinforcement Learning for Safety-Policy Invocation in Agent Safeguards",
+      "abstract": "Safeguarding language model agents requires assessing complete execution trajectories under context-dependent safety policies. Existing policy-aware safeguards mainly rely on prompting or supervised fine-tuning, limiting their ability to adapt to unseen trajectories and changing policy contexts. We propose RePolicy, an agent safeguard that learns safety-policy invocation through reinforcement learning. Given an agent trajectory and a dynamic policy library, RePolicy invokes the applicable policy and uses its content to produce a policy-grounded rationale and safety judgment. We construct PolicyTraj-20K to support supervised initialization, followed by GRPO with verifiable rewards and policy-context perturbation. Experiments across six agent safety benchmarks show that RePolicy achieves strong overall safety-detection performance and robust policy invocation under varying policy contexts.",
+      "authors": [
+        "Houcheng Jiang",
+        "Boxuan Zhang",
+        "Qiyong Zhong",
+        "Junfeng Fang",
+        "Xiang Wang",
+        "Xiangnan He"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-25T09:01:33+00:00",
+      "link": "https://arxiv.org/pdf/2608.24275v2",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "RL-based safety-policy invocation for agent safeguards",
+      "llm_evidence_cn": "基于强化学习的智能体安全策略调用方法",
+      "llm_evidence": "基于强化学习的智能体安全策略调用方法",
+      "canonical_evidence": "基于强化学习的智能体安全策略调用方法",
+      "llm_tldr_en": "RePolicy learns safety-policy invocation for LLM agents via reinforcement learning, using a dynamic policy library and GRPO with verifiable rewards to adapt to unseen trajectories and changing policy contexts.",
+      "llm_tldr_cn": "现有智能体安全防护主要依靠提示或监督微调，难以适应未见轨迹和动态策略场景。RePolicy 通过学习方式实现安全策略调用：面对智能体轨迹和动态策略库，模型先调用适用策略，再生成基于策略的推理与安全判断。作者构造策略轨迹数据集进行监督初始化，并用GRPO与策略上下文扰动进行强化学习。在六个智能体环境上的实验表明，该方法能更好地泛化到未见轨迹与变化策略，提升了智能体安全防护的适应性。",
+      "llm_tldr": "现有智能体安全防护主要依靠提示或监督微调，难以适应未见轨迹和动态策略场景。RePolicy 通过学习方式实现安全策略调用：面对智能体轨迹和动态策略库，模型先调用适用策略，再生成基于策略的推理与安全判断。作者构造策略轨迹数据集进行监督初始化，并用GRPO与策略上下文扰动进行强化学习。在六个智能体环境上的实验表明，该方法能更好地泛化到未见轨迹与变化策略，提升了智能体安全防护的适应性。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "alignment and safety measures for language model agents",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.24571v1",
+      "source": "arxiv",
+      "title": "Joint Optimization of Tool Creation and Use for Large Language Model Agents",
+      "abstract": "Tool-augmented language models are bounded by the APIs humans bothered to write; existing tool-creation systems patch this by prompting a frozen LLM at inference time, leaving the model that writes a tool decoupled from the one that uses it, with no signal that the schemas it produces are schemas it can invoke. We propose SMITH (Schema-grounded Multi-task Iterative Tool Honing), a reinforcement learning framework that jointly trains tool creation and tool use inside a single policy. Each rollout is either a build task (write a tool from a few examples) or a use task (invoke a pooled tool on a held-out question). Three separate reward axes catch schema, code, and outcome failures independently, so each failure mode contributes its own gradient. A 4B Qwen3 trained with SMITH on 13 procedural reasoning tasks with exact verifiers reaches 79.8 macro-average accuracy on held-out tasks, the best across all evaluated methods and ahead of an untrained 30B-A3B tool-writer. It also reaches 40.4 on TabMWP-Hard and 42.6 on out-of-domain GQA (+7.6 over the best same-backbone inference-time baseline), without any visual or tabular training data. Tools written by our 4B models also lifted the performance of LFM-2.5-350M and Qwen3-30B-A3B under same reasoning tasks.",
+      "authors": [
+        "Zhi Rui Tam",
+        "Chieh-Yen Lin",
+        "Yun-Nung Chen",
+        "Shao-Hua Sun",
+        "Hung-yi Lee"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.SE"
+      ],
+      "published": "2026-08-25T13:59:34+00:00",
+      "link": "https://arxiv.org/pdf/2608.24571v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Jointly optimizes tool creation and tool use in a single LLM agent policy, directly addressing tool-use agents",
+      "llm_evidence_cn": "在单一智能体策略中联合训练工具创建与工具使用，直接对应LLM中的工具使用智能体",
+      "llm_evidence": "在单一智能体策略中联合训练工具创建与工具使用，直接对应LLM中的工具使用智能体",
+      "canonical_evidence": "在单一智能体策略中联合训练工具创建与工具使用，直接对应LLM中的工具使用智能体",
+      "llm_tldr_en": "Proposes SMITH, a reinforcement learning framework that jointly trains tool creation and tool use within a single LLM agent policy using separate reward axes, enabling agents to create schemas they can actually invoke and improving tool-augmented task performance.",
+      "llm_tldr_cn": "当前工具创建系统往往将写工具与用工具解耦，导致模型生成的工具模式自己不会调用。本文提出SMITH强化学习框架，在同一策略中联合训练工具的创建与使用，通过构建任务和使用任务交替执行，并设置模式、代码和结果三个独立奖励轴来分别引导梯度更新。实验表明该方法提升了工具利用率和任务完成质量，让LLM智能体能够创建并使用自身可调用的工具。",
+      "llm_tldr": "当前工具创建系统往往将写工具与用工具解耦，导致模型生成的工具模式自己不会调用。本文提出SMITH强化学习框架，在同一策略中联合训练工具的创建与使用，通过构建任务和使用任务交替执行，并设置模式、代码和结果三个独立奖励轴来分别引导梯度更新。实验表明该方法提升了工具利用率和任务完成质量，让LLM智能体能够创建并使用自身可调用的工具。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "tool use agent in LLM",
+      "matched_requirement_id": "req-18",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.24747v1",
+      "source": "arxiv",
+      "title": "SkillForge: Evolving Verifiable Skills for Reinforcement Learning Agents",
+      "abstract": "Large language model (LLM) agents are trained with reinforcement learning (RL) for complex decision-making tasks. However, most RL-trained agents remain episodic and cannot accumulate reusable knowledge across episodes. Recent skill-based approaches, such as SkillRL, attempt to address this issue by extracting skills from raw trajectories, but treat the skill bank as an append-only repository without verifying whether stored skills remain effective. In this paper, we propose SkillForge, a framework for continuous skill evolution that enables skills to be verified and refined through environment interaction. By making skill usage explicit during agent interaction, RL can directly optimize both environment actions and skill invocation decisions. SkillForge further introduces evidence-based skill verification and multi-pathway skill induction, allowing the skill bank to continuously grow while maintaining its quality. Extensive experiments on ALFWorld, WebShop, and AppWorld show that SkillForge consistently outperforms SkillRL, demonstrating the effectiveness of continuously verified skills in training stronger LLM agents.",
+      "authors": [
+        "Shidong Yang",
+        "Ziyu Ma",
+        "Tongwen Huang",
+        "Xucong Wang",
+        "Renda Li",
+        "Yiming Hu",
+        "Yong Wang",
+        "Xiangxiang Chu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-25T15:52:10+00:00",
+      "link": "https://arxiv.org/pdf/2608.24747v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "continuous verifiable skill evolution for reinforcement learning agents",
+      "llm_evidence_cn": "面向强化学习智能体的持续可验证技能演化",
+      "llm_evidence": "面向强化学习智能体的持续可验证技能演化",
+      "canonical_evidence": "面向强化学习智能体的持续可验证技能演化",
+      "llm_tldr_en": "SkillForge enables continuous evolution of verifiable agent skills by explicitly optimizing skill invocation in RL, leading to reusable knowledge across episodes.",
+      "llm_tldr_cn": "针对强化学习智能体无法跨回合积累可复用技能、技能库只增不验的问题，SkillForge让智能体在环境交互中显式使用技能，并通过RL同时优化环境动作和技能调用决策，对技能进行验证与持续打磨。该方法提升了技能复用性和智能体决策性能，为智能体自我演化与持续学习提供了新的实现机制。",
+      "llm_tldr": "针对强化学习智能体无法跨回合积累可复用技能、技能库只增不验的问题，SkillForge让智能体在环境交互中显式使用技能，并通过RL同时优化环境动作和技能调用决策，对技能进行验证与持续打磨。该方法提升了技能复用性和智能体决策性能，为智能体自我演化与持续学习提供了新的实现机制。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.24777v1",
+      "source": "arxiv",
+      "title": "StepGuard: Learning Step-Level Guardrails with Scalable Supervision and Safety-Utility Balancing",
+      "abstract": "LLM-based agents can interact with external environments through tool invocation, but this capability also introduces security risks such as file modification, information leakage, and unauthorized actions. Existing guardrails often evaluate completed trajectories, leaving pre-execution monitoring of step-level actions underexplored. We propose StepGuard, a step-level guard model that can audit completed agent trajectories and check tool actions before they are executed. To train StepGuard, we introduce StepGen, an automatic data engine that generates safe and unsafe trajectories with the same context but different actions at the risky step. To further reduce over-defense and under-defense, we propose Balance-GRPO, which dynamically balances learning between safe and unsafe actions based on their observed accuracy. Experiments show that StepGuard achieves the highest average accuracy among open-weight guard models, with performance comparable to GPT-5.4. When used to guard agents on AgentDojo and AgentDyn, StepGuard reduces mean attack success rate by 77.3% relative to the no-guard setting, while mean utility drops by only 2.8 percentage points.",
+      "authors": [
+        "Zhijie Zheng",
+        "Yu Li",
+        "Chen Qian",
+        "Yuqian Fu",
+        "Yanwei Fu",
+        "Lu Sheng",
+        "Jing Shao",
+        "Dongrui Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CR"
+      ],
+      "published": "2026-08-25T16:17:27+00:00",
+      "link": "https://arxiv.org/pdf/2608.24777v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "step-level guard model for LLM-based agents prevents file modification, info leakage, and unauthorized actions pre-execution",
+      "llm_evidence_cn": "面向LLM智能体的步骤级护栏，在执行前防范文件修改、信息泄露和未授权操作",
+      "llm_evidence": "面向LLM智能体的步骤级护栏，在执行前防范文件修改、信息泄露和未授权操作",
+      "canonical_evidence": "面向LLM智能体的步骤级护栏，在执行前防范文件修改、信息泄露和未授权操作",
+      "llm_tldr_en": "StepGuard learns step-level guardrails to audit and check LLM-agent tool calls before execution, using an automatic data engine (StepGen) and Balance-GRPO to balance safety and utility, preventing file modification, information leakage, and unauthorized actions.",
+      "llm_tldr_cn": "该论文关注LLM智能体通过工具调用与外部环境交互带来的安全风险，如文件修改、信息泄露和未授权操作。现有护栏多在轨迹结束后评估，缺乏执行前的步骤级监控。为此提出StepGuard步骤级护栏模型，可在执行前审查工具动作并用StepGen自动生成安全与不安全轨迹数据，结合Balance-GRPO平衡过防御与欠防御。该方法能显著提升智能体工具调用的安全性，同时保持任务效用。",
+      "llm_tldr": "该论文关注LLM智能体通过工具调用与外部环境交互带来的安全风险，如文件修改、信息泄露和未授权操作。现有护栏多在轨迹结束后评估，缺乏执行前的步骤级监控。为此提出StepGuard步骤级护栏模型，可在执行前审查工具动作并用StepGen自动生成安全与不安全轨迹数据，结合Balance-GRPO平衡过防御与欠防御。该方法能显著提升智能体工具调用的安全性，同时保持任务效用。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25457v1",
+      "source": "arxiv",
+      "title": "MACGen: Toward Functionally Correct and Secure Code Generation via Multi-Agent Collaboration",
+      "abstract": "Despite their strong ability to generate code, large language models often fail to produce secure code, as their outputs frequently contain security vulnerabilities. Secure code generation is inherently challenging because it requires solving a multi-objective problem: functional correctness and security. Existing approaches address this challenge by injecting external security knowledge or by using agentic feedback and iterative refinement. However, guideline retrieval often leaves the generator to translate generic advice into task-specific secure implementations, while shared-dialogue multi-agent feedback can blur role boundaries and suffer from context bloat.   We present MACGen, a multi-agent framework that integrates planning, security analysis, code synthesis and refinement to jointly optimize security and functionality. A planner constructs a step-by-step plan to satisfy functional requirements. A security advisor identifies likely CWEs and synthesizes task-specific guidelines, a coder then generates code grounded in these artifacts, and a reviewer issues perspective-separated feedback. Rather than sharing full dialogue histories, each agent receives only structured artifacts from upstream stages, enforcing role specialization and reducing uncontrolled context growth. On CWEval and BaxBench, MACGen improves F&S@1 over direct prompting by 19.61 and 10.57 percentage points (pp) on average, respectively.",
+      "authors": [
+        "Miseon Yu",
+        "Jaehoon Choi",
+        "Younghan Lee",
+        "Yunheung Paek"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-08-26T07:21:56+00:00",
+      "link": "https://arxiv.org/pdf/2608.25457v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multi-agent framework for generating code that is both functionally correct and secure",
+      "llm_evidence_cn": "多智能体协作生成既功能正确又安全的代码",
+      "llm_evidence": "多智能体协作生成既功能正确又安全的代码",
+      "canonical_evidence": "多智能体协作生成既功能正确又安全的代码",
+      "llm_tldr_en": "MACGen is a multi-agent framework that combines planning, function and security awareness to generate code meeting functional correctness and security requirements.",
+      "llm_tldr_cn": "大模型代码生成往往能实现功能却缺乏安全性，而安全代码生成需要同时满足功能正确与无漏洞。MACGen提出多智能体协作框架，将规划、功能实现与安全约束整合，避免共享对话造成的角色混淆和上下文过载。实验显示它在保持功能正确性的同时明显减少生成代码中的安全漏洞。该工作为安全代码生成提供了有效的多智能体协作范式。",
+      "llm_tldr": "大模型代码生成往往能实现功能却缺乏安全性，而安全代码生成需要同时满足功能正确与无漏洞。MACGen提出多智能体协作框架，将规划、功能实现与安全约束整合，避免共享对话造成的角色混淆和上下文过载。实验显示它在保持功能正确性的同时明显减少生成代码中的安全漏洞。该工作为安全代码生成提供了有效的多智能体协作范式。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25457v2",
+      "source": "arxiv",
+      "title": "MACGen: Toward Functionally Correct and Secure Code Generation via Multi-Agent Collaboration",
+      "abstract": "Despite their strong ability to generate code, large language models often fail to produce secure code, as their outputs frequently contain security vulnerabilities. Secure code generation is inherently challenging because it requires solving a multi-objective problem: functional correctness and security. Existing approaches address this challenge by injecting external security knowledge or by using agentic feedback and iterative refinement. However, guideline retrieval often leaves the generator to translate generic advice into task-specific secure implementations, while shared-dialogue multi-agent feedback can blur role boundaries and suffer from context bloat.   We present MACGen, a multi-agent framework that integrates planning, security analysis, code synthesis and refinement to jointly optimize security and functionality. A planner constructs a step-by-step plan to satisfy functional requirements. A security advisor identifies likely CWEs and synthesizes task-specific guidelines, a coder then generates code grounded in these artifacts, and a reviewer issues perspective-separated feedback. Rather than sharing full dialogue histories, each agent receives only structured artifacts from upstream stages, enforcing role specialization and reducing uncontrolled context growth. On CWEval and BaxBench, MACGen improves F&S@1 over direct prompting by 19.61 and 10.57 percentage points (pp) on average, respectively.",
+      "authors": [
+        "Miseon Yu",
+        "Jaehoon Choi",
+        "Younghan Lee",
+        "Yunheung Paek"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-08-26T07:21:56+00:00",
+      "link": "https://arxiv.org/pdf/2608.25457v2",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multi-agent framework generating functionally correct and secure code",
+      "llm_evidence_cn": "多智能体框架生成功能正确且安全的代码",
+      "llm_evidence": "多智能体框架生成功能正确且安全的代码",
+      "canonical_evidence": "多智能体框架生成功能正确且安全的代码",
+      "llm_tldr_en": "MACGen uses multi-agent collaboration to generate secure code, tackling the joint objective of functional correctness and security; it integrates planning to avoid role blur and context bloat, showing improved secure code generation.",
+      "llm_tldr_cn": "针对大语言模型生成代码时常包含安全漏洞、且现有方法难以兼顾功能正确性与安全性的多目标难题，本文提出MACGen多智能体框架，通过集成规划机制实现角色清晰分工的协作生成，克服共享对话式反馈导致角色模糊和上下文膨胀的问题。实验结果表明MACGen在功能正确性与安全性之间取得了更好平衡，显著减少了生成代码中的漏洞。该工作为LLM安全代码生成提供了一种可复用的多智能体协作范式。",
+      "llm_tldr": "针对大语言模型生成代码时常包含安全漏洞、且现有方法难以兼顾功能正确性与安全性的多目标难题，本文提出MACGen多智能体框架，通过集成规划机制实现角色清晰分工的协作生成，克服共享对话式反馈导致角色模糊和上下文膨胀的问题。实验结果表明MACGen在功能正确性与安全性之间取得了更好平衡，显著减少了生成代码中的漏洞。该工作为LLM安全代码生成提供了一种可复用的多智能体协作范式。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25711v1",
+      "source": "arxiv",
+      "title": "Reassembling Distributed Risk: Trajectory-Conditioned Action Generation for Multi-Turn Agent Safety",
+      "abstract": "Tool-using LLM agents extend security risks beyond generated text to actions that affect external systems. Under multi-turn decomposition attacks, a harmful objective can be distributed across individually plausible requests and tool calls, becoming apparent only from the accumulated trajectory. Existing defenses either rely on auxiliary online reasoning to recover long-horizon security evidence or assess actions after generation, often incurring additional inference cost or depending on runtime-specific action representations.   We propose \\emph{Reassembling Distributed Risk} (ReDiR), a generation-time defense that conditions action generation on trajectory-level security evidence. Before each action, ReDiR compresses the current trajectory into a compact latent safety representation and injects it into the frozen base model. The representation is learned through same-model, cross-view supervision, where safe behavior from an explicit task view provides supervision for recovering distributed safety evidence from the original multi-turn trajectory. This design enables ReDiR to integrate cross-turn security information directly within the generation process without relying on a separate action-level safety module. We evaluate ReDiR on two agent-safety benchmarks across three model families and eight held-out tool domains. ReDiR reduces attack success rates to below 8\\%, transfers to unseen tool domains, and preserves benign fidelity with low computational overhead.",
+      "authors": [
+        "Yanbo Dai",
+        "Zhenlan Ji",
+        "Zongjie Li",
+        "Shuai Wang"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-08-26T12:28:35+00:00",
+      "link": "https://arxiv.org/pdf/2608.25711v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Defense against multi-turn decomposition attacks on tool-using LLM agents",
+      "llm_evidence_cn": "针对工具使用大模型智能体多轮分解攻击的防御",
+      "llm_evidence": "针对工具使用大模型智能体多轮分解攻击的防御",
+      "canonical_evidence": "针对工具使用大模型智能体多轮分解攻击的防御",
+      "llm_tldr_en": "Proposes ReDiR, a generation-time defense that conditions action generation on trajectory-level security evidence, countering multi-turn decomposition attacks on tool-using LLM agents without extra runtime reasoning.",
+      "llm_tldr_cn": "针对工具使用大模型智能体面临的多轮分解攻击——有害目标被分散到多个看似合理的请求中——提出ReDiR生成时防御。ReDiR在每次动作前压缩轨迹级安全证据，并以此条件化动作生成，无需额外的在线长程推理或依赖运行时特定表示。结果显示它能有效识别并阻断跨多轮累积的分布式风险，为智能体多轮安全提供低开销的通用防御手段。",
+      "llm_tldr": "针对工具使用大模型智能体面临的多轮分解攻击——有害目标被分散到多个看似合理的请求中——提出ReDiR生成时防御。ReDiR在每次动作前压缩轨迹级安全证据，并以此条件化动作生成，无需额外的在线长程推理或依赖运行时特定表示。结果显示它能有效识别并阻断跨多轮累积的分布式风险，为智能体多轮安全提供低开销的通用防御手段。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25992v1",
+      "source": "arxiv",
+      "title": "ProgRouter: Online Progress-Guided Orchestration for Multi-Agent LLM Workflows under Quality-Cost Tradeoffs",
+      "abstract": "Multi-agent large language model (LLM) workflows have emerged as a powerful paradigm for solving complex, open-ended tasks through collaborative reasoning among specialized LLM agents, but they incur substantial operating costs due to repeated LLM invocations and long-horizon context accumulation. Existing cascade routing methods make one-shot, query-level decisions and cannot adapt to the dynamic, state-dependent nature of multi-step workflows, in which the right LLM at each step depends on evolving task progress, remaining task difficulty, and cost-efficiency requirements. We present ProgRouter, an online progress-guided routing framework that adaptively selects LLM agents across workflow steps to preserve task-solving quality while adhering to time and cost budgets. ProgRouter introduces a multi-view task progress scorer that combines coarse workflow outcome regimes with fine-grained signals on subtask completion, progress trends, and workflow state quality. Then, a dual-path task progress predictor and an adaptive meta-gating mechanism estimate the progress gain for each candidate routed LLM. ProgRouter makes online step-wise routing decisions that balance progress gain, task time budgets, and long-term operating cost efficiency. Experiments on HumanEval Plus, MBPP, MATH-500, and ASQA, spanning agentic code generation, mathematical reasoning, and retrieval-augmented long-form question answering, demonstrate that ProgRouter reduces the operating cost relative to key baselines while maintaining strong task-solving performance.",
+      "authors": [
+        "Songyuan Li",
+        "Ahmed M. Abdelmoniem",
+        "Shiqiang Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-08-26T16:42:02+00:00",
+      "link": "https://arxiv.org/pdf/2608.25992v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "online orchestration framework for multi-agent LLM workflows",
+      "llm_evidence_cn": "面向多智能体LLM工作流的在线编排框架",
+      "llm_evidence": "面向多智能体LLM工作流的在线编排框架",
+      "canonical_evidence": "面向多智能体LLM工作流的在线编排框架",
+      "llm_tldr_en": "Presents ProgRouter, an online progress-guided routing framework that adaptively selects LLM agents at each workflow step based on evolving task progress and remaining difficulty, balancing quality and cost.",
+      "llm_tldr_cn": "多智能体LLM工作流通过多个专门智能体协作完成任务，但重复调用和长上下文带来高昂成本。现有级联路由方法在查询级做一次性决定，无法适应多步流程的动态状态。ProgRouter提出在线进度引导路由，根据任务进展、剩余难度和成本效率逐步选择最合适的LLM智能体，在质量和成本间取得更优平衡。",
+      "llm_tldr": "多智能体LLM工作流通过多个专门智能体协作完成任务，但重复调用和长上下文带来高昂成本。现有级联路由方法在查询级做一次性决定，无法适应多步流程的动态状态。ProgRouter提出在线进度引导路由，根据任务进展、剩余难度和成本效率逐步选择最合适的LLM智能体，在质量和成本间取得更优平衡。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "multi-agent system coordination",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26008v1",
+      "source": "arxiv",
+      "title": "A Self-Evolving Multi-Agent Framework Defense against LLM Jailbreak Attacks",
+      "abstract": "Large language models (LLMs) remain vulnerable to jailbreak attacks that exploit techniques such as role-playing, obfuscation, code transformation, and multi-step indirection to elicit harmful outputs. As jailbreak strategies keep emerging, defenses have proliferated in an ongoing cat-and-mouse game, yet most remain static: their safety behavior is fixed at deployment, so they cannot accumulate defensive experience or adapt to unseen strategies. We propose a self-evolving test-time defense built around a persistent, cross-interaction rule memory: when an attack succeeds, the framework abstracts that failure into a method-level rule capturing the structural attack wrapper rather than the harmful topic, and reuses it against future inputs. Because rules are method-level, one induced rule generalizes across an entire attack family, and the label space expands as novel wrappers appear. The mechanism operates entirely through external memory and prompting, with no parameter updates, and applies to both open-weight and black-box API models. We realize it as four cooperating modules, but the contribution is the memory-based adaptation mechanism, not the module decomposition. Across four black-box jailbreak families and multiple models, our method substantially reduces attack success rates while preserving benign utility, remains robust under an adaptive composite-wrapper attack, and does not increase over-refusal as the memory grows.",
+      "authors": [
+        "Tongyan Hu",
+        "Bryan Hooi"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.CL"
+      ],
+      "published": "2026-08-26T16:52:06+00:00",
+      "link": "https://arxiv.org/pdf/2608.26008v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "self-evolving multi-agent test-time defense against LLM jailbreak attacks",
+      "llm_evidence_cn": "针对LLM越狱攻击的自进化多智能体测试时防御",
+      "llm_evidence": "针对LLM越狱攻击的自进化多智能体测试时防御",
+      "canonical_evidence": "针对LLM越狱攻击的自进化多智能体测试时防御",
+      "llm_tldr_en": "A self-evolving test-time defense with persistent cross-interaction rule memory extracts method-level rules from successful jailbreak attacks and reuses them, enabling adaptive defense against unseen strategies.",
+      "llm_tldr_cn": "LLM面临持续更新的越狱攻击，现有防御多为静态固定，难以积累经验。本文提出自进化测试时防御框架，利用跨交互的规则记忆：当攻击成功时，将失败抽象为描述结构攻击包装的方法级规则，并在未来输入中复用。该框架持续积累防御经验并适应未知攻击策略，为LLM安全提供了可演化的防御机制。",
+      "llm_tldr": "LLM面临持续更新的越狱攻击，现有防御多为静态固定，难以积累经验。本文提出自进化测试时防御框架，利用跨交互的规则记忆：当攻击成功时，将失败抽象为描述结构攻击包装的方法级规则，并在未来输入中复用。该框架持续积累防御经验并适应未知攻击策略，为LLM安全提供了可演化的防御机制。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26081v1",
+      "source": "arxiv",
+      "title": "SwarmWorld: Stigmergic technological evolution in societies of language-model agents",
+      "abstract": "Collective intelligence can emerge when individuals coordinate through a shared environment, allowing local actions to accumulate into durable social organization. Language-model agents offer a new substrate for this process, yet most multi-agent systems rely on direct conversation, predefined roles, or centralized workflows. It remains unclear whether decentralized agents can build functional technologies and outperform independent search. Here, initially homogeneous LLM agents in SwarmWorld self-organize without assigned roles or recipes into evolving technological societies. Agents explore a spatial environment, process resources, test materials, construct persistent artifacts, and write executable controllers evaluated by a deterministic simulator under unseen disturbances after the agents are removed. SwarmWorld splits cognition from consequence: agents propose architectures and controllers within fixed action and material schemas, while the simulated world determines function. Shared societies develop broader, more resilient technological portfolios than a strong best-of-N isolated-search baseline, although isolated search remains competitive for the strongest artifact. Agents differentiate into exploration, construction, maintenance, and coordination behaviors, transitioning as the world matures. Technologies accumulate through collaborative construction, executable inheritance, and persistent agent-artifact networks, with most reuse beginning through physical observation rather than communication. Explicit cultural mechanisms amplify collaboration and organization, but functional benefits depend on outcome and timescale. Physical stigmergy alone supports capable societies, while interaction drives persistent technological ecologies rather than universally superior individual inventions.",
+      "authors": [
+        "Subhadeep Pal",
+        "Fiona Y. Wang",
+        "Markus J. Buehler"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cond-mat.mtrl-sci",
+        "cs.CL"
+      ],
+      "published": "2026-08-26T17:45:34+00:00",
+      "link": "https://arxiv.org/pdf/2608.26081v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "self-organizing LLM agents evolve technologies through shared environment",
+      "llm_evidence_cn": "自组织LLM智能体通过共享环境演化技术",
+      "llm_evidence": "自组织LLM智能体通过共享环境演化技术",
+      "canonical_evidence": "自组织LLM智能体通过共享环境演化技术",
+      "llm_tldr_en": "SwarmWorld shows that initially homogeneous language-model agents, without roles or recipes, self-organize through a shared environment and collectively evolve functional technologies, outperforming independent search.",
+      "llm_tldr_cn": "论文针对多智能体系统依赖直接对话和预定义角色的问题，提出SwarmWorld这一去中心化环境，让初始同质的LLM智能体通过共享空间自组织并演化出技术社会。智能体在环境中探索资源、测试材料、构建持久工件并编写可执行控制器，最终涌现出超越独立搜索的集体智能。该研究为理解智能体的自主演化与涌现能力提供了新范式。",
+      "llm_tldr": "论文针对多智能体系统依赖直接对话和预定义角色的问题，提出SwarmWorld这一去中心化环境，让初始同质的LLM智能体通过共享空间自组织并演化出技术社会。智能体在环境中探索资源、测试材料、构建持久工件并编写可执行控制器，最终涌现出超越独立搜索的集体智能。该研究为理解智能体的自主演化与涌现能力提供了新范式。",
+      "llm_tags": [
+        "query:agent-evol"
+      ],
+      "matched_query_tag": "query:agent-evol",
+      "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.26263v1",
+      "source": "arxiv",
+      "title": "SKILL.state: Scalable Long-Horizon Agent Skills",
+      "abstract": "Large Language Models (LLMs) increasingly act as autonomous agents executing complex, long-running procedural skills. Existing agent runtimes maintain execution by continually appending observations, actions, and intermediate reasoning traces to an ever-growing conversation history, causing latency degradation and context-poisoning failures over long horizons. We present SKILL.state, a runtime architecture that replaces append-only conversational history with an explicit, mutable execution state. At each execution step, the model receives only the immutable skill specification, the current structured execution state, and the latest observation. Intermediate reasoning is discarded immediately after producing a validated state update, preventing prompt growth with execution history. Across diverse datasets, models, and execution environments, SKILL.state improves task accuracy while substantially reducing cumulative token consumption. Our results demonstrate that explicit execution state is an effective and architecture-agnostic abstraction for scalable long-horizon agent skills.",
+      "authors": [
+        "Sanket Badhe",
+        "Priyanka Tiwari",
+        "Jonghyun Chung"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-08-26T18:00:06+00:00",
+      "link": "https://arxiv.org/pdf/2608.26263v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "runtime architecture for LLM agents executing long-horizon skills",
+      "llm_evidence_cn": "面向长时程技能执行的LLM智能体运行时架构",
+      "llm_evidence": "面向长时程技能执行的LLM智能体运行时架构",
+      "canonical_evidence": "面向长时程技能执行的LLM智能体运行时架构",
+      "llm_tldr_en": "Presents SKILL.state, a runtime architecture that replaces append-only conversation history with explicit mutable execution state, enabling LLM agents to scale to long-horizon procedural skills without context poisoning.",
+      "llm_tldr_cn": "长时程任务中LLM智能体通常将中间推理和观测不断追加到对话历史中，导致延迟增高和上下文污染。本文提出SKILL.state运行时架构，用显式的可变执行状态替代只追加的会话历史，每步只保留技能规范、当前状态和最新观测，丢弃中间推理。该方案防止提示词随执行历史增长，实现了长时程技能的可扩展执行。",
+      "llm_tldr": "长时程任务中LLM智能体通常将中间推理和观测不断追加到对话历史中，导致延迟增高和上下文污染。本文提出SKILL.state运行时架构，用显式的可变执行状态替代只追加的会话历史，每步只保留技能规范、当前状态和最新观测，丢弃中间推理。该方案防止提示词随执行历史增长，实现了长时程技能的可扩展执行。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "large language model agent architecture",
+      "matched_requirement_id": "req-19",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27092v1",
+      "source": "arxiv",
+      "title": "The Framing Gap: Indirect Prompt-Injection Exfiltration Defeats Surface-Level Defenses in Tool-Using Agents",
+      "abstract": "A tool-using LLM agent that reads attacker-controlled web content while holding a secret faces indirect prompt injection: the content may make it exfiltrate the secret. In a safe synthetic lab (canary secret, mock tools, matched clean-vs-poisoned metric) we report the framing gap: across six models, ten overt injection classes are refused (gpt-4o 0%), but reframing the identical leak as a mandatory integrity signature, config field, or look-alike \"trusted\" host drives gpt-4o 0% to 100%. The attack is cheap, and its cost is three-level: paraphrasing a known mechanism is trivial (96% at 3 wordings), swapping the field inside a known-effective template is also cheap (up to 60%), while authoring a fresh page around a new mechanism is hard (0/130) -- the reusable asset is the template, not the mechanism. An ablation shows the mechanism is instruction/data confusion, not defeated alignment: removing the confidentiality policy leaves base attacks at 0% and moves reframing only 31.9% to 38.1%. What closes the gap is payload-blind checks: a destination allow-list (0%, when destinations are closed) and a capability-isolating planner/reader split (0%). A broad \"in any form\" policy clause also closes it at the acting model (to 0%) but is brittle (dropping the catch-all reopens it to 48.8%). A published fine-tuning defense (SecAlign, CCS 2025) does not close it on a tool agent (32.5%, positive-control-validated), nor does channel separation (38.8%); an output-normalizing guard loses to a held-out encoding (ROT13, 100%). Robustness comes from constraining the destination or isolating the capability, not from the acting model recognizing the attack.",
+      "authors": [
+        "Md Habibur Rahman",
+        "Jaeho Kim"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-08-27T13:12:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.27092v1",
+      "tags": [
+        "keyword:llm-agent"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "indirect prompt injection exfiltration attack in tool-using LLM agents",
+      "llm_evidence_cn": "工具使用型LLM智能体中的间接提示注入窃取攻击",
+      "llm_evidence": "工具使用型LLM智能体中的间接提示注入窃取攻击",
+      "canonical_evidence": "工具使用型LLM智能体中的间接提示注入窃取攻击",
+      "llm_tldr_en": "This paper reveals a framing gap in tool-using LLM agents: reframing identical data exfiltration as mandatory signatures or config fields raises attack success from 0% to 100%, defeating surface-level defenses.",
+      "llm_tldr_cn": "针对工具使用型LLM智能体面临的间接提示注入窃取风险，本文在受控合成环境下进行安全实验，发现同样的数据泄露指令在换用强制完整性签名、配置字段或可信主机等不同框架表述后，攻击成功率可从0%升至100%。实验对比六种模型、十种显式注入类别均被拒绝，但重述改写即可廉价实现攻击。该工作揭示表层防御的脆弱性，为智能体安全防护提供重要警示。",
+      "llm_tldr": "针对工具使用型LLM智能体面临的间接提示注入窃取风险，本文在受控合成环境下进行安全实验，发现同样的数据泄露指令在换用强制完整性签名、配置字段或可信主机等不同框架表述后，攻击成功率可从0%升至100%。实验对比六种模型、十种显式注入类别均被拒绝，但重述改写即可廉价实现攻击。该工作揭示表层防御的脆弱性，为智能体安全防护提供重要警示。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of autonomous agents",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27141v1",
+      "source": "arxiv",
+      "title": "Safety Does Not Compose: Non-Decaying Loop State for Autonomous LLM Agents",
+      "abstract": "Large language model agents are increasingly deployed as autonomous loops. Starting from one human goal, such a system repeatedly discovers work, plans, executes tool calls, verifies outcomes and persists state across many unattended iterations. The agent safeguards in wide use, however, are defined over a single trajectory, and their safety state is re-initialized when the next trajectory begins. We show that this is a failure of composition rather than an implementation detail. Our central result is a separation: against an attack whose evidence is fragmented across several iterations, every trajectory-scoped monitor has a true-positive rate equal to its false-positive rate, however expressive it is, because the evidence it would need never appears in the window it sees, whereas a monitor retaining cross-iteration state separates the two perfectly. We further show that the obvious repair of carrying a geometrically decaying risk score is insufficient, because the cooling-off period a patient adversary must wait is a constant that does not grow with the horizon $N$. We then present LoopHarness, which restores a persistent, non-decaying safety state at the loop level. Under mediated commits and an arbiter detection floor $δ_M$, it bounds the expected number of unauthorized irreversible actions by $B+m-1+m/δ_M$, a constant in $N$, of which the $B+m-1$ term is decided by a model-free rule and therefore survives a fully colluding verifier. We give a complete evaluation protocol on native Agent-SafetyBench tasks with paired clean and attacked episodes, an outer-state attack suite whose decisive evidence exists only across iterations, per-module ablations, and an adaptive white-box red team.",
+      "authors": [
+        "Chenhao Wu",
+        "Haoxuan Jia",
+        "Yang Liu",
+        "Yingguang Yang",
+        "Yuhan Lin",
+        "Chongyang Zhang",
+        "Hao Zheng",
+        "Yulin Huang",
+        "Jianshen Zhang",
+        "Yongzhi Qi",
+        "Shang Luo",
+        "Kefu Xu",
+        "Jifeng Zhu",
+        "Bin Chong"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "published": "2026-08-27T13:52:31+00:00",
+      "link": "https://arxiv.org/pdf/2608.27141v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Safety composition failure in autonomous LLM agent loops",
+      "llm_evidence_cn": "自主大模型智能体循环中的安全组合失败",
+      "llm_evidence": "自主大模型智能体循环中的安全组合失败",
+      "canonical_evidence": "自主大模型智能体循环中的安全组合失败",
+      "llm_tldr_en": "Shows trajectory-scoped safety monitors fail under attacks fragmented across iterations; any such monitor has true-positive rate equal to false-positive rate, requiring non-decaying loop state for autonomous LLM agents.",
+      "llm_tldr_cn": "针对自主大语言模型智能体在无人看管循环中部署时，现有安全机制只在单条轨迹内定义且每轮重置状态的问题，证明这是一种安全组合失败。攻击证据若分散在多次迭代中，任何轨迹级监控器的真阳率只能等于假阳率，再强也无法检出该攻击。结论是必须引入非衰减的循环级安全状态，才能保障多轮自主循环下智能体的持续安全。",
+      "llm_tldr": "针对自主大语言模型智能体在无人看管循环中部署时，现有安全机制只在单条轨迹内定义且每轮重置状态的问题，证明这是一种安全组合失败。攻击证据若分散在多次迭代中，任何轨迹级监控器的真阳率只能等于假阳率，再强也无法检出该攻击。结论是必须引入非衰减的循环级安全状态，才能保障多轮自主循环下智能体的持续安全。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of autonomous agents",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27146v1",
+      "source": "arxiv",
+      "title": "When Tool Outputs Become Commands: Separating Action Induction from Runtime Authorization in Tool-Augmented LLM Agents",
+      "abstract": "Tool-augmented LLM agents must rely on untrusted runtime Observations to complete open-ended tasks; however, when tool outputs no longer merely provide data but begin to specify concrete actions, they effectively become ``commands'' that can drive real-world side effects beyond user intent. We argue that this risk arises from conflating action induction with execution authorization. To address this distinction, we propose SARA, which treats action induction and execution authorization as distinct runtime roles and separates action provenance from execution authority. On the Observation side, a context-isolated Action Probe exposes action-inducing semantics and persistently records action-origin provenance across steps as a review signal; on the execution side, actual tool calls are authorized only against the user objective and audited evidence from authorized successful executions, while satisfying goal, execution-chain, and argument-level support. To preserve this separation across multi-step execution, SARA applies No-History-Promotion to prevent historical recurrence from laundering action origins into execution authority. Across AgentDojo and AgentDyn, SARA limits ASR to no more than \\(0.63\\%\\) across four primary evaluation settings while maintaining competitive task utility, and consistently reduces ASR across additional Agent backbones.",
+      "authors": [
+        "Xiaokun Guo",
+        "Zhen Xu",
+        "Dongdong Huo",
+        "Yanqiu Zhang",
+        "Wei Wang",
+        "Qinfu Yang",
+        "Dongjin Yu",
+        "Yu Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.SE"
+      ],
+      "published": "2026-08-27T13:59:04+00:00",
+      "link": "https://arxiv.org/pdf/2608.27146v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Security defense for tool-augmented LLM agents against untrusted tool outputs becoming commands",
+      "llm_evidence_cn": "针对工具增强LLM智能体的安全防御，防止不可信工具输出被当作命令",
+      "llm_evidence": "针对工具增强LLM智能体的安全防御，防止不可信工具输出被当作命令",
+      "canonical_evidence": "针对工具增强LLM智能体的安全防御，防止不可信工具输出被当作命令",
+      "llm_tldr_en": "Tool outputs can become commands that drive unintended side effects in LLM agents; SARA separates action induction from runtime authorization, offering a defense against command injection from untrusted tool observations.",
+      "llm_tldr_cn": "工具增强的LLM智能体在执行开放任务时依赖不可信的运行时观察，工具输出可能由单纯数据变成具体动作指令，从而产生超出用户意图的真实世界副作用。本文提出SARA方法，将动作诱发与执行授权分离为不同运行时角色，并通过情景隔离的动作探针揭示动作诱发语义、持久记录动作来源。该机制有效防范围绕工具输出的指令注入风险，为工具型智能体的授权安全提供了新方案。",
+      "llm_tldr": "工具增强的LLM智能体在执行开放任务时依赖不可信的运行时观察，工具输出可能由单纯数据变成具体动作指令，从而产生超出用户意图的真实世界副作用。本文提出SARA方法，将动作诱发与执行授权分离为不同运行时角色，并通过情景隔离的动作探针揭示动作诱发语义、持久记录动作来源。该机制有效防范围绕工具输出的指令注入风险，为工具型智能体的授权安全提供了新方案。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27234v1",
+      "source": "arxiv",
+      "title": "SPA: Securing Persistent LLM Agents Across Queries with Plan-First Information-Flow Control",
+      "abstract": "Large language model (LLM) agents increasingly operate over untrusted webpages, documents, tools, and persistent states while exercising authority over security-sensitive resources. Existing defenses typically protect either planning or individual tool interactions, but persistent agents face a broader threat: attacker-controlled data can alter control flow, enter security-sensitive tool arguments, or compromise later queries. We present SPA, a plan-first architecture that secures planning, execution, and cross-query state reuse. SPA invokes the planner once per query to generate a complete executable plan in a declarative domain-specific language, then applies dual-lattice information-flow control to track confidentiality and integrity across explicit data flows and control dependencies. To support persistence without re-exposing untrusted payloads to the planner, SPA stores execution results as labeled artifacts and reveals only semantic metadata during later planning. We evaluate SPA on AgentDojo and AgentDojo-MQ, which is our multi-query extension for measuring secure state reuse and delayed attacks. Under the 'tool_knowledge' attack, SPA with information-flow control reduces attack success to zero on AgentDojo and 0.2% on AgentDojo-MQ. Our results show that plan-first execution combined with label-preserving persistence can substantially strengthen persistent LLM agents, while revealing an important security-utility tradeoff introduced by strict integrity enforcement.",
+      "authors": [
+        "Dylan Girrens",
+        "Guangjing Wang"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.SE"
+      ],
+      "published": "2026-08-27T15:17:18+00:00",
+      "link": "https://arxiv.org/pdf/2608.27234v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "security architecture for persistent LLM agents",
+      "llm_evidence_cn": "持久化LLM智能体的安全架构",
+      "llm_evidence": "持久化LLM智能体的安全架构",
+      "canonical_evidence": "持久化LLM智能体的安全架构",
+      "llm_tldr_en": "SPA secures persistent LLM agents via plan-first information-flow control, protecting planning, execution, and cross-query state from attacker-controlled data.",
+      "llm_tldr_cn": "针对持久化LLM智能体面临跨查询状态篡改、恶意工具参数注入等安全威胁、现有防御仅覆盖单次规划或交互的问题，SPA采用计划优先架构，先生成完整可执行计划，再用双格信息流控制追踪机密性与完整性。该系统能够有效防止攻击者数据改变控制流或进入安全敏感工具参数，为跨查询的持久化智能体提供了系统化安全防护方案。",
+      "llm_tldr": "针对持久化LLM智能体面临跨查询状态篡改、恶意工具参数注入等安全威胁、现有防御仅覆盖单次规划或交互的问题，SPA采用计划优先架构，先生成完整可执行计划，再用双格信息流控制追踪机密性与完整性。该系统能够有效防止攻击者数据改变控制流或进入安全敏感工具参数，为跨查询的持久化智能体提供了系统化安全防护方案。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of autonomous agents",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27348v1",
+      "source": "arxiv",
+      "title": "INTENT-AS-A-TOOL Makes it Easy to Track Agentic Misalignment",
+      "abstract": "As large language models (LLMs) are deployed as autonomous agents, safety failures increasingly involve consequential actions. We study agentic misalignment, where agents take harmful actions under goal conflicts and pressures. Using chain-of-thought (CoT) monitoring, we find that harmful execution is often preceded by intent signals in reasoning. However, post-hoc CoT labels are too coarse to show how intent changes during generation. We introduce INTENT-AS-A-TOOL, an approach that adds intent-targeted tools to give the model a dedicated channel for expressing commitment to a target behavior. The probability of calling an intent tool provides a judge-free, fine-grained signal of the model's tendency to pursue that behavior. Our results show that INTENT-AS-A-TOOL complements CoT monitoring, expands post-hoc CoT labels into dense trajectories, and identifies critical steps for online intervention. These findings suggest that action preferences are useful for tracking agentic misalignment during reasoning. Our code and data are accessible: https://github.com/RebeccaZhang22/intent-as-a-tool.",
+      "authors": [
+        "Yutong Zhang",
+        "Jianshuo Dong",
+        "Peng Xu",
+        "Long Wang",
+        "Jie Zhang",
+        "Tianwei Zhang",
+        "Xiaoping Zhang",
+        "Han Qiu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-27T16:47:19+00:00",
+      "link": "https://arxiv.org/pdf/2608.27348v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "monitoring harmful intent to detect agentic misalignment in LLM agents",
+      "llm_evidence_cn": "通过意图监测识别LLM智能体的失准行为",
+      "llm_evidence": "通过意图监测识别LLM智能体的失准行为",
+      "canonical_evidence": "通过意图监测识别LLM智能体的失准行为",
+      "llm_tldr_en": "Presents INTENT-AS-A-TOOL, adding intent-targeted tools that give LLM agents a channel to express commitment to target behaviors, enabling judge-free fine-grained tracking of harmful intent before unsafe actions.",
+      "llm_tldr_cn": "LLM作为自主智能体时，安全失败往往涉及实际危害行为。本文研究在目标冲突和压力下智能体采取有害行为的失准现象。基于思维链监测发现有害执行前常出现意图信号，但事后标注太粗糙。作者提出INTENT-AS-A-TOOL，为模型提供表达目标意图的专用工具，通过调用意图工具的概率提供无需评判的细粒度失准信号，便于及时干预。",
+      "llm_tldr": "LLM作为自主智能体时，安全失败往往涉及实际危害行为。本文研究在目标冲突和压力下智能体采取有害行为的失准现象。基于思维链监测发现有害执行前常出现意图信号，但事后标注太粗糙。作者提出INTENT-AS-A-TOOL，为模型提供表达目标意图的专用工具，通过调用意图工具的概率提供无需评判的细粒度失准信号，便于及时干预。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security of autonomous agents",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27439v1",
+      "source": "arxiv",
+      "title": "RedEvoAgent: Automatic Red-Teaming Agent with Experience-Driven Skill Evolution",
+      "abstract": "LLM-based agents are increasingly deployed in product-level execution harnesses, where jailbreaks can trigger harmful tool use and persistent state changes, creating greater risks than unsafe text generation alone. Existing automatic red-teaming methods often rely on fixed attacks, while recent agentic attackers coordinate multiple jailbreak tools and show stronger potential through trajectory-based retrieval. However, such retrieval can reuse misleading experiences due to retrieval bias and unclear tool credit, and full trajectories add context overhead while reducing interpretability. We propose RedEvoAgent, a black-box red-teaming agent that distills cross-case attack trajectories into a concise, human-readable attack skill. The attack skill adaptively evolves through tool-effectiveness profiling and Deciding-Tool Attribution for skill updates, and a validation ratchet that retains only updates improving validation performance. Experiments on multiple benchmarks, target models, and target execution harnesses show that RedEvoAgent outperforms fixed and agentic baselines, improves tool efficiency, and transfers across attacker models and target execution harnesses.",
+      "authors": [
+        "Junjie Zhang",
+        "Hui Liu",
+        "Kecheng Chen",
+        "Xianbo Mo",
+        "Changsheng Chen",
+        "Haoliang Li"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "published": "2026-08-27T17:55:33+00:00",
+      "link": "https://arxiv.org/pdf/2608.27439v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "automatic red-teaming agent with attack skill evolution",
+      "llm_evidence_cn": "带经验驱动技能演化的自动化红队智能体",
+      "llm_evidence": "带经验驱动技能演化的自动化红队智能体",
+      "canonical_evidence": "带经验驱动技能演化的自动化红队智能体",
+      "llm_tldr_en": "RedEvoAgent is a black-box red-teaming agent that distills attack trajectories into concise human-readable skills, evolving them via experience to reduce bias and enable effective jailbreaks of LLM agents.",
+      "llm_tldr_cn": "LLM智能体部署带来工具滥用与持久状态改变等安全风险，现有红队方法依赖固定攻击或轨迹检索且存在偏差。作者提出RedEvoAgent，将跨场景攻击轨迹蒸馏为简明可读的攻击技能，并以经验驱动方式演化技能。作为黑盒红队智能体，它更高效且可解释。该工作为智能体安全评估提供了自动化工具。",
+      "llm_tldr": "LLM智能体部署带来工具滥用与持久状态改变等安全风险，现有红队方法依赖固定攻击或轨迹检索且存在偏差。作者提出RedEvoAgent，将跨场景攻击轨迹蒸馏为简明可读的攻击技能，并以经验驱动方式演化技能。作为黑盒红队智能体，它更高效且可解释。该工作为智能体安全评估提供了自动化工具。",
+      "llm_tags": [
+        "query:llm-security"
+      ],
+      "matched_query_tag": "query:llm-security",
+      "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.16168v1",
+      "source": "arxiv",
+      "title": "QUMem: Personalized Memory for Query-Conditioned User-State Inference in LLM Agents",
+      "abstract": "Large language model (LLM) agents increasingly use external memory systems to support personalization by drawing on long and evolving interaction histories, in which user preferences may be distributed across time, change with context, and conflict with earlier evidence. However, existing systems face three limitations: fixed-turn, fixed-token, or session-based boundaries can mix unrelated dialogue or split an event from its causes, decisions, and outcomes; storing multiple pieces of user information from the same interaction as a single memory binds together items that serve different functions and should be independently retrievable; and treating the current task as a single top-$k$ retrieval query can return fragments that are individually relevant but fail to jointly capture preference evolution, temporal validity, and contextual applicability. We introduce \\textsc{QUMem}, a structured memory framework for query-conditioned user-state inference. \\textsc{QUMem} first segments interaction histories into variable-length episodes according to semantic continuity, then decomposes each episode into independently retrievable factual, preference, and transferable insight memories while preserving temporal positions and source evidence. At inference time, three sequential agents identify task-specific information needs, plan multi-query retrieval over the typed memory stores, and jointly infer a temporally and contextually valid user state for downstream response generation. \\textsc{QUMem} achieves state-of-the-art performance on both PersonaMem and KnowU-Bench, demonstrating the effectiveness of query-conditioned user-state inference for long-term personalization.",
+      "authors": [
+        "Heng Wang",
+        "Yifei Li",
+        "Lingling Zhang",
+        "Pengyu Li",
+        "Xinyu Che",
+        "Xinyu Zhang",
+        "Zesheng Yang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-08-17T06:34:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.16168v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Query-conditioned memory system for user-state inference in LLM agents",
+      "llm_evidence_cn": "LLM智能体中查询条件的用户状态推断记忆系统",
+      "llm_evidence": "LLM智能体中查询条件的用户状态推断记忆系统",
+      "canonical_evidence": "LLM智能体中查询条件的用户状态推断记忆系统",
+      "llm_tldr_en": "QUMem improves LLM agent personalization by storing user information as independently retrievable units and performing query-conditioned inference over evolving interaction histories.",
+      "llm_tldr_cn": "LLM智能体依靠外部记忆个性化，但固定会话边界和整体存储会混淆或割裂信息。论文提出QUMem，将同一交互中的多块用户信息拆分为独立可检索单元，并用查询条件推断当前用户状态。该方法缓解了长历史中偏好变化和冲突带来的问题，为个性化Agent记忆提供新方案。",
+      "llm_tldr": "LLM智能体依靠外部记忆个性化，但固定会话边界和整体存储会混淆或割裂信息。论文提出QUMem，将同一交互中的多块用户信息拆分为独立可检索单元，并用查询条件推断当前用户状态。该方法缓解了长历史中偏好变化和冲突带来的问题，为个性化Agent记忆提供新方案。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent architectures for large language models",
+      "matched_requirement_id": "req-22",
+      "selection_source": "carryover_cache",
+      "paper_id": "2608.16168v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.21690v1",
+      "source": "arxiv",
+      "title": "Context as an Environment: Programmatic Context Management for Long-Horizon Agents",
+      "abstract": "LLM agents increasingly take on long-running tasks whose history grows far beyond a single model context window. Existing approaches compress earlier interactions or extract selected information into fixed memory representations, committing to what to preserve before future needs are known. We present Scroll, a context manager that treats each agent session as an executable Session Environment. The environment is backed by an append-only Event Log and a sandboxed, persistent Python kernel. The kernel maintains a typed namespace across model calls, allowing tool outputs, retrieved history, and derived state to be bound to variables rather than serialized into the prompt at each call. Model-written code searches, materializes, and transforms session state through exec; only explicitly printed projections enter the model's working view for the next call. Context management thus becomes a programming task that inherits the improving coding abilities of LLMs, while the Event Log preserves lossless historical ground truth. As the working view approaches its budget, stale spans are evicted but remain recoverable: an eviction index keeps compact landmarks tied to exact Event Log addresses, so that the agent navigates directly to evicted regions instead of searching the full log. With Qwen3.8-Max as the backbone, Scroll achieves 94.8% on LongMemEval_S; 73.1% on BEAM_10M, surpassing the best published memory system by 5.1 points; and 86.7% on LOCA_256K, exceeding the best published long-horizon agent by 37.4 points.",
+      "authors": [
+        "Yin Lin",
+        "Elaine Ang",
+        "Erkang Zhu",
+        "Bolin Ding",
+        "Jingren Zhou"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-21T23:39:19+00:00",
+      "link": "https://arxiv.org/pdf/2608.21690v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "programmatic context management environment for long-horizon LLM agents, treating session as executable Session Environment",
+      "llm_evidence_cn": "将智能体会话作为可执行环境进行程序化上下文管理",
+      "llm_evidence": "将智能体会话作为可执行环境进行程序化上下文管理",
+      "canonical_evidence": "将智能体会话作为可执行环境进行程序化上下文管理",
+      "llm_tldr_en": "Scroll manages LLM agent context as an executable Session Environment backed by an append-only event log and persistent Python kernel, allowing model-written code to search, materialize, and transform context.",
+      "llm_tldr_cn": "长程LLM智能体的历史远超上下文窗口，现有压缩或固定记忆表达难以应对未来需求。本文提出Scroll上下文管理器，把每个会话当作可执行环境，以追加式事件日志和持久Python内核为支撑，在模型调用间维护类型化命名空间。模型可编写代码搜索、物化并变换上下文，从而更灵活地处理长时任务，推动了上下文管理的编程化。",
+      "llm_tldr": "长程LLM智能体的历史远超上下文窗口，现有压缩或固定记忆表达难以应对未来需求。本文提出Scroll上下文管理器，把每个会话当作可执行环境，以追加式事件日志和持久Python内核为支撑，在模型调用间维护类型化命名空间。模型可编写代码搜索、物化并变换上下文，从而更灵活地处理长时任务，推动了上下文管理的编程化。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent framework for LLM",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.22149v1",
+      "source": "arxiv",
+      "title": "Meta-Ctrl: Guaranteed Plan Generation by Decoupling Syntactic and Semantic Constraints",
+      "abstract": "LLMs generate fluent plans for robots but routinely violate the syntactic and se8mantic constraints they must satisfy to execute, and existing remedies trade formal guarantees against plan quality: soft methods (affordance scoring, grounded decoding) give no guarantee, while symbolic planners (LLM+P) discard the LM's commonsense. We propose \\textbf{Meta-Ctrl}, a constrained-decoding framework that guarantees the encoded constraints while preserving the base LM's plan quality. Meta-Ctrl introduces \\emph{meta-tokens}---a compact vocabulary of grounded actions---enforcing syntax at the token level and semantics (preconditions, goals, ordering) at the action level, an exact factorization that cuts the memory of constrained decoding from over 107TB to under 2GB. With it, a small open-weight LM becomes competitive where it otherwise sits at the bottom of the leaderboard: on WAH-NL under the LoTa-Bench protocol it reaches the highest reported subgoal success rate, exceeding GPT-4's, with consistent gains across the Embodied Agent Interface. We further demonstrate it on a real tabletop robot, where every generated plan satisfies its preconditions and goals by construction. Project website: https://meta-ctrlg.github.io/.",
+      "authors": [
+        "Gwen Yidou-Weng",
+        "Edward Sun",
+        "Tianyi Ma",
+        "Metin Alp Dogan",
+        "Benjie Wang",
+        "Allen Peng",
+        "Guy Van den Broeck",
+        "Yuchen Cui"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "published": "2026-08-23T00:40:19+00:00",
+      "link": "https://arxiv.org/pdf/2608.22149v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "constrained decoding framework for LLM-based robot plan generation",
+      "llm_evidence_cn": "面向LLM机器人规划生成的约束解码框架",
+      "llm_evidence": "面向LLM机器人规划生成的约束解码框架",
+      "canonical_evidence": "面向LLM机器人规划生成的约束解码框架",
+      "llm_tldr_en": "Meta-Ctrl introduces meta-tokens to guarantee syntactic and semantic constraints in LLM-generated robot plans while preserving plan quality, cutting constrained-decoding memory overhead.",
+      "llm_tldr_cn": "针对大型语言模型生成机器人规划时经常违反语法与语义约束的问题，本文提出Meta-Ctrl约束解码框架，通过元词元在词元层强制语法、在动作层强制语义（前置条件、目标、顺序），在保证约束成立的同时保留基础语言模型的规划质量，并将约束解码的内存消耗从超大开销显著降低。该方法为需要形式化保证的LLM规划任务提供了通用而高效的解决方案。",
+      "llm_tldr": "针对大型语言模型生成机器人规划时经常违反语法与语义约束的问题，本文提出Meta-Ctrl约束解码框架，通过元词元在词元层强制语法、在动作层强制语义（前置条件、目标、顺序），在保证约束成立的同时保留基础语言模型的规划质量，并将约束解码的内存消耗从超大开销显著降低。该方法为需要形式化保证的LLM规划任务提供了通用而高效的解决方案。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "language agent for task automation",
+      "matched_requirement_id": "req-15",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.16181v1",
+      "source": "arxiv",
+      "title": "MUSE: An Interactive Meta-Agent for Understanding and Steering LLM-powered Data Science Systems",
+      "abstract": "Recent advances in large language models have enabled a new class of agentic data science systems that allow users to complete complex data science workflows through natural language. Although these systems can significantly reduce manual effort, it remains difficult to diagnose their behavior and steer the reasoning process when failures or unexpected outputs occur. We present MUSE, an interactive meta-agent that enhances user understanding and control of agentic data science systems by (1) dynamically restructuring low-level execution traces into multiple semantic levels that support navigation from high-level overviews to low-level implementation details; (2) enabling users to reference specific workflow steps in context to ask grounded questions, provide feedback, and revise problematic steps without manually locating relevant execution history; and (3) supporting mixed-initiative steering by surfacing suspicious steps for inspection, scaffolding the repair process, and translating user repair intent into contextualized instructions for the underlying agent. In a between-subjects study (n = 15), MUSE improved task efficiency and increased users' confidence in understanding and steering agentic data science workflows.",
+      "authors": [
+        "Wei-Hao Chen",
+        "Weixi Tong",
+        "Yuan Tian",
+        "Chenglong Wang",
+        "Tianyi Zhang"
+      ],
+      "primary_category": "cs.HC",
+      "categories": [
+        "cs.HC",
+        "cs.AI"
+      ],
+      "published": "2026-08-17T06:54:01+00:00",
+      "link": "https://arxiv.org/pdf/2608.16181v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "MUSE is an interactive meta-agent framework for understanding and steering LLM-powered agentic systems",
+      "llm_evidence_cn": "MUSE是一个交互式元智能体框架，用于理解和引导基于LLM的智能体系统",
+      "llm_evidence": "MUSE是一个交互式元智能体框架，用于理解和引导基于LLM的智能体系统",
+      "canonical_evidence": "MUSE是一个交互式元智能体框架，用于理解和引导基于LLM的智能体系统",
+      "llm_tldr_en": "LLM-powered agentic data science systems are hard to diagnose and steer. MUSE, an interactive meta-agent, restructures execution traces into semantic levels and lets users reference workflow steps, improving understanding and control.",
+      "llm_tldr_cn": "基于LLM的智能体数据科学系统虽能通过自然语言完成复杂工作流，但用户难以诊断故障或引导推理过程。为此本文提出MUSE，一个交互式元智能体，将低级执行轨迹动态重构为多个语义层级，使用户能从概览进入细节，并支持引用具体步骤进行交互。系统设计旨在提升用户对智能体的理解与掌控，为LLM智能体系统的可调试性和安全可控性提供了新思路。",
+      "llm_tldr": "基于LLM的智能体数据科学系统虽能通过自然语言完成复杂工作流，但用户难以诊断故障或引导推理过程。为此本文提出MUSE，一个交互式元智能体，将低级执行轨迹动态重构为多个语义层级，使用户能从概览进入细节，并支持引用具体步骤进行交互。系统设计旨在提升用户对智能体的理解与掌控，为LLM智能体系统的可调试性和安全可控性提供了新思路。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent framework for LLM",
+      "matched_requirement_id": "req-17",
+      "selection_source": "carryover_cache",
+      "paper_id": "2608.16181v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.22035v1",
+      "source": "arxiv",
+      "title": "Ludi${}_{\\scriptscriptstyle 0.1}$: An Agentic System for Socially Intelligent Robots",
+      "abstract": "Robot foundation models have substantially advanced perception and control, but natural human-robot collaboration requires more than executing isolated commands. A robot must recognize ambiguity, maintain context across turns, communicate its intentions, and revise ongoing behavior as the user's intent changes. We present $\\scriptstyle\\mathsf{Ludi}_{\\scriptscriptstyle 0.1}$, an agentic system for socially intelligent robots that integrates interactive speech, multimodal reasoning, memory, navigation, and learned manipulation. Its decision-making core is a fine-tuned vision-language model trained on multi-turn interaction traces spanning ambiguous requests, clarifications, corrections, interruptions, mixed social and task dialogue, and multi-step tasks. A purpose-built harness manages the model-tool interaction loop, while specialized navigation and manipulation policies execute physical skills. Ludi${}_{\\scriptscriptstyle 0.1}$ demonstrates a practical path toward fluid human-robot collaboration today while producing the multimodal interaction traces needed to develop a more deeply integrated foundation model for robots and people.",
+      "authors": [
+        "Wooseong Chung",
+        "William Cong",
+        "Jakub Dworakowski",
+        "Ethan Ewer",
+        "Tri Wahyu Guntara",
+        "Yeonwoo Jeong",
+        "Tianchong Jiang",
+        "Chaewon Kim",
+        "Hyunseo Kim",
+        "Jinwoo Kim",
+        "Jinyeon Kim",
+        "Yea-Seul Kim",
+        "Jack Kunde",
+        "Kangwook Lee",
+        "Sangheon Lee",
+        "Robert Nowak",
+        "Junha Roh"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-08-22T16:38:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.22035v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "agentic system integrating speech, multimodal reasoning, memory, navigation, and manipulation for LLM-based agents",
+      "llm_evidence_cn": "集成语音、多模态推理、记忆、导航与操作的智能体系统，符合大语言模型智能体架构主题",
+      "llm_evidence": "集成语音、多模态推理、记忆、导航与操作的智能体系统，符合大语言模型智能体架构主题",
+      "canonical_evidence": "集成语音、多模态推理、记忆、导航与操作的智能体系统，符合大语言模型智能体架构主题",
+      "llm_tldr_en": "Ludi 0.1 is an agentic system for socially intelligent robots that combines speech, multimodal reasoning, memory, navigation and learned manipulation, with a VLM core trained on multi-turn interaction traces.",
+      "llm_tldr_cn": "社交机器人需要处理模糊请求与动态用户意图，现有模型缺乏多轮协作能力。本文提出Ludi 0.1，一个整合语音交互、多模态推理、记忆、导航与操作学习的智能体系统，其决策核心基于多轮交互轨迹微调的视觉语言模型。系统能够在澄清、纠正、打断等复杂对话中维持上下文并调整行为，为人机自然协作提供了端到端框架。",
+      "llm_tldr": "社交机器人需要处理模糊请求与动态用户意图，现有模型缺乏多轮协作能力。本文提出Ludi 0.1，一个整合语音交互、多模态推理、记忆、导航与操作学习的智能体系统，其决策核心基于多轮交互轨迹微调的视觉语言模型。系统能够在澄清、纠正、打断等复杂对话中维持上下文并调整行为，为人机自然协作提供了端到端框架。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "large language model agent architecture",
+      "matched_requirement_id": "req-19",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.24004v1",
+      "source": "arxiv",
+      "title": "AgentSpec: Speculative Decoding for Batch Inference of LLM Agents",
+      "abstract": "Large language model (LLM)-based agent applications often incur high response time. Speculative decoding is a promising solution to improve the inference efficiency of LLM agents without impacting generation quality. However, state-of-the-art speculative decoding algorithms exhibit substantial speed degradation under large batch sizes, limiting their effectiveness to deploy in real-world agent applications. In this work, we first present a systematic analysis of speculative decoding for LLM agents and identify two dominant factors of speedup degradation: high rejection rate of speculative tokens, and under-utilization of dynamic token budgets.B ased on these observations, we propose AgentSpec, a speculative decoding algorithm that addresses the limitations of existing methods for LLM agents. AgentSpec incorporates structure-isolated drafting that constrains speculation to semantically coherent segments of the agent workflow, reducing the drafts of irrelevant semantic paths and achieving an extremely low rejection rate. Moreover, AgentSpec adopts redundancy-aware budget allocation that exploits agent-level information to better utilize the dynamically-free token budget during the agent inference. We implement and evaluate AgentSpec on five different workloads and four different models from four different LLM families in vLLM. Our results demonstrate the superiority of AgentSpec over state-of-the-arts.",
+      "authors": [
+        "Xin Wang",
+        "Ziming Miao",
+        "Yi Zhu",
+        "Hui Shen",
+        "Zhongwei Wan",
+        "Fan Yang",
+        "Mi Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-25T02:49:29+00:00",
+      "link": "https://arxiv.org/pdf/2608.24004v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Efficient inference for LLM-based agent applications",
+      "llm_evidence_cn": "面向大语言模型智能体应用的高效推理",
+      "llm_evidence": "面向大语言模型智能体应用的高效推理",
+      "canonical_evidence": "面向大语言模型智能体应用的高效推理",
+      "llm_tldr_en": "Analyzes speculative decoding degradation in LLM agents at large batch sizes and proposes AgentSpec to improve token acceptance and dynamic budget utilization, reducing response time without quality loss.",
+      "llm_tldr_cn": "针对大语言模型智能体应用响应时延高、而现有投机解码在大批量下加速明显退化的问题，系统分析并发现高投机器拒绝率与动态预算利用不足两大主因。提出AgentSpec投机解码算法，针对性提升令牌接受率并更充分使用动态令牌预算。实验表明在大批量真实智能体负载下该方法显著降低响应时间，同时不损害生成质量，改善了智能体推理效率与可部署性。",
+      "llm_tldr": "针对大语言模型智能体应用响应时延高、而现有投机解码在大批量下加速明显退化的问题，系统分析并发现高投机器拒绝率与动态预算利用不足两大主因。提出AgentSpec投机解码算法，针对性提升令牌接受率并更充分使用动态令牌预算。实验表明在大批量真实智能体负载下该方法显著降低响应时间，同时不损害生成质量，改善了智能体推理效率与可部署性。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "research papers on large language models and intelligent agents",
+      "matched_requirement_id": "req-20",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.16794v2",
+      "source": "arxiv",
+      "title": "Neurosymbolic Embodied Agents",
+      "abstract": "Language and vision-language models generate plausible embodied plans but do not guarantee executability, as their outputs can violate environment dynamics or act on incorrectly grounded entities. We present a neurosymbolic agent that factors long-horizon household tasks into task-directed visual exploration and constrained symbolic planning. In the first phase, a vision-language model and exploration harness acquire goal-relevant predicates and instance bindings from egocentric observations and grounded interactions, producing a symbolic initial state. In the second, a PDDL transition model restricts decoding to tokens that extend applicable actions. Monte Carlo tree search then evaluates executable continuations using a domain-independent planning heuristic. The resulting plans are executable by construction under the transition model, with transfer to the environment conditioned on correct visual grounding. On VirtualHome and ALFWorld, open 4B-27B models exceed 90% success in both environments, and our smallest agent substantially outperforms a 27B direct visual policy in each. Constraints and search prove complementary rather than interchangeable: in ALFWorld either alone solves under a third of tasks, whereas their combination solves over 95%. The method also uses several times fewer generated tokens than extended thinking and far fewer model-visible images than direct interaction, and residual failures localize to state acquisition rather than plan generation without any specialized training.",
+      "authors": [
+        "Mohammad Albinhassan",
+        "Yuming Feng",
+        "Alessandra Russo",
+        "Pranava Madhyastha"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-17T16:50:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.16794v2",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "language-vision model agent for long-horizon household task automation",
+      "llm_evidence_cn": "面向长程家务任务自动化的语言-视觉智能体",
+      "llm_evidence": "面向长程家务任务自动化的语言-视觉智能体",
+      "canonical_evidence": "面向长程家务任务自动化的语言-视觉智能体",
+      "llm_tldr_en": "Neurosymbolic Embodied Agents combines vision-language exploration with constrained symbolic planning to produce executable long-horizon household plans, improving executability over purely neural planners.",
+      "llm_tldr_cn": "语言和视觉语言模型虽然能生成看似合理的具体化计划，但常违反环境动态或错误绑定实体，导致计划不可执行。本文提出神经符号具身智能体，将长程家务任务分解为任务导向的视觉探索和受限符号规划两个阶段。第一阶段用视觉语言模型获取谓词与实例绑定，构建符号初始状态；第二阶段用PDDL过渡模型约束解码，并用蒙特卡洛树搜索评估可执行延续。实验表明该智能体能够生成可执行且更可靠的家务操作计划，为LLM在具身任务自动化中的应用提供了有效框架。",
+      "llm_tldr": "语言和视觉语言模型虽然能生成看似合理的具体化计划，但常违反环境动态或错误绑定实体，导致计划不可执行。本文提出神经符号具身智能体，将长程家务任务分解为任务导向的视觉探索和受限符号规划两个阶段。第一阶段用视觉语言模型获取谓词与实例绑定，构建符号初始状态；第二阶段用PDDL过渡模型约束解码，并用蒙特卡洛树搜索评估可执行延续。实验表明该智能体能够生成可执行且更可靠的家务操作计划，为LLM在具身任务自动化中的应用提供了有效框架。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "language agent for task automation",
+      "matched_requirement_id": "req-15",
+      "selection_source": "carryover_cache",
+      "paper_id": "2608.16794v2",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.22130v1",
+      "source": "arxiv",
+      "title": "PropUQ-MAS: Propagation-Aware Uncertainty Quantification for LLM Multi-Agent Systems",
+      "abstract": "LLM-based multi-agent systems (MAS) solve complex tasks through communication among role-specialized agents. However, inter-agent dependencies introduce reliability risks beyond isolated agent failures. For instance, errors in intermediate messages could be inherited and amplified by downstream agents. Existing uncertainty quantification (UQ) methods mainly target isolated responses or single-agent reasoning, and therefore fail to capture uncertainty propagation in MAS. To this end, we propose PropUQ-MAS, an error propagation-aware UQ framework that represents MAS execution as a communication-structured graph and estimates each step's reliability by combining local uncertainty with uncertainty inherited from upstream messages. Extensive experiments demonstrate that PropUQ-MAS consistently improves UQ in MAS, with average relative gains of +6.10% in AUROC and +47.58% in PRR.",
+      "authors": [
+        "Yaokun Liu",
+        "Yifan Liu",
+        "Daniel Yue Zhang",
+        "Ruichen Yao",
+        "Zelin Li",
+        "Dong Wang"
+      ],
+      "primary_category": "cs.MA",
+      "categories": [
+        "cs.MA",
+        "cs.CL"
+      ],
+      "published": "2026-08-22T23:07:39+00:00",
+      "link": "https://arxiv.org/pdf/2608.22130v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Proposes uncertainty propagation-aware framework for LLM multi-agent systems, addressing reliability in agent coordination",
+      "llm_evidence_cn": "提出面向LLM多智能体系统的不确定性传播量化框架，关注多智能体协调中的可靠性",
+      "llm_evidence": "提出面向LLM多智能体系统的不确定性传播量化框架，关注多智能体协调中的可靠性",
+      "canonical_evidence": "提出面向LLM多智能体系统的不确定性传播量化框架，关注多智能体协调中的可靠性",
+      "llm_tldr_en": "Introduces PropUQ-MAS, an error propagation-aware uncertainty quantification framework that models MAS execution as a communication graph and combines local uncertainty with inherited upstream uncertainty to estimate step reliability.",
+      "llm_tldr_cn": "LLM多智能体系统中，下游智能体会继承并放大上游消息中的错误，而现有不确定性量化方法通常只面向单智能体推理。本文提出PropUQ-MAS框架，将多智能体执行建模为通信结构图，结合局部不确定性和上游传播来的不确定性估计每个步骤的可靠性。实验表明该方法能有效捕捉MAS中的不确定性传播，提升系统可靠性评估准确性。该工作为多智能体系统的鲁棒设计与监控提供了新工具。",
+      "llm_tldr": "LLM多智能体系统中，下游智能体会继承并放大上游消息中的错误，而现有不确定性量化方法通常只面向单智能体推理。本文提出PropUQ-MAS框架，将多智能体执行建模为通信结构图，结合局部不确定性和上游传播来的不确定性估计每个步骤的可靠性。实验表明该方法能有效捕捉MAS中的不确定性传播，提升系统可靠性评估准确性。该工作为多智能体系统的鲁棒设计与监控提供了新工具。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "multi-agent system coordination",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.24588v2",
+      "source": "arxiv",
+      "title": "IAPO: Influence-Aware Policy Optimization for Credit Assignment in Multi-Turn Service Agents",
+      "abstract": "Large Language Model (LLM) agents increasingly solve long-horizon tasks through multi-turn interactions with users and external tools. In these settings, relevant task information often unfolds over time rather than being fully specified at the initial prompt. Service agents make this challenge especially concrete: users may clarify or revise their goals, while tool responses provide information needed for subsequent decisions. Thus, a final reward alone cannot indicate which actions contributed to resolving the task. Recent methods rely on comparative evidence from other trajectories or resampled continuations, or on separately constructed step-level learning signals, to refine credit. However, a completed rollout already records how information and errors flow between agent actions. We introduce Influence-Aware Policy Optimization (IAPO), which represents each rollout as a typed influence-dependency graph over trainable agent actions, with user and tool observations serving as evidence. IAPO converts support-use and failed-use structure into routing weights that redistribute the same trajectory-level advantage. Experiments with Qwen3-4B and Qwen3-8B demonstrate superior performance over multi-turn reinforcement learning (RL) baselines across three service-agent benchmarks: ${τ^2}$-Bench, UserBench, and AgentChangeBench. BFCL-v4 Multi-Turn further shows that these gains do not compromise multi-turn function-calling performance. This work advances the understanding of credit assignment in multi-turn user interactions and provides a principled approach to training service agents from sparse outcome feedback.",
+      "authors": [
+        "Bo Ren",
+        "Yirong Mao",
+        "Yi Yang",
+        "Wenhui Que"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-25T14:14:36+00:00",
+      "link": "https://arxiv.org/pdf/2608.24588v2",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "influence-aware policy optimization for credit assignment in multi-turn LLM-based service agents",
+      "llm_evidence_cn": "面向多轮服务类LLM智能体的影响感知策略优化与信用分配",
+      "llm_evidence": "面向多轮服务类LLM智能体的影响感知策略优化与信用分配",
+      "canonical_evidence": "面向多轮服务类LLM智能体的影响感知策略优化与信用分配",
+      "llm_tldr_en": "IAPO performs influence-aware policy optimization that uses completed rollouts and step-level influence to refine credit assignment in multi-turn service agents, improving long-horizon task solving.",
+      "llm_tldr_cn": "多轮服务智能体面临稀疏奖励与信用分配困难，最终奖励难以反映各动作贡献。本文提出影响感知策略优化算法，利用已完成轨迹中的影响信息构造步骤级学习信号，改进每个动作的信用分配。在长程多轮任务中提升了智能体的学习效率和任务完成质量，为服务类LLM智能体的策略训练提供了可行方法。",
+      "llm_tldr": "多轮服务智能体面临稀疏奖励与信用分配困难，最终奖励难以反映各动作贡献。本文提出影响感知策略优化算法，利用已完成轨迹中的影响信息构造步骤级学习信号，改进每个动作的信用分配。在长程多轮任务中提升了智能体的学习效率和任务完成质量，为服务类LLM智能体的策略训练提供了可行方法。",
+      "llm_tags": [
+        "query:llm-agent:composite"
+      ],
+      "matched_query_tag": "query:llm-agent:composite",
+      "matched_query_text": "Papers central to 帮我查找大语言模型以及agent相关的paper, especially work that connects or combines: large language model; language agent for task automation; multi-agent system coordination; agent framework for LLM; tool use agent in LLM; large language model agent architecture; research papers on large language models and intelligent agents; latest advances in LLM based autonomous agents; agent architectures for large language models.",
+      "matched_requirement_id": "req-composite-llm-agent",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.16798v1",
+      "source": "arxiv",
+      "title": "ClawGym II: Exploring Black-Box RL on Agent Harness",
+      "abstract": "Agent harnesses have substantially improved performance on long-horizon tasks by coordinating agent interactions with the environment. However, reinforcement learning through complex harnesses remains largely unexplored, as scaling such training to long-horizon agent tasks introduces fundamental challenges. In this work, we present a unified black-box RL framework for stable and scalable optimization of general agents through complex harnesses. Concretely, we first build a sandbox-based execution infrastructure that isolates task environments and harnesses within temporary sandboxes for large-scale concurrent rollouts. We then decouple policy optimization from opaque harness execution and place a serving proxy at the model boundary to capture model calls. To reconstruct multi-turn trajectories and improve training efficiency, we organize the captured calls into prefix trees and further adapt both critic-based PPO and critic-free GRPO to optimize over the recovered tree structure. Meanwhile, we maintain training-inference consistency throughout the optimization process. Finally, we introduce mix-harness training, allowing a single model to be jointly optimized by heterogeneous harnesses. With Qwen3-30A3B, black-box RL improves Pass@1 on ClawGym-Bench by 9.98 and 14.81 points through OpenClaw and Claude Code, respectively, while remaining stable over 200-400 optimization steps. Moreover, the framework yields consistent gains on more challenging tasks such as JobBench and OfficeQA. Overall, our framework enables effective, stable, and scalable optimization of general agents through black-box harnesses, supporting unified training across heterogeneous execution systems.",
+      "authors": [
+        "Huatong Song",
+        "Fei Bai",
+        "Ming Yang",
+        "Renyuan Li",
+        "Jia Deng",
+        "Jujie He",
+        "Zhange Zhang",
+        "Daixuan Cheng",
+        "Yan Xing",
+        "Qi Yun",
+        "Xuxing Chen",
+        "Danyang Li",
+        "Feng Chang",
+        "Chuan Hao",
+        "Ran Tao",
+        "Jian Yang",
+        "Bryan Dai",
+        "Wayne Xin Zhao",
+        "Mingjie Tang",
+        "Ji-Rong Wen"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-17T16:53:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.16798v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "black-box RL framework for optimizing agents through complex harnesses",
+      "llm_evidence_cn": "通过复杂控制框架优化智能体的黑盒强化学习框架",
+      "llm_evidence": "通过复杂控制框架优化智能体的黑盒强化学习框架",
+      "canonical_evidence": "通过复杂控制框架优化智能体的黑盒强化学习框架",
+      "llm_tldr_en": "ClawGym II presents a unified black-box RL framework for optimizing agents through complex harnesses, using sandbox-based execution for scalable rollouts and a serving proxy at the model boundary, with methods to reconstruct context from captured calls",
+      "llm_tldr_cn": "针对通过复杂控制框架进行智能体强化学习尚未充分探索且难以扩展的问题，本文提出统一的黑盒强化学习框架ClawGym II。框架构建基于沙箱的执行基础设施，将任务环境与控制框架隔离以支持大规模并发采样，并在模型边界放置服务代理来捕获模型调用以解耦策略优化与不透明的控制框架执行。该方案提升了复杂控制框架下智能体优化的稳定性与可扩展性。",
+      "llm_tldr": "针对通过复杂控制框架进行智能体强化学习尚未充分探索且难以扩展的问题，本文提出统一的黑盒强化学习框架ClawGym II。框架构建基于沙箱的执行基础设施，将任务环境与控制框架隔离以支持大规模并发采样，并在模型边界放置服务代理来捕获模型调用以解耦策略优化与不透明的控制框架执行。该方案提升了复杂控制框架下智能体优化的稳定性与可扩展性。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent framework for LLM",
+      "matched_requirement_id": "req-17",
+      "selection_source": "carryover_cache",
+      "paper_id": "2608.16798v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.22215v1",
+      "source": "arxiv",
+      "title": "Dual-Layer Agentic Memory with Fast Write Routing and Slow Consolidation",
+      "abstract": "Large language model (LLM) agents operate in dynamic environments where knowledge continuously evolves. Existing memory systems typically treat external memory as a monotonically growing repository, inevitably leading to retrieval degradation and increasing computational costs over time. We argue that the core challenge is not retrieval alone, but managing the knowledge lifecycle: deciding what to externalize, update, or ultimately internalize. Inspired by Complementary Learning Systems (CLS) theory in neuroscience, we propose Dual-Layer Agentic Memory, a framework that shifts memory management to the write phase through cost-aware epistemic routing and periodic parametric consolidation. Incoming information is categorized as non-write, write-new, or write-update, and routed through a small-to-large model cascade that minimizes routing overhead while filtering redundant memories. A subsequent write-back phase selectively consolidates high-value external memories into model parameters via supervised fine-tuning. Experiments demonstrate the dual efficiency of our approach: a 1.7B/8B cascade prunes up to 68% of redundant external memory while escalating fewer than 50% of inputs, yet retains over 98% of the downstream QA Exact Match (EM) achieved by an exhaustive retention baseline. We further show that periodic consolidation successfully internalizes external knowledge, allowing the router to adaptively suppress redundant writes as the model's epistemic boundaries evolve. Overall, our framework presents a unified paradigm for agent memory: selective externalization followed by selective internalization. Code and dataset will be released upon acceptance.",
+      "authors": [
+        "Wenzhi Li",
+        "Dong Nie",
+        "Rui Lan",
+        "Tongtong Lyu",
+        "Peiyao Wang",
+        "Lingzi Hong",
+        "Weihang Pan",
+        "Boyuan Pan",
+        "Yao Hu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-23T04:40:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.22215v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proposes a dual-layer agentic memory framework for LLM agents with fast write routing and slow consolidation",
+      "llm_evidence_cn": "提出面向LLM智能体的双层记忆框架，涉及写入路由与参数化整合",
+      "llm_evidence": "提出面向LLM智能体的双层记忆框架，涉及写入路由与参数化整合",
+      "canonical_evidence": "提出面向LLM智能体的双层记忆框架，涉及写入路由与参数化整合",
+      "llm_tldr_en": "Dual-Layer Agentic Memory addresses the knowledge lifecycle of LLM agents by categorizing incoming information and performing cost-aware write routing plus periodic parametric consolidation, improving retrieval and compute efficiency.",
+      "llm_tldr_cn": "LLM智能体长期运行中外部记忆无限增长，导致检索退化与计算开销上升。本文借鉴互补学习系统理论，提出双层智能体记忆框架，把管理重心放在写入阶段：通过成本感知认知路由将信息分为不写、写新或待整合，并定期进行参数化整合。该方法控制了记忆规模、延长了检索质量，并为长期智能体的记忆设计提供了新思路。",
+      "llm_tldr": "LLM智能体长期运行中外部记忆无限增长，导致检索退化与计算开销上升。本文借鉴互补学习系统理论，提出双层智能体记忆框架，把管理重心放在写入阶段：通过成本感知认知路由将信息分为不写、写新或待整合，并定期进行参数化整合。该方法控制了记忆规模、延长了检索质量，并为长期智能体的记忆设计提供了新思路。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent framework for LLM",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.24644v1",
+      "source": "arxiv",
+      "title": "A Literate Programming Environment for Human and Machine Agents",
+      "abstract": "This paper introduces an environment for constructing literate programs in concert with language-aware machine agents. This environment includes a grammar for executable program essays, a parser that treats names as first-class objects, an internal name-graph which relates prose, names and executable artifacts, and a binding mechanism for existing languages and testing toolsets. This supports co-location of code with its most relevant natural language and structured data context, making better use of Large Language Model (LLM) context windows. It also provides LLM coding agents with a toolset more analogous to the symbol-aware search and usage information available in human programmer-facing Integrated Development Environments (IDEs). We describe a working implementation with bindings to three established programming languages, and several example programs.",
+      "authors": [
+        "Adam T. Burke"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE",
+        "cs.AI",
+        "cs.PL"
+      ],
+      "published": "2026-08-25T14:54:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.24644v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "literate programming environment providing toolset for LLM coding agents",
+      "llm_evidence_cn": "为LLM编码智能体提供工具集的文学编程环境",
+      "llm_evidence": "为LLM编码智能体提供工具集的文学编程环境",
+      "canonical_evidence": "为LLM编码智能体提供工具集的文学编程环境",
+      "llm_tldr_en": "A literate programming environment with an executable program essay grammar, name graph, and language bindings improves LLM context use and gives coding agents a symbol-aware IDE-like toolset.",
+      "llm_tldr_cn": "LLM编码智能体缺少类似人类IDE的符号感知搜索与使用信息工具。本文提出面向人类与机器智能体的文学编程环境，包含可执行程序散文语法、将名字作为一等对象的解析器、连接散文名称与可执行产物的名称图，以及语言与测试工具绑定。该环境让代码更贴近其自然语言和结构上下文，提升了LLM上下文窗口利用率，并为编码智能体提供了更强的开发工具链。",
+      "llm_tldr": "LLM编码智能体缺少类似人类IDE的符号感知搜索与使用信息工具。本文提出面向人类与机器智能体的文学编程环境，包含可执行程序散文语法、将名字作为一等对象的解析器、连接散文名称与可执行产物的名称图，以及语言与测试工具绑定。该环境让代码更贴近其自然语言和结构上下文，提升了LLM上下文窗口利用率，并为编码智能体提供了更强的开发工具链。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "agent framework for LLM",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.17034v1",
+      "source": "arxiv",
+      "title": "Agents unlock new capabilities through Switching LoRA Adapters as a Tool (SLAaaT)",
+      "abstract": "Post-training can unlock new capabilities and improve performance on specialized tasks, but sometimes at the cost of catastrophic forgetting in other domains. This poses a problem in long agent trajectories that compose different capabilities. We reject this tradeoff by giving an agent a tool to switch between specialized LoRA adapters mid-trace. To test its effectiveness, we compose two synthetic coding tasks that are logically simple but require specialization. We find that this allows the model to solve problems it previously could not, that the model is able to switch autonomously (and find a new strategy that beats our human heuristic baseline on one task), and that this incurs an up to an 18x reduction in capability tax compared to an agent using only one specialized adapter. Our approach also substantially outperforms spawning subagents in both task capabilities and token usage.",
+      "authors": [
+        "Kenneth Ge"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-17T18:30:36+00:00",
+      "link": "https://arxiv.org/pdf/2608.17034v1",
+      "tags": [
+        "keyword:agent-evol",
+        "keyword:llm-agent",
+        "keyword:llm-security",
+        "query:agent-evol",
+        "query:llm-agent",
+        "query:llm-security"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "agent tool that switches between specialized LoRA adapters mid-trajectory to unlock capabilities",
+      "llm_evidence_cn": "智能体以工具方式在轨迹中途切换专用 LoRA 适配器以解锁新能力",
+      "llm_evidence": "智能体以工具方式在轨迹中途切换专用 LoRA 适配器以解锁新能力",
+      "canonical_evidence": "智能体以工具方式在轨迹中途切换专用 LoRA 适配器以解锁新能力",
+      "llm_tldr_en": "Gives agents a tool to switch specialized LoRA adapters mid-trace, enabling composition of capabilities, autonomous switching, and up to 18x reduction in capability tax.",
+      "llm_tldr_cn": "针对长智能体轨迹需要组合不同能力但微调会带来灾难性遗忘的问题，本文提出将 LoRA 适配器切换封装为智能体可用工具 SLAaaT。模型能够在轨迹中途自主切换专用适配器，解决原本无法完成的组合编码任务，并在单任务上超过人类启发式基线，同时将能力税最高降低 18 倍。这一思路为智能体动态调用多种模型能力提供了新的工具使用范式。",
+      "llm_tldr": "针对长智能体轨迹需要组合不同能力但微调会带来灾难性遗忘的问题，本文提出将 LoRA 适配器切换封装为智能体可用工具 SLAaaT。模型能够在轨迹中途自主切换专用适配器，解决原本无法完成的组合编码任务，并在单任务上超过人类启发式基线，同时将能力税最高降低 18 倍。这一思路为智能体动态调用多种模型能力提供了新的工具使用范式。",
+      "llm_tags": [
+        "query:llm-agent"
+      ],
+      "matched_query_tag": "query:llm-agent",
+      "matched_query_text": "tool use agent in LLM",
+      "matched_requirement_id": "req-18",
+      "selection_source": "carryover_cache",
+      "paper_id": "2608.17034v1",
+      "quick_tier": "8plus"
+    }
+  ]
+}
