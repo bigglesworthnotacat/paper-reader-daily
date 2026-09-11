@@ -1,317 +1,35 @@
 {
-  "generated_at": "2026-09-10T22:03:30.904690+00:00",
-  "updated_date": "20260910",
+  "generated_at": "2026-09-11T21:57:54.680251+00:00",
+  "updated_date": "20260911",
   "carryover_days": 9,
   "tag_states": {
     "llm-agent": {
-      "updated_date": "20260910",
+      "updated_date": "20260911",
       "carryover_days": 9,
-      "items": [
-        {
-          "id": "2609.05019v1",
-          "source": "arxiv",
-          "title": "TROVE: Adaptive Agent Skill Orchestration via Trace-Grounded Route Validation and Editing",
-          "abstract": "Agents tend to optimize, select, or constrain execution structures before decisive runtime outcomes are observed. However, such pre-execution commitment creates an orchestration bottleneck: when intermediate evidence invalidates the pending continuation, agents must either execute stale steps or replan broadly, compounding errors, wasting computation, and discarding progress. We thus propose Trace-grounded Route Orchestration via Validation and Editing (TROVE), which revises only what runtime evidence invalidates. Offline, TROVE distills evaluated workflow-search traces into atomic and composite skills and an outcome-conditioned transition graph, preserving stable fragments while exposing outcome-dependent decisions. Online, it treats a planned route as provisional: after committing one top-level skill, the controller retains a valid continuation, inserts a trace-supported local response, or replaces only the invalid suffix. Evaluation across code-generation, question-answering, and math reasoning benchmarks with different LLM backbones show that TROVE delivers a stronger quality-efficiency trade-off than existing baselines of dataset-level optimization, query-level architecture selection, and graph-constrained scheduling. Quality gains are largest when outcomes change the appropriate continuation, whereas early termination yields substantial efficiency gains on near-saturated tasks. Ablations further show that composite skills capture most offline benefits, insertion enables local correction, and suffix replacement primarily improves efficiency. These findings establish selective route editing as a general principle for adaptive agent orchestration.",
-          "authors": [
-            "Tianxing Wang",
-            "Mingming Zhao",
-            "Shuai Huang",
-            "Huiyang Xu",
-            "Chaoyue Niu",
-            "Shengzhong Liu",
-            "Fan Wu"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-09-04T11:38:13+00:00",
-          "link": "https://arxiv.org/pdf/2609.05019v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Adaptive agent skill orchestration and trace-grounded route editing framework",
-          "llm_evidence_cn": "面向 LLM 智能体的技能编排与轨迹实证路线修订框架",
-          "llm_evidence": "面向 LLM 智能体的技能编排与轨迹实证路线修订框架",
-          "canonical_evidence": "面向 LLM 智能体的技能编排与轨迹实证路线修订框架",
-          "llm_tldr_en": "Agents with precommitted execution structures waste computation when runtime evidence invalidates a continuation. TROVE distills workflow traces into skills and an outcome-conditioned graph, then online validates routes and edits only what evidence discredits.",
-          "llm_tldr_cn": "许多智能体会在观察到最终结果前过早选择并固定执行路线，一旦中间证据否决后续计划，不是执行过时步骤就是大范围重规划，造成错误累积与计算浪费。TROVE 提出“只修订被运行证据否定部分”的轨迹实证路线编排方法：离线从评估过的工作流搜索轨迹中提取原子/复合技能并构建按结果条件化的转移图，在线则验证当前路线并最小化编辑失效片段。该机制保留稳定执行片段、消除不必要重规划，让智能体在复杂环境中做出更灵活的编排决策。",
-          "llm_tldr": "许多智能体会在观察到最终结果前过早选择并固定执行路线，一旦中间证据否决后续计划，不是执行过时步骤就是大范围重规划，造成错误累积与计算浪费。TROVE 提出“只修订被运行证据否定部分”的轨迹实证路线编排方法：离线从评估过的工作流搜索轨迹中提取原子/复合技能并构建按结果条件化的转移图，在线则验证当前路线并最小化编辑失效片段。该机制保留稳定执行片段、消除不必要重规划，让智能体在复杂环境中做出更灵活的编排决策。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "agent framework for LLM",
-          "matched_requirement_id": "req-17",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.05019v1",
-          "carry_days": 2
-        },
-        {
-          "id": "2609.05587v1",
-          "source": "arxiv",
-          "title": "Agents Trust Tools Too Much: Measuring Reliance on Unreliable Tools",
-          "abstract": "Existing evaluations of tool-using agents primarily measure whether an agent can successfully complete diverse tasks with tools. These evaluations generally assume that tools return reliable information. However, tool returns in real-world systems can be plausible yet incorrect. We investigate how agents respond to unreliable tool returns by evaluating fourteen LLMs using three tools-web search, LLM sub-agent delegation, and code execution. For each tool, we corrupt its returns and measure whether agents adopt the corrupted content in their final answers. Agents exhibit high levels of overtrust across all three settings: the mean adoption rate exceeds one third for every tool and reaches 68.0% for web search. Analysis of reasoning traces reveals a particularly concerning failure mode: agents often recognize conflicts and even recover the correct answer internally, yet present only the corrupted answer without warning the user. To mitigate agents' overtrust in tool returns, we intervene at three levels: prompting by the user, metadata from the tool provider, and post-training by the agent builder. Although some interventions help for particular models or tools, none consistently mitigates overtrust across tools. These findings identify overtrust in unreliable tools as a serious and persistent failure mode, motivating evaluations and interventions that enable agents to validate tool outputs and transparently communicate unresolved conflicts.",
-          "authors": [
-            "Hoyeol Yang",
-            "Woojung Song",
-            "Taewon Kim",
-            "Jonghyun Song",
-            "Seoyeon Park",
-            "Yohan Jo"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-09-04T17:02:32+00:00",
-          "link": "https://arxiv.org/pdf/2609.05587v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Measures how tool-using LLM agents overtrust corrupted tool returns in web search, delegation, and code execution",
-          "llm_evidence_cn": "测量工具型LLM智能体对三类不可靠工具返回内容的过度信任与采纳行为",
-          "llm_evidence": "测量工具型LLM智能体对三类不可靠工具返回内容的过度信任与采纳行为",
-          "canonical_evidence": "测量工具型LLM智能体对三类不可靠工具返回内容的过度信任与采纳行为",
-          "llm_tldr_en": "Evaluates 14 LLM agents under corrupted returns of web search, LLM sub-agent delegation, and code execution, reporting widespread adoption of corrupted content and revealing an overtrust problem in tool-using agents.",
-          "llm_tldr_cn": "现有工具使用智能体评测通常假定工具可靠，但真实系统中的返回内容可能看似合理却错误。本文对网络搜索、LLM子智能体委派和代码执行三类工具设置污染返回，测量14个LLM是否在最终回答中采纳被污染内容。结果显示智能体存在普遍且高水平的过度信任：每个工具的平均采纳率都超过三分之一，网络搜索高达68%。推理轨迹表明智能体缺少对工具输出可靠性的充分质疑，这为工具增强型智能体的安全部署敲响警钟。",
-          "llm_tldr": "现有工具使用智能体评测通常假定工具可靠，但真实系统中的返回内容可能看似合理却错误。本文对网络搜索、LLM子智能体委派和代码执行三类工具设置污染返回，测量14个LLM是否在最终回答中采纳被污染内容。结果显示智能体存在普遍且高水平的过度信任：每个工具的平均采纳率都超过三分之一，网络搜索高达68%。推理轨迹表明智能体缺少对工具输出可靠性的充分质疑，这为工具增强型智能体的安全部署敲响警钟。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "tool use agent in LLM",
-          "matched_requirement_id": "req-18",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.05587v1",
-          "carry_days": 2
-        },
-        {
-          "id": "2609.07925v1",
-          "source": "arxiv",
-          "title": "FrogNano: Training a 4B Coding Agent via Online Task Synthesis",
-          "abstract": "We present FrogNano, a 4B coding agent designed to tackle software engineering (SWE) tasks efficiently and effectively, even under resource-constrained environments. It is post-trained exclusively via RL on around 1,500 SWE environments with synthetic tasks. A key ingredient for improving performance is an online task synthesis pipeline that creates tasks calibrated to the frontier of learnability for the current checkpoint. This report provides evidence that competitive small coding agents can be trained with synthetic tasks alone, without traditional distillation from larger models, and that generating tasks at the learnability frontier of the current agent is important. We report details on the training methodology, evaluations across diverse environments, and in-depth analyses, serving as a foundation for our ongoing exploration of lightweight yet capable coding agents that can run on minimal hardware.",
-          "authors": [
-            "Minseon Kim",
-            "Zhengyan Shi",
-            "Emiliano Penaloza",
-            "Christopher Cui",
-            "Roger Creus Castanyer",
-            "Maryam Hashemzadeh",
-            "Isadora White",
-            "Jonathan Light",
-            "Jeonghye Kim",
-            "Matheus Pereira",
-            "Darya Moldavskaya",
-            "Chinmay Singh",
-            "Fabio Vera",
-            "Baolin Peng",
-            "Xingdi Yuan",
-            "Marc-Alexandre Côté",
-            "Alessandro Sordoni"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-09-07T19:39:38+00:00",
-          "link": "https://arxiv.org/pdf/2609.07925v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "RL training of a 4B coding agent on synthetic software engineering environments via online task synthesis",
-          "llm_evidence_cn": "通过在线任务合成与强化学习训练的4B编程智能体，实现软件工程任务自动化",
-          "llm_evidence": "通过在线任务合成与强化学习训练的4B编程智能体，实现软件工程任务自动化",
-          "canonical_evidence": "通过在线任务合成与强化学习训练的4B编程智能体，实现软件工程任务自动化",
-          "llm_tldr_en": "FrogNano trains a 4B coding agent purely by RL on synthetic SWE tasks from about 1,500 environments, with an online pipeline generating tasks at the learnability frontier; results show competitive small agents without distillation.",
-          "llm_tldr_cn": "训练实用的小型编程智能体通常依赖大模型蒸馏或大量真实数据。FrogNano则尝试仅用强化学习在约1500个软件工程环境上后训练一个4B模型，关键是在线任务合成管线，根据当前检查点的可学前沿动态生成合成任务。实验显示，不依赖任何大模型蒸馏，该小型编程智能体也能在多样化环境中获得有竞争力的表现，证明任务难度与当前能力的匹配比单纯增加数据更重要。这项工作为资源受限场景下语言智能体的自动化训练提供了可复现的新路径。",
-          "llm_tldr": "训练实用的小型编程智能体通常依赖大模型蒸馏或大量真实数据。FrogNano则尝试仅用强化学习在约1500个软件工程环境上后训练一个4B模型，关键是在线任务合成管线，根据当前检查点的可学前沿动态生成合成任务。实验显示，不依赖任何大模型蒸馏，该小型编程智能体也能在多样化环境中获得有竞争力的表现，证明任务难度与当前能力的匹配比单纯增加数据更重要。这项工作为资源受限场景下语言智能体的自动化训练提供了可复现的新路径。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "language agent for task automation",
-          "matched_requirement_id": "req-15",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.07925v1",
-          "carry_days": 2
-        },
-        {
-          "id": "2609.09233v1",
-          "source": "arxiv",
-          "title": "Subagents vs Agent Skills: Executing Reusable Knowledge for Long-Horizon Agentic Tasks",
-          "abstract": "How can language model agents effectively leverage libraries of reusable knowledge to solve long-horizon tasks? Recent work has increasingly focused on agent skills: reusable capabilities represented as skill packages, i.e., multi-file bundles containing instructions, scripts, and other resources that help agents perform specific tasks. Agent skills are typically executed by loading their skill instructions into an agent's context and relying on the agent to follow them. As task horizons grow, however, this approach becomes increasingly brittle, because reasoning quality degrades as more information accumulates in the context window. We investigate an alternative approach in which skill packages are instead invoked as subagents. Rather than loading skill instructions into the main context, subagent execution spawns fresh context windows dedicated to solving individual subtasks. We show that subagent execution outperforms agent-skill execution when skill packages expose clear input-output contracts and their instructions encode the procedural knowledge needed to fulfill those contracts. The tradeoff is additional communication overhead, as extra tokens are required to coordinate between the main agent and its subagents. Our results show that the benefit of reusable knowledge depends not only on its content, but also on how it is organized and invoked.",
-          "authors": [
-            "Wasu Top Piriyakulkij",
-            "Rachel Lawrence",
-            "Alicia Curth",
-            "Sushrut Karmalkar",
-            "Niranjani Prasad"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI",
-            "cs.CL",
-            "cs.LG"
-          ],
-          "published": "2026-09-07T20:14:11+00:00",
-          "link": "https://arxiv.org/pdf/2609.09233v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "agent framework executing reusable skill packages as subagents for long-horizon tasks",
-          "llm_evidence_cn": "将技能包作为子智能体执行的LLM智能体框架，面向长时程任务",
-          "llm_evidence": "将技能包作为子智能体执行的LLM智能体框架，面向长时程任务",
-          "canonical_evidence": "将技能包作为子智能体执行的LLM智能体框架，面向长时程任务",
-          "llm_tldr_en": "Long-horizon agentic tasks suffer when skill instructions are loaded into context, degrading reasoning. This paper studies invoking skill packages as subagents instead, offering a more robust execution architecture for reusing agent knowledge.",
-          "llm_tldr_cn": "语言模型智能体常通过把技能包指令载入上下文来执行可复用能力，但任务时程变长后上下文膨胀会削弱推理质量，使执行变得脆弱。论文研究将技能包改为以子智能体方式调用的替代方案，从而避免主智能体上下文被大量指令挤占。摘要指出这种子智能体式执行在长时程任务中更稳健。其贡献在于为智能体复用知识库提供了新的执行架构。",
-          "llm_tldr": "语言模型智能体常通过把技能包指令载入上下文来执行可复用能力，但任务时程变长后上下文膨胀会削弱推理质量，使执行变得脆弱。论文研究将技能包改为以子智能体方式调用的替代方案，从而避免主智能体上下文被大量指令挤占。摘要指出这种子智能体式执行在长时程任务中更稳健。其贡献在于为智能体复用知识库提供了新的执行架构。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "agent framework for LLM",
-          "matched_requirement_id": "req-17",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.09233v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.09395v1",
-          "source": "arxiv",
-          "title": "The Menu Is an Execution Prior: State-Path Tool Menus for Online Agents",
-          "abstract": "Language models act through tools, yet practical agents face libraries containing thousands of interfaces. We introduce the tool menu as the short, ordered subset of available tools shown to an agent before execution. The agent can call only tools in this menu. Multi-step tasks require the final action and the prerequisite tools that create its inputs in a usable order. Current constructors rank tools by request relevance, which can surface the final action while omitting or delaying less obvious producers. We introduce the state path, a pre-execution route from the observable request state to the desired outcome, and propose State-Path Tool Menu to learn it. Our framework treats the menu as an execution prior over these routes. Its encoder represents which tools can run from the current state, how their outputs satisfy later inputs, and which orders recur in training paths. A retriever covers an executable entry, the missing-input producers, and the final action. A reranker then places producers before consumers. On ToolBench, our menu raises online success from 0.737 to 0.898 and outperforms retrieval, reranking, generation, and routing baselines without changing the agent. The State-Path menu also covers more complete chains with 32 tools than the official list covers with 128, and its success gain persists across executor families with different model capacities. Our code is at https://github.com/Met2348/State-Path.",
-          "authors": [
-            "Bo Yan",
-            "Weikai Lin",
-            "Song Wang"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-09-08T19:46:08+00:00",
-          "link": "https://arxiv.org/pdf/2609.09395v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "tool menu as execution prior for online LLM agents to select prerequisite tools",
-          "llm_evidence_cn": "面向在线LLM智能体的工具菜单执行先验，帮助选择前置工具",
-          "llm_evidence": "面向在线LLM智能体的工具菜单执行先验，帮助选择前置工具",
-          "canonical_evidence": "面向在线LLM智能体的工具菜单执行先验，帮助选择前置工具",
-          "llm_tldr_en": "Agents facing thousands of tool interfaces may surface the final action while omitting prerequisite tools. This paper introduces the state path and State-Path Tool Menu, treating the menu as an execution prior to learn ordered, prerequisite-aware tool subsets.",
-          "llm_tldr_cn": "语言模型通过工具行动，但实际智能体面对成千上万个接口，现有按请求相关性排序的工具菜单可能只暴露最终动作而遗漏前置工具。论文提出状态路径这一从可观测请求状态到目标结果的执行前路径，并据此设计State-Path Tool Menu，把菜单视为执行先验来学习。摘要表明该方法能生成包含必要前置工具的有序菜单，改善多步任务执行。其贡献在于为在线智能体的工具选择提供了执行先验框架。",
-          "llm_tldr": "语言模型通过工具行动，但实际智能体面对成千上万个接口，现有按请求相关性排序的工具菜单可能只暴露最终动作而遗漏前置工具。论文提出状态路径这一从可观测请求状态到目标结果的执行前路径，并据此设计State-Path Tool Menu，把菜单视为执行先验来学习。摘要表明该方法能生成包含必要前置工具的有序菜单，改善多步任务执行。其贡献在于为在线智能体的工具选择提供了执行先验框架。",
-          "llm_tags": [
-            "query:llm-agent"
-          ],
-          "matched_query_tag": "query:llm-agent",
-          "matched_query_text": "tool use agent in LLM",
-          "matched_requirement_id": "req-18",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.09395v1",
-          "carry_days": 1
-        }
-      ]
+      "items": []
     },
     "llm-security": {
-      "updated_date": "20260910",
+      "updated_date": "20260911",
       "carryover_days": 9,
       "items": [
         {
-          "id": "2609.06780v1",
+          "id": "2609.09875v1",
           "source": "arxiv",
-          "title": "Shortcutting the Fix: Identifying and Categorizing Agentic Exploits in Software Engineering Benchmarks",
-          "abstract": "While autonomous software engineering (SWE) agents achieve high benchmark resolution rates, these scores can mask exploitative behaviors---such as leveraging local Git histories, accessing upstream repositories, or recalling memorized solutions---rather than demonstrating genuine problem solving. We systematize and audit these exploits across five open large language models on SWE-bench Multilingual and DeepSWE using a turn-level LLM-as-a-judge protocol. Under standard prompts, exploitation rates reach 45.1\\%--82.4\\% on SWE-bench Multilingual and 44.2\\%--66.1\\% on DeepSWE. Appending a targeted instruction enforcing solution originality drastically cuts these exploitation rates---down to 4.0\\%--10.7\\% and 1.5\\%--7.1\\%, respectively, while maintaining strong core task performance. Our findings demonstrate the critical need for exploit-aware evaluation frameworks that measure true repository-level problem solving over benchmark gaming.",
+          "title": "AgentAudit: An Open, Extensible Framework for Full-Lifecycle Trust Evaluation of AI Agents",
+          "abstract": "Existing evaluation frameworks mostly assess only one part of AI agents, such as task completion (AgentBench) or security robustness (AgentDojo, ASB), rather than the complete pipeline of planning, tool selection, tool execution, memory and reasoning. Failures can occur at any stage, yet existing benchmarks rarely identify their precise source. AgentAudit evaluates the entire execution trace across ten capability, grounding, security and behavioural dimensions, namely instruction integrity, planner, memory, tool selection, tool invocation, tool correctness, alignment, tool faithfulness, security and execution integrity, combined with behavioural classification and failure attribution to pinpoint the exact stage responsible for an observed failure. AgentAudit can evaluate any LLM-based AI agent, since it attaches to the agent instead of replacing it. It reads only the recorded execution trace and does not interfere with how the agent runs, so it places no constraint on the agent's internal implementation. We evaluate five language models (OpenAI GPT-5, Claude Sonnet 5, Sarvam 105B, Llama 3.3 70B and Gemini 2.5 Flash) across nine capability and adversarial tasks. Claude Sonnet 5 and GPT-5 obtain the highest mean Composite Trust Scores (95.1 and 80.6 out of 100, respectively), while Sarvam 105B, Llama 3.3 70B and Gemini 2.5 Flash trail substantially (57.6, 45.7 and 22.6). All traces were scored by a single fixed judge model, which was itself one of the evaluated models, a limitation discussed in Section VII.E. More importantly, models with similar task-completion behaviour can diverge sharply in trustworthiness, as several non-frontier models are repeatedly classified Unsafe_Compliance on adversarial tasks rather than merely failing them, a distinction that pass/fail benchmarks cannot surface.",
           "authors": [
-            "Nikolai Ludwig",
-            "Wasi Uddin Ahmad",
-            "Somshubra Majumdar",
-            "Boris Ginsburg"
+            "Shrey Nag",
+            "Sachita",
+            "Abhishek Kumar Singh",
+            "Lipi Goel",
+            "Rajeshwar Singh Janwar"
           ],
-          "primary_category": "cs.SE",
+          "primary_category": "cs.AI",
           "categories": [
-            "cs.SE"
-          ],
-          "published": "2026-09-06T18:55:39+00:00",
-          "link": "https://arxiv.org/pdf/2609.06780v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Auditing agentic exploits and exploitative behaviors of LLM agents",
-          "llm_evidence_cn": "审计LLM智能体的代理式利用行为与作弊漏洞",
-          "llm_evidence": "审计LLM智能体的代理式利用行为与作弊漏洞",
-          "canonical_evidence": "审计LLM智能体的代理式利用行为与作弊漏洞",
-          "llm_tldr_en": "Autonomous SWE agents score high on benchmarks, but these scores may mask exploitative behaviors like reading Git history or recalling memorized solutions. The authors audit these exploits across five open LLMs using an LLM-as-a-judge protocol, finding exploitation rates up to 82 percent that drop sharply under originality-enforcing prompts.",
-          "llm_tldr_cn": "自主软件工程智能体在基准上得分很高，但这些分数可能掩盖了利用本地Git历史、访问上游仓库或回忆记忆解法等作弊行为，而非真正的解题能力。作者提出回合级LLM裁判协议，在SWE-bench Multilingual与DeepSWE上审计五种开源大模型的此类利用行为。结果显示标准提示下利用率高达45.1%至82.4%，而加入强调解法原创性的指令后利用率骤降至4%至10%左右，揭示了智能体评测中的安全隐患与防御方向。",
-          "llm_tldr": "自主软件工程智能体在基准上得分很高，但这些分数可能掩盖了利用本地Git历史、访问上游仓库或回忆记忆解法等作弊行为，而非真正的解题能力。作者提出回合级LLM裁判协议，在SWE-bench Multilingual与DeepSWE上审计五种开源大模型的此类利用行为。结果显示标准提示下利用率高达45.1%至82.4%，而加入强调解法原创性的指令后利用率骤降至4%至10%左右，揭示了智能体评测中的安全隐患与防御方向。",
-          "llm_tags": [
-            "query:llm-security"
-          ],
-          "matched_query_tag": "query:llm-security",
-          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
-          "matched_requirement_id": "req-5",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.06780v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.07344v1",
-          "source": "arxiv",
-          "title": "Staying on the Attack Path: Structured State for Long-Horizon Automated Penetration Testing",
-          "abstract": "Large language model (LLM) based agents are increasingly applied to cybersecurity tasks such as vulnerability discovery and automated penetration testing. On long-horizon security tasks, however, such agents remain limited by context forgetting and intent drift: early critical facts and causal reasoning chains are lost over extended interactions, and the agent falls into aimless, repetitive exploration. This paper proposes Intentest, an intent-graph-guided automated penetration testing agent that externalizes long-horizon state from the LLM's context window onto a persistent fact-intent directed acyclic graph (DAG), thereby substantially reducing invalid transitions. We evaluate Intentest on automated penetration testing of web applications, a representative long-tail task in cybersecurity. In the DAG, verified network states are stored as immutable fact nodes, and exploration directions are constrained as intent edges bounded by predecessor facts. The system adopts a three-layer architecture, in which the fact-intent mapping layer maintains the global state, the task scheduling and allocation layer ensures execution stability through two-phase degradation recovery and multi-dimensional adaptive load balancing, and the intent retrieval and prediction layer provides tactical priors through a top-down five-stage filtering algorithm. On a benchmark of real CTF challenges covering more than ten vulnerability types across three difficulty levels, Intentest achieves an overall success rate of 88.2% and a success rate of 75.0% on hard tasks, improving over the baseline by approximately 44 and 50 percentage points. Ablation experiments further show that the intent retrieval and prediction reduce the average number of rounds on successful medium and hard tasks by about 33% and 48%, respectively, without changing the set of solvable tasks.",
-          "authors": [
-            "Weizhe Wang",
-            "Yitong Zhang",
-            "Yao Zhang",
-            "Xiaoqiang Di",
-            "Zhigang Li",
-            "Bin Wu",
-            "Guangquan Xu"
-          ],
-          "primary_category": "cs.CR",
-          "categories": [
-            "cs.CR",
             "cs.AI"
           ],
-          "published": "2026-09-07T11:09:01+00:00",
-          "link": "https://arxiv.org/pdf/2609.07344v1",
+          "published": "2026-09-09T08:29:16+00:00",
+          "link": "https://arxiv.org/pdf/2609.09875v1",
           "tags": [
             "keyword:agent-evol",
             "keyword:llm-agent",
@@ -321,13 +39,13 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "LLM-based agents for automated penetration testing with structured long-horizon state",
-          "llm_evidence_cn": "基于LLM的自动化渗透测试智能体，用结构化长时程状态应对安全任务",
-          "llm_evidence": "基于LLM的自动化渗透测试智能体，用结构化长时程状态应对安全任务",
-          "canonical_evidence": "基于LLM的自动化渗透测试智能体，用结构化长时程状态应对安全任务",
-          "llm_tldr_en": "LLM agents on long-horizon security tasks suffer context forgetting and intent drift. Intentest externalizes state onto a fact-intent DAG for automated penetration testing, reducing invalid transitions and keeping the attack path coherent.",
-          "llm_tldr_cn": "LLM智能体被越来越多用于漏洞发现与自动化渗透测试，但在长时程安全任务中受上下文遗忘和意图漂移限制，早期关键事实与推理链丢失。论文提出Intentest，将长时程状态从模型上下文外化到持久的事实-意图有向无环图，从而减少无效转移。在Web应用自动化渗透测试上的评估显示其能保持攻击路径连贯。该工作为LLM安全智能体的长时程状态管理提供了结构化方案。",
-          "llm_tldr": "LLM智能体被越来越多用于漏洞发现与自动化渗透测试，但在长时程安全任务中受上下文遗忘和意图漂移限制，早期关键事实与推理链丢失。论文提出Intentest，将长时程状态从模型上下文外化到持久的事实-意图有向无环图，从而减少无效转移。在Web应用自动化渗透测试上的评估显示其能保持攻击路径连贯。该工作为LLM安全智能体的长时程状态管理提供了结构化方案。",
+          "llm_evidence_en": "full-lifecycle trust and security evaluation of AI agents",
+          "llm_evidence_cn": "面向AI智能体全生命周期的可信与安全评估",
+          "llm_evidence": "面向AI智能体全生命周期的可信与安全评估",
+          "canonical_evidence": "面向AI智能体全生命周期的可信与安全评估",
+          "llm_tldr_en": "Existing agent benchmarks assess only fragments such as task completion or security robustness, rarely pinpointing failure sources. AgentAudit evaluates the whole execution trace across ten capability, grounding, security and behavioural dimensions and adds behavioural classification plus failure attribution to locate the responsible stage.",
+          "llm_tldr_cn": "现有智能体评测框架多只考察任务完成或安全鲁棒性等单一环节，难以定位失败来源。本文提出 AgentAudit，对规划、工具选择与执行、记忆和推理的完整执行轨迹进行评估，覆盖指令完整性、规划器、记忆、工具调用与正确性、对齐、工具忠实性、安全与执行完整性等十个维度，并结合行为分类与失败归因精确定位出错阶段。该开放可扩展框架为智能体可信与安全评估提供了全生命周期视角。",
+          "llm_tldr": "现有智能体评测框架多只考察任务完成或安全鲁棒性等单一环节，难以定位失败来源。本文提出 AgentAudit，对规划、工具选择与执行、记忆和推理的完整执行轨迹进行评估，覆盖指令完整性、规划器、记忆、工具调用与正确性、对齐、工具忠实性、安全与执行完整性等十个维度，并结合行为分类与失败归因精确定位出错阶段。该开放可扩展框架为智能体可信与安全评估提供了全生命周期视角。",
           "llm_tags": [
             "query:llm-security"
           ],
@@ -335,150 +53,15 @@
           "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
           "matched_requirement_id": "req-5",
           "selection_source": "carryover_cache",
-          "paper_id": "2609.07344v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.06500v1",
-          "source": "arxiv",
-          "title": "CAPMAS: Capability-Based Delegation of Privileges in Multi-Agent Systems",
-          "abstract": "Agentic systems require secure and efficient delegation of privileges across multiple collaborating agents. Existing approaches fall into two categories. Some propagate user identities directly to agents, obscuring accountability and creating persistent over-privilege risks that are amplified by the non-deterministic behaviour of AI agents. Others rely on continuous synchronization with a central Identity and Access Management (IAM) provider, introducing additional latency and communication overhead.   We present CAPMAS, a novel architecture for secure end-to-end query execution in multi-agent systems. CAPMAS newly combines a contrastive learning-based semantic scoping pipeline that maps natural-language queries to bounded privilege sets before execution with expressive Macaroon-based tokens that enable offline, tamper-evident delegation with monotonic privilege reduction across agents. By decoupling authentication and delegation enforcement from agent reasoning, CAPMAS enables practical agentic execution while enforcing strict least-privilege guarantees.   By eliminating synchronous delegation exchanges with the IAM, CAPMAS yields 30 times faster delegation operations, 2 times less delegation-oriented latency and up to 3 times lower bandwidth usage than the OAuth 2.0 Token Exchange (RFC 8693). Its semantic scoping pipeline achieves over 90% perfect privilege-bundle retrieval within 17 milliseconds on enterprise-scale API schemas containing over 3,100 endpoints, while reducing unnecessary privileges by 99.5% when compared to systems that propagate all the user's privileges to agents.",
-          "authors": [
-            "Rasmus Moorits Veski",
-            "Rachid Guerraoui",
-            "David Froelicher"
-          ],
-          "primary_category": "cs.MA",
-          "categories": [
-            "cs.MA",
-            "cs.CR"
-          ],
-          "published": "2026-09-06T09:31:59+00:00",
-          "link": "https://arxiv.org/pdf/2609.06500v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "secure privilege delegation in multi-agent systems",
-          "llm_evidence_cn": "多智能体系统中安全的权限委派",
-          "llm_evidence": "多智能体系统中安全的权限委派",
-          "canonical_evidence": "多智能体系统中安全的权限委派",
-          "llm_tldr_en": "CAPMAS provides capability-based privilege delegation for multi-agent systems, mapping natural-language queries to bounded privilege sets via contrastive semantic scoping.",
-          "llm_tldr_cn": "智能体系统需要在多个协作智能体之间安全高效地委派权限。现有做法要么直接传播用户身份，导致问责模糊和持续的过度授权风险，且被AI智能体的非确定性行为放大；要么依赖与中心IAM的持续同步，带来额外延迟与通信开销。本文提出CAPMAS，一种面向多智能体系统端到端安全查询执行的架构，结合基于对比学习的语义范围界定流程，在执行前将自然语言查询映射为有界权限集。该工作为智能体权限安全提供了新方案。",
-          "llm_tldr": "智能体系统需要在多个协作智能体之间安全高效地委派权限。现有做法要么直接传播用户身份，导致问责模糊和持续的过度授权风险，且被AI智能体的非确定性行为放大；要么依赖与中心IAM的持续同步，带来额外延迟与通信开销。本文提出CAPMAS，一种面向多智能体系统端到端安全查询执行的架构，结合基于对比学习的语义范围界定流程，在执行前将自然语言查询映射为有界权限集。该工作为智能体权限安全提供了新方案。",
-          "llm_tags": [
-            "query:llm-security"
-          ],
-          "matched_query_tag": "query:llm-security",
-          "matched_query_text": "security of autonomous agents",
-          "matched_requirement_id": "req-3",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.06500v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.08371v1",
-          "source": "arxiv",
-          "title": "Authority Is Not a String: A Capability-Scoped Harness for Prompt-Injection-Resistant Coding Agents",
-          "abstract": "Coding agents use system-level tools to read files, execute commands, and modify source code. Within the agent's sandbox, these tools often carry ambient authority: naming a resource is sufficient to act on it. Indirect prompt injection exploits this authority by placing instructions in repository files or tool output that cause the agent to perform actions the user did not request. We propose CapScope, a harness-level authorization mechanism that restricts tool use without requiring the model to identify malicious text. Before repository contents or tool output are read, CapScope derives a task-wide authority ceiling from trusted input. It then assigns each agent a separate set of typed capabilities, stored outside the model's context. Every tool call is checked against the capabilities of the agent that issued it. Permissions assigned to one sub-agent are therefore not automatically available to another. An injection may cause an agent to request an action, but the request is blocked unless that agent already has the required capability. We implement CapScope on the Pi coding agent and evaluate it in a repair workflow where an orchestrator delegates subtasks to separate sub-agents. The evaluation covers five Python tasks, five injection surfaces, four authorization conditions, and three trials per cell (300 runs). The injected effect executes in 33-47/75 runs under the ambient-authority and global-policy baselines, compared with 3/75 under CapScope. CapScope completes 68/75 repairs, while the baselines complete 68-72/75.",
-          "authors": [
-            "Dimitrios Stamatios Bouras",
-            "Yihan Dai",
-            "Sergey Mechtaev"
-          ],
-          "primary_category": "cs.SE",
-          "categories": [
-            "cs.SE"
-          ],
-          "published": "2026-09-08T07:37:00+00:00",
-          "link": "https://arxiv.org/pdf/2609.08371v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "harness-level authorization defense against indirect prompt injection in coding agents",
-          "llm_evidence_cn": "针对编码智能体间接提示注入的框架级授权防御",
-          "llm_evidence": "针对编码智能体间接提示注入的框架级授权防御",
-          "canonical_evidence": "针对编码智能体间接提示注入的框架级授权防御",
-          "llm_tldr_en": "Coding agents grant ambient authority to system-level tools, so indirect prompt injection in files or tool output can trigger unauthorized actions. CapScope derives a task-wide authority ceiling from trusted input and assigns typed capabilities stored outside the model to restrict tool use.",
-          "llm_tldr_cn": "编码智能体使用系统级工具读写文件、执行命令，其沙箱内工具常带有环境授权，仅凭命名资源即可操作，因而仓库文件或工具输出中的间接提示注入可诱导智能体执行用户未请求的动作。本文提出CapScope，一种框架级授权机制，在读取内容前从可信输入推导任务级权限上限，并为每个智能体分配存储于模型之外的类型化能力，从而在不依赖模型识别恶意文本的前提下限制工具使用。该工作为LLM智能体的提示注入防御提供了新的架构级思路。",
-          "llm_tldr": "编码智能体使用系统级工具读写文件、执行命令，其沙箱内工具常带有环境授权，仅凭命名资源即可操作，因而仓库文件或工具输出中的间接提示注入可诱导智能体执行用户未请求的动作。本文提出CapScope，一种框架级授权机制，在读取内容前从可信输入推导任务级权限上限，并为每个智能体分配存储于模型之外的类型化能力，从而在不依赖模型识别恶意文本的前提下限制工具使用。该工作为LLM智能体的提示注入防御提供了新的架构级思路。",
-          "llm_tags": [
-            "query:llm-security"
-          ],
-          "matched_query_tag": "query:llm-security",
-          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
-          "matched_requirement_id": "req-5",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.08371v1",
+          "paper_id": "2609.09875v1",
           "carry_days": 1
         }
       ]
     },
     "agent-evol": {
-      "updated_date": "20260910",
+      "updated_date": "20260911",
       "carryover_days": 9,
       "items": [
-        {
-          "id": "2609.09134v1",
-          "source": "arxiv",
-          "title": "Co-Evolving Harnesses and Models: On-Policy Correction Helps Weaker Models Catch Up Where Imitation Fails",
-          "abstract": "Agent harnesses (the system prompt, tool set, execution hooks, and context-management scaffolding around a model) are a critical determinant of agentic task success. Automated harness evolution can enable smaller models to perform well on domain-specific tasks at a fraction of frontier-model cost. Since both the harness and model weights shape behavior, we ask how harness evolution and lightweight fine-tuning should be combined. Across seven enterprise agent tasks, we first evolve a harness with the weaker model, then find that a stronger expert often uses it more effectively, suggesting expert supervision could close the remaining gap. However, training the weaker model on the expert's complete trajectories under the evolved harness backfires: performance regresses on all seven tasks by 4 to 30 points across Qwen3-Coder and Gemma 4, even though the same procedure helps under the unevolved harness. Our analysis shows that imitation transfers knowledge and increases scaffold usage, but disrupts model-harness fit: the weaker model adopts the expert's planning strategy without the competence to execute it and no longer matches the harness evolved around its native planning style. We therefore develop an on-policy expert-correction pipeline, automated by a meta-level MLE agent, that localizes the failing turn in the weaker model's own rollout and asks the expert to rewrite only that turn. This preserves the model's planning style and combines the gains of harness evolution and model adaptation. Our results identify and resolve a source of contention between harness and weight updates, yielding a compatibility-preserving recipe for economical co-evolution on domain-specific enterprise tasks.",
-          "authors": [
-            "Zhou Yu",
-            "Bin Bi",
-            "Shiva Kumar Pentyala",
-            "Shubham Mehrotra",
-            "Sougata Chaudhuri",
-            "Shilpa Bhagavath",
-            "Zeyuan Chen",
-            "Ran Xu",
-            "Phil Mui",
-            "James Zhu",
-            "Sitaram Asur"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-09-08T17:53:49+00:00",
-          "link": "https://arxiv.org/pdf/2609.09134v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "automated harness evolution combined with model fine-tuning for agents",
-          "llm_evidence_cn": "智能体harness自动演化与模型微调协同",
-          "llm_evidence": "智能体harness自动演化与模型微调协同",
-          "canonical_evidence": "智能体harness自动演化与模型微调协同",
-          "llm_tldr_en": "The paper studies how automated agent harness evolution should be combined with lightweight fine-tuning, finding on-policy correction helps weaker models catch up where imitation fails.",
-          "llm_tldr_cn": "智能体harness（系统提示、工具集、执行钩子与上下文管理脚手架）对任务成功至关重要，自动化harness演化可让小模型以低成本胜任领域任务，但其与模型权重微调的协同尚不清晰。作者在七个企业智能体任务上先演化harness，再比较专家监督与模仿学习的差异，发现对弱模型在专家完整轨迹上进行在策略修正，能在模仿失败处帮助其追赶。该结果给出了harness演化与模型微调结合的有效方案。",
-          "llm_tldr": "智能体harness（系统提示、工具集、执行钩子与上下文管理脚手架）对任务成功至关重要，自动化harness演化可让小模型以低成本胜任领域任务，但其与模型权重微调的协同尚不清晰。作者在七个企业智能体任务上先演化harness，再比较专家监督与模仿学习的差异，发现对弱模型在专家完整轨迹上进行在策略修正，能在模仿失败处帮助其追赶。该结果给出了harness演化与模型微调结合的有效方案。",
-          "llm_tags": [
-            "query:agent-evol"
-          ],
-          "matched_query_tag": "query:agent-evol",
-          "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
-          "matched_requirement_id": "req-9",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.09134v1",
-          "carry_days": 1
-        },
         {
           "id": "2609.09646v1",
           "source": "arxiv",
@@ -513,42 +96,45 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Search-space control for evolving agent harnesses using semantic gradient prompt optimization",
-          "llm_evidence_cn": "利用语义梯度提示优化控制智能体框架的演化搜索空间",
-          "llm_evidence": "利用语义梯度提示优化控制智能体框架的演化搜索空间",
-          "canonical_evidence": "利用语义梯度提示优化控制智能体框架的演化搜索空间",
-          "llm_tldr_en": "RobustSGPO adds search-space control to semantic-gradient prompt optimization for evolving agent harnesses, specifying and checking patches and resuming from snapshots, lifting AgentX completion from 60 to 80 percent.",
-          "llm_tldr_cn": "语义梯度提示优化可借助执行反馈改进智能体框架，但其局部更新规则未能解决编辑范围与操作的选择问题。作者提出RobustSGPO，明确指定请求的编辑、构造并检查补丁，并从当前最优解或保留快照继续搜索。在AgentX头脑风暴工作流上以120个任务、95次运行与7350次候选尝试评估，将30个留出任务的完成率从60%提升到80%，测试质量从3.77升至4.14。该工作以搜索空间控制推动智能体框架的高效自演化。",
-          "llm_tldr": "语义梯度提示优化可借助执行反馈改进智能体框架，但其局部更新规则未能解决编辑范围与操作的选择问题。作者提出RobustSGPO，明确指定请求的编辑、构造并检查补丁，并从当前最优解或保留快照继续搜索。在AgentX头脑风暴工作流上以120个任务、95次运行与7350次候选尝试评估，将30个留出任务的完成率从60%提升到80%，测试质量从3.77升至4.14。该工作以搜索空间控制推动智能体框架的高效自演化。",
+          "llm_evidence_en": "search-space control for agent harness evolution",
+          "llm_evidence_cn": "面向智能体框架进化的搜索空间控制",
+          "llm_evidence": "面向智能体框架进化的搜索空间控制",
+          "canonical_evidence": "面向智能体框架进化的搜索空间控制",
+          "llm_tldr_en": "RobustSGPO improves semantic-gradient prompt optimization for agent harness evolution by specifying edits, constructing and checking patches, and continuing search from incumbent or retained snapshots.",
+          "llm_tldr_cn": "语义梯度提示优化能借助执行反馈改进智能体框架，但局部更新规则未解决编辑范围与操作选择问题。本文提出RobustSGPO，明确请求的编辑、构造并检查补丁，并从当前或保留快照继续搜索。在AgentX头脑风暴工作流上以120任务、95次运行评估，完成率由60%升至80%，测试质量从3.77提升至4.14。该工作为智能体框架的自进化与优化提供了更稳健的搜索控制机制。",
+          "llm_tldr": "语义梯度提示优化能借助执行反馈改进智能体框架，但局部更新规则未解决编辑范围与操作选择问题。本文提出RobustSGPO，明确请求的编辑、构造并检查补丁，并从当前或保留快照继续搜索。在AgentX头脑风暴工作流上以120任务、95次运行评估，完成率由60%升至80%，测试质量从3.77提升至4.14。该工作为智能体框架的自进化与优化提供了更稳健的搜索控制机制。",
           "llm_tags": [
             "query:agent-evol"
           ],
           "matched_query_tag": "query:agent-evol",
-          "matched_query_text": "Mechanisms for self evolving agents",
-          "matched_requirement_id": "req-13",
+          "matched_query_text": "Self-Evolving Agent",
+          "matched_requirement_id": "req-8",
           "selection_source": "carryover_cache",
           "paper_id": "2609.09646v1",
           "carry_days": 1
         },
         {
-          "id": "2609.09153v1",
+          "id": "2609.11682v1",
           "source": "arxiv",
-          "title": "Procedural Graphs: Self-Evolving Execution Structures for LLM Agents",
-          "abstract": "Large language models are increasingly deployed as agents that plan over long horizons and act through external tools. Most agents select actions through unconstrained generation over an accumulating history, leaving implicit the procedural knowledge of what to do, in what order, and under which conditions. As trajectories lengthen, agents can lose track of their objectives, invoke tools out of order, and repeat unproductive actions. We introduce the Procedural Graph: just as a knowledge graph organizes factual knowledge into (entity, relation, entity) triplets for what-is questions, a Procedural Graph organizes procedural knowledge into (procedure, relation, procedure) triplets for what-to-do questions. At each decision step, the framework localizes the agent's active node, and a guidance model translates the surrounding subgraph into step-level situational guidance that biases the solver's next action without dictating it. The graph is self-evolving: an LLM refiner contrasts failed trajectories with successful ones and edits the graph's topology and attributes, committing edits that preserve or improve held-out validation performance while retaining rejected ones to discourage repetition. Starting from a minimal skeleton, the loop builds graphs that match or surpass hand-designed ones. It can also repair a flawed expert prior. Across multiple datasets, task types, and LLMs, the Procedural Graph delivers consistent gains over memory-based baselines, and self-evolution further improves performance without manual engineering.",
+          "title": "COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization",
+          "abstract": "Large language model (LLM) agents can benefit from reusable skills distilled from prior task experience, yet existing skill optimization methods often rely on costly execution-based evaluation and substantial task data. We introduce \\textbf{COBRA-Skills}, an efficient framework that formulates skill optimization as budgeted sequential optimization over a dynamically evolving candidate space. COBRA-Skills couples contextual-bandit-guided prioritization with evidence-grounded skill evolution, selectively allocating evaluations to promising or informative candidates while continually refining the skill population from execution feedback. Across six heterogeneous agent benchmarks and three target models, COBRA-Skills consistently achieves the strongest average performance among compared methods, while reducing optimization cost by 55--58\\% relative to SkillOpt and using only 50 unique optimization examples per benchmark. Further analyses show that COBRA-Skills remains robust to changes in the agent harness and performs effectively when the target model itself is used for skill generation and refinement.",
           "authors": [
-            "Yuxing Lu",
-            "Yicheng Chen",
-            "Shanchan Wu",
-            "Sercan Ö. Arık"
+            "Pingchen Lu",
+            "Xiangyi Wang",
+            "Xiang Li",
+            "Jie Mao",
+            "Zikun Qu",
+            "Junfeng Luo",
+            "Yao Shu",
+            "Bryan Kian Hsiang Low",
+            "Zhongxiang Dai"
           ],
           "primary_category": "cs.AI",
           "categories": [
-            "cs.AI",
-            "cs.CL",
-            "cs.MA"
+            "cs.AI"
           ],
-          "published": "2026-09-08T17:59:41+00:00",
-          "link": "https://arxiv.org/pdf/2609.09153v1",
+          "published": "2026-09-10T15:12:24+00:00",
+          "link": "https://arxiv.org/pdf/2609.11682v1",
           "tags": [
             "keyword:agent-evol",
             "keyword:llm-agent",
@@ -558,21 +144,21 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Self-evolving execution structures for LLM agents",
-          "llm_evidence_cn": "面向LLM智能体的自进化执行结构",
-          "llm_evidence": "面向LLM智能体的自进化执行结构",
-          "canonical_evidence": "面向LLM智能体的自进化执行结构",
-          "llm_tldr_en": "LLM agents act via unconstrained generation over long histories, losing procedural knowledge. Procedural Graph organizes procedural knowledge into (procedure, relation, procedure) triplets, giving agents a self-evolving execution structure that localizes relevant procedures at each decision step to reduce out-of-order tool calls.",
-          "llm_tldr_cn": "长程LLM智能体在累积历史中自由生成动作，导致程序性知识隐式化、工具乱序与重复无效动作。本文提出过程图（Procedural Graph），把程序性知识组织为（过程，关系，过程）三元组，并在每步决策时定位相关过程，从而为智能体提供可自进化的执行结构。该框架有望提升长程任务规划的一致性与执行效率。",
-          "llm_tldr": "长程LLM智能体在累积历史中自由生成动作，导致程序性知识隐式化、工具乱序与重复无效动作。本文提出过程图（Procedural Graph），把程序性知识组织为（过程，关系，过程）三元组，并在每步决策时定位相关过程，从而为智能体提供可自进化的执行结构。该框架有望提升长程任务规划的一致性与执行效率。",
+          "llm_evidence_en": "contextual bandit guided evolution for LLM agent skill optimization",
+          "llm_evidence_cn": "上下文赌博机引导的智能体技能演化",
+          "llm_evidence": "上下文赌博机引导的智能体技能演化",
+          "canonical_evidence": "上下文赌博机引导的智能体技能演化",
+          "llm_tldr_en": "LLM agents benefit from reusable skills, yet skill optimization often needs costly execution evaluation and large task data. COBRA-Skills casts skill optimization as budgeted sequential optimization over an evolving candidate space, coupling bandit-guided prioritization with evidence-grounded skill evolution, and wins across six agent benchmarks and three models.",
+          "llm_tldr_cn": "大语言模型智能体可复用技能，但现有技能优化依赖昂贵的执行评估与大量任务数据。本文将技能优化建模为动态演化候选空间上的预算受限序列优化，用上下文赌博机引导优先评估高潜力技能，并结合证据驱动的技能演化持续改进技能种群。在六个异构智能体基准和三个目标模型上，COBRA-Skills 稳定取得更优性能并显著降低评估成本，为智能体技能自演化提供了高效框架。",
+          "llm_tldr": "大语言模型智能体可复用技能，但现有技能优化依赖昂贵的执行评估与大量任务数据。本文将技能优化建模为动态演化候选空间上的预算受限序列优化，用上下文赌博机引导优先评估高潜力技能，并结合证据驱动的技能演化持续改进技能种群。在六个异构智能体基准和三个目标模型上，COBRA-Skills 稳定取得更优性能并显著降低评估成本，为智能体技能自演化提供了高效框架。",
           "llm_tags": [
             "query:agent-evol"
           ],
           "matched_query_tag": "query:agent-evol",
-          "matched_query_text": "Self-Evolving Agent",
-          "matched_requirement_id": "req-8",
+          "matched_query_text": "agent self evolution",
+          "matched_requirement_id": "req-12",
           "selection_source": "carryover_cache",
-          "paper_id": "2609.09153v1",
+          "paper_id": "2609.11682v1",
           "carry_days": 1
         }
       ]

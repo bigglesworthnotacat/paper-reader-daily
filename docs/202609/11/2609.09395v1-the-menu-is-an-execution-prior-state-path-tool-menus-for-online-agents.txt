@@ -1,0 +1,609 @@
+Title: The Menu Is an Execution Prior: State-Path Tool Menus for Online Agents
+
+URL Source: https://arxiv.org/pdf/2609.09395v1
+
+Published Time: Thu, 10 Sep 2026 00:12:48 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# The Menu Is an Execution Prior: State-Path Tool Menus for Online Agents 
+
+Bo Yan 1 Weikai Lin 2 Song Wang 1*
+
+> 1
+
+Department of Computer Science & Institute of Artificial Intelligence, University of Central Florida 
+
+> 2
+
+Department of Computer Science, University of Rochester 
+
+{bo949643,song.wang}@ucf.edu wlin33@ur.rochester.edu 
+
+Abstract 
+
+Language models act through tools, yet practi-cal agents face libraries containing thousands of interfaces. We introduce the tool menu as the short, ordered subset of available tools shown to an agent before execution. The agent can call only tools in this menu. Multi-step tasks re-quire the final action and the prerequisite tools that create its inputs in a usable order. Current constructors rank tools by request relevance, which can surface the final action while omit-ting or delaying less obvious producers. We introduce the state path , a pre-execution route from the observable request state to the desired outcome, and propose State-Path Tool Menu to learn it. Our framework treats the menu as an 
+
+execution prior over these routes. Its encoder represents which tools can run from the current state, how their outputs satisfy later inputs, and which orders recur in training paths. A retriever covers an executable entry, the missing-input producers, and the final action. A reranker then places producers before consumers. On ToolBench, our menu raises online success from 0.737 to 0.898 and outperforms retrieval, reranking, generation, and routing baselines without changing the agent. The State-Path menu also covers more complete chains with 32 tools than the official list covers with 128, and its success gain persists across executor families with different model capacities. 
+
+1 Introduction 
+
+Language models become agents by translating in-structions into external actions (Schick et al., 2023; Yao et al., 2023). At each step, an agent selects a tool and uses its observation to choose the next action. This loop becomes difficult as the action space grows. ToolBench, for example, exposes more than 16,000 APIs (Qin et al., 2024). Practi-cal systems therefore retrieve a small candidate set 
+
+> *Corresponding author.
+
+before execution (Patil et al., 2024; Trivedi et al., 2024). We introduce the term tool menu for this request-specific, ordered interface. It fixes the se-lected interfaces and their displayed order for the full execution while preserving the agent, its online execution loop, and the original call budget. Most menu constructors rank tools by request relevance (Shi et al., 2025; Qu et al., 2024; Zheng et al., 2024). Figure 1 shows why relevance alone fails on multi-step tasks. The left panel ranks SEND EMAIL RECEIPT first before its receipt and address inputs exist. The middle panel restores its prerequisite calls in executable order. The right panel shows the resulting gain with the agent and 32-tool budget fixed. The conflict is individual rel-evance against route completeness (He et al., 2026; Liang et al., 2026). This gap motivates a route-level construction objective for the bounded menu. We therefore propose the state path , a route through tool-induced states before execution. It starts from visible fields, crosses tools that produce missing inputs, and ends at the requested outcome. Individual relevance cannot express whether these calls form a complete route. The state path makes this route explicit and turns the menu into an exe-cution prior before the first call. To learn these paths, we propose State-Path Tool Menu with an encoder, a retriever, and a reranker. The encoder learns relation-aware tool representa-tions from the request state, tool schemas, and train-ing paths. The retriever uses these representations to select 32 tools with complementary path roles. The reranker turns the selected set into producer-before-consumer order. While acting on the re-sulting menu, the online agent keeps its original execution loop and call budget. Our contributions are threefold: • We formulate the bounded, ordered tool menu as an execution prior and identify state-path completeness as the missing objective in arXiv:2609.09395v1 [cs.AI] 8 Sep 2026 A. Relevance ranking fails at step 1             
+
+> Task
+> Send receipt for order 17
+> Current state
+> visible: order_id
+> missing: email, receipt_id
+> Relevance menu (top-5)
+> 1SendReceipt missing email
+> 2SearchProduct unrelated
+> 3CreateReceipt missing order
+> 4LookupOrder ready
+> 5GetCustomerEmail bridge
+> A non-executable top-ranked tool will cause an immediate failure.
+
+B. State path repairs the menu                   
+
+> Retriever · path tools Reranker · prefix order
+> Select tools on valid paths. Build an executable prefix.
+> Recovered state path
+> Entry Bridge Bridge Target Terminal
+> LookupOrder CreateReceipt GetCustomer
+> Email SendReceipt Confirm
+> Executable prefix: entry → bridges → target
+> Resulting ordered menu
+> 12345
+> LookupOrder CreateReceipt GetCustomer
+> Email SendReceipt SearchProduct
+
+C. Same agent, better execution    
+
+> Ordered
+> menu Frozen
+> agent Tool
+> trace ToolEval
+> success
+> 1.
+> 2.
+> 32.
+> Matched setting with 32-tool budget
+
+0.737  0.898  
+
+> 224/304 273/304
+> Better menu → +49 successful executions.
+
+Figure 1: A relevance menu can expose the destination without a runnable route. For a receipt request, the answer-facing tool matches the text but depends on earlier tools that retrieve the order, create the receipt, and recover the recipient address. State-Path Tool Menu uses the same menu budget to expose this route in executable order. The online agent and call budget remain unchanged. 
+
+relevance-based construction. • We introduce State-Path Tool Menu, which jointly represents state compatibility, covers complementary path roles, and orders produc-ers before consumers without changing the online agent or its call budget. • We show that State-Path improves end-task success, complete-chain coverage, and ex-ecutable entry across tool libraries, evalua-tors, and executor families. Paired outcomes and controlled variants connect these gains to route coverage and order within the same menu budget. 
+
+2 Related Work 
+
+Tool-augmented language models and bench-marks. Toolformer and ReAct integrated tool calls into language-model generation and reason-ing (Schick et al., 2023; Yao et al., 2023). Gorilla, HuggingGPT, ToolACE, and API-Bank extended tool use to larger and more varied interfaces (Patil et al., 2024; Shen et al., 2023; Liu et al., 2025; Li et al., 2023). ToolBench emphasizes library scale, AppWorld and τ -bench require stateful execution, and UniToolCall and TRAJECT-Bench evaluate multi-step structure (Qin et al., 2024; Trivedi et al., 2024; Yao et al., 2025; Liang et al., 2026; He et al., 2026). These settings make the tools visible before execution an object of study in their own right. 
+
+Tool retrieval, generation, and routing. Tool-Ret and ToolRerank improve query-to-tool match-ing through task-specific retrieval and hierarchy-aware reranking (Shi et al., 2025; Zheng et al., 2024). Tool-REX expands under-documented tool text, while SkillRouter studies full-text routing at registry scale (Lu et al., 2025; Zheng et al., 2026). ToolGen generates tool identifiers directly and re-moves the external retriever (Wang et al., 2025). All of these methods improve the identity or repre-sentation of tools selected for a request. COLT is the closest method in its treatment of coverage. It uses collaborative query-to-tool struc-ture to recover a more complete set, although the selected tools remain unordered (Qu et al., 2024). State-Path requires each prerequisite to be reach-able from observable state and to appear before its consumer in the displayed menu. KELP reaches a related insight in knowledge-graph augmentation by scoring direct and indirect evidence paths against the input (Liu et al., 2024a). KELP uses those paths to supply factual context. State-Path uses state and schema direction to as-semble a sequence of calls that can execute. Ta-ble 1 compares the selected object, decision time, dependency signal, and execution loop across these method families under one pre-execution view. 
+
+Trajectory structure and adaptive tool planning. 
+
+Dynamic Tool Dependency Retrieval conditions re-trieval on an evolving function-calling plan (Patel et al., 2026). AutoTool uses historical transitions for tool selection, and ToolTree searches prospec-tive branches with feedback from execution (Jia and Li, 2026; Yang et al., 2026). These planners update tool selection as the agent proceeds. State-Path studies the route that can be exposed once before the first call while leaving the online loop unchanged. Pre-execution construction pro-Table 1: Comparison of the decisions made by tool-use method families. The columns show what each family selects, when selection occurs, which dependency information it uses, and whether execution updates that choice.                      
+
+> Method family Selected object Decision time Dependency signal Execution loop ToolBench official ranked tools before execution query-to-tool text unchanged ToolRet / Tool-REX / COLT tool set or ranking before execution text and query-to-tool structure unchanged ToolGen / Tool-Rank / SkillRouter generated or ranked tools before execution identifiers, hierarchy, or text unchanged AutoTool / dynamic retrieval / ToolTree next action or plan during execution plan state and observations updated
+> State-Path Tool Menu ordered state path before execution state, schema, and training paths unchanged
+
+vides the initial action space, and an online planner can revise that route after new observations. The two decisions occur at different points in the agent loop and can be combined. Choosing the menu once makes coverage and displayed order directly observable. Appendix E applies published depen-dency mechanisms to this pre-execution interface when their released design permits it. Prior evi-dence that models are sensitive to buried informa-tion and option order also supports treating menu position as part of the interface (Liu et al., 2024b; Pezeshkpour and Hruschka, 2024). 
+
+3 Methodology 
+
+We design State-Path Tool Menu to solve 2 failures created by a short menu. Coverage fails when in-dividually relevant tools omit a quiet bridge that creates a required input. Order fails when the right tools are present but a consumer appears before a producer that makes it executable. Our frame-work learns route membership and displayed order together as one pre-execution decision. Figure 2 traces this one-pass construction. The upper left panel shows how training trajectories teach the constructor which tools enter a route and which calls precede others. The upper right panel applies these learned relations to a new request whose target trajectory is hidden. Our encoder first builds state- and relation-aware tool represen-tations. Our retriever uses them to cover comple-mentary path roles. Our reranker turns the selected set into an executable prefix. The lower band shows that the online agent receives only the final menu while its execution loop remains unchanged. The complete mapping is 
+
+C0 = Encode( q, s 0(q), T , M),
+
+CK = Cover Rθ (C0, K ),πK = Order Oψ (CK , q, M).
+
+(1) Training trajectories provide supervision and path statistics. The target trajectory remains hid-den when the final menu is constructed. We train the encoder and retriever with route membership, entry, and path-role targets. We train the reranker with slot and pairwise precedence targets from the same trajectories. This division gives the retriever responsibility for which tools enter the menu. It gives the reranker responsibility for where those tools appear. Appendix Table 11 records the data available at each stage. Appendix B follows the receipt example through all three components. 
+
+3.1 Problem Formulation 
+
+Let T = {u1, . . . , u N } be a tool library. Each tool ui carries document di, required inputs Ii, and produced outputs Oi. A request q exposes an ini-tial state s0(q) containing the fields, objects, and constraints available before any call. The construc-tor returns a menu π(q) = ( uπ1 , . . . , u πK ) with 
+
+K=32 . The agent can invoke only tools in this ordered interface. A tool is executable when its required inputs have already been observed or pro-duced by earlier calls. We define a state path as a pre-execution hypoth-esis about an executable chain. 
+
+s0(q) → ENTRY → BRIDGE ∗
+
+→ TARGET [→ TERMINAL ]. (2) We assign each tool one of 4 roles along this route. An entry tool can run from s0(q). Bridge tools create inputs required later in the chain. The target resolves the main request. An optional terminal tool delivers or commits the result. The target and terminal roles coincide when one call both resolves and commits the requested outcome. For the receipt request, L OOKUP ORDER can use the visible order number. C REATE RECEIPT and GET CUSTOMER EMAIL produce the fields required by S END EMAIL RECEIPT . The sending tool serves as both the target and terminal action. Its close lexical match becomes useful after the earlier calls provide its inputs. This example separates textual relevance from executability. The final action is easy to retrieve, while the bridge tools determine whether the route can run. We write each successful training trajectory as 
+
+τ = ( g1, . . . , g Tτ ). We learn membership, entry, role, and precedence from these trajectories and collect their path statistics in M. For a new request, the constructor must infer the hidden path from q,
+
+s0(q), tool schemas, and M. It then exposes the ordered menu to the agent. Appendix C collects the symbols and tensor definitions. 
+
+3.2 State-Path Encoder 
+
+To recover dependencies hidden by lexical simi-larity, we introduce 3 directional signals in the en-coder. They represent whether a tool can run now, whether it produces a field needed later, and which order recurs in training paths. For visible fields 
+
+F0(q) and tool inputs and outputs Ii, O i, these sig-nals are 
+
+χi = |Ii ∩ F0(q)| + I[Ii = ∅]max {1, |Ii|} , (3) 
+
+κij = |Oi ∩ Ij |
+
+max {1, |Ij |} , (4) 
+
+ρ(i, j ) = log c(i ≺ j) + 1 
+
+c(j ≺ i) + 1 . (5) Here χi measures whether ui can use the initial state. Tools without required inputs have χi = 1 
+
+and can start from that state. The schema score κij 
+
+measures how much of uj ’s input can be produced by ui. The transition score ρ(i, j ) records their relative order in training trajectories. These 3 signals distinguish tools that play differ-ent roles despite similar request relevance. State compatibility identifies a runnable entry. Schema flow identifies a producer-consumer link even when the tool names differ. Path precedence strengthens links that recur across successful executions. For the receipt example, state compatibility fa-vors L OOKUP ORDER as the entry. Schema flow connects the producer tools to S END EMAIL RE-
+
+> CEIPT
+
+. The transition score can recover a bridge whose name is absent from the request. We feed candidate features and 4 path-summary tokens into a relation-aware Transformer. We as-sign each ordered pair a relation type rij for a forward dependency, reverse dependency, shared name or family, or no marked relation. We inject this relation into attention as a learned bias. 
+
+αij ∝ exp 
+
+ q⊤  
+
+> ikj
+> √d
+
++ β(rij )
+
+
+
+. (6) The resulting tool vectors carry local state fit and pairwise route structure. The retriever con-sumes these vectors to choose route members. The reranker also receives the directional features needed to order them. Appendix C gives the tensor shapes and training objectives. 
+
+3.3 State-Path Retriever 
+
+We design the retriever to preserve a complete route within 32 positions. It begins with a broad frontier because a bridge tool can share few words with the request. The membership score Mi estimates whether ui belongs to the route. The marginal coverage score Ci rewards a new role or missing field. The redundancy score Di penalizes overlap with tools already selected. For the receipt request, these terms retain the customer-email bridge after the lookup tool enters the set. These terms also pre-vent interchangeable terminal tools from displacing required bridges in the 32-tool menu. An independent top-K ranking can spend several positions on interchangeable terminal tools. Our marginal decoder updates the uncovered roles and fields after every selection. Once it selects an entry, producers for the remaining inputs receive more value than another tool with the same role. The next slot maximizes the following score. 
+
+sRi = Mi + λC i − ηD i. (7) We select the highest-scoring candidate and update 
+
+Ci and Di for the next slot. The decoder stops at 32 tools and passes this covered set directly to the reranker. Appendix C gives the full constrained objective and released decoder settings. 
+
+3.4 State-Path Reranker 
+
+We design the reranker because coverage alone can still expose a poor first action. It receives exactly the 32 tools selected above and predicts their vis-ible permutation. The entry score ei favors a first tool that can run from s0. The slot score ϕi,r and precedence score bij place producers before con-sumers. Prefix state fit P checks each proposed tool against the fields made available by the pre-ceding prefix. The reranker optimizes a leading executable prefix of length L = 8 .We initialize the prefix state with the fields vis-ible in the request. After selecting a tool, we add Training stage   
+
+> Observable
+> state Successful
+> trajectory Task Tool schemas
+
+Test-time stage      
+
+> Target task Target trajectory
+> hidden
+> Tool schemas
+> Automatic path labels
+> Membership Entry Slot Precedence Retriever
+> Select 32 tools
+> 32 selected tools
+
+…Observable
+state  
+
+> Retriever
+> Path-aware scoring
+> Reranker
+> Role-aware scoring Reranker
+> Order the prefix
+> Ordered 32-tool menu
+
+…
+
+> Frozen path
+> statistics
+> Frozen path statistics
+> State-transition co-occurrence
+
+Execution and evaluation       
+
+> Ordered 32-tool menu
+> Frozen
+> agent Final
+> answer Tool calls Observations ToolEval
+> Entry Bridge Target Terminal
+
+Figure 2: State-Path constructs a runnable route before execution. The retriever selects 32 tools that cover entry, bridge, target, and terminal roles. The reranker places producers before consumers, and the online agent receives the completed menu once before its first call. 
+
+its predicted outputs before scoring the next posi-tion. This update lets an early producer make a later consumer executable. It also prevents a static relevance order from placing the consumer first. At position r, candidate ui receives the marginal score 
+
+sOi (r) = wmmi + wpϕi,r 
+
++ wsPi(sr−1) + I[r = 1] weei
+
++ wd
+
+max {1, r − 1}
+
+X
+
+> j<r
+
+ bπj i − biπ j
+
+ .
+
+(8) The final term averages net precedence support over the current prefix. At the first position, the prefix is empty and the sum is zero. The entry score acts only at the first position. The precedence term then rewards producers that support the re-maining consumers. The decoder fills all 8 leading positions with this prefix-aware score. The remain-ing 24 tools retain their retriever order as backups. A bridge must enter the selected set before the reranker can place it ahead of its consumer. The final output is the ordered menu passed unchanged to the online agent before execution begins. 
+
+4 Experiments 
+
+Can a better menu improve an agent without chang-ing the agent itself? We begin with this end-to-end question on ToolBench. We then examine whether prerequisite coverage and executable order account for the improvement. Further experiments change the evaluator, executor, and tool library to see how broadly the same path objective applies. AppWorld, TRAJECT-Bench, UniToolCall, and ToolHop em-phasize different demands on state, coverage, and order across these execution settings. 
+
+4.1 Experimental Setup 
+
+We first measure how much the menu alone changes online success on ToolBench. Every method receives the same 304 released tasks and supplies one ordered menu of 32 tools before exe-cution. Qwen2.5-72B-AWQ uses that menu for the full run with deterministic decoding and an 8-call budget. The prompt, execution wrapper, error han-dling, and official ToolEval evaluator are shared across all rows. Training trajectories supervise the constructor, while development tasks select its constants. The 304 final tasks contribute only the reported out-comes. When a published method does not directly return a pre-execution menu, we apply its released selection rule and format the output as an ordered list of 32 tools. Appendix A gives the full protocol, and Appendix A.4 describes each baseline adapter. Table 2: Main comparison of menu constructors. The ToolBench column reports online task success, while each remaining benchmark contributes its primary path measure. Higher values are better. Bold and underline mark the best and second-best values.                                             
+
+> Menu constructor ToolBench AppWorld TRAJECT-Bench UniToolCall ToolHop Success Next tool Full chain Ordered prefix First action ToolBench official 0.737 ––––COLT 0.582 0.190 0.230 0.215 0.238 ToolRet 0.632 0.114 0.188 0.134 0.196 Tool-REX family 0.661 0.180 0.350 0.262 0.597 SkillRouter 0.707 0.123 0.167 0.169 0.467 ToolGen 0.730 0.049 0.708 0.215 0.265
+> State-Path (ours) 0.898 0.465 0.732 0.635 0.683
+
+Table 3: Route properties behind the ToolBench suc-cess gain. The first three rows compare 32-tool menus. The last row compares the official 128-tool list with the 32-tool State-Path menu.                
+
+> Diagnostic Official Ours ∆
+> Full chain in 32 tools 0.510 0.704 +0.194 Entry tool in top 5 0.539 0.658 +0.118 Executable visible prefix 0.296 0.334 +0.038 Official@128 vs. Ours@32 0.691 0.704 +0.013
+
+4.2 Main Results 
+
+We compare State-Path with retrieval, reranking, generation, and routing methods in Table 2. Ev-ery row supplies a 32-tool menu to the same on-line agent. Our method solves 273 of the 304 ToolBench tasks, while the official menu solves 224. The corresponding success rate increases from 0.737 to 0.898. Among the 51 tasks on which the two menus disagree, State-Path wins 50 and loses 1 under the same evaluator across all paired tasks. We then test different parts of a route on 4 addi-tional benchmarks. State-Path leads every primary measure in Table 2. AppWorld and ToolHop re-ward a useful early action, UniToolCall rewards an ordered prefix, and TRAJECT-Bench requires a complete chain. These measures trace a route at its entry, through its prefix, and at full-chain level. Appendix Table 15 contains the complete metric matrix for every method across all 5 benchmarks. We use Table 3 to connect the success gain to route visibility. Complete-chain coverage rises by 19.4 points, early-entry coverage by 11.8 points, and executable-prefix coverage by 3.8 points. Our 32-tool menu also exceeds the official 128-tool list in complete-chain coverage. The result estab-lishes path composition as the decisive factor be-yond menu width in this controlled comparison. We partition the recovered failures in Table 4. 
+
+Table 4: Breakdown of the 49-task net gain. Shares partition the 50 new successes by the failure recorded for the official menu.             
+
+> Paired outcome Tasks Share Official success preserved 223 –Official success lost 1–New success w/ incomplete official chain 27 54% New success w/ missing or late entry 11 22% New success after answer rejection 12 24%
+
+Table 5: Comparison of method rankings across eval-uators. Each evaluator scores the same completed traces, and State-Path ranks first in all three cases.             
+
+> Evaluator Best external row State-Path Gap GPT-3.5-turbo-16k 0.54 0.70 +0.16 GPT-4o-mini 0.56 0.72 +0.16 GPT-5.5 0.30 0.34 +0.04
+
+State-Path preserves 223 official successes and adds 50. It loses 1 official success. Of the 50 additions, 27 lacked a complete official chain and 11 lacked an early entry tool. These 38 cases match the failures targeted by path coverage and prefix ordering. The remaining 12 produce an accepted answer only with the State-Path menu. These cases show that the executor’s returned answer depends on the visible route it receives. 
+
+Evaluator stability. We challenge the method ranking with 3 independent evaluators. Eight menu constructors produce 400 traces on the first 50 ex-ecutable tasks from the released hard split. Three evaluators score these completed traces indepen-dently under their own decision criteria. All 3 evaluators place State-Path first in Table 5. GPT-5.5 assigns lower absolute scores to every method, yet State-Path remains 4 points ahead of the strongest external row. GPT-4o-mini agrees with the released GPT-3.5-turbo-16k decisions on Table 6: Ablation study of candidate coverage and tool ordering. Each row changes how tools enter the menu, how they are ordered, or both. The agent, 32-tool budget, and evaluator remain unchanged.    
+
+> Menu variant Candidate coverage Displayed order Success Official menu official retrieval released 0.737 Official tools + path order official retrieval learned path order 0.773 Single-template path menu fixed path template template order 0.773
+> State-Path Tool Menu
+> learned path coverage learned path order
+> 0.898
+
+91% of the 400 outputs. The 36 disagreements di-vide evenly between the 2 directions. These results establish a stable leading position across evaluator thresholds and scoring scales. 
+
+4.3 Ablation Study 
+
+We ablate candidate coverage and tool ordering to test the contribution of each decision. One variant keeps the 32 official candidates and changes only their order. Another uses one fixed path template for every request. Table 6 compares these variants with the official menu and the complete method. Changing only the order of the official candi-dates raises success from 0.737 to 0.773, show-ing that order helps when the required tools are already present. The fixed-template menu also reaches 0.773 and confirms the value of recurring route shape. The complete method reaches 0.898 after learning both route membership and request-specific order. Its 12.5-point gain over either partial variant establishes the value of learning these 2 de-cisions together for online success. We next test the prediction that path-aware construction matters most when a task contains more bridge tools. Figure 3 groups the 304 tasks by reference-path length under the same 32-tool menu width. The coverage advantage grows from 7.2 points on 3–4-tool paths to 26.2 points on paths with at least 7 tools. The fixed width iso-lates the growing competition among prerequisites. This trend confirms that State-Path preserves quiet bridge tools as routes grow. 
+
+4.4 Further Analysis Training-path evidence. State-Path combines tool schemas with recurring training paths. To mea-sure what the paths add, we rebuild their statistics with 0%, 5%, 10%, 25%, 50%, and 100% of the 100 50 0Official State-Path 83.2 90.4   
+
+> 36.4
+> 65.7
+> 18.8
+> 45.0
+> 3-4 5-6 7+ Tools in reference path Chain coverage (%)
+
+Figure 3: Complete-chain coverage by reference-path length. With 32 tools, the State-Path advantage grows from 7.2 points on 3–4-tool paths to 26.2 points on paths with at least 7 tools. Table 7: Effect of training-path amount and corrup-tion on route recovery. Subset rows average five sam-ples, and every row excludes target-task trajectories.                            
+
+> Training evidence Share Chain@32 Tool recall No path memory 0% 0.510 0.747 Clean subset 5% 0.518 0.742 Clean subset 10% 0.547 0.756 Clean subset 25% 0.589 0.773 Clean subset 50% 0.636 0.794 Clean full memory 100% 0.704 0.827 25% corrupted 100% 0.701 0.825 50% corrupted 100% 0.694 0.823
+
+available trajectories. Each nonzero share averages 5 samples. Two corruption controls alter one step in 25% or 50% of the full paths. Table 7 shows how path quality affects coverage and recall. Complete-chain coverage rises steadily as clean training paths are added in Table 7. The schema-only constructor already recovers 0.510 of the com-plete chains when no path memory is available. The full trajectory set raises this value to 0.704, a 19.4-point gain over schemas alone. Corrupting half of the full set reduces coverage by only 1.0 point. The increasing data curve establishes the contribution of recurring relations. The corruption control shows that repeated evidence preserves this contribution under frequent local path errors. 
+
+Construction cost. We measure the quality and latency trade-off introduced by menu construction. All measurements use batch size one on a single B200. Table 8 separates retrieval, path coverage, feature construction, constrained decoding, and the 2 neural passes. The complete constructor remains below 0.6 sec-onds at the 95th percentile. The two neural passes together take about 6 ms. Most of the measured Table 8: Breakdown of per-request menu construc-tion time on one B200. Constructor rows cover 284 valid frontiers. Neural rows use 1,000 timed forwards after 20 warm-up runs with precomputed features.                     
+
+> Component Median ms P95 ms Params Live semantic retrieval 13.63 16.85 –Path coverage 139.34 193.99 –Features and order decode 266.11 368.39 –Cached-frontier constructor 406.41 552.85 –Neural retriever 2.61 2.88 0.416M Neural reranker 3.35 4.56 0.449M
+
+Table 9: Effect of tool-documentation fields on depen-dency prediction and replay. All three variants use the same released tool library.         
+
+> Documentation Edge accuracy Replay success Tool names 0.628 0.105 Names + input/output fields 0.676 0.155
+> Full descriptions 0.676 0.155
+
+time comes from explicit path-feature construction and constrained decoding. The menu is built once, so this cost is shared by all subsequent calls. The learned models therefore contribute little to the la-tency, while the explicit route constraints account for most of the one-time cost. 
+
+Tool documentation. We test which documenta-tion fields supply the relations used by the schema frontier. Table 9 compares names alone, names with structured input and output fields, and full descriptions on the same released library. Adding input and output fields improves dependency-edge accuracy by 4.8 points and path-replay success by 5.0 points on the same released library. Full descriptions match the structured-field con-dition on both measures. This match identifies the structured fields as the useful dependency signal. Names describe what a tool does, while input and output fields reveal which calls can connect. The result explains why schemas provide a viable path frontier before trajectory evidence accumulates. 
+
+Tool-library generalization. We first apply the same architecture and objective within 4 bench-mark splits. Table 2 shows that State-Path leads every primary measure. The largest margins occur when a metric requires an executable entry or an ordered prefix within a bounded menu. This pattern extends the route objective beyond the ToolBench library and its end-task evaluator. 72B-AWQ Mistral-7B Gemma-4-31B      
+
+> +16.1 +12.8 +6.9
+> 0510 15 20 25 Success gain over official menu (points)
+
+Figure 4: State-Path improves success across execu-tors. Points show paired gains over the official menu for three executor families. 
+
+We then test whether relations learned in one tool library remain useful in another. We select relation weights on ToolBench and apply them un-changed to 2,000 hard TRAJECT-Bench tasks. No target-library trajectories or target labels are used for model selection. Table 10 compares this frozen transfer with semantic retrieval on the target library. 
+
+Table 10: Cross-library transfer without target-library training. Relation weights are selected on Tool-Bench and then applied to TRAJECT-Bench without target trajectories or labels.          
+
+> Constructor Chain@32 Tool recall First tool Semantic retrieval 0.247 0.625 0.703 Frozen relation prior 0.254 0.636 0.725
+
+All three measures improve, with the largest change appearing in first-tool coverage at 2.2 points. The largest gain at the first tool establishes a shared notion of executable entry across libraries. The smaller gains in full-chain coverage and tool recall identify where local trajectories add library-specific route evidence. 
+
+Executor families. We finally ask whether the menu gain depends on the executor family. Three executors receive the same ToolBench tasks and the same pair of official and State-Path menus. Fig-ure 4 reports paired success gains of 16.1, 12.8, and 6.9 points. All 3 gains are positive. The result shows that a visible route benefits different model capacities and planning styles. 
+
+5 Conclusion 
+
+The short tool menu determines whether an on-line agent can see a usable route before the first call. State-Path Tool Menu constructs that route by encoding observable state and tool dependencies, covering the required path roles, and placing pro-ducers before consumers. On ToolBench, changing only the menu raises success from 0.737 to 0.898 and recovers 49 additional tasks. Chain, entry, and prefix measurements connect these recoveries to the proposed mechanism. Independent evaluators with different decision criteria confirm the same ad-vantage across tool libraries and executor families. 
+
+6 Limitations 
+
+State-Path fixes one menu before execution, leav-ing observation-conditioned updates open. The constructor relies on informative input and out-put fields and recurring path relations. Its gradual degradation with sparse or corrupted histories mo-tivates learning relation evidence in new or lightly documented libraries. Future work can add online updates while retaining initial route coverage. 
+
+7 Ethics Statement 
+
+The experiments use public research benchmarks, licensed models, and synthetic API tasks that con-tain no personal data. Improving route visibility can also make harmful tool sequences easier to execute when a request or tool library is unsafe. Practical deployment therefore requires permission checks, sandboxed execution, and human review for consequential actions in real deployments. 
+
+References 
+
+Pengfei He, Zhenwei Dai, Bing He, Hui Liu, Xianfeng Tang, Hanqing Lu, Juanhui Li, Jiayuan Ding, Sub-habrata Mukherjee, Suhang Wang, Yue Xing, Jiliang Tang, and Benoit Dumoulin. 2026. TRAJECT-bench: A trajectory-aware benchmark for evaluating agentic tool use. In International Conference on Learning Representations .Jingyi Jia and Qinbin Li. 2026. Autotool: Efficient tool selection for large language model agents. In 
+
+Proceedings of the AAAI Conference on Artificial Intelligence , volume 40, pages 31265–31273. Minghao Li, Yingxiu Zhao, Bowen Yu, Feifan Song, Hangyu Li, Haiyang Yu, Zhoujun Li, Fei Huang, and Yongbin Li. 2023. API-bank: A comprehensive benchmark for tool-augmented LLMs. In Proceed-ings of the 2023 Conference on Empirical Methods in Natural Language Processing , pages 3102–3116. Association for Computational Linguistics. Yijuan Liang, Xinghao Chen, Yifan Ge, Ziyi Wu, Hao Wu, Changyu Zeng, Wei Xing, and Xiaoyu Shen. 2026. Unitoolcall: Unifying tool-use representation, data, and evaluation for LLM agents. arXiv preprint arXiv:2604.11557 .Haochen Liu, Song Wang, Yaochen Zhu, Yushun Dong, and Jundong Li. 2024a. Knowledge graph-enhanced large language models via path selection. In Find-ings of the Association for Computational Linguistics: ACL 2024 , pages 6311–6321, Bangkok, Thailand. As-sociation for Computational Linguistics. Nelson F. Liu, Kevin Lin, John Hewitt, Ashwin Paran-jape, Michele Bevilacqua, Fabio Petroni, and Percy Liang. 2024b. Lost in the middle: How language models use long contexts. Transactions of the Asso-ciation for Computational Linguistics , 12:157–173. Weiwen Liu, Xu Huang, Xingshan Zeng, Xinlong Hao, Shuai Yu, Dexun Li, Shuai Wang, Weinan Gan, Zhengying Liu, Yuanqing Yu, Zezhong Wang, Yux-ian Wang, Wu Ning, Yutai Hou, Bin Wang, Chuhan Wu, Xinzhi Wang, Yong Liu, Yasheng Wang, and 8 others. 2025. ToolACE: Winning the points of LLM function calling. In International Conference on Learning Representations .Xuan Lu, Haohang Huang, Rui Meng, Yaohui Jin, Wen-jun Zeng, and Xiaoyu Shen. 2025. Tools are under-documented: Simple document expansion boosts tool retrieval. arXiv preprint arXiv:2510.22670 .Bhrij Patel, Davide Belli, Amir Jalalirad, Maximilian Arnold, Aleksandr Ermolov, and Bence Major. 2026. Dynamic tool dependency retrieval for lightweight function calling. In Findings of the Association for Computational Linguistics: ACL 2026 , pages 33649– 33672. Association for Computational Linguistics. Shishir G. Patil, Tianjun Zhang, Xin Wang, and Joseph E. Gonzalez. 2024. Gorilla: Large language model connected with massive APIs. In Advances in Neural Information Processing Systems , volume 37, pages 126544–126565. Pouya Pezeshkpour and Estevam Hruschka. 2024. Large language models sensitivity to the order of op-tions in multiple-choice questions. In Findings of the Association for Computational Linguistics: NAACL 2024 , pages 2006–2017. Association for Computa-tional Linguistics. Yujia Qin, Shihao Liang, Yining Ye, Kunlun Zhu, Lan Yan, Yaxi Lu, Yankai Lin, Xin Cong, Xiangru Tang, Bill Qian, Sihan Zhao, Lauren Hong, Runchu Tian, Ruobing Xie, Jie Zhou, Mark Gerstein, Dahai Li, Zhiyuan Liu, and Maosong Sun. 2024. ToolLLM: Facilitating large language models to master 16000+ real-world APIs. In International Conference on Learning Representations .Changle Qu, Sunhao Dai, Xiaochi Wei, Hengyi Cai, Shuaiqiang Wang, Dawei Yin, Jun Xu, and Ji-Rong Wen. 2024. Towards completeness-oriented tool re-trieval for large language models. In Proceedings of the 33rd ACM International Conference on Informa-tion and Knowledge Management , pages 1930–1940. Timo Schick, Jane Dwivedi-Yu, Roberto Dessi, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettle-moyer, Nicola Cancedda, and Thomas Scialom. 2023. Toolformer: Language models can teach themselves to use tools. In Advances in Neural Information Pro-cessing Systems .Yongliang Shen, Kaitao Song, Xu Tan, Dongsheng Li, Weiming Lu, and Yueting Zhuang. 2023. Hugging-GPT: Solving AI tasks with ChatGPT and its friends in Hugging Face. In Advances in Neural Information Processing Systems .Zhengliang Shi, Yuhan Wang, Lingyong Yan, Pengjie Ren, Shuaiqiang Wang, Dawei Yin, and Zhaochun Ren. 2025. Retrieval models aren’t tool-savvy: Benchmarking tool retrieval for large language mod-els. In Findings of the Association for Computational Linguistics: ACL 2025 , pages 24497–24524. Associ-ation for Computational Linguistics. Harsh Trivedi, Tushar Khot, Mareike Hartmann, Ruskin Manku, Vinty Dong, Edward Li, Shashank Gupta, Ashish Sabharwal, and Niranjan Balasubramanian. 2024. AppWorld: A controllable world of apps and people for benchmarking interactive coding agents. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 16022–16076. Association for Computational Linguistics. Renxi Wang, Xudong Han, Lei Ji, Shu Wang, Timothy Baldwin, and Haonan Li. 2025. ToolGen: Unified tool retrieval and calling via generation. In Interna-tional Conference on Learning Representations .Shuo Yang, Soyeon Caren Han, Yihao Ding, Shuhe Wang, and Eduard Hovy. 2026. Tooltree: Efficient LLM agent tool planning via dual-feedback monte carlo tree search and bidirectional pruning. In Inter-national Conference on Learning Representations .Shunyu Yao, Noah Shinn, Pedram Razavi, and Karthik Narasimhan. 2025. τ -bench: A benchmark for tool-agent-user interaction in real-world domains. In In-ternational Conference on Learning Representations .Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. 2023. ReAct: Synergizing reasoning and acting in language models. In International Conference on Learning Representations .Ori Yoran, Samuel Joseph Amouyal, Chaitanya Malaviya, Ben Bogin, Ofir Press, and Jonathan Be-rant. 2024. AssistantBench: Can web agents solve realistic and time-consuming tasks? In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing , pages 8938–8968, Mi-ami, Florida, USA. Association for Computational Linguistics. YanZhao Zheng, ZhenTao Zhang, Chao Ma, YuanQiang Yu, JiHuai Zhu, Yong Wu, Tianze Xu, Baohua Dong, Hangcheng Zhu, Ruohui Huang, and Gang Yu. 2026. SkillRouter: Skill routing for LLM agents at scale. In Conference on Language Modeling .Yuanhang Zheng, Peng Li, Wei Liu, Yang Liu, Jian Luan, and Bin Wang. 2024. ToolRerank: Adaptive and hierarchy-aware reranking for tool retrieval. In 
+
+Proceedings of the 2024 Joint International Confer-ence on Computational Linguistics, Language Re-sources and Evaluation , pages 16263–16273. ELRA and ICCL. 
+
+Appendix A Evaluation Protocol 
+
+The main comparison contains 304 released Tool-Bench tasks after applying the official split loader and executable-tool filter. Every row presents a dif-ferent ordered menu to the same execution agent; the execution wrapper, call budget, and evaluator stay fixed throughout the comparison. 
+
+A.1 Training and Test Inputs 
+
+Table 11 records when each information source is available. Successful trajectories provide supervi-sion on training tasks. For a final task, the con-structor receives the request, observable state, tool schemas, and statistics derived from the training split. The constructor selects each final menu with-out the target trajectory or any evaluator decision. 
+
+Table 11: Information available during training and final menu construction. The target trajectory and evaluator feedback are hidden when a final menu is built.            
+
+> Item Training stage Test-time stage Task text training request qtarget request q
+> Tool library and schemas visible visible Observable state s0(q)
+> extracted from request and schemas extracted from request and schemas Successful trajectory visible for training tasks absent for target task Path statistics
+> M
+> built from training trajectories reused after training Supervision membership, entry, slot, precedence none Model output trained retriever and reranker ordered 32-tool menu πK
+
+A.2 Online Execution Setting 
+
+The online setting holds the following items con-stant across menu constructors. • The task set contains 304 released tasks in groups of 107, 134, and 63. • The interface contains one ordered 32-tool menu built before execution. • Each run allows 8 tool calls. Invalid and valid calls consume the same budget. • The execution agent is Qwen2.5-72B-AWQ with deterministic decoding. • Every run uses the same timeout, error han-dling, empty-response handling, and official binary ToolEval success measure. • The random seed is 20260525. The evaluator does not receive the identity of the menu constructor. 
+
+A.3 Agent Prompt, Tool Failures, and Evaluator Input 
+
+The agent receives the user task and the ordered menu. Each menu entry contains a tool name, de-scription, input schema, and argument format. The same menu-neutral instruction is used in every run. 
+
+> You are a tool-using assistant. Use only tools in the provided menu. At each step, either call one tool with a valid JSON argument or produce the final answer. Use earlier observations when de-ciding the next action. Stop when the user request is satisfied or the step budget is exhausted.
+
+Missing tools, invalid arguments, tool excep-tions, and empty responses are converted into stan-dardized observations under the same 8-step budget. The ToolEval evaluator receives the task, trace, ob-servations, and final answer. It returns one binary success label. 
+
+A.4 Baseline Implementations 
+
+Every external baseline produces one ordered 32-tool menu before execution. Retrieval baselines retain their native scores and are truncated to 32 tools. Organizer baselines reorder a common can-didate budget without using tool calls, execution observations, or evaluator feedback. We retain released hyperparameters when they are available. When a paper does not define a pre-execution menu, development tasks determine how its released selection rule produces 32 tools. The chosen implementation is then used unchanged for final evaluation. State-Path decoder constants fol-low the same development-only procedure. The adapters fall into three groups. • The official retriever, COLT-Contriever, ToolRet-E5, and Tool-REX Embed construct their own candidate menus. • ToolGen and SkillRouter reorder a shared can-didate pool with constants selected on devel-opment tasks. • Tool-Rank uses its released ranking weights on the same shared candidate interface. The main table includes methods that construct their own candidates and methods that organize a shared candidate pool. The named rows follow the ToolBench official retriever (Qin et al., 2024), COLT (Qu et al., 2024), ToolRet (Shi et al., 2025), Tool-REX and Tool-Rank (Lu et al., 2025), Tool-Gen (Wang et al., 2025), and SkillRouter (Zheng et al., 2026). 
+
+A.5 Data Splits and Model Selection 
+
+Training trajectories and tool schemas provide the path statistics M. Development tasks select the loss weights, decoder constants, hard-negative pol-icy, and baseline-adapter constants. Reranker train-ing menus are generated out of fold by retrievers fitted without the corresponding training rows. De-velopment menus use the retriever selected on the training split. The final 304 tasks are used for success reporting and diagnostics only. Their reference chains and evaluator feedback do not update the constructor or its thresholds. The public benchmarks, text en-coder, and execution models are used under their research licenses. The synthetic API tasks draw on no real-user records and contain no personal data. 
+
+B Worked Examples for Method Objects 
+
+The receipt request illustrates each method object before the tensor definitions. Its initial state con-tains only F0(q) = {order }. The menu must con-nect this visible field to the final sending action. Table 12 maps the visible state, path roles, and required order in this example. 
+
+Table 12: State-path objects in the running receipt example. Training trajectories supervise these roles, and the constructor predicts them for a new task.           
+
+> Object Receipt example Visible state order is present before execution Entry LOOKUP ORDER can run from order
+> Bridge CREATE RECEIPT ,GET CUSTOMER EMAIL create missing fields Target / terminal SEND EMAIL RECEIPT resolves and delivers the request Order producers precede the sending tool
+
+Training paths in M often place LOOKU -
+
+> P
+
+ORDER before the two bridge tools and S END E-
+
+> MAIL
+
+RECEIPT after them. State fit favors the lookup tool as the entry. Schema flow links the pro-ducer tools to the sending tool. Precedence keeps the sending action behind the calls that create its two required fields. The resulting prefix is     
+
+> LOOKUP ORDER →{C REATE RECEIPT ,GET CUSTOMER EMAIL }→SEND EMAIL RECEIPT .
+
+In this example, state fit identifies the starting ac-tion. Schema flow recovers the missing producers, and path precedence organizes the resulting menu. 
+
+C State-Path Implementation Details 
+
+Each task defines a relation context over its candi-date tools. A relation-aware Transformer predicts route coverage and executable order from that con-text. The decoder converts these predictions into the ordered menu shown to the online agent. 
+
+C.1 Notation 
+
+Table 13 defines the symbols used in the equations and implementation details below. 
+
+Table 13: Notation used in the implementation de-tails.                   
+
+> Symbol Meaning
+> q, Tuser task and tool library
+> ui, d itool and document
+> K, L, π (q)menu budget, executable-prefix length, and ordered menu
+> s0(q)observable state before execution
+> F0, I i, O ivisible fields, inputs, outputs
+> τtraining tool trajectory
+> Mfrozen training path statistics
+> Uq,CKfrontier and selected 32-tool set
+> CRq, C Oqretrieval and ordering contexts
+> rRij , a Oij relation type and pair feature
+> mi, e i, ϕ i,r , b ij membership, entry, slot, precedence scores
+
+C.2 Feature Construction and Neural Hyperparameters 
+
+All neural features are computed before execu-tion. The candidate features include semantic an-chor scores, reciprocal ranks, state compatibility, missing-field counts, schema flow, training-path transition priors, and tool-family indicators. We retain the first 64 dimensions of each frozen BGE representation and apply ℓ2 normalization for both queries and tools. Queries use the BGE retrieval instruction, while tool documents are encoded di-rectly as document-side inputs. The target task’s reference chain, evaluator deci-sion, post-execution observations, and failure tag are excluded from these features. Table 14 lists the model dimensions and optimization settings. 
+
+Table 14: Released architecture and optimization settings. Development tasks select the tunable weights. The dimensions define the released architecture.            
+
+> Parameter Released value Text encoder BGE-large-en-v1.5, frozen Prepool / final menu / online steps 128 / 32 / 8 Negative sampling hard, in-frontier, boundary Feature dimensions tool 64, query 64, retriever node 12, reranker node 14, pair 16 Encoder hidden 128, heads 4, layers 2 Path tokens / slots / relation types 4 / 8 / 5 Prefix length / field capacity 8 / 32 Retriever anchors / neighbors / coverage / diversity 64 / 4 / 0.45 / 0.12 Training 2 and 4 epochs, batch size 8 Optimizer AdamW, weight decay 0.01, dropout 0.08, clip 1.0 Learning rates retriever 8×10 −4, reranker 10 −4
+> Training seeds retriever 20260525, reranker 17 Reranker score: entry / member / position / state / direction 0.55 / 0.35 / 0.65 / 0.60 / 0.90 Reranker loss: entry / slot / precedence / member / path 0.55 / 0.55 / 0.75 / 0.30 / 1.15
+
+C.3 Retriever and Reranker Equations 
+
+Before execution, the observable state contains the fields visible in the request. 
+
+s0(q) = F0(q), (9) where F0(q) is the set of visible fields in the re-quest. Pre-execution compatibility measures how much of a tool’s input is already visible. 
+
+χi(s0) = |Ii ∩ F0(q)| + I[Ii = ∅]max {1, |Ii|} ,
+
+miss i = 1 − χi(s0).
+
+(10) Training trajectories also provide a pairwise precedence label. 
+
+yprec ij = I[pos τ (ui) < pos τ (uj )] . (11) 
+
+C.4 State-Path Retriever 
+
+The retriever begins with a broad candidate frontier. Let f (·) encode the task and each tool document. 
+
+sim i = f (q)⊤f (di). (12) High-scoring anchors Aq are expanded with neighbors observed in training paths. 
+
+Uq = Aq ∪ [
+
+> ui∈Aq
+
+Nbr M(ui) ∪ Hq, (13) where Hq is a high-recall fallback. In the released decoder, Hq contains the remaining highest-scoring semantic candidates until the frontier reaches its released limit of 128 tools. The expanded tools and learned path-summary tokens form the retriever relation context. 
+
+CRq = ( V Rq , R Rq ), V Rq = {p1, . . . , p P } ∪ Uq,
+
+(14) where p1, . . . , p P are learned tokens that summa-rize recurring training paths. For each tool pair, we compute a directional precedence score from the training paths 
+
+ρ(i, j ) = log c(i ≺ j) + 1 
+
+c(j ≺ i) + 1 , (15) and the relation context assigns one discrete type to each ordered tool pair in the retriever graph. 
+
+rRij ∈ { 0, 1, 2, 3, 4}. (16) The five values represent a neutral relation, a for-ward dependency, a reverse dependency, a shared name, and a shared family. A training-path transi-tion or schema flow establishes a directional depen-dency between the corresponding tools. Each candidate receives the following compact feature vector. 
+
+xRi = [sim i, rrank i, hist i, a in i , a out i , z i]. (17) The value hist i summarizes support from path neighbors. The features ain i and aout i describe tran-sition direction, and zi stores state and schema information. These groups expand to 12 scalar node features in the released encoder. They cover semantic score, reciprocal rank, entry and tool fre-quency, two anchor-transition directions, anchor co-occurrence, two schema-flow directions, state fit, missing-field count, and anchor-family match. The relation-aware Transformer computes atten-tion with a learned relation bias. 
+
+H0 = Proj( XR), (18) 
+
+αℓ,h ij = softmax j
+
+(qℓ,h i )⊤kℓ,h j
+
+√dh
+
++ βℓ,h (rRij )
+
+!
+
+,
+
+(19) 
+
+Hℓ+1 = Block θ(Hℓ, α ℓ). (20) The learned bias βℓ,h (rRij ) injects path relation type into attention. The encoder then predicts membership and path-position scores. 
+
+ˆymem i = σ(w⊤
+
+> m
+
+hLi ), (21) 
+
+ˆypos i,r = exp( w⊤ 
+
+> r
+
+hLi )
+
+P 
+
+> j
+
+exp( w⊤ 
+
+> r
+
+hLj ) . (22) Set decoding balances membership, path-slot cover-age, missing-field coverage, and semantic diversity. Let gif indicate that tool i produces missing field 
+
+f , and let Ei be its normalized tool representation. For a partial set C, the decoder adds the remaining tool with the largest marginal score 
+
+Gslot i = X
+
+> r
+
+h
+
+max {cr, ˆypos i,r } − cr
+
+i
+
+, (23) 
+
+Gf ield i = 1max {1, |F miss q |} × X  
+
+> f∈Fmiss q
+
+[max {cf , g if } − cf ] , (24) 
+
+Di =
+
+(
+
+0, C = ∅,
+
+max j∈C E⊤ 
+
+> i
+
+Ej , otherwise , (25) 
+
+sRi = ˆ ymem i + λ(Gslot i + Gf ield i )
+
+− ηdiv Di, (26) where cr and cf are the current maxima in C.The missing-field set collects required fields in the 128-tool frontier that are absent from F0(q). The missing-field gain is zero when this set is empty. The diversity term is zero when C is empty. The decoder repeats this update until it has selected all 32 tools in the final menu. 
+
+C.5 State-Path Reranker 
+
+The reranker receives the bounded set CK . It con-structs COq = ( V Oq , R Oq ) over exactly these 32 tools. 
+
+V Oq = CK . (27) Each candidate feature is 
+
+xOi = [ sRi , rank i, ˆymem i , ˆypos i, · ,χi(s0), miss i, fam i], (28) where sRi , rank i, and ˆypos i, · come from the retriever. This vector contains 14 scalar node features. Each ordered pair receives the following feature vector. 
+
+aOij = [∆ rank ij , ∆sim ij , ρ (i, j ), t ij , t ji ,κschema ij , κ schema ji , h ij ]. (29) Here tij indicates an observed forward training transition. The 9-dimensional vector hij contains shared service, family, and name indicators, de-scription overlap, three field-overlap counts, and two frequency differences. Together these terms form the 16-dimensional continuous attention bias. Field-level availability is carried separately as de-terministic decoder context for prefix state fit. The reranker uses these entries as a continuous pair bias in attention. 
+
+Z0 = Proj( XO), (30) 
+
+¯qℓ,h i = ¯W ℓ,h Q zℓi , ¯kℓ,h j = ¯W ℓ,h K zℓj , (31) 
+
+αℓ,h ij = softmax j
+
+(¯ qℓ,h i )⊤ ¯kℓ,h j
+
+√dh
+
++ ( wℓ,h e )⊤aOij 
+
+!
+
+, (32) 
+
+Zℓ+1 = Block ψ(Zℓ, α ℓ). (33) The resulting representation feeds the four predic-tion heads used in the main text. 
+
+ei = Entry( zi), (34) 
+
+mi = Member( zi), (35) 
+
+ϕi,r = Slot( zi, r ), (36) 
+
+bij = Prec( zi, z j , a Oij ). (37) The reranker is trained with the following objec-tive. 
+
+LO = λentry Lentry + λslot Lslot + λprec Lprec 
+
++ λmember Lmember + λpath Lpath .
+
+(38) Together, the five terms supervise entry selection and membership, path slots and precedence, and the executability of the leading prefix. The final menu maximizes Eq. 8 by placing the leading 8 tools left to right with development-selected constants. The leading prefix is the pro-posed execution path. Remaining tools retain their retriever order and are appended as backups. 
+
+D Complete Cross-Benchmark Results 
+
+The main text reports one primary measure from each benchmark. Table 15 collects the accompany-ing task and path measures for readers who want the full comparison. 
+
+Table 15: Complete task and path results across five benchmarks. Bold and underline mark the best and second-best values within each reported measure.                                                                      
+
+> Menu constructor ToolBench AppWorld TRAJECT-Bench Succ. Chain R@1 R@5 Chain First COLT (Qu et al., 2024) 0.582 0.477 0.190 0.309 0.230 0.720 ToolRet (Shi et al., 2025) 0.632 0.401 0.114 0.144 0.188 0.564 Tool-REX family (Lu et al., 2025) 0.661 0.533 0.180 0.299 0.350 0.771 SkillRouter (Zheng et al., 2026) 0.707 0.510 0.123 0.279 0.167 0.545 ToolGen (Wang et al., 2025) 0.730 0.510 0.049 0.243 0.708 0.838
+> State-Path (ours) 0.898 0.704 0.465 0.505 0.732 0.837 Menu constructor UniToolCall ToolHop Prefix First First Path COLT (Qu et al., 2024) 0.215 0.407 0.238 0.557 ToolRet (Shi et al., 2025) 0.134 0.279 0.196 0.538 Tool-REX family (Lu et al., 2025) 0.262 0.488 0.597 0.733 SkillRouter (Zheng et al., 2026) 0.169 0.343 0.467 0.662 ToolGen (Wang et al., 2025) 0.215 0.355 0.265 0.590 ToolACE (Liu et al., 2025) 0.297 –––
+> State-Path (ours) 0.635 0.744 0.683 0.756
+
+E Recent Dependency-Aware Planners 
+
+This comparison asks how recent dependency-aware planners perform when they must provide one menu before execution. We use AutoTool and Dynamic Tool Dependency Retrieval to construct a 32-tool menu (Jia and Li, 2026; Patel et al., 2026). ToolTree’s tree search is evaluated through the same 32-tool interface (Yang et al., 2026). On the 304 ToolBench tasks, AutoTool, Dynamic Tool De-pendency Retrieval, and ToolTree reach complete-chain coverage of 0.592, 0.388, and 0.609, respec-tively. State-Path reaches 0.704 with the same 32-tool interface and task set. 
+
+F AssistantBench Public-Validation Diagnostic 
+
+AssistantBench provides an independent web-answer scorer for testing whether state-aware ev-idence routing helps a shared answer generator (Yoran et al., 2024). We compare routing poli-cies on the same 33 public validation tasks. Every policy uses the same web cache, top-10 page bud-get, answer generator, and official BrowserGym scorer. Only the routing policy changes across rows. Table 16 reports the shared scorer and paired outcomes for each policy. Table 16: Comparison of evidence-routing policies on AssistantBench public validation. Pairwise entries give State-Path wins, losses, and ties against each base-line. 
+
+Evidence routing policy Hit Acc. Win/Loss/Tie E5 dense retrieval 45.5 17.9 17/4/12 BGE reranker 48.5 16.7 18/4/11 Qwen3 reranker 42.4 22.7 15/6/12 ColBERT late interaction 48.5 17.8 16/5/12 HyDE hypothetical retrieval 48.5 18.7 16/4/13 RAG-Fusion routing 48.5 19.4 16/5/12 Hybrid RRF routing 45.5 15.1 18/4/11 RankGPT listwise reranking 42.4 23.4 15/3/15 State-Path routing 51.5 42.9 ref. 
+
+State-Path reaches 42.9 accuracy versus 23.4 for RankGPT, with 15 wins, 3 losses, and 15 ties. The smaller evidence-hit gain suggests that route struc-ture also helps the generator use retrieved pages.
