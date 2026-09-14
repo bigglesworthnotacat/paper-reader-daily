@@ -1,0 +1,166 @@
+Title: Beyond Agent Harnesses: Cross-Substrate Authority for Multi-Agent Systems
+
+URL Source: https://arxiv.org/pdf/2609.08472v1
+
+Published Time: Wed, 09 Sep 2026 02:51:22 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# Beyond Agent Harnesses: Cross-Substrate Authority for Multi-Agent Systems 
+
+Yang Li 1,∗ Sergey Volkov 1,∗ Hai Liu 2 Zongsi Xu 1 Xiyu Chen 1
+
+Tuo Zhou 1 Dian Shao 3 Hao Sun 4,† Ye Luo 1,†
+
+> ∗
+
+These authors contributed equally to this work. †Corresponding authors. 
+
+> 1
+
+The University of Hong Kong 
+
+> 2
+
+School of Artificial Intelligence, Jiangxi Science and Technology Normal University 
+
+> 3
+
+The Hong Kong University of Science and Technology 4Shenzhen University       
+
+> yli9919@hku.hk sergey.volkov@connect.hku.hk studenthailiu@gmail.com tristan_xu@connect.hku.hk ethanchen2277@gmail.com zhoutuo@connect.hku.hk dshao@connect.ust.hk †sunh3_13@szu.edu.cn †kurtluo@hku.hk
+
+Abstract 
+
+Agentic systems persist model-visible memory while mutating workspaces, while a runtime, registry, or approval service may hold authority state outside both. Identical final files can then require opposite safe actions. We call this the cross-substrate authority gap : decision-relevant authorization information resides outside the planner-visible workspace or memory state. Across two controlled mini-benchmark families, three experiments compare planner-observation augmentation with an execution-time authority check using real Git lineage, durably recorded agent execution attempts, deterministic oracles, and two model routes. Experiment 1 is a 128-cell controlled evidence ablation: authority-blind candidate evidence obtains 0/32 final semantic success, while raw receipts and a typed relation both obtain 32/32. The missing authority fact accounts for the gain; typed packaging provides no observed planning-accuracy gain over equal raw information. Experiment 2 uses 96 planning calls: workspace-visible evidence yields 12/16 unsafe publication decisions, and planning with the typed relation remains unreliable (15/32 first actions correct; 11/32 invalid or absent). Experiment 3 replays the same 32 fixed model-generated first-action intents with zero additional model calls; a deterministic execution guard prevents all six unsafe intents from becoming effects and permits all 12 valid authorized publish intents. These results position authority enforcement at the mutation boundary as the operational endpoint of memory governance. 
+
+# 1 Introduction 
+
+Consider two coding agents that update a shared policy file and its consumer. Both retain private session memory saying what they changed. A downstream agent sees the same final files, the same uncommitted Git diff, and the same visible memory in two worlds. In the aligned world, each writer was authorized for its scope, so the artifact should be published. In the crossed world, the writers were swapped across scopes, so publication must stop for coordination. The bytes match across worlds, while the required actions differ. Here authority denotes whether a specific actor and execution attempt is authorized to cause a particular downstream effect on the current artifact. Git commits bind trees, parents, authors, 1arXiv:2609.08472v1 [cs.MA] 8 Sep 2026 committers, and messages [3]. Strong, identity-bound commits can encode the missing provenance and are an important negative control. We call the point at which an artifact becomes available for downstream use the publication boundary . Earlier in the workflow, an uncommitted shared worktree may omit which durably recorded execution attempt produced each artifact and whether an external service approved its downstream use. Agent memory may repeat a claim without proving that the claim is current, terminal, or applicable to this workspace. This produces a concrete systems question: 
+
+Can the current artifact in the shared workspace be safely published, and which operating-layer evidence must be bound to that decision? 
+
+We study this question with CrossAgentVersionBench-Micro , an umbrella benchmark with two paired scenario families built locally from real Git lineage, durably recorded agent execution attempts, and deterministic code or publication oracles. Experiment 1 isolates candidate-artifact visibility, raw authority facts, and typed representation. Experiment 2 tests whether planners can safely publish an observation-equivalent shared worktree. Experiment 3 freezes the exact model-generated first-action intents from Experiment 2 and changes only the execution-time validator. We call this a matched-intent design. Our contributions are: 1. We formalize cross-substrate authority as hidden state that matters to decisions and show an observation-aliasing condition under which an authority-blind planner cannot be both safe and useful across paired worlds. 2. We specify a typed relation linking an agent execution attempt, its artifact, and its downstream-use authorization state, together with a trust boundary that distinguishes provenance capture, planner exposure, and execution-time enforcement. 3. We execute three audited experiments across two benchmark families and DeepSeek V4 Flash and GPT-5.4 variants. They show, respectively, that raw receipts explain authority resolution, planning remains unreliable under shared-workspace ambiguity, and a matched-intent execution guard blocks all fixed unsafe intents while permitting every valid authorized intent. 4. We locate the boundary with Git: authenticated commits can carry authority when its metadata is authoritative for downstream use; cross-substrate governance applies when authorization resides in an external service or precedes publication. 
+
+# 2 Cross-substrate authority 
+
+2.1 Consistency views and observational ambiguity 
+
+For a decision-maker, authority is hidden state: omitting it aliases worlds that require different actions. Raw or typed evidence augments the observation; an execution-time guard constrains which proposed action can take effect. For agent attempt a, let the immutable consistency view be 
+
+V a = ⟨W a, M a, E a, R a⟩, (1) where W is workspace state, M is the model-visible memory snapshot, E is external evidence, and 
+
+R is attempt and downstream-use authorization state. Each refresh creates a versioned successor view. An action is admissible only if the components needed by its policy belong to a validated relation. 2Table 1: Decision-relation fields and the failure each prevents.         
+
+> Field Failure if absent actor and attempt iden-tity Another execution is credited for the material. session and consumer scope A valid receipt is reused in the wrong task or role. input/workspace digest Authority survives drift from the observed workspace. artifact digest A receipt is replayed for different bytes. attempt terminal state A failed or still-running attempt is treated as completed. downstream-use autho-rization Completion is confused with approval for downstream use. evidence version A stale snapshot silently replaces current authority.
+
+Harness 
+
+session memory model intent 
+
+−→ 
+
+Authority view 
+
+attempt + material scope + status 
+
+−→ 
+
+Execution guard 
+
+digest recheck publish or hold Figure 1: Memory governance spans model-visible evidence and a separate execution boundary. Our experiments isolate these two roles using the same model-generated first-action intent. 
+
+Proposition 1 (authority-blind indistinguishability). Let worlds x and y have identical planner observation O but opposite correct actions, A∗(x) = publish and A∗(y) = block . Any deterministic policy π(O) emits the same action in both worlds and is therefore incorrect in at least one. A policy that always blocks avoids unsafe publication but necessarily incurs an unnecessary block in x. Randomization changes expected rates while leaving the aliased observation unresolved. Our paired construction instantiates this proposition: the aligned and crossed worlds have byte-identical authority-blind inputs but opposite fixed oracles. An authority relation exposes the decision-relevant authority state and breaks this observational equivalence. 
+
+2.2 A minimal decision relation 
+
+We represent the decision-critical relation as 
+
+ρ = ⟨ia, i s, h in , h art , q, s a, s p, g ⟩, (2) where ia and is bind actor/attempt and consumer scope, hin and hart bind input/workspace and artifact bytes, q is the authorized action scope, sa is terminal attempt state, sp is downstream-use authorization state, and g is the evidence version (called generation in the runtime). Table 1 states the mechanical role of each field. The relation records that a specific terminal activity produced specific bytes under a policy-relevant scope and downstream-use authorization state. Semantic correctness is evaluated separately by the task oracle. 
+
+2.3 Planning exposure versus effect enforcement 
+
+Figure 1 separates three mechanisms. Raw receipts and typed relations augment the planner observation. The model may still ignore or misread them. An execution-time guard validates the same relation, rechecks the live workspace digest immediately before mutation, and either executes or records a persistent denial with no mutation. 3Trust model. We trust the harness to authenticate its allocated actor/session identifier and append terminal attempt receipts; the governance store to preserve attempt lifecycle and downstream-use authorization state; Git and SHA-256 to identify observed bytes; and the operator/evaluator to re-read the workspace and apply the fixed policy. The fault model includes stale or ambiguous memory, buggy model decisions, cross-agent attribution errors, workspace drift, and lost responses followed by restart. The analysis assumes a nonmalicious host, authentic actor credentials, an uncompromised authority database, and collision-resistant hashes. Content hashes and independent audits detect accidental drift relative to frozen roots; cryptographic actor authentication requires a separate identity mechanism. We evaluate authorization consistency under these trusted-component assumptions. 
+
+# 3 Experimental design 
+
+Across two benchmark families, all three experiments use held-out semantic templates, real Git repositories, durably recorded DeepSeek Harness ( DSH ) source/target attempts, a Workflow Test Bench ( WTB ) lifecycle, structured actions, and deterministic executors/oracles. Model outputs are scored by deterministic oracles. Unknown or invalid outputs remain failures under fixed intention-to-treat (ITT) denominators. Input plans and evidence closures were frozen before provider calls, reconstructed under two physical roots, and checked by independent read-only auditors. 
+
+3.1 Experiment 1: What resolves authority-blind coding? 
+
+Experiment 1 crosses four held-out semantic templates, two model routes (DeepSeek V4 Flash and GPT-5.4 Mini), two lineage directions, two external publication states, and four arms: 32 matched strata and 128 target executions. • G0 : identity-bound Git commits; the planner cannot identify or inspect the candidate artifact by construction. • C0 : G0 plus both candidate generations and neutral context, with the authority fact omitted. • R0 : C0 plus canonical raw attempt, input, artifact, and publication receipts. • W0 : the same admitted authority primitives represented as an independently validated typed relation. Within a stratum, task, workspace, source lineage, Git payload, evidence budget, model route, and initial observation are fixed. Only the external publication state changes the correct final code. The common primary outcome is FinalSemanticSuccess . Because arm policies differ, FirstAc-tionCorrect is reported within each arm as an arm-policy diagnostic. ITT composite success also requires observation adherence, parsing, correct artifact-to-attempt binding (material binding), final semantics, and workspace preservation. 
+
+3.2 Experiment 2: Can the current artifact be safely published? 
+
+Experiment 2 uses four unseen TypeScript, TOML, JSON, and XML templates. Two real root sessions sequentially read and modify one shared worktree. In aligned , writer-to-scope bindings require publish-current ; in crossed , writers are swapped while policy, final files, ordinary Git/worktree evidence, a hash of the policy-relevant workspace scope (scope digest), and visible memory remain fixed, requiring block-and-reconcile .4Table 2: Experiment 1 fixed-matrix outcomes. Raw receipts and the typed relation both resolve the authority-blind worlds.                          
+
+> Arm nFinal semantic Observation ITT composite Unsafe adopt G0: Git only 32 0/32 32/32 0/32 0/32 C0: candidates 32 0/32 32/32 0/32 0/32 R0: raw receipts 32 32/32 31/32 31/32 0/32 W0: typed relation 32 32/32 32/32 32/32 0/32
+
+Planning is 4 templates ×2 worlds ×3 arms ×2 models (DeepSeek V4 Flash and GPT-5.4 Nano) 
+
+×2 repeats = 96 provider calls. GM0 receives ordinary shared-worktree Git and visible memory, R0 adds canonical raw actor/material receipts, and W0 adds the independently validated typed relation. FirstActionCorrect is scored over all 32 cells per arm; UnsafePublishRate uses only 16 crossed cells; UnnecessaryBlockRate uses only 16 aligned cells. 
+
+Experiment 3: Can an execution guard stop fixed unsafe intents? Experiment 3 consumes the exact fixed W0 output for all 32 Experiment 2 W0 rows and makes zero new model calls. The runtime enforcement operator validates actor/session/attempt/artifact/scope, rechecks the scope digest of the policy-relevant workspace, and records the executed effect or hold. The exact same model-generated first-action intent enters W0 and W1, while only the execution-time validator changes. This matched-intent design attributes the W0–W1 difference to the operator. Experiment 3 is causally paired with Experiment 2. It reuses the 32 Experiment 2 first-action intents and adds 32 paired execution outcomes; the planning denominator remains 96. 
+
+# 4 Results 
+
+4.1 Experiment 1: Raw authority resolves coding; R0 and W0 match 
+
+All 128 target cells and 32 source worlds reached exact terminal receipts. The independent audit reconstructed 160 terminal DSH receipts, found no unknown or recovery-required cells, and verified Git parity in all 32 strata. G0 and C0 block every cell, yielding 0/32 unsafe adoptions and 0/32 final semantic successes. Adding raw authority receipts changes final semantic success from 0/32 to 32/32 (R0–C0: 32 favorable, 0 unfavorable discordant pairs; exact two-sided p = 4 .66 × 10 −10 ). W0 also achieves 32/32, but W0–R0 has no discordant final-semantic pair. The single R0 composite miss is an allowed-file reread; its first action, binding, final semantics, workspace preservation, and safety are correct. Both model routes reproduce the same 0/16 versus 16/16 semantic split. R0 and W0 both achieve 32/32 final semantic success. The R0–C0 contrast attributes the gain to the external authority fact missing from the Git and candidate evidence. W0–R0 leaves no observed planning-accuracy gain from typed packaging. The typed relation remains available for validation, integration, enforcement, recovery, and audit. 
+
+4.2 Experiment 2: Planning remains unreliable 
+
+Experiment 2 completed 96/96 terminal planning calls. Table 3 shows that the problem is behaviorally present: GM0 proposes unsafe publication in 12/16 crossed cells. R0 has the highest aggregate FirstActionCorrect (19/32). W0 has 11/32 invalid or absent outputs and 15/32 correct first actions. Neither evidence treatment is reliable across both model routes. 5Table 3: Experiment 2 planning outcomes with explicit, outcome-specific denominators. Unknowns remain ITT failures.                 
+
+> Arm First action Unsafe publish Unnecessary block Unknown GM0 14/32 12/16 4/16 2/32 R0 19/32 9/16 2/16 2/32 W0 15/32 6/16 0/16 11/32
+
+The model split qualifies the aggregate safety rate. DeepSeek’s W0 unsafe rate is 0/8 alongside 7/8 crossed W0 rows with no valid intent. GPT-5.4 Nano parses every W0 row yet proposes unsafe publication in 6/8 crossed cases. Typed planning remains unreliable and model-dependent. 
+
+4.3 Experiment 3: The matched-intent execution guard prevents unsafe effects 
+
+W1 replays all 32 W0 rows through the runtime enforcement operator without a provider call. W0 contains 6/16 unsafe crossed publication intents; W1 executes 0/16 unsafe publications and leaves all 16/16 crossed cases safe. Among aligned cases, W1 permits and executes every valid publish intent (12/12) and induces 0/12 denials. Four other aligned rows lack a valid DeepSeek intent. They count against valid-intent availability, while the valid-intent execution denominator remains 12. The crossed comparison has six favorable and zero adverse discordances (exact two-sided finite-matrix p = 0 .03125). The paired test characterizes this fixed experimental matrix. Deployment prevalence requires a separate sampling design. 
+
+# 5 Implications for an Agentic OS 
+
+Separate artifact identity from action authorization. An Agentic OS should treat workspace bytes, model memory, durable attempt state, and authority state as separately versioned substrates. A content digest answers “which bytes?”; an action permit additionally answers “which actor, attempt, scope, terminal state, and evidence version authorize this effect?” 
+
+Expose evidence during planning and validate actions at execution. Experiment 1 obtains 32/32 final semantic success with both raw receipts and the typed relation. Experiment 2 obtains 19/32 correct first actions with raw receipts and 15/32 with the typed relation. Experiment 3 then blocks all six fixed unsafe intents at execution time. A governance API should expose inspectable evidence to the planner and require a validated permit at the mutation boundary. 
+
+Use Git when it carries the full authority relation. Authenticated isolated commits can bind actor, attempt, scope, and artifact. When this metadata is itself authoritative for downstream use, Git can serve as the authority boundary. Cross-substrate governance applies when authorization resides in an external service, artifacts in a shared uncommitted worktree, and decisions that bind memory and runtime state before downstream publication. 
+
+Report safety and availability separately. W1 prevents unsafe effects after a valid model intent reaches the operator. DeepSeek also produces 11/16 invalid or absent W0 planning outputs. Separate denominators for decision quality, effect safety, false blocks, missing intents, and recovery cost distinguish planner availability from operator behavior. 6Table 4: The three experiments isolate successive layers of the mechanism.        
+
+> Exp. Fixed-matrix result What it identifies E1 C0/R0/W0 final semantics: 0/32, 32/32, 32/32 Raw authority resolves the task; R0 and W0 match on final semantics. E2 GM0/R0/W0 first action: 14/32, 19/32, 15/32; W0 unknown 11/32 Planning-time exposure remains unreliable and model-dependent. E3 Unsafe W0 intents 6/16 →W1 effects 0/16; valid denials 0/12 Matched-intent validation prevents the fixed unsafe effects.
+
+Two families, three experiments. Table 4 summarizes the chain: raw receipts supply missing authority, planning remains unreliable after evidence exposure, and the runtime operator prevents fixed unsafe effects. Each contrast changes one policy-relevant layer. 
+
+# 6 Related work and novelty boundary 
+
+OS-inspired agent systems manage context, memory, scheduling, storage, and access control [7, 9]; generalist multi-agent systems already coordinate agents that navigate local files and execute code [2]. Our experiments isolate one operating-layer decision: whether a shared artifact is authorized for a downstream effect. Memory governance is rapidly converging on scope, provenance, temporal state, and enforcement. Collaborative Memory applies dynamic access control to shared fragments [10]; Governed Shared Memory formalizes leakage, stale propagation, contradiction, and provenance collapse [6]; MemLin-eage gates sensitive actions using cryptographic derivation lineage [8]; and MAP-Graph combines typed provenance, hard permission filtering, graded trust, and risk-sensitive action gates [14]. Our contribution is a controlled cross-substrate publication construction that (i) proves authority-blind observational equivalence against workspace-visible Git evidence and identity-bound commit controls, (ii) decomposes raw facts from typed packaging, and (iii) evaluates enforcement on the exact same model intent. Shared-workspace systems address a neighboring concurrency problem. STORM rejects stale writes using per-agent workspace versions [4], while CoAgent seeks serializable multi-agent mutation with notification, repair, and undo [5]. Our paired worlds exclude the stale-write race: both writes succeed and final bytes match; only actor-attempt-scope publication authority differs. PROV-O and PROV-AGENT model agents, activities, entities, and workflow context for traceability [11, 13]; in-toto binds authorized supply-chain steps to materials and products [12]. LogAct places actions in a durable shared log before execution and supports voters and recovery [1]. These foundations motivate our benchmark for operating-layer authority in agentic systems and its three-experiment decomposition. 
+
+# 7 Limitations and conclusion 
+
+The experiments span two independently constructed four-template families, two model routes, structured decisions, and deterministic executors. Experiment 3 reuses 32 Experiment 2 intents; its paired effects leave the planning denominator at 96. The experiments isolate the mechanism under controlled conditions. Deployment prevalence, broader model and parent–subagent generalization, and end-to-end security remain open. Planning with the typed relation is negative and model-dependent. The store and actor/session allocation are trusted; cryptographic signatures, compromise 7of the authority database, multi-tenant policy composition, and identity-bound Git attestation at scale remain future work. Overall, the results motivate validated permits at the mutation boundary; The Appendix provides reproducibility details. 
+
+# References 
+
+[1] Mahesh Balakrishnan, Ashwin Bharambe, Davide Testuggine, David Geraghty, David Mao, Vidhya Venkat, Ilya Mironov, Rithesh Baradi, Gayathri Aiyer, and Victoria Dudin. Logact: Enabling agentic reliability via shared logs. arXiv preprint arXiv:2604.07988 , 2026. URL https://arxiv.org/abs/2604.07988. [2] Adam Fourney, Gagan Bansal, Hussein Mozannar, Cheng Tan, Eduardo Salinas, Erkang Zhu, Friederike Niedtner, Grace Proebsting, Griffin Bassman, Jack Gerrits, Jacob Alber, Peter Chang, Ricky Loynd, Robert West, Victor Dibia, Ahmed Awadallah, Ece Kamar, Rafah Hosn, and Saleema Amershi. Magentic-one: A generalist multi-agent system for solving complex tasks. Technical Report MSR-TR-2024-47, Mi-crosoft Research, 2024. URL https://www.microsoft.com/en-us/research/publication/ magentic-one-a-generalist-multi-agent-system-for-solving-complex-tasks/. [3] Git Project. Git user manual: Commit object. Official documentation, 2026. URL https: //git-scm.com/docs/user-manual. [4] Mengyang Liu, Taozhi Chen, Zhenhua Xu, Xue Jiang, and Yihong Dong. Multi-agent col-laboration with state management. arXiv preprint arXiv:2605.20563 , 2026. URL https: //arxiv.org/abs/2605.20563. [5] Hongtao Lyu, Dingyan Zhang, Mingyu Wu, Xingda Wei, and Haibo Chen. Coagent: Con-currency control for multi-agent systems. arXiv preprint arXiv:2606.15376 , 2026. URL https://arxiv.org/abs/2606.15376. [6] Yanki Margalit, Nurit Cohen-Inger, Erni Avram, Ran Taig, and Oded Margalit. Governed shared memory for multi-agent llm systems. arXiv preprint arXiv:2606.24535 , 2026. URL https://arxiv.org/abs/2606.24535. [7] Kai Mei, Xi Zhu, Wujiang Xu, Wenyue Hua, Mingyu Jin, Zelong Li, Shuyuan Xu, Ruosong Ye, Yingqiang Ge, and Yongfeng Zhang. Aios: Llm agent operating system. arXiv preprint arXiv:2403.16971 , 2024. URL https://arxiv.org/abs/2403.16971. [8] Ciyan Ouyang and Rui Hou. Memlineage: Lineage-guided enforcement for llm agent memory. 
+
+arXiv preprint arXiv:2605.14421 , 2026. URL https://arxiv.org/abs/2605.14421. [9] Charles Packer, Sarah Wooders, Kevin Lin, Vivian Fang, Shishir G. Patil, Ion Stoica, and Joseph E. Gonzalez. Memgpt: Towards llms as operating systems. arXiv preprint arXiv:2310.08560 , 2023. URL https://arxiv.org/abs/2310.08560. [10] Alireza Rezazadeh, Zichao Li, Ange Lou, Yuying Zhao, Wei Wei, and Yujia Bao. Collaborative memory: Multi-user memory sharing in llm agents with dynamic access control. arXiv preprint arXiv:2505.18279 , 2025. URL https://arxiv.org/abs/2505.18279. [11] Renan Souza, Amal Gueroudji, Stephen DeWitt, Daniel Rosendo, Tirthankar Ghosal, Robert Ross, Prasanna Balaprakash, and Rafael Ferreira da Silva. Prov-agent: Unified provenance for 8tracking ai agent interactions in agentic workflows. Proceedings of the 21st IEEE International Conference on e-Science , 2025. URL https://arxiv.org/abs/2508.02866. [12] Santiago Torres-Arias, Hammad Afzali, Trishank Karthik Kuppusamy, Reza Curtmola, and Justin Cappos. in-toto: Providing farm-to-table guarantees for bits and bytes. In 28th USENIX Security Symposium , pages 1393–1410, 2019. URL https://www.usenix.org/conference/ usenixsecurity19/presentation/torres-arias. [13] W3C Provenance Working Group. Prov-o: The prov ontology. W3C Recommendation, 2013. URL https://www.w3.org/TR/prov-o/. [14] Yiqi Wang, Zihao Yan, Jiaqi Zhang, Zhangkai Wu, Mingkai Zheng, Zequn Sun, Yanming Zhu, and Taotao Cai. Map-graph: Provenance-aware shared memory for multi-agent workflows. 
+
+arXiv preprint arXiv:2608.10509 , 2026. URL https://arxiv.org/abs/2608.10509. 
+
+# Appendix 
+
+Experiment 1 matrix. Four held-out semantic templates × two models × two lineage directions 
+
+× two authority states × four arms = 128 target executions. All 128 target and 32 source attempts reached terminal receipts. The primary common outcome was deterministic final semantic success, scored by a code oracle. 
+
+Experiment 2 matrix. Four held-out templates × two worlds × three planning arms × two models × two repeats = 96 provider calls. World-specific denominators were fixed at 16 crossed and 16 aligned rows per planning arm. 
+
+Experiment 3 matrix. The 32 fixed Experiment 2 W0 rows were replayed once through W1 with zero provider calls. Outcomes compare each model intent with its executed effect. These rows add 32 paired execution outcomes; the planning denominator remains 96. 
+
+Evidence integrity. Across all three experiments, plans, model inputs, parsers, scorers, component commits, runtime configurations, and evidence roots were content-addressed before counted calls. Independent readers recomputed case identities, exact input parity, terminal attempt bindings, deterministic semantics, and reported aggregates. Started attempts without exact terminal evidence remained RUNNING with recovery-required ; blind provider replay was prohibited. 
+
+Compute and model access. The experiments used API inference only; no model training or GPU compute was performed locally. Experiment 1 used DeepSeek V4 Flash and GPT-5.4 Mini. Experiment 2 used DeepSeek V4 Flash and GPT-5.4 Nano. Deterministic construction, Git operations, auditing, and Experiment 3 W1 enforcement ran on a Windows workstation. Experiment 2’s 96 planning calls accumulated 615.7 seconds of provider-attempt duration; Experiment 3 made no model calls. Failed development and infrastructure-diagnostic runs were excluded by prospectively defined eligibility gates. Only eligible runs enter the reported denominators. 9
