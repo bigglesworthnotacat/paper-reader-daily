@@ -6,95 +6,83 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-15
-- 运行时间：2026-09-15 22:15:49 UTC
+- 最新运行日期：2026-09-16
+- 运行时间：2026-09-16 21:56:22 UTC
 - 运行状态：成功
-- 本次总论文数：24
-- 精读区：11
+- 本次总论文数：21
+- 精读区：8
 - 速读区：13
 
 ### 今日简报（AI）
-- 今日共生成 24 篇推荐（精读 11 篇，速读 13 篇）
-- 精读：《Trustworthy Agentic AI: A Comprehensive Cybersecurity and Systems Survey on Threat Landscapes, Defense Architectures, and Open Challenges》（10.0/10）, 《SoK: Rethinking Jailbreaking in the Era of Agentic AI: Attacks, Defenses, and Practical Consideration》（9.0/10）
-- 速读：《Belief-State Engine: Augmenting LLMs for Principled Planning Under Partial Observability》（8.0/10）, 《Niching Agents in The Core》（8.0/10）, 《Evaluating Context Segmentation in Locally Deployable SLMs for Cybersecurity CTF Tasks》（8.0/10）
-- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202609/15/README](/202609/15/README)
+2026-09-16 日报共筛出 21 篇 Agentic AI 论文，精读 8 篇、速读 13 篇，其中可信智能体安全与越狱攻防两篇综述获最高分（10.0 和 9.0）。最值得关注的是智能体系统的安全威胁全景与防御架构，以及从攻击到防护的越狱研究新框架。普通读者可优先了解这两篇综述，建立对智能体安全风险的整体认知。
+- 详情：[/202609/16/README](/202609/16/README)
 
 ### 精读区论文标签
-1. [Trustworthy Agentic AI: A Comprehensive Cybersecurity and Systems Survey on Threat Landscapes, Defense Architectures, and Open Challenges](/202609/15/2609.13731v1-trustworthy-agentic-ai-a-comprehensive-cybersecurity-and-systems-survey-on-threat-landscapes-defense-architectures-and-open-challenges)  
+1. [Trustworthy Agentic AI: A Comprehensive Cybersecurity and Systems Survey on Threat Landscapes, Defense Architectures, and Open Challenges](/202609/16/2609.13731v1-trustworthy-agentic-ai-a-comprehensive-cybersecurity-and-systems-survey-on-threat-landscapes-defense-architectures-and-open-challenges)  
    标签：评分：10.0/10、query:llm-security
-   evidence：面向智能体AI的威胁与防御全面网络安全综述
-2. [SoK: Rethinking Jailbreaking in the Era of Agentic AI: Attacks, Defenses, and Practical Consideration](/202609/15/2609.12413v1-sok-rethinking-jailbreaking-in-the-era-of-agentic-ai-attacks-defenses-and-practical-consideration)  
+   evidence：面向自主智能体AI系统的安全威胁与防御综述
+2. [SoK: Rethinking Jailbreaking in the Era of Agentic AI: Attacks, Defenses, and Practical Consideration](/202609/16/2609.12413v1-sok-rethinking-jailbreaking-in-the-era-of-agentic-ai-attacks-defenses-and-practical-consideration)  
    标签：评分：9.0/10、query:llm-security
-   evidence：面向智能体AI安全重新梳理越狱攻击与防御的SoK
-3. [An Efficient and Modular Framework for Targeted Harm Mitigation in LLMS](/202609/15/2609.13624v1-an-efficient-and-modular-framework-for-targeted-harm-mitigation-in-llms)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：面向LLM定向危害缓解与对齐的模块化框架
-4. [SkillSecurer: Detecting and Patching Prompt-Injection Vulnerabilities in AI Agent Skills](/202609/15/2609.14079v1-skillsecurer-detecting-and-patching-prompt-injection-vulnerabilities-in-ai-agent-skills)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：检测与修复AI智能体技能中的提示注入漏洞
-5. [LLM Agent Capabilities Should Follow Task Intent and Context Source](/202609/15/2609.14631v1-llm-agent-capabilities-should-follow-task-intent-and-context-source)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：通过信任感知能力控制保障LLM智能体安全
-6. [ModularRSI: Modular and Generalizable Recursive Harness Self-Improvement](/202609/15/2609.14857v1-modularrsi-modular-and-generalizable-recursive-harness-self-improvement)  
+   evidence：面向智能体AI全流程的越狱攻击与防御系统化综述
+3. [Generalized Agent Iteration: One Formal Framework for Iterative Policy Improvement and Recursive Self-Improvement](/202609/16/2609.13406v1-generalized-agent-iteration-one-formal-framework-for-iterative-policy-improvement-and-recursive-self-improvement)  
    标签：评分：9.0/10、query:agent-evol
-   evidence：面向智能体工具链的模块化递归自我改进
-7. [Dream-RSI: Recursive Self-Improvement through Evolving Worlds](/202609/15/2609.14858v1-dream-rsi-recursive-self-improvement-through-evolving-worlds)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：通过演化探索实现自主智能体可扩展递归自我改进的框架
-8. [RSIAgent: Autonomous Exploration for Recursive Self-improvement in New Environments](/202609/15/2609.15364v1-rsiagent-autonomous-exploration-for-recursive-self-improvement-in-new-environments)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：通过自主记忆构建实现智能体递归自我改进
-9. [SkillLift: Learning Dense Rubrics from Sparse Oracles for Efficient Skill Evolution](/202609/15/2609.15396v1-skilllift-learning-dense-rubrics-from-sparse-oracles-for-efficient-skill-evolution)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：面向LLM智能体的高效技能自进化
-10. [Misleading the Planner through Deceptive Resumes: Registration-Time Injection in Centralized Multi-Agent Systems](/202609/15/2609.15516v1-misleading-the-planner-through-deceptive-resumes-registration-time-injection-in-centralized-multi-agent-systems)  
+   evidence：统一迭代策略改进与递归自我改进的形式化框架
+4. [Confuse the Model, Control the Flow: Understanding and Mitigating Privacy Leakage from LLM Agents with Information Flow Control](/202609/16/2609.14003v1-confuse-the-model-control-the-flow-understanding-and-mitigating-privacy-leakage-from-llm-agents-with-information-flow-control)  
    标签：评分：9.0/10、query:llm-security
-   evidence：集中式LLM多智能体系统中的注册期注入攻击
-11. [Authorization Architectures for Tool-Using AI Agents](/202609/15/2609.15906v1-authorization-architectures-for-tool-using-ai-agents)  
+   evidence：LLM智能体隐私泄露与防御
+5. [AGENTQ: Quantization-Conditioned Backdoor Attacks on LLM Agents](/202609/16/2609.14060v1-agentq-quantization-conditioned-backdoor-attacks-on-llm-agents)  
    标签：评分：9.0/10、query:llm-security
-   evidence：面向工具使用型自主智能体的授权安全架构
+   evidence：针对大模型智能体的后门攻击
+6. [Divide, Consult, Conquer: Capability Laundering Through Aligned LLMs](/202609/16/2609.15383v1-divide-consult-conquer-capability-laundering-through-aligned-llms)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：通过拆分良性子问题绕过对齐LLM安全的能力洗白攻击
+7. [Toward Self-Adaptive Physical AI: Can LLM Agents Manage Long-Horizon Physical Tasks?](/202609/16/2609.13436v1-toward-self-adaptive-physical-ai-can-llm-agents-manage-long-horizon-physical-tasks)  
+   标签：评分：8.0/10、query:agent-evol
+   evidence：自适应LLM智能体零样本管理长时程物理任务
+8. [BusMA: A Bus Communication Substrate for Multi-Agent Systems](/202609/16/2609.15054v1-busma-a-bus-communication-substrate-for-multi-agent-systems)  
+   标签：评分：8.0/10、query:llm-agent
+   evidence：面向多智能体协作的总线通信框架
 
 ### 速读区论文标签
-1. [Belief-State Engine: Augmenting LLMs for Principled Planning Under Partial Observability](/202609/15/2609.10036v1-belief-state-engine-augmenting-llms-for-principled-planning-under-partial-observability)  
+1. [Bridging Thought and Action: Taming Long-Horizon Instability in Open-Source LLM Agents with a MetaTool-Enhanced ROS Framework](/202609/16/2609.13335v1-bridging-thought-and-action-taming-long-horizon-instability-in-open-source-llm-agents-with-a-metatool-enhanced-ros-framework)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：为LLM智能体规划提供架构增强
-2. [Niching Agents in The Core](/202609/15/2609.12398v1-niching-agents-in-the-core)  
+   evidence：MetaTool为LLM机器人智能体强制结构化工具调用规划
+2. [AlgoEvo: Self-Evolving Agentic Search for Automated Algorithm Discovery](/202609/16/2609.15820v1-algoevo-self-evolving-agentic-search-for-automated-algorithm-discovery)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：智能体通过锦标赛选择、交叉与变异进行协同进化
-3. [Evaluating Context Segmentation in Locally Deployable SLMs for Cybersecurity CTF Tasks](/202609/15/2609.12839v1-evaluating-context-segmentation-in-locally-deployable-slms-for-cybersecurity-ctf-tasks)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：本地部署小模型智能体的安全威胁与缓解
-4. [SkillAtlas: An Attack Trace Library for Agent Skills](/202609/15/2609.13353v1-skillatlas-an-attack-trace-library-for-agent-skills)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：面向语言模型智能体技能安全风险的公开攻击轨迹库
-5. [Generalized Agent Iteration: One Formal Framework for Iterative Policy Improvement and Recursive Self-Improvement](/202609/15/2609.13406v1-generalized-agent-iteration-one-formal-framework-for-iterative-policy-improvement-and-recursive-self-improvement)  
+   evidence：面向自动算法发现的自演化智能体搜索
+3. [HypoEvolve: Genetic Algorithms Enable Multi-Agent LLMs to Discover Scientific Hypotheses](/202609/16/2609.15938v1-hypoevolve-genetic-algorithms-enable-multi-agent-llms-to-discover-scientific-hypotheses)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：统一迭代策略改进与递归自我改进的形式化框架
-6. [PlannerForge: LLM Agents for Scenario-Based Testing of Motion Planners in Autonomous Driving](/202609/15/2609.08965v1-plannerforge-llm-agents-for-scenario-based-testing-of-motion-planners-in-autonomous-driving)  
+   evidence：遗传算法驱动多智能体LLM进化科学假设
+4. [Multi-Agent Agentic Graph Learning via Structural Signatures](/202609/16/2609.09565v1-multi-agent-agentic-graph-learning-via-structural-signatures)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：覆盖全流程场景测试的统一LLM智能体框架
-7. [Autonomy, Social Norms, and Alignment: Towards a Developmental Framework for Autonomous Artificial Agents](/202609/15/2609.11660v1-autonomy-social-norms-and-alignment-towards-a-developmental-framework-for-autonomous-artificial-agents)  
-   标签：评分：7.0/10、query:llm-security
-   evidence：自主智能体的对齐与社会规范
-8. [ParaRecover: A Process-Level Benchmark for Error Localization and Recovery in Parallel Tool-Use Agents](/202609/15/2609.12345v1-pararecover-a-process-level-benchmark-for-error-localization-and-recovery-in-parallel-tool-use-agents)  
+   evidence：面向图推理的多智能体LLM协作与独立记忆
+5. [AIM: A Privacy-Aware Interoperable Memory Framework for Multi-Agent Multi-User LLM Systems](/202609/16/2609.12320v1-aim-a-privacy-aware-interoperable-memory-framework-for-multi-agent-multi-user-llm-systems)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：并行工具使用智能体的错误恢复基准
-9. [Evaluating Context Segmentation in Locally Deployable SLMs for Cybersecurity CTF Tasks](/202609/15/2609.12839v2-evaluating-context-segmentation-in-locally-deployable-slms-for-cybersecurity-ctf-tasks)  
+   evidence：面向多智能体多用户LLM系统的隐私感知互操作记忆
+6. [Agent as Policy for Robotic Manipulation](/202609/16/2609.12541v2-agent-as-policy-for-robotic-manipulation)  
+   标签：评分：7.0/10、query:llm-agent
+   evidence：通用智能体作为策略直接驱动机器人执行任务
+7. [OrchSLM: Probing the Dynamics of Small Language Model Orchestration](/202609/16/2609.13470v1-orchslm-probing-the-dynamics-of-small-language-model-orchestration)  
+   标签：评分：7.0/10、query:llm-agent
+   evidence：面向智能体流水线的小模型编排
+8. [Token Efficient Task Execution via Application Behavior Modeling for Web Agents](/202609/16/2609.13491v1-token-efficient-task-execution-via-application-behavior-modeling-for-web-agents)  
+   标签：评分：7.0/10、query:llm-agent
+   evidence：基于行为建模的LLM网页智能体架构
+9. [Generative Interpretability via Scalable Neuro-Symbolic Models](/202609/16/2609.13529v1-generative-interpretability-via-scalable-neuro-symbolic-models)  
    标签：评分：7.0/10、query:llm-security
-   evidence：本地部署小模型智能体绕过API防护进行网络安全利用
-10. [Vision: Data-Centric Anchoring for Robust and Interpretable Agentic AI](/202609/15/2609.08216v1-vision-data-centric-anchoring-for-robust-and-interpretable-agentic-ai)  
+   evidence：以生成式可解释性作为智能体LLM系统的架构级安全机制
+10. [Do Agents Know When They Succeed? Calibrating Agent Confidence from Internal Representations](/202609/16/2609.09448v1-do-agents-know-when-they-succeed-calibrating-agent-confidence-from-internal-representations)  
+   标签：评分：6.0/10、query:llm-security
+   evidence：面向安全攸关智能体的置信度校准
+11. [ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations](/202609/16/2609.09778v1-roam-robust-organization-of-atomic-memories-for-agents-through-semantic-relations)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：LLM智能体AI的鲁棒性与可解释性
-11. [Agent ATO: Visualizing Agent Interaction Timelines from Logs](/202609/15/2609.08301v1-agent-ato-visualizing-agent-interaction-timelines-from-logs)  
+   evidence：LLM智能体长期记忆架构
+12. [What Should an Agent Forget? Separating What Is Stored from What Is Used](/202609/16/2609.10263v1-what-should-an-agent-forget-separating-what-is-stored-from-what-is-used)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：从日志可视化AI编码智能体交互轨迹与工具使用的工具
-12. [MeClear: Cooperative Game-Theoretic Attribution and Risk-Aware Memory Clearance for Long-Horizon LLM Agents](/202609/15/2609.09115v1-meclear-cooperative-game-theoretic-attribution-and-risk-aware-memory-clearance-for-long-horizon-llm-agents)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：面向长时程LLM智能体的风险感知记忆清理框架
-13. [Introducing Consort: A Spec-First Agent Framework for Enforced, Test-Driven Development on Live Database Branches](/202609/15/2609.09671v1-introducing-consort-a-spec-first-agent-framework-for-enforced-test-driven-development-on-live-database-branches)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：规范优先的智能体框架，强制测试驱动开发
+   evidence：持久化语言智能体记忆架构
+13. [Tapes Together Strong: The Co-evolution of Computation and Cooperation](/202609/16/2609.10817v1-tapes-together-strong-the-co-evolution-of-computation-and-cooperation)  
+   标签：评分：6.0/10、query:agent-evol
+   evidence：演化智能体间计算与合作的共同进化
 
 
 <div class="dpr-home-promo-card">
