@@ -1,0 +1,458 @@
+Title: Behavior Quotient Learning for Low-Rank Adaptation of LLM Agents
+
+URL Source: https://arxiv.org/pdf/2609.12896v1
+
+Published Time: Mon, 14 Sep 2026 01:08:14 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# BEHAVIOR QUOTIENT LEARNING FOR LOW -R ANK 
+
+# ADAPTATION OF LLM A GENTS 
+
+Pengyang Zhou ∗, Xiaobin Tu ∗, Zhengxi Liu, Rongkun Xue, Haochen Li, Miancan Liu, Ziyuan Chen, Yinggui Wang †, Jinkui Ren, Xiantao Zhang 
+
+Alibaba Cloud 
+
+## ABSTRACT 
+
+LLM-based agents rely on heterogeneous interaction capabilities to accomplish complex tasks. Existing approaches often distribute these capabilities across mul-tiple LoRA adapters, which increases adapter storage requirements and introduces routing overhead during inference. A single LoRA avoids this overhead, but learning from diverse agent trajectories under a fixed rank budget presents two challenges. First, trajectories with different interaction traces and parameter gra-dients can induce equivalent changes in decision distributions, causing repeated updates to overemphasize redundant behavioral changes. Second, an aggregated update may exceed the rank budget of the adapter, and approximating it in weight space can distort the decision changes that it is intended to produce. We pro-pose BQ-LoRA , a low-rank adaptation framework that organizes trajectory up-dates through a local behavior quotient manifold. It contains two modules, i.e., behavior quotient balancing (BQB) and decision preserving compression (DPC). BQB constructs the quotient manifold from decision distributions and reweights trajectory update directions according to their local density in the quotient tangent space. DPC projects the balanced gradient onto the intrinsic fixed rank tangent space and refactorizes the resulting target by jointly controlling effective weight error and distortion of decision distributions. Experiments on AppWorld and BrowseComp-Plus compare BQ-LoRA with standard LoRA and recent low-rank adaptation methods, while separate ablations evaluate the complementary contri-butions of both components. 
+
+## 1 INTRODUCTION 
+
+Agents built on large language models (LLMs) interact with external environments to accomplish specified goals (Yao et al., 2023; Zhang et al., 2026a). Despite broad capabilities, LLM-based agents often require task-specific training to operate effectively in new interaction settings (Zeng et al., 2024; Fang et al., 2026b). Low-Rank Adaptation (LoRA) (Hu et al., 2022) offers an efficient alternative to full-model fine-tuning by learning factorized updates to frozen backbone weights. LoRA-based agent adaptation broadly follows two designs. The first assigns different agent capa-bilities to multiple adapters . In multi-agent workflows, separate LoRA groups support reasoning, execution, and summarization (Han et al., 2025). Within tool-use workflows, adapter specializa-tion separates tool selection from argument generation (Kadekodi et al., 2026) and reasoning from tool use (Li et al., 2026c). More recent work trains a dedicated adapter for each identified capa-bility gap, with inference-time routing selecting the relevant adapter (Kang et al., 2026). Manag-ing multiple specialized adapters requires coordination during inference. Adapter-dependent states can also increase serving costs in multi-agent workflows (Jeon et al., 2026). The second avoids adapter-management overhead by learning a shared low-rank update with a single adapter . For agent adaptation, the shared update is learned directly from interaction trajectories (Chen et al., 2023; Qian et al., 2025; Lai et al., 2025). This design incorporates supervision for reasoning and action generation into a common set of low-rank parameters, allowing the same adapter to support the agent across successive interaction steps. More generally, single-adapter LoRA variants improve the parameterization and optimization of low-rank updates to make more effective use of a limited trainable parameter budget (Zheng & Wu, 2026; Li et al., 2025b; Zhang & Pilanci, 2024). 
+
+> ∗
+
+Equal contribution. 
+
+> †
+
+Corresponding author: wyinggui@gmail.com 
+
+1arXiv:2609.12896v1 [cs.LG] 11 Sep 2026 However, behavioral redundancy among trajectory updates can limit how effectively a single fixed-rank adapter learns from diverse supervision. Behavioral redundancy arises when different trajectory updates induce similar changes in decision representations at the same reference histories. Trajec-tory synthesis broadens interaction coverage (Chen et al., 2026a), while trajectory curation improves supervision quality (Wang et al., 2026). Training utility is also assessed through model-dependent signals (Fang et al., 2026a; Xia et al., 2024; Kwon et al., 2024) and critical-step analysis (Chen et al., 2025; Li et al., 2026a). These methods identify useful supervision but do not compare the behavioral effects of different trajectory updates. Behavioral equivalence can occur despite substantial differ-ences in trajectory text and parameter gradients. Under a fixed rank budget, repeated equivalent updates can disproportionately shape the learned adapter and leave updates with distinct effects on these reference decisions underrepresented. This gap raises a central question. How can a single fixed-rank LoRA learn diverse agent behaviors? 
+
+Addressing this question presents two challenges. Firstly, how to identify behaviorally equivalent trajectory updates? (CH1 ) Recorded trajectories alone do not reveal whether their training up-dates are behaviorally equivalent. Different interaction traces and parameter gradients may still induce similar changes in decision representations. TopoCurate (Yang et al., 2026b) estimates se-mantic equivalence from similarities between recorded tool actions and environment observations. However, this criterion does not compare how trajectory updates change decision representations. Identifying behavioral equivalence therefore requires comparing these changes at the same refer-ence histories. Secondly, how to preserve changes in decision representations under a fixed LoRA rank constraint? (CH2 ) Diverse trajectory updates can produce a desired effective update whose rank exceeds this constraint. Mapping such an update to a single fixed-rank adapter necessarily introduces approximation error. Weight-space error alone does not capture how compression dis-torts these changes. A suitable fixed-rank representative must preserve the effects of the target on decision representations and remain invariant to equivalent LoRA factorizations. To address these challenges, we propose BQ-LoRA , a framework that learns diverse agent behav-iors through a single fixed-rank LoRA adapter. Our key idea is to use a shared geometry of decision behavior to guide both trajectory weighting and low-rank compression. For CH1 , we develop behav-ior quotient balancing (BQB), which compares trajectory update directions through their first-order effects on normalized decision representations at fixed interaction histories. This comparison identi-fies locally equivalent behavioral changes while disregarding parameter differences that are invisible to the reference decisions. BQB then reweights the directions according to their local concentration, reducing repeated contributions and giving greater relative influence to distinct behavioral changes. For CH2 , we develop decision preserving compression (DPC), which projects the balanced direc-tion onto the tangent space of the current fixed-rank adapter. The resulting target depends on the effective weights and remains invariant to equivalent LoRA factorizations. DPC compresses this target by jointly controlling weight approximation error and first-order decision distortion in the same behavior geometry. Together, the two modules connect behavioral coverage during training with preservation under the rank constraint, yielding one adapter that can be deployed directly. We summarize our contributions as follows: (1) We formalize behavioral equivalence among up-dates through a local quotient geometry and introduce BQB to balance trajectory contributions ac-cording to their effects on agent decisions. (2) We develop DPC, which combines a factorization-invariant tangent projection with compression that accounts for both weight error and first-order de-cision distortion under the original LoRA rank budget. (3) We evaluate BQ-LoRA on AppWorld and BrowseComp-Plus with two backbone sizes, comparing performance and interaction counts against standard adaptation, single-adapter optimization, adapter specialization, and trajectory curation. 
+
+## 2 RELATED WORK 
+
+2.1 LOW -R ANK ADAPTATION 
+
+Low-rank adaptation (LoRA) freezes pretrained weights and parameterizes task-specific updates us-ing trainable low-rank factors (Hu et al., 2022). Existing LoRA variants improve adaptation through informative initialization (Meng et al., 2024; Wang et al., 2024; Zhang et al., 2025b;c; Feng et al., 2026; Zhang et al., 2026b), adaptive rank allocation (Zhang et al., 2023; he et al., 2025; Paischer et al., 2025; Cui et al., 2026; Liu et al., 2026a; Ye et al., 2026), modified training procedures (Hayou et al., 2024; Wang et al., 2025; Chen et al., 2026b), and input-conditioned utilization of the low-rank 2subspace (Borse et al., 2024; Li et al., 2025a; Yang et al., 2026a; Zou et al., 2025). Geometry-aware methods further improve LoRA optimization through Riemannian or transformation-invariant pre-conditioning (Zhang & Pilanci, 2024; Yen et al., 2025), factor refactorization and balancing (Zhang et al., 2025a; Castin et al., 2026), and manifold-based formulations (Zheng & Wu, 2026; Bogachev et al., 2026; Li et al., 2025b; Lion et al., 2025). Multi-LoRA approaches use multiple low-rank parameter sets. General-purpose research studies the routing and composition of LoRA experts for multi-task adaptation and adapter reuse (Huang et al., 2024; wu et al., 2024; Dou et al., 2024; Liu & Luo, 2024; Liao et al., 2025; Xu et al., 2025; Li et al., 2026b; Zhuang et al., 2026). Recent work on agentic systems uses multiple specialized adapters to model heterogeneous capabilities and coor-dinate their activation across agent trajectories (Han et al., 2025; Liu et al., 2026b; Kadekodi et al., 2026; Li et al., 2026c; Kang et al., 2026). 2.2 TRAJECTORY REDUNDANCY 
+
+Agent trajectories with different interaction traces may provide overlapping training signals, making trajectory redundancy an important consideration in agent post-training. Existing work has primarily addressed this issue as a data-quality problem, using diversity-aware synthesis (Chen et al., 2026a) and failure-driven curation (Wang et al., 2026) to improve the composition of training data before optimization. Moving from data composition to training effects, prior work estimates sample utility from optimization signals (Fang et al., 2026a; Xia et al., 2024; Kwon et al., 2024) and localizes useful supervision through critical-step selection (Chen et al., 2025; Li et al., 2026a). These criteria identify useful supervision at different levels, but they do not determine whether distinct trajectory-induced updates produce equivalent changes in agent behavior. TopoCurate (Yang et al., 2026b) examines this equivalence through a semantic quotient topology based on embedding similarities between tool actions and environment observations. Because this relation is defined over recorded interaction content, TopoCurate does not determine whether different training updates induce the same behavioral change. Interface perturbation studies further show that successful task execution does not necessarily reflect semantic tool-use competence (Gu et al., 2026). Our work defines tra-jectory redundancy through update-induced behavioral changes, using the resulting equivalence to balance supervision before representing the learned update with a single fixed-rank LoRA. 
+
+## 3 PRELIMINARIES 
+
+A quotient manifold is obtained by identifying equivalent points in a smooth total space (Boumal, 2023). Let M be a smooth manifold equipped with an equivalence relation ∼. For x ∈ M , its equivalence class and the resulting quotient set are defined as: 
+
+[x] = y ∈ M : y ∼ x , M = M/ ∼= [x] : x ∈ M . (1) The canonical projection π : M → M is given by π(x) = [ x]. Equipped with a smooth structure, 
+
+M is a quotient manifold of M if π is a smooth submersion, i.e., rank Dπ (x) = dim M for every 
+
+x ∈ M , where Dπ (x) : TxM → T[x]M denotes the differential of π at x. The fiber through x
+
+is Fx = π−1 π(x), which is an embedded submanifold of M. Its tangent space at x defines the vertical space Vx = TxFx = ker Dπ (x). Consequently, two tangent vectors u, v ∈ TxM represent the same tangent vector in T[x]M if and only if their difference is vertical: 
+
+Dπ (x)[ u] = Dπ (x)[ v] ⇐⇒ u − v ∈ V x. (2) 
+
+## 4 METHOD 
+
+4.1 PROBLEM STATEMENT 
+
+We consider an LLM-based agent with LoRA applied to L weight matrices. For each adapted weight matrix indexed by l ∈ { 1, . . . , L }, LoRA parameterizes the adapted weight as: 
+
+Wl = W 0 
+
+> l
+
++ Xl, Xl = slBlAl. (3) The matrices W 0 
+
+> l
+
+and Wl are the frozen pretrained and adapted weights, respectively, and Xl is the effective LoRA update. The update is parameterized by trainable factors Al ∈ Rrl×din  
+
+> l
+
+and 3Behavior Quotient Balancing 
+
+2 Trajectory Update Balancing          
+
+> Trajectory-specific Updates
+> Response distances Density 𝝆𝝆 𝒊𝒊 Weights 𝒘𝒘𝒊𝒊 Balanced Direction
+> 𝑼𝑼𝟏𝟏 𝑼𝑼𝟑𝟑 𝑼𝑼𝒊𝒊
+> 𝑼𝑼𝑵𝑵
+> …
+> 𝑼𝑼𝑩𝑩𝑩𝑩 =𝟏𝟏 𝑵𝑵 �𝒊𝒊 𝒘𝒘𝒊𝒊𝑼𝑼𝒊𝒊
+> Behavior
+> response
+
+Decision Preserving Compression 
+
+Intrinsic Update Projection 1
+
+Fixed-Rank Refactorization 2                 
+
+> First-order reachable space Affine Targets
+> Affine Target 𝑻𝑻𝒍𝒍
+> Compressed
+> Update 𝑿𝑿𝒊𝒊 +
+> Optimization Objective
+> Parameter
+> Approximation
+> Error
+> Decision
+> Response
+> Error
+> 𝐦𝐦𝐦𝐦𝐦𝐦 𝒁𝒁𝒍𝒍 ∈𝑪𝑪 (𝑻𝑻𝒍𝒍 ) || 𝒁𝒁𝒍𝒍 − 𝑻𝑻𝒍𝒍 || 𝓦𝓦
+> 𝟐𝟐 +𝜸𝜸 || 𝑫𝑫 𝜱𝜱 𝑻𝑻 𝑿𝑿 [𝒁𝒁𝒍𝒍 − 𝑻𝑻𝒍𝒍 ]|| 𝟐𝟐 𝟐𝟐
+> Refactorize
+> ≤𝑟𝑟𝑙𝑙
+> 𝑟𝑟𝑟𝑟𝑟𝑟𝑟𝑟 (𝑇𝑇𝑙𝑙 )≤2𝑟𝑟𝑙𝑙
+> 𝑩𝑩𝒊𝒊 +𝑨𝑨𝒊𝒊 +𝒔𝒔𝒍𝒍
+> Layer-wise
+> 𝑇𝑇𝑙𝑙 =𝑋𝑋𝑙𝑙 +𝜂𝜂 Proj 𝑋𝑋𝑙𝑙 (𝑈𝑈𝐵𝐵𝐵𝐵 ,𝑙𝑙 )
+> Tangent space 𝓣𝓣 𝑿𝑿𝒍𝒍 𝓜𝓜𝒍𝒍
+> Tangent space 𝒯𝒯 𝑏𝑏 ℬ
+> Distinct
+> responses
+> Effective-update space
+
+1 Behavior Quotient Geometry  𝚽𝚽 𝑻𝑻      
+
+> Behavior
+> Quotient
+> Manifold 𝓜𝓜 𝑻𝑻
+> 𝓦𝓦 =�𝒊𝒊=𝟏𝟏 𝒍𝒍 ℝ𝒅𝒅 𝒍𝒍 𝒐𝒐𝒐𝒐𝒐𝒐 ×𝒅𝒅 𝒍𝒍 𝒊𝒊𝒊𝒊
+> 𝑿𝑿 =𝑩𝑩 𝑨𝑨
+> 𝑿𝑿 (𝟏𝟏 )
+> 𝑿𝑿 (𝟐𝟐 )
+> 𝑿𝑿 (𝟑𝟑 )
+> Reference decision histories
+
+…       
+
+> 𝑿𝑿 (𝟏𝟏 )
+> 𝑿𝑿 (𝟐𝟐 )
+> 𝑿𝑿 (𝟑𝟑 )
+> Decision representations
+> Same
+> behavior
+> 𝑼𝑼𝟐𝟐
+> Overlapping
+> responses
+> Factor Variations
+> 𝑩𝑩 𝜹𝜹 𝑨𝑨
+> 𝜹𝜹 𝑩𝑩 𝑨𝑨
+> 𝜹𝜹 𝑿𝑿 =𝑩𝑩 𝜹𝜹 𝑨𝑨 +𝜹𝜹 𝑩𝑩 𝑨𝑨
+> 𝑼𝑼𝑩𝑩𝑩𝑩 ,𝒍𝒍
+> 𝑿𝑿𝒍𝒍 𝑻𝑻𝒍𝒍
+
+Figure 1: Overview of BQ-LoRA . BQB constructs a behavior quotient manifold and balances tra-jectory updates using quotient distances. DPC projects the balanced direction onto the fixed rank LoRA tangent space and refactorizes the resulting target while preserving decision changes. 
+
+Bl ∈ Rdout  
+
+> l
+
+×rl , with scaling coefficient sl > 0. Their inner dimension rl defines the fixed rank budget and ensures rank( Xl) ≤ rl.An agent trajectory is denoted by τi =
+
+
+
+xi, (hik , y ik , o ik )Ti
+
+k=1 
+
+
+
+, where xi is the task, hik is the history before step k, yik is the agent output, and oik is the environment feedback. Each output yik 
+
+consists of intermediate reasoning and a decision aik . The decision either advances the interaction or serves as the final task output. Given a collection of N trajectories T = {τi}Ni=1 , we write X =(Xl)Ll=1 for the effective updates and let ℓi(X) denote the task loss associated with τi. Standard LoRA training minimizes the empirical task loss: 
+
+Ltask (X) = 1
+
+N
+
+NX
+
+i=1 
+
+ℓi(X). (4) 4.2 FRAMEWORK OVERVIEW 
+
+The overall framework of BQ-LoRA is illustrated in Figure 1, showing how trajectory updates are balanced and incorporated into a single LoRA adapter. It consists of two modules, i.e., behavior quotient balancing (BQB) and decision preserving compression (DPC). First, BQB constructs nor-malized decision representations at fixed interaction histories and identifies effective updates that produce the same representations, forming a local behavior quotient geometry. Within this ge-ometry, trajectory update directions are compared through their first-order effects on the reference decision representations. Their local concentration determines their relative weights, reducing the dominance of repeatedly represented behavioral changes and increasing the contribution of less rep-resented ones. The weighted trajectory directions are then aggregated into a shared effective update direction. Second, DPC projects the balanced direction onto the fixed rank tangent space induced by the current LoRA factors and takes a step along it to form an effective-weight target. It then compresses this target under the original rank budget by jointly minimizing weight approximation error and the distortion of first-order decision responses measured using the same behavior geom-etry. The compressed target is refactorized into updated LoRA factors for the next training step. These two stages are repeated during training to balance trajectory contributions while controlling the behavioral distortion introduced by the rank constraint. 4.3 BEHAVIOR QUOTIENT BALANCING 
+
+Behavior Quotient Geometry. Trajectory updates can differ substantially in parameter space while inducing the same change in agent decisions. Their differences may include components 4that are invisible at the decision histories of interest, causing parameter-space distances to overstate behavioral diversity. We therefore construct a behavior map from decision representations and iden-tify effective updates that agree under this map. Let W = QLl=1 Rdout   
+
+> l×din
+> l
+
+be the effective-update space with the product Frobenius inner product, and let fX (h) ∈ Rdhid denote the final representa-tion passed to the frozen output head at history h. For each reference decision aik , let |aik | count its generation positions and let hik,t extend hik with the portion of yik preceding position t, for 
+
+1 ≤ t ≤ | aik |. These prefixes include the recorded reasoning and preceding decision tokens, so each representation describes the model state from which a decision token is predicted. We keep the prefixes fixed across effective updates and collect the resulting representations in the behavior map: 
+
+[Φ T (X)] ik,t = fX (hik,t )
+
+pN T i|aik | . (5) The normalization averages squared representation responses over generation positions, decisions, and trajectories. Using this map, we define behavioral equivalence on the reference collection: 
+
+X(1) ∼T X(2) ⇐⇒ ΦT (X(1) ) = Φ T (X(2) ). (6) On a sufficiently small open neighborhood O of the current iterate X where ΦT is smooth with constant differential rank, these equivalence classes form the behavior quotient manifold 
+
+MT = O/ ∼T . The quotient map πT (X) = [ X]T assigns each effective update to its behav-ior class, and the Euclidean geometry of ΦT induces a Riemannian metric g on MT . At the current iterate, the quotient tangent space identifies directions whose difference lies in ker DΦT (X). Such directions have the same first-order response on the reference decisions even when their effective-weight components differ. This construction makes behavioral overlap measurable at the current model: invisible components contribute no quotient distance, while distinguishable decision re-sponses remain separated. 
+
+Trajectory Update Balancing. The quotient geometry reveals overlap between trajectory updates, but uniform weighting still counts each trajectory as an independent contribution. When many tra-jectories induce similar decision responses, their repeated contributions can dominate the aggregate direction. Behavioral changes represented by fewer trajectories then receive less influence, even when they provide distinct responses on the reference collection. We use the local concentration of quotient tangent directions to adjust these relative contributions. For each trajectory, we take its task direction Ui = −∇ X ℓi(X) and map it to the quotient tangent Dπ T (X)[ Ui] at [X]T . Its behavior response DΦT (X)[ Ui] describes how training on trajectory i would change all reference decision representations to first order. We compare two such directions under the quotient metric g:
+
+d2 
+
+> ij
+
+= ∥Dπ T (X)[ Ui − Uj ]∥2 
+
+> g
+
+= ∥DΦT (X)[ Ui − Uj ]∥22 . (7) The right-hand expression evaluates the quotient tangent distance directly from the two behavior responses. It can be computed using Jacobian-vector products without explicitly constructing quo-tient coordinates. We then use Gaussian affinities (Nadler et al., 2005) to accumulate the overlap surrounding each direction and set its relative weight: 
+
+ρi =
+
+> N
+
+X
+
+> j=1
+
+exp − d2
+
+> ij
+
+2σ2
+
+> T
+
+!
+
+, wi = ρ−αi
+
+> 1
+> N
+
+PNj=1 ρ−αj
+
+. (8) Here σT > 0 is a data-dependent bandwidth that determines the scale of the neighborhood com-parison. A larger ρi means that more of the trajectory collection produces responses close to that of Ui. The exponent α ∈ [0 , 1] controls how strongly this overlap reduces the relative weight of a trajectory. The normalization keeps N −1 P 
+
+> i
+
+wi = 1 , preserving the total weight of the empirical objective, and α = 0 recovers uniform weighting. For groups of similar responses with sufficiently small overlap between groups, α = 1 approximately equalizes their total contributions. Holding the computed weights fixed during the task update, we combine the original trajectory directions: 
+
+UBQ = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+wiUi. (9) By linearity of Dπ T (X), the aggregate induces the corresponding weighted mean of the trajectory quotient tangents. For α > 0, this reduces the relative contribution of densely represented behavioral 5changes and increases that of less represented changes. Each task loss continues to determine the sign and direction of its own update, while the positive weights control its contribution to the shared adapter. BQB therefore adjusts behavioral coverage while retaining the original task supervision, without requiring predefined capability partitions. 4.4 DECISION PRESERVING COMPRESSION 
+
+Intrinsic Update Projection. BQB aggregates trajectory directions in the effective-update space, whereas the stored LoRA adapter changes its weights through low-rank factors. The balanced di-rection may consequently contain components that these factors cannot realize to first order at the current iterate. To obtain a locally attainable update, we project it onto the space of effective di-rections induced by perturbing the factors. This projection should depend on the current effective weights, so that choosing an equivalent factorization does not change the target. For each layer l, let 
+
+Rrl denote the manifold of matrices in Rdout   
+
+> l×din
+> l
+
+with rank rl. At an iterate with rank( Xl) = rl,differentiating Xl = slBlAl yields the tangent space of effective directions attainable to first order through the LoRA factors (Wang et al., 2025): 
+
+TXl Rrl =
+
+n
+
+sl (Bl∆Al + ∆ BlAl) : ∆ Al ∈ Rrl×din  
+
+> l
+
+, ∆Bl ∈ Rdout  
+
+> l×rl
+
+o
+
+. (10) The two terms describe the effective changes obtained by varying either factor, and their sum con-tains all first-order directions attainable at Xl. Let Pl ∈ Rdout   
+
+> l×rl
+
+and Ql ∈ Rdin   
+
+> l×rl
+
+have orthonor-mal columns spanning col( Xl) and col( X⊤ 
+
+> l
+
+), respectively. We denote the Frobenius orthogonal projection onto TXl Rrl by Proj Xl . The projected layerwise direction is (Bian et al., 2025): 
+
+Proj Xl (UBQ ,l ) = PlP ⊤ 
+
+> l
+
+UBQ ,l + UBQ ,l QlQ⊤ 
+
+> l
+
+− PlP ⊤ 
+
+> l
+
+UBQ ,l QlQ⊤ 
+
+> l
+
+. (11) The first two terms retain the components accessible through the current column or row space, while the last term subtracts their shared component. With a learning rate η > 0, the projected direction defines the layerwise affine target: 
+
+Tl = Xl + η Proj Xl (UBQ ,l ) . (12) We collect these layerwise targets as T = ( Tl)Ll=1 . The Frobenius projection gives the closest locally attainable direction to UBQ ,l , minimizing the alteration of the balanced direction within the tangent constraint. Because the projectors PlP ⊤ 
+
+> l
+
+and QlQ⊤ 
+
+> l
+
+depend only on the column and row spaces of 
+
+Xl, the projected direction and the resulting target are invariant to equivalent LoRA factorizations. This gives the compression stage a target defined by the effective weights of the adapter and its local ability to change them. The first-order decision change induced by T − X is the reachable target effect that the subsequent refactorization aims to preserve. 
+
+Fixed-Rank Refactorization. The tangent projection ensures that the update direction is attain-able to first order, but a finite step along that direction need not remain on the fixed-rank manifold. In particular, the affine target Tl can be expressed as the sum of two matrices of rank at most rl,giving rank( Tl) ≤ 2rl. When rank( Tl) > r l, the target cannot be represented under the original LoRA rank budget and must be compressed. Equal-sized weight errors can cause different changes in the reference decisions because the behavior map is more sensitive to some residual directions than others. Weight-space approximation alone therefore does not distinguish which parts of the target matter most for its decision effect. We use the behavior geometry from BQB to guide the selection of a rank-constrained representative. Let C(T ) ⊆ W contain candidate updates Z satisfy-ing rank( Zl) ≤ rl for every layer. Each candidate is further constrained by col( Zl) ⊆ col( Tl) and 
+
+col( Z⊤ 
+
+> l
+
+) ⊆ col( T ⊤ 
+
+> l
+
+). These constraints restrict the refactorization to the column and row spaces already present in the projected target. Within this candidate set, we select the next effective update by jointly measuring weight error and behavioral distortion: 
+
+X+ ∈ arg min  
+
+> Z∈C (T)
+
+n
+
+∥Z − T ∥2 
+
+> W
+
++ γ ∥DΦT (X)[ Z − T ]∥22
+
+o
+
+. (13) The first term measures the effective-weight error introduced by rank reduction. For the second term, linearity gives DΦT (X)[ Z − T ] = DΦT (X)[ Z − X] − DΦT (X)[ T − X]. It thus compares the first-order decision responses induced by the candidate step and the target step at the same current 6Table 1: Task performance on AppWorld and BrowseComp-Plus (%, ↑).                                                                                                                                              
+
+> AppWorld BrowseComp-Plus Test-N Test-C BM25 Embedding Model Method TGC SGC TGC SGC Accuracy Recall Accuracy Recall Qwen3.5-4B Base Agent 27.98 10.71 11.99 2.16 20.00 22.43 36.67 44.77 Full 58.33 39.29 40.29 21.58 26.00 26.60 44.00 48.10 LoRA 52.98 32.14 35.49 17.99 20.67 22.28 40.00 45.77 LoRA-S 58.93 41.07 39.33 19.42 26.67 27.07 42.00 47.30 MoRAgent 60.12 42.86 40.05 21.58 25.33 26.40 43.33 48.30 DART 56.55 37.50 39.09 20.14 28.00 28.90 45.33 49.10 TopoCurate 55.95 37.50 41.01 23.02 26.00 27.60 43.33 48.80
+> BQ-LoRA 58.93 44.64 43.65 24.46 28.67 29.30 45.33 50.10
+> Qwen3.5-9B Base Agent 36.31 19.64 23.02 10.79 24.00 24.08 44.67 44.20 Full 69.64 53.57 49.64 27.34 30.00 28.40 49.33 48.20 LoRA 60.71 42.86 45.08 20.86 26.00 24.83 46.00 45.20 LoRA-S 66.67 51.79 47.72 25.18 29.33 27.60 48.00 47.50 MoRAgent 69.05 55.36 49.16 28.06 29.33 28.10 49.33 49.10 DART 66.67 48.21 48.20 25.90 31.33 30.20 50.67 49.70 TopoCurate 64.88 48.21 50.12 29.50 29.33 29.10 49.33 49.30
+> BQ-LoRA 68.45 55.36 53.00 31.65 32.67 31.10 51.33 50.90
+
+iterate. The reference histories and the differential remain fixed during refactorization, so this term measures the distortion caused by replacing T with Z. The coefficient γ > 0 controls the tradeoff between effective-weight approximation and decision preservation. Because the behavior response is evaluated across all adapted layers jointly, the criterion accounts for their combined effect on the reference decisions. The restricted target spaces permit optimization through cores of size at most 2rl × 2rl. This objective favors representatives that approximate the target weights while retaining the decision changes identified by the same geometry used for trajectory balancing. The rank constraints guarantee factors B+ 
+
+> l
+
+and A+ 
+
+> l
+
+satisfying X+ 
+
+> l
+
+= slB+ 
+
+> l
+
+A+ 
+
+> l
+
+. The compressed target can be stored as a single LoRA adapter under the original rank budgets, with decision distortion included in the compression criterion. 
+
+## 5 EXPERIMENTS 
+
+5.1 EXPERIMENTAL SETUPS 
+
+Datasets. We conduct experiments on AppWorld (Trivedi et al., 2024) and BrowseComp-Plus (Chen et al., 2026c). AppWorld evaluates agents on multi-step tasks in a stateful world of simulated applications. Given a natural language request, the agent invokes application APIs and responds to environment feedback to complete the task. Programmatic tests verify task completion and the resulting application states. BrowseComp-Plus evaluates deep search agents on difficult questions that require iterative retrieval and evidence synthesis. Agents search a fixed document corpus containing human-verified supporting evidence. For both benchmarks, we perform super-vised fine-tuning on collected successful trajectories. 
+
+Baselines. We compare BQ-LoRA with seven baselines. Standard adaptation baselines include: (1) Base, which evaluates the pretrained model without adaptation, (2) Full FT, which updates all model parameters, and (3) LoRA (Hu et al., 2022), which introduces low-rank updates into each adapted layer. We then compare two multi-LoRA methods designed for agent tuning: (4) MoRA-gent (Han et al., 2025), which assigns separate LoRA groups to the reasoner, executor, and summa-rizer roles, and (5) DART (Li et al., 2026c), which separates reasoning and tool use updates across distinct low-rank modules. For single-LoRA optimization, we include (6) LoRA-S (Zheng & Wu, 2026), which optimizes low-rank factors on a quotient manifold through a Sylvester equation. For 7Table 2: Mean interaction counts on AppWorld (steps) and BrowseComp-Plus (search calls) ( ↓).                                                                          
+
+> AppWorld BrowseComp-Plus Test-N Test-C BM25 Embedding Model Method Avg. Steps Avg. Steps Search Calls Search Calls Qwen3.5-4B Base Agent 31.28 36.64 16.95 15.54 Full 17.75 26.10 16.70 11.65 LoRA 18.26 27.12 17.73 14.35 LoRA-S 18.65 27.20 17.20 13.25 MoRAgent 17.10 25.35 16.85 12.35 DART 18.00 26.25 16.15 11.90 TopoCurate 17.35 24.90 15.75 12.05
+> BQ-LoRA 16.70 24.10 15.35 11.35
+> Qwen3.5-9B Base Agent 26.20 29.92 15.65 13.16 Full 17.45 24.25 15.50 11.10 LoRA 17.16 24.96 17.92 13.48 LoRA-S 17.65 25.75 16.95 12.65 MoRAgent 16.10 23.60 16.30 11.80 DART 16.90 24.20 15.75 11.55 TopoCurate 16.65 23.15 15.30 11.65
+> BQ-LoRA 15.95 22.70 15.05 10.85
+
+trajectory curation, we include (7) TopoCurate (Yang et al., 2026b), which uses a semantic quotient topology of multi-trial interactions to select informative trajectories. 5.2 PERFORMANCE EVALUATION 
+
+Main Results. Tables 1 and 2 summarize task performance and interaction counts, respectively. We make the following observations: (1) Standard LoRA improves on the base agent, but its gains are limited on evidence retrieval and it remains well below the stronger baselines. This gap sug-gests that standard low-rank adaptation leaves room for better allocation of adapter capacity across agent behaviors. (2) LoRA-S consistently outperforms standard LoRA, supporting the value of eliminating redundant degrees of freedom in the low-rank factorization. However, its equivalence relation identifies factorizations of the same effective weights and does not address redundancy between trajectory-induced behavioral changes. (3) Multiple adapters provide additional benefits through capability specialization. MoRAgent performs best on Test-N among the low-rank base-lines, while DART leads these baselines on BrowseComp-Plus. However, these gains rely on sep-arate adapters and predefined role or capability partitions, and their relative strengths vary across tasks. (4) TopoCurate improves trajectory selection by reducing semantic repetition and retaining informative interactions, yielding the strongest baseline performance on Test-C. However, similarity between recorded actions and observations does not determine whether optimizing two trajectories will induce the same behavioral change. Its curation criterion therefore leaves redundancy in the resulting behavioral changes unresolved. (5) Averaged over the eight reported performance metrics, 
+
+BQ-LoRA outperforms the strongest baseline, MoRAgent, by 2.14 and 2.12 percentage points for the 4B and 9B backbones, respectively. It also achieves the lowest interaction counts in all evalu-ated settings. Balancing trajectory updates and preserving their decision effects during compression enable strong performance and efficient interaction in a single fixed-rank adapter. 
+
+Ablation Study. Table 3 evaluates variants with each module removed. (1) Removing BQB re-duces Test-C performance by 3.57 and 3.83 percentage points for the 4B and 9B backbones, re-spectively, and lowers BrowseComp-Plus accuracy with both retrievers. This supports balancing trajectory updates by their effects on decision representations. The reduction is larger on Test-C than on Test-N for both backbones, indicating that the benefit of balancing varies across evaluation settings. (2) Removing DPC reduces performance in all eight settings, with average drops across the four metrics of 3.64 and 3.57 percentage points for the 4B and 9B backbones, respectively. This 8Table 3: Ablation results on AppWorld (TGC) and BrowseComp-Plus (accuracy) (%, ↑).                                                                                                           
+
+> AppWorld BrowseComp-Plus Model Method Test-N Test-C BM25 Embedding Qwen3.5-4B LoRA 52 .98 ±1.10 35 .49 ±1.45 20 .67 ±1.30 40 .00 ±1.00
+> BQ-LoRA w/o BQB 59 .13 ±1.00 40 .08 ±1.60 27 .07 ±1.40 43 .10 ±1.15
+> BQ-LoRA w/o DPC 55 .38 ±1.35 39 .59 ±1.75 24 .67 ±1.60 42 .40 ±1.35
+> BQ-LoRA 58 .93 ±1.05 43 .65 ±1.40 28 .67 ±1.25 45 .33 ±1.05
+> Qwen3.5-9B LoRA 60 .71 ±1.00 45 .08 ±1.30 26 .00 ±1.20 46 .00 ±0.95
+> BQ-LoRA w/o BQB 67 .67 ±0.90 49 .17 ±1.35 30 .13 ±1.25 49 .10 ±1.00
+> BQ-LoRA w/o DPC 63 .51 ±1.20 49 .78 ±1.55 29 .20 ±1.45 48 .70 ±1.15
+> BQ-LoRA 68 .45 ±1.00 53 .00 ±1.25 32 .67 ±1.15 51 .33 ±0.95
+
+supports preserving decision changes when compressing the balanced update under the fixed rank budget. The consistent drops across AppWorld and both BrowseComp-Plus retrievers suggest that decision preservation contributes across different forms of agent interaction. (3) The full method leads in seven of eight settings. Without BQB, the 4B model scores 0.20 percentage points higher on Test-N. The two modules provide complementary benefits, although balancing does not improve every setting. Both partial variants also outperform standard LoRA in every setting, indicating that each component retains useful gains when applied without the other. The ranking of the partial vari-ants is consistent across backbones: retaining DPC gives higher mean performance than retaining BQB alone. Relative to standard LoRA, the full method improves the mean of the four ablation metrics by 6.86 and 6.92 percentage points for the 4B and 9B backbones, respectively. 
+
+Hyperparameter Sensitivity. We study the balancing exponent α and compression coefficient γ.We test α ∈ { 0, 0.25 , 0.5, 0.75 , 1} and γ ∈ { 0.1, 0.3, 0.5, 0.8, 1, 3, 10 }, varying one coefficient at a time while fixing the other at 1. Figure 2 reports averages over the eight performance metrics for 0 0.25 0.5 0.75 1
+
+(a) α   
+
+> 40 43 46
+> Average (%)
+> 0.1 0.3 0.5 0.8 1310
+
+(b) γ 
+
+> Qwen3.5-4B Qwen3.5-9B
+
+Figure 2: Hyperparameter sensitivity. both backbones. (1) Performance peaks at 
+
+α = 0 .75 for 4B and α = 1 for 9B. At α = 0 ,all trajectories receive equal weight, providing a reference without density-based balancing. Increasing α reduces the relative contribution of densely represented responses. Both back-bones improve over uniform weighting, with the 4B curve flattening near the upper end and the 9B curve continuing to rise. (2) Both back-bones perform best at γ = 0 .8, with nearby values remaining competitive. A small γ gives greater relative emphasis to weight approxima-tion, while a large γ increases the penalty on local decision distortion. The effective-weight error remains part of the objective at every tested value, so this sweep varies the balance between the two compression criteria. Performance decreases toward both ends of the tested range, supporting an intermediate tradeoff between weight fidelity and decision preservation. This pattern holds across a sweep spanning two orders of magnitude in γ and is shared by both backbone sizes. 
+
+## 6 CONCLUSION 
+
+We presented BQ-LoRA for adapting LLM agents with a single fixed-rank LoRA. BQB balances trajectory updates in a local behavior quotient geometry, reducing repeated contributions from up-dates with equivalent effects on decision representations. DPC projects the balanced update and compresses the resulting target while controlling decision distortion. Together, they preserve the original rank budget and require no capability-specific routing. Experiments on AppWorld and BrowseComp-Plus show strong task performance and reduced interaction counts. 9REFERENCES 
+
+Fengmiao Bian, Jinyang ZHENG, Ziyun Liu, Jianzhou Luo, and Jian-Feng CAI. Find-ing low-rank matrix weights in dnns via riemannian optimization: Radagrad and radamw. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Processing Systems , volume 38, Main Conference, pp. 59916–59950. Curran Associates, Inc., 2025. doi: 10.52202/ 085713-2004. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/5679173c400b332796426e443ab5ea0d-Paper-Conference.pdf .Vladimir Bogachev, Vladimir Aletov, Alexander Molozhavenko, Denis Bobkov, Vera Soboleva, Aibek Alanov, and Maxim Rakhuba. Lora meets riemannion: Muon op-timizer for parametrization-independent low-rank adapters. In C. Vondrick, B. Har-iharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (eds.), International Confer-ence on Learning Representations , volume 2026, pp. 82190–82215, 2026. URL 
+
+https://proceedings.iclr.cc/paper_files/paper/2026/file/ 8505a7e1da40320bf5692d7edec5aa45-Paper-Conference.pdf .Shubhankar Borse, Shreya Kadambi, Nilesh Prasad Pandey, Kartikeya Bhardwaj, Viswanath Ganapathy, Sweta Priyadarshi, Risheek Garrepalli, Rafael Esteves, Munawar Hayat, and Fatih Porikli. Foura: Fourier low-rank adaptation. In A. Globerson, L. Mackey, D. Belgrave, A. Fan, U. Paquet, J. Tomczak, and C. Zhang (eds.), Advances in Neural Information Pro-cessing Systems , volume 37, pp. 71504–71539. Curran Associates, Inc., 2024. doi: 10.52202/ 079017-2284. URL https://proceedings.neurips.cc/paper_files/paper/ 2024/file/83960718b4d12f799985206f1b1cf00f-Paper-Conference.pdf .Nicolas Boumal. An Introduction to Optimization on Smooth Manifolds . Cambridge University Press, 2023. doi: 10.1017/9781009166164. Val´ erie Castin, Kimia Nadjahi, Pierre Ablin, and Gabriel Peyr´ e. Balanced loRA: Removing param-eter invariance to accelerate convergence. In Forty-third International Conference on Machine Learning , 2026. URL https://openreview.net/forum?id=kHInw3cjCP .Baian Chen, Chang Shu, Ehsan Shareghi, Nigel Collier, Karthik Narasimhan, and Shunyu Yao. Fireact: Toward language agent fine-tuning, 2023. URL https://arxiv.org/abs/2310. 05915 .Guhong Chen, Chenghao Sun, Cheng Fu, Qiyao Wang, Zhihong Huang, ChaoPeng Wei, Guangxu Chen, Feiteng Fang, Ahmadreza Argha, Bing Zhao, Xander Xu, Qi Han, Hamid Alinejad-Rokny, Qiang Qu, Binhua Li, Shiwen Ni, Min Yang, HU Wei, and Yongbin Li. Beyond quantity: Tra-jectory diversity scaling for code agents. In Maria Liakata, Viviane P. Moreira, Jiajun Zhang, and David Jurgens (eds.), Findings of the Association for Computational Linguistics: ACL 2026 ,pp. 15676–15691, San Diego, California, United States, July 2026a. Association for Computa-tional Linguistics. ISBN 979-8-89176-395-1. doi: 10.18653/v1/2026.findings-acl.768. URL 
+
+https://aclanthology.org/2026.findings-acl.768/ .Nan Chen, Soledad Villar, and Soufiane Hayou. Learning rate scaling across loRA ranks and transfer to full finetuning. In Forty-third International Conference on Machine Learning , 2026b. URL 
+
+https://openreview.net/forum?id=vCAIwEJZQ6 .Zhixun Chen, Ming Li, Yuxuan Huang, Yali Du, Meng Fang, and Tianyi Zhou. ATLAS: Agent tuning via learning critical steps. In Wanxiang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad Taher Pilehvar (eds.), Findings of the Association for Computational Linguistics: ACL 2025 , pp. 25334–25349, Vienna, Austria, July 2025. Association for Computational Lin-guistics. ISBN 979-8-89176-256-5. doi: 10.18653/v1/2025.findings-acl.1299. URL https: //aclanthology.org/2025.findings-acl.1299/ .Zijian Chen, Xueguang Ma, Shengyao Zhuang, Ping Nie, Kai Zou, Sahel Sharifymoghaddam, An-drew Liu, Joshua Green, Kshama Patel, Ruoxi Meng, Mingyi Su, Yanxi Li, Haoran Hong, Xinyu Shi, Xuye Liu, Hosna Oyarhoseini, Nandan Thakur, Crystina Zhang, Luyu Gao, Wenhu Chen, and Jimmy Lin. BrowseComp-plus: A fair and disentangled evaluation benchmark for deep 10 search agents. In Maria Liakata, Viviane P. Moreira, Jiajun Zhang, and David Jurgens (eds.), Pro-ceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pp. 22349–22370, San Diego, California, United States, July 2026c. Association for Computational Linguistics. ISBN 979-8-89176-390-6. doi: 10.18653/v1/2026.acl-long.1023. URL https://aclanthology.org/2026.acl-long.1023/ .Xuan Cui, HuiYue Li, Run Zeng, Yunfei Zhao, Jinrui Qian, Wei Duan, Bo Liu, and Zhanpeng Zhou. IGU-loRA: Adaptive rank allocation via integrated gradients and uncertainty-aware scoring. In 
+
+The Fourteenth International Conference on Learning Representations , 2026. URL https: //openreview.net/forum?id=MnToYQx9My .Shihan Dou, Enyu Zhou, Yan Liu, Songyang Gao, Wei Shen, Limao Xiong, Yuhao Zhou, Xiao Wang, Zhiheng Xi, Xiaoran Fan, Shiliang Pu, Jiang Zhu, Rui Zheng, Tao Gui, Qi Zhang, and Xuanjing Huang. LoRAMoE: Alleviating world knowledge forgetting in large language models via MoE-style plugin. In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.), Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pp. 1932–1945, Bangkok, Thailand, August 2024. Association for Computational Lin-guistics. doi: 10.18653/v1/2024.acl-long.106. URL https://aclanthology.org/2024. acl-long.106/ .Ruishan Fang, Siyuan Lu, Chenyi Zhuang, and Tao Lin. Rods: Reward-driven online data synthesis for multi-turn tool-use agents, 2026a. URL https://arxiv.org/abs/2606.19047 .Runnan Fang, Shihao Cai, Baixuan Li, Jialong Wu, Guangyu Li, Wenbiao Yin, Xinyu Wang, Xi-aobin Wang, Liangcai Su, Zhen Zhang, Shibin Wu, Zhengwei Tao, Yong Jiang, Pengjun Xie, Ningyu Zhang, Fei Huang, Wentao Zhang, and Jingren Zhou. Towards general agentic in-telligence via environment scaling. In Maria Liakata, Viviane P. Moreira, Jiajun Zhang, and David Jurgens (eds.), Findings of the Association for Computational Linguistics: ACL 2026 ,pp. 17610–17621, San Diego, California, United States, July 2026b. Association for Compu-tational Linguistics. ISBN 979-8-89176-395-1. doi: 10.18653/v1/2026.findings-acl.872. URL 
+
+https://aclanthology.org/2026.findings-acl.872/ .Zhi-Quan Feng, Ying-Jia Lin, and Hung-Yu Kao. Learning in the fisher subspace: A guided ini-tialization for loRA fine-tuning. In Forty-third International Conference on Machine Learning ,2026. URL https://openreview.net/forum?id=P76Q8Pi1E9 .Weizheng Gu, Chengze Li, Zhuohao Yu, Mengyuan Sun, Zhibang Yang, Wei Wang, Hongrui Jia, Shikun Zhang, and Wei Ye. What do agents learn from trajectory-SFT: Semantics or inter-faces? In Forty-third International Conference on Machine Learning , 2026. URL https: //openreview.net/forum?id=u1i3XoSXQG .Jing Han, Binwei Yan, Tianyu Guo, Zheyuan Bai, Mengyu Zheng, Hanting Chen, and Ying Nie. MoRAgent: Parameter efficient agent tuning with mixture-of-roles. In Aarti Singh, Maryam Fazel, Daniel Hsu, Simon Lacoste-Julien, Felix Berkenkamp, Tegan Maharaj, Kiri Wagstaff, and Jerry Zhu (eds.), Proceedings of the 42nd International Conference on Machine Learning , volume 267 of Proceedings of Machine Learning Research , pp. 21916–21931. PMLR, 13–19 Jul 2025. URL https://proceedings.mlr.press/v267/han25j.html .Soufiane Hayou, Nikhil Ghosh, and Bin Yu. LoRA+: Efficient low rank adaptation of large models. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp (eds.), Proceedings of the 41st International Conference on Ma-chine Learning , volume 235 of Proceedings of Machine Learning Research , pp. 17783–17806. PMLR, 21–27 Jul 2024. URL https://proceedings.mlr.press/v235/hayou24a. html .haonan he, Peng Ye, Yuchen Ren, yuan yuan, LuyangZhou, ShucunJu, and lei chen. Gora: Gradient-driven adaptive low rank adaptation. In D. Belgrave, C. Zhang, H. Lin, R. Pas-canu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Process-ing Systems , volume 38, pp. 114074–114102. Curran Associates, Inc., 2025. doi: 10.52202/ 085713-3805. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/a5e4907a40c0dcb8433a35c714ba9d79-Paper-Conference.pdf .11 Edward J Hu, yelong shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. LoRA: Low-rank adaptation of large language models. In International Con-ference on Learning Representations , 2022. URL https://openreview.net/forum? id=nZeVKeeFYf9 .Chengsong Huang, Qian Liu, Bill Yuchen Lin, Tianyu Pang, Chao Du, and Min Lin. Lorahub: Effi-cient cross-task generalization via dynamic loRA composition. In First Conference on Language Modeling , 2024. URL https://openreview.net/forum?id=TrloAXEJ2B .Hyesung Jeon, Hyeongju Ha, and Jae-Joon Kim. LRAgent: Efficient KV cache sharing for multi-loRA LLM agents. In Forty-third International Conference on Machine Learning , 2026. URL 
+
+https://openreview.net/forum?id=ooRukY3zjQ .Rohan Kadekodi, Zhan Jin, Keisuke Kamahori, Yile Gu, Sean Khatiri, Noah H. Bayindirli, Sergey Gorbunov, and Baris Kasikci. Dualtune: Decoupled fine-tuning for on-device agentic systems, 2026. URL https://openreview.net/forum?id=oYwPx0y0RE .Hangoo Kang, Tarun Suresh, Jon Saad-Falcon, and Azalia Mirhoseini. TRACE: Capability-targeted agentic training. In Second Workshop on Agents in the Wild: Safety, Security, and Beyond , 2026. URL https://openreview.net/forum?id=p37UqCmcxG .Yongchan Kwon, Eric Wu, Kevin Wu, and James Y Zou. Datainf: Efficiently esti-mating data influence in lora-tuned llms and diffusion models. In B. Kim, Y. Yue, S. Chaudhuri, K. Fragkiadaki, M. Khan, and Y. Sun (eds.), International Confer-ence on Learning Representations , volume 2024, pp. 21921–21942, 2024. URL 
+
+https://proceedings.iclr.cc/paper_files/paper/2024/file/ 5e84a0f233611a1dc8fb794dc52415a3-Paper-Conference.pdf .Hanyu Lai, Junjie Gao, Xiao Liu, Yifan Xu, Shudan Zhang, Yuxiao Dong, and Jie Tang. An-droidGen: Building an android language agent under data scarcity. In Wanxiang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad Taher Pilehvar (eds.), Proceedings of the 63rd An-nual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pp. 2727–2749, Vienna, Austria, July 2025. Association for Computational Linguistics. ISBN 979-8-89176-251-0. doi: 10.18653/v1/2025.acl-long.138. URL https://aclanthology.org/ 2025.acl-long.138/ .Mukai Li, Qingcheng Zeng, Tianqing Fang, Zhenwen Liang, Linfeng Song, Qi Liu, Haitao Mi, and Dong Yu. Verified critical step optimization for LLM agents. In Maria Liakata, Viviane P. Moreira, Jiajun Zhang, and David Jurgens (eds.), Findings of the Association for Computational Linguis-tics: ACL 2026 , pp. 39627–39639, San Diego, California, United States, July 2026a. Association for Computational Linguistics. ISBN 979-8-89176-395-1. doi: 10.18653/v1/2026.findings-acl. 1974. URL https://aclanthology.org/2026.findings-acl.1974/ .Shiwei Li, Xiandi Luo, Haozhao Wang, Xing Tang, Ziqiang Cui, Dugang Liu, Yuhua Li, Xi-uqiang He, and Ruixuan Li. Beyond higher rank: Token-wise input-output projections for efficient low-rank adaptation. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Processing Systems , vol-ume 38, Main Conference, pp. 136414–136435. Curran Associates, Inc., 2025a. doi: 10.52202/ 085713-4552. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/c74429a930838b5bac03c681f0a0ce11-Paper-Conference.pdf .Wenbing Li, Zikai Song, Hang Zhou, Junqing Yu, Yunyao Zhang, and Wei Yang. Lora-mixer: Coordinate modular lora experts through serial attention routing. In C. Von-drick, B. Hariharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (eds.), International Conference on Learning Representations , volume 2026, pp. 14694–14716, 2026b. URL https://proceedings.iclr.cc/paper_files/paper/2026/file/ 18610cbcd1da57854aa05ebdc5cd3168-Paper-Conference.pdf .Yu Li, Mingyang Yi, Xiuyu Li, Ju Fan, Fuxin Jiang, Binbin Chen, Peng Li, Jie Song, and Tieying Zhang. Reasoning and tool-use compete in agentic rl:from quantifying interference to disentan-gled tuning, 2026c. URL https://arxiv.org/abs/2602.00994 .12 Zhizhong Li, Sina Sajadmanesh, Jingtao Li, and Lingjuan Lyu. Stella: Subspace learning in low-rank adaptation using stiefel manifold. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Processing Systems , vol-ume 38, Main Conference, pp. 75066–75092. Curran Associates, Inc., 2025b. doi: 10.52202/ 085713-2521. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/6cb0c6e7d50d5d65613f0456ca85e2db-Paper-Conference.pdf .Mengqi Liao, Wei Chen, Junfeng Shen, Shengnan Guo, and Huaiyu Wan. Hmora: Making llms more effective with hierarchical mixture of lora experts. In Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu (eds.), International Conference on Learning Representations , volume 2025, pp. 91309– 91330, 2025. URL https://proceedings.iclr.cc/paper_files/paper/2025/ file/e43a33994a28f746dcfd53eb51ed3c2d-Paper-Conference.pdf .Kai Lion, Liang Zhang, Bingcong Li, and Niao He. Polar: Polar-decomposed low-rank adapter representation. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghas-semi, and N. Chen (eds.), Advances in Neural Information Processing Systems , volume 38, Main Conference, pp. 149313–149358. Curran Associates, Inc., 2025. doi: 10.52202/ 085713-4996. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/db79b6c50430a52fbab9d63efb8433ca-Paper-Conference.pdf .Muqing Liu, Chongjie Si, and Yuheng Jia. FlexloRA: Entropy-guided flexible low-rank adaptation. In The Fourteenth International Conference on Learning Representations , 2026a. URL https: //openreview.net/forum?id=tqnkbdYWWm .Ye Liu, Kevin Qinghong Lin, Chang-Wen Chen, and Mike Zheng Shou. Video-mind: A chain-of-lora agent for temporal-grounded video reasoning. In C. Von-drick, B. Hariharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (eds.), International Conference on Learning Representations , volume 2026, pp. 57481–57506, 2026b. URL https://proceedings.iclr.cc/paper_files/paper/2026/file/ 5e84e4413268b713f0d4a1b23a9dae57-Paper-Conference.pdf .Zefang Liu and Jiahua Luo. AdamoLE: Fine-tuning large language models with adaptive mixture of low-rank adaptation experts. In First Conference on Language Modeling , 2024. URL https: //openreview.net/forum?id=ndY9qFf9Sa .Fanxu Meng, Zhaohui Wang, and Muhan Zhang. Pissa: Principal singular values and singu-lar vectors adaptation of large language models. In A. Globerson, L. Mackey, D. Belgrave, A. Fan, U. Paquet, J. Tomczak, and C. Zhang (eds.), Advances in Neural Information Process-ing Systems , volume 37, pp. 121038–121072. Curran Associates, Inc., 2024. doi: 10.52202/ 079017-3846. URL https://proceedings.neurips.cc/paper_files/paper/ 2024/file/db36f4d603cc9e3a2a5e10b93e6428f2-Paper-Conference.pdf .Boaz Nadler, Stephane Lafon, Ioannis Kevrekidis, and Ronald Coifman. Diffusion maps, spec-tral clustering and eigenfunctions of fokker-planck operators. In Y. Weiss, B. Sch¨ olkopf, and J. Platt (eds.), Advances in Neural Information Processing Systems , volume 18. MIT Press, 2005. URL https://proceedings.neurips.cc/paper_files/paper/2005/ file/2a0f97f81755e2878b264adf39cba68e-Paper.pdf .Fabian Paischer, Lukas Hauzenberger, Thomas Schmied, Benedikt Alkin, Marc Deisen-roth, and Sepp Hochreiter. Parameter efficient fine-tuning via explained variance adap-tation. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Processing Systems , volume 38, pp. 46215–46267. Curran Associates, Inc., 2025. doi: 10.52202/085713-1539. URL 
+
+https://proceedings.neurips.cc/paper_files/paper/2025/file/ 41d33bd41fd44bd9dba0e092047cf213-Paper-Conference.pdf .Cheng Qian, Emre Can Acikgoz, Hongru Wang, Xiusi Chen, Avirup Sil, Dilek Hakkani-T¨ ur, Gokhan Tur, and Heng Ji. SMART: Self-aware agent for tool overuse mitigation. In Wanx-iang Che, Joyce Nabende, Ekaterina Shutova, and Mohammad Taher Pilehvar (eds.), Findings of the Association for Computational Linguistics: ACL 2025 , pp. 4604–4621, Vienna, Austria, July 2025. Association for Computational Linguistics. ISBN 979-8-89176-256-5. doi: 10.18653/ 13 v1/2025.findings-acl.239. URL https://aclanthology.org/2025.findings-acl. 239/ .Harsh Trivedi, Tushar Khot, Mareike Hartmann, Ruskin Manku, Vinty Dong, Edward Li, Shashank Gupta, Ashish Sabharwal, and Niranjan Balasubramanian. AppWorld: A controllable world of apps and people for benchmarking interactive coding agents. In ACL , 2024. Dingzirui Wang, Xuanliang Zhang, Keyan Xu, Qingfu Zhu, and Wanxiang Che. Curateevo: Data-curation evolving for agentic post-training, 2026. URL https://arxiv.org/abs/2607. 06140 .Shaowen Wang, Linxi Yu, and Jian Li. Lora-ga: Low-rank adaptation with gradi-ent approximation. In A. Globerson, L. Mackey, D. Belgrave, A. Fan, U. Paquet, J. Tomczak, and C. Zhang (eds.), Advances in Neural Information Processing Sys-tems , volume 37, pp. 54905–54931. Curran Associates, Inc., 2024. doi: 10.52202/ 079017-1741. URL https://proceedings.neurips.cc/paper_files/paper/ 2024/file/62c4718cc334f6a0a62fb81c4a2095a1-Paper-Conference.pdf .Zhengbo Wang, Jian Liang, Ran He, Zilei Wang, and Tieniu Tan. LoRA-pro: Are low-rank adapters properly optimized? In The Thirteenth International Conference on Learning Representations ,2025. URL https://openreview.net/forum?id=gTwRMU3lJ5 .xun wu, Shaohan Huang, and Furu Wei. Mixture of lora experts. In B. Kim, Y. Yue, S. Chaudhuri, K. Fragkiadaki, M. Khan, and Y. Sun (eds.), International Conference on Learning Representations , volume 2024, pp. 47302–47318, 2024. URL https://proceedings.iclr.cc/paper_files/paper/2024/file/ ce806d8b4bf38cd92d483e5a0490d983-Paper-Conference.pdf .Mengzhou Xia, Sadhika Malladi, Suchin Gururangan, Sanjeev Arora, and Danqi Chen. LESS: Selecting influential data for targeted instruction tuning. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp (eds.), 
+
+Proceedings of the 41st International Conference on Machine Learning , volume 235 of Pro-ceedings of Machine Learning Research , pp. 54104–54132. PMLR, 21–27 Jul 2024. URL 
+
+https://proceedings.mlr.press/v235/xia24c.html .Jingwei Xu, Junyu Lai, and Yunpeng Huang. Meteora: Multiple-tasks embedded lora for large language models. In Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu (eds.), 
+
+International Conference on Learning Representations , volume 2025, pp. 55049–55076, 2025. URL https://proceedings.iclr.cc/paper_files/paper/2025/file/ 8951bbdcf234132bcce680825e7cb354-Paper-Conference.pdf .Guang Yang, Changhao Guan, Chao Huang, Yufeng Chen, and Kaiyu Huang. Adaptive utilization of low-rank adaptation via conditioned gating. In Forty-third International Conference on Machine Learning , 2026a. URL https://openreview.net/forum?id=cA7SvKStDh .Jinluan Yang, Yuxin Liu, Zhengyu Chen, Chengcheng Han, Yueqing Sun, Qi Gu, Hui Su, Xun-liang Cai, Fei Wu, and Kun Kuang. Topocurate:modeling interaction topology for tool-use agent training, 2026b. URL https://arxiv.org/abs/2603.01714 .Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan, and Yuan Cao. React: Synergizing reasoning and acting in language models. In The Eleventh International Conference on Learning Representations , 2023. URL https://openreview.net/forum? id=WE_vluYUL-X .Jingqi Ye, haonan he, Minglei Li, Fujun Han, Tao Chen, and Peng Ye. Gradient intrinsic dimen-sionality alignment: Narrowing the gap between low-rank adaptation and full fine-tuning. In 
+
+The Fourteenth International Conference on Learning Representations , 2026. URL https: //openreview.net/forum?id=kObvnQ6pUx .Jui-Nan Yen, Si Si, Zhao Meng, Felix Yu, Venkata Sai Surya Subramanyam Duvvuri, Inder-jit Dhillon, Cho-Jui Hsieh, and Sanjiv Kumar. Lora done rite: Robust invariant transforma-tion equilibration for lora optimization. In Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu 14 (eds.), International Conference on Learning Representations , volume 2025, pp. 75815–75834, 2025. URL https://proceedings.iclr.cc/paper_files/paper/2025/file/ bcbc0f660d2dde42f9d1d0ecb14a6f9a-Paper-Conference.pdf .Aohan Zeng, Mingdao Liu, Rui Lu, Bowen Wang, Xiao Liu, Yuxiao Dong, and Jie Tang. Agent-Tuning: Enabling generalized agent abilities for LLMs. In Lun-Wei Ku, Andre Martins, and Vivek Srikumar (eds.), Findings of the Association for Computational Linguistics: ACL 2024 , pp. 3053–3077, Bangkok, Thailand, August 2024. Association for Computational Linguis-tics. doi: 10.18653/v1/2024.findings-acl.181. URL https://aclanthology.org/2024. findings-acl.181/ .Fangzhao Zhang and Mert Pilanci. Riemannian preconditioned LoRA for fine-tuning founda-tion models. In Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp (eds.), Proceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research ,pp. 59641–59669. PMLR, 21–27 Jul 2024. URL https://proceedings.mlr.press/ v235/zhang24ax.html .Minxing Zhang, Yi Yang, Roy Xie, Bhuwan Dhingra, Shuyan Zhou, and Jian Pei. Generalizability of large language model-based agents: A comprehensive survey. ACM Computing Surveys , 58 (10):1–44, 2026a. Qingru Zhang, Minshuo Chen, Alexander Bukharin, Pengcheng He, Yu Cheng, Weizhu Chen, and Tuo Zhao. Adaptive budget allocation for parameter-efficient fine-tuning. In The Eleventh In-ternational Conference on Learning Representations , 2023. URL https://openreview. net/forum?id=lq62uWRJjiY .Qingyue Zhang, Chang Chu, Tianren Peng, Qi Li, Xiangyang Luo, Zhihao Jiang, and Shao-Lun Huang. LoRA-DA: Data-aware initialization for low-rank adaptation via asymptotic anal-ysis. In Forty-third International Conference on Machine Learning , 2026b. URL https: //openreview.net/forum?id=LvKSVUbXc9 .Yilang Zhang, Bingcong Li, and Georgios Giannakis. Reflora: Refactored low-rank adaptation for efficient fine-tuning of large models. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Processing Systems , vol-ume 38, Main Conference, pp. 92847–92878. Curran Associates, Inc., 2025a. doi: 10.52202/ 085713-3106. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/85c1ee0b3cdf49b84f14b163b01f2711-Paper-Conference.pdf .Yuanhe Zhang, Fanghui Liu, and Yudong Chen. LoRA-one: One-step full gradient could suffice for fine-tuning large language models, provably and efficiently. In Aarti Singh, Maryam Fazel, Daniel Hsu, Simon Lacoste-Julien, Felix Berkenkamp, Tegan Maharaj, Kiri Wagstaff, and Jerry Zhu (eds.), Proceedings of the 42nd International Conference on Machine Learning , volume 267 of Proceedings of Machine Learning Research , pp. 75513–75574. PMLR, 13–19 Jul 2025b. URL 
+
+https://proceedings.mlr.press/v267/zhang25ax.html .Zicheng Zhang, Haoran Li, Yifeng Zhang, Guoqiang Gong, Jiaxing Wang, Junxing Hu, Pengzhang Liu, and Qixia Jiang. The primacy of magnitude in low-rank adaptation. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Informa-tion Processing Systems , volume 38, pp. 39–69. Curran Associates, Inc., 2025c. doi: 10.52202/ 085713-0002. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/0010665e949927b74faf6e3ada6d7f72-Paper-Conference.pdf .Jinyang Zheng and Tong Wu. Lora-s: An efficient low rank adaptation scheme via sylvester equation. In C. Vondrick, B. Hariharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (eds.), 
+
+International Conference on Learning Representations , volume 2026, pp. 101788–101811, 2026. URL https://proceedings.iclr.cc/paper_files/paper/2026/file/ a6a90bcc2aa470c3871b2d39a67d26e8-Paper-Conference.pdf .Yuan Zhuang, Yi Shen, Yuexin Bian, Qing Su, Shihao Ji, Yuanyuan Shi, and Fei Miao. Ld-mole: Learnable dynamic routing for mixture of lora experts. In 15 C. Vondrick, B. Hariharan, C. Raffel, L. Pinto, D. Yang, and A. Faust (eds.), In-ternational Conference on Learning Representations , volume 2026, pp. 64840–64858, 2026. URL https://proceedings.iclr.cc/paper_files/paper/2026/file/ 6a39cf3b666f8bdb2223f253981f3869-Paper-Conference.pdf .Heming Zou, Yunliang Zang, Wutong Xu, Yao Zhu, and Xiangyang Ji. Flylora: Boosting task decoupling and parameter efficiency via implicit rank-wise mixture-of-experts. In D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (eds.), Advances in Neural Information Processing Systems , volume 38, Main Conference, pp. 10386–10419. Curran Associates, Inc., 2025. doi: 10.52202/ 085713-0349. URL https://proceedings.neurips.cc/paper_files/paper/ 2025/file/0f234479d4be0102b6a9ec5ebf75e881-Paper-Conference.pdf .16

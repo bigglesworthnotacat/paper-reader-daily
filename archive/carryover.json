@@ -1,20 +1,276 @@
 {
-  "generated_at": "2026-09-16T21:45:12.085333+00:00",
-  "updated_date": "20260916",
+  "generated_at": "2026-09-17T22:21:02.217879+00:00",
+  "updated_date": "20260917",
   "carryover_days": 9,
   "tag_states": {
     "llm-agent": {
-      "updated_date": "20260916",
+      "updated_date": "20260917",
       "carryover_days": 9,
       "items": []
     },
     "llm-security": {
-      "updated_date": "20260916",
+      "updated_date": "20260917",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2609.17865v1",
+          "source": "arxiv",
+          "title": "Do Frontier Models Seek Safety Evidence Before Acting?",
+          "abstract": "Frontier models are often evaluated on how they respond to safety information once it is already in context. We study an earlier decision point: whether models choose to acquire safety-relevant evidence before acting. We introduce SAFE, a controlled benchmark in which models make deployment decisions with optional evidence that varies in retrieval cost, probability, severity, and presentation. Across GPT-5.5, o3, Claude Opus 4.8, and Claude Sonnet 4.6, we find distinct evidence-acquisition policies: Opus inspects nearly by default, o3 is the most skip-heavy and threshold-sensitive, and GPT-5.5 and Sonnet occupy intermediate regimes. Inspection increases strongly with severity and decreases with retrieval cost, whereas probability has much weaker behavioral influence: increasing the stated likelihood of a problem from 10% to 70% changes inspection by at most 21 percentage points. Despite these differences, Stage 1 rationales are dominated by expected-value reasoning across models. A cost-obligation decomposition further shows that avoidance is driven primarily by retrieval friction and explicit threats to the deployment payoff rather than by the remediation duties created by knowing. Counterfactual interventions reveal a further mismatch between behavior and explanation: evidence framing can strongly change decisions near the inspection boundary while going largely unmentioned, whereas probability is frequently cited despite having little causal influence. These results suggest that deployment-time safety depends not only on how models respond to known risks, but also on whether they acquire the evidence needed to know that acting is safe.",
+          "authors": [
+            "Omer Tafveez"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-09-15T21:45:43+00:00",
+          "link": "https://arxiv.org/pdf/2609.17865v1",
+          "tags": [
+            "keyword:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "benchmark on whether frontier models acquire safety evidence before acting",
+          "llm_evidence_cn": "评测前沿模型行动前是否主动获取安全证据",
+          "llm_evidence": "评测前沿模型行动前是否主动获取安全证据",
+          "canonical_evidence": "评测前沿模型行动前是否主动获取安全证据",
+          "llm_tldr_en": "Introduces SAFE, a benchmark probing whether frontier models seek safety-relevant evidence before acting, revealing distinct evidence-acquisition policies across GPT-5.5, o3 and Claude models.",
+          "llm_tldr_cn": "以往对前沿模型的安全评估多在安全信息已进入上下文后进行，本文研究更早的决策点：模型是否会主动获取安全相关证据再行动。作者构建受控基准SAFE，让模型在检索成本、概率、严重性与呈现方式可变的条件下做部署决策。实验发现GPT-5.5、o3与Claude系列呈现不同的证据获取策略，检查行为随严重性上升、随检索成本下降，而概率影响较弱。该工作为语言模型安全机制与对齐评估提供了新视角。",
+          "llm_tldr": "以往对前沿模型的安全评估多在安全信息已进入上下文后进行，本文研究更早的决策点：模型是否会主动获取安全相关证据再行动。作者构建受控基准SAFE，让模型在检索成本、概率、严重性与呈现方式可变的条件下做部署决策。实验发现GPT-5.5、o3与Claude系列呈现不同的证据获取策略，检查行为随严重性上升、随检索成本下降，而概率影响较弱。该工作为语言模型安全机制与对齐评估提供了新视角。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "safety mechanisms for language models",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.17865v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.16287v1",
+          "source": "arxiv",
+          "title": "AgentGuard: Learning Execution Guardrails from Anomalous Coding-Agent Trajectories",
+          "abstract": "AI coding agents increasingly rely on execution harnesses to interact with repositories and external tools. However, task success does not guarantee reliable execution. Agents may still modify unrelated files, rewrite tests, issue unsafe commands, or ignore failed validations, motivating behavioral guardrails for reliable execution. We present AgentGuard, an instruction-level guardrail framework that learns conditional execution constraints from anomalous trajectories of coding agents. Rather than relying on manually specified safety rules, AgentGuard automatically extracts recurring execution failure patterns, generalizes them into instruction-level behavioral constraints, and organizes them as a lightweight guardrail skill that dynamically activates only the rules relevant to the current instruction.   This design enables behavioral guidance while minimizing unnecessary restrictions on normal execution. We evaluate AgentGuard using 642 documented failure traces collected from real coding-agent executions across 382 repository tasks. Guardrails are learned from 461 traces covering 282 tasks and evaluated on a disjoint set of 100 tasks. Using Claude Code with Claude Haiku 4.5 as the underlying coding agent, we compare the baseline agent with the same agent augmented by AgentGuard. Experimental results show that AgentGuard reduces the Abnormal Execution Rate from 69.0% to 26.7% and increases the Successful Task Completion Rate from 21.7% to 35.0%. These results demonstrate that execution guardrails learned from historical failures can substantially improve the reliability of AI coding agents while highlighting the remaining challenge of balancing safety and task completion.",
+          "authors": [
+            "Wuyang Dai",
+            "Song Wang"
+          ],
+          "primary_category": "cs.SE",
+          "categories": [
+            "cs.SE"
+          ],
+          "published": "2026-09-14T19:42:03+00:00",
+          "link": "https://arxiv.org/pdf/2609.16287v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "execution guardrails learned from anomalous coding-agent trajectories",
+          "llm_evidence_cn": "从异常编码智能体轨迹中学习执行护栏",
+          "llm_evidence": "从异常编码智能体轨迹中学习执行护栏",
+          "canonical_evidence": "从异常编码智能体轨迹中学习执行护栏",
+          "llm_tldr_en": "AI coding agents may modify unrelated files, rewrite tests or issue unsafe commands even when tasks succeed. AgentGuard learns instruction-level guardrails automatically from anomalous trajectories, generalizing recurring failure patterns into lightweight dynamic constraints.",
+          "llm_tldr_cn": "AI编码智能体虽能完成任务，却可能修改无关文件、重写测试或执行不安全命令，任务成功并不保证执行可靠。论文提出AgentGuard，一种指令级护栏框架，不依赖人工规则，而是从编码智能体的异常轨迹中自动提取重复出现的执行失败模式，泛化为指令级行为约束，并组织为轻量级动态护栏技能。该工作为智能体执行安全提供了可学习、可推广的防御机制。",
+          "llm_tldr": "AI编码智能体虽能完成任务，却可能修改无关文件、重写测试或执行不安全命令，任务成功并不保证执行可靠。论文提出AgentGuard，一种指令级护栏框架，不依赖人工规则，而是从编码智能体的异常轨迹中自动提取重复出现的执行失败模式，泛化为指令级行为约束，并组织为轻量级动态护栏技能。该工作为智能体执行安全提供了可学习、可推广的防御机制。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.16287v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.17698v1",
+          "source": "arxiv",
+          "title": "A Large-Scale Empirical Study of Quality Assurance Practices and Gaps in AI Agents",
+          "abstract": "Large language model (LLM)-based agents are increasingly used across software engineering, web automation, research, and productivity applications. Their integration of planning, memory, tool use, code execution, and external interactions enables greater autonomy but also introduces new reliability, safety, and security risks. We present a large-scale empirical study of quality assurance (QA) practices in 157 open-source LLM-based agent projects with at least 100 GitHub stars. We analyze documentation, source code, configurations, and tests to characterize QA practices across execution surfaces, safeguards, testing artifacts, risk scenarios, and recurring gaps. We find that current QA primarily focuses on basic functionality and high-risk actions, while coverage remains fragmented. Safeguards are inconsistently applied across equivalent execution routes, tests rarely examine boundary, adversarial, or multi-step tool-use failures, and identified risks are seldom translated into end-to-end QA checks. These findings highlight the need to move beyond feature-level testing toward systematic end-to-end validation that ensures agent workflows remain within intended boundaries when interacting with untrusted inputs, tools, persistent state, and external APIs.",
+          "authors": [
+            "Wuyang Dai",
+            "Moses Openja",
+            "Jiho Shin",
+            "Hung Viet Pham",
+            "Song Wang"
+          ],
+          "primary_category": "cs.SE",
+          "categories": [
+            "cs.SE"
+          ],
+          "published": "2026-09-15T18:10:57+00:00",
+          "link": "https://arxiv.org/pdf/2609.17698v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "empirical study of safety and security gaps in LLM agent projects",
+          "llm_evidence_cn": "LLM智能体项目安全与防护差距的实证研究",
+          "llm_evidence": "LLM智能体项目安全与防护差距的实证研究",
+          "canonical_evidence": "LLM智能体项目安全与防护差距的实证研究",
+          "llm_tldr_en": "LLM agents integrate planning, memory and tool use, enabling autonomy but adding reliability, safety and security risks. This study examines QA practices across 157 open-source agent projects, characterizing safeguards, risk scenarios and recurring gaps.",
+          "llm_tldr_cn": "基于大语言模型的智能体日益用于软件工程、网页自动化与研究等场景，其规划、记忆、工具使用与代码执行带来更强自主性的同时也引入可靠性、安全与安保风险。论文对157个GitHub星标过百的开源LLM智能体项目开展大规模实证研究，分析文档、源码、配置与测试，刻画执行面、防护措施、测试工件与风险场景中的质量保障实践。结果揭示当前质量保障多聚焦基础功能，安全防护存在系统性缺口。",
+          "llm_tldr": "基于大语言模型的智能体日益用于软件工程、网页自动化与研究等场景，其规划、记忆、工具使用与代码执行带来更强自主性的同时也引入可靠性、安全与安保风险。论文对157个GitHub星标过百的开源LLM智能体项目开展大规模实证研究，分析文档、源码、配置与测试，刻画执行面、防护措施、测试工件与风险场景中的质量保障实践。结果揭示当前质量保障多聚焦基础功能，安全防护存在系统性缺口。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.17698v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.18515v1",
+          "source": "arxiv",
+          "title": "Beyond Routine Compliance: Cunning Data Cultivates Safety Vigilance in Large Language Models",
+          "abstract": "Safety alignment teaches large language models (LLMs) to recognize harmful requests and reject risky instructions. Yet aligned models can fail when harmful intent is concealed within seemingly benign contexts. Robust safety therefore requires both knowledge of safety boundaries and \\textbf{vigilance}: the ability to detect unusual premises, misleading reasoning, and latent risks beneath surface-level semantics. Vigilance requires models to scrutinize a request's underlying intent and assumptions before acting. To cultivate this capability, we introduce \\textbf{cunning questions}, which are not necessarily safety-related but contain misleading premises, atypical reasoning, or subtle inconsistencies. We hypothesize that learning to look beyond such reasoning traps can transfer to safety-critical scenarios. Experiments show that Cunning training improves robustness to out-of-distribution jailbreak attacks and strengthens subsequent safety fine-tuning. Furthermore, augmenting an existing state-of-the-art safety alignment pipeline with Cunning establishes a new state of the art across our evaluated settings, reducing mean ASR across nine backbone--benchmark combinations from 17.40\\% to 15.05\\%. Trace analysis after matched safety fine-tuning suggests that safety judgments are more likely to govern responses before harmful planning begins. A conditional theoretical analysis further characterizes when invariance learned from cunning data can transfer to safety-related inputs. These findings suggest that cunning data can strengthen model vigilance and complement conventional safety alignment.",
+          "authors": [
+            "Youjia Wang",
+            "Lin Xu",
+            "Yang Sun",
+            "Yuxiao Lu",
+            "Chengfang Fang",
+            "Jie Shi"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.LG"
+          ],
+          "published": "2026-09-16T11:46:48+00:00",
+          "link": "https://arxiv.org/pdf/2609.18515v1",
+          "tags": [
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Safety vigilance mechanisms for aligned large language models",
+          "llm_evidence_cn": "面向对齐大语言模型的安全警觉机制",
+          "llm_evidence": "面向对齐大语言模型的安全警觉机制",
+          "canonical_evidence": "面向对齐大语言模型的安全警觉机制",
+          "llm_tldr_en": "Safety alignment teaches LLMs to reject risky requests, but models fail when harmful intent hides in benign contexts. This work introduces cunning questions containing misleading premises to cultivate vigilance, improving detection of latent risks beyond surface semantics.",
+          "llm_tldr_cn": "安全对齐让大语言模型学会识别并拒绝有害请求，但当有害意图隐藏在看似无害的语境中时，对齐模型仍会失效。作者认为稳健安全不仅需要知道安全边界，还需具备警觉能力，能识别异常前提、误导性推理与潜在风险。为此提出含误导前提或细微矛盾的狡猾问题来训练模型。实验表明该方法能提升模型对表层语义之下潜在风险的审查与识别能力，为更稳健的安全对齐提供新思路。",
+          "llm_tldr": "安全对齐让大语言模型学会识别并拒绝有害请求，但当有害意图隐藏在看似无害的语境中时，对齐模型仍会失效。作者认为稳健安全不仅需要知道安全边界，还需具备警觉能力，能识别异常前提、误导性推理与潜在风险。为此提出含误导前提或细微矛盾的狡猾问题来训练模型。实验表明该方法能提升模型对表层语义之下潜在风险的审查与识别能力，为更稳健的安全对齐提供新思路。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "safety mechanisms for language models",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.18515v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.18674v1",
+          "source": "arxiv",
+          "title": "CaMeLoT: CaMeL orchestrated with Temporal logic for static verification and liveness",
+          "abstract": "LLM-based agents generate and execute multi-step plans that invoke external tools which can access private data or execute commands. In this setting, security is a property of the entire execution that a plan creates, not just any single step. The plan itself is a critical artefact that captures the tool calls, control flow, and data dependencies. We present CaMeLoT, a complement to CaMeL, an existing defence against prompt injection in tool-using LLM agents. CaMeLoT extends CaMeL by adding a static verification layer that checks an agent's plan before any tool is invoked. CaMeLoT translates a generated plan into a finite-state transition system, labels it with tool calls, provenance and taint information, and checks it against temporal policies expressed in CTL using the nuXmv model checker. Because verification happens before execution, unsafe plans are rejected without using LLM calls or tool calls, saving tokens that runtime could have cost, as well as the need to unwind changes or teardown temporary sandboxes. When a verification fails, the model checker returns a counterexample to give feedback to the agent to repair the plan. We evaluate CaMeLoT on policies derived from the AgentDojo benchmark, SOC workflows, and prompt-extraction experiments, showing that it verifies a broad class of temporal properties before execution while preserving CaMeL's runtime-checkable coverage.",
+          "authors": [
+            "Elia Nikolaou",
+            "Magnus Wiik Eckhoff",
+            "Robert Flood",
+            "Gudmund Grov",
+            "Vasileios Mavroeidis",
+            "David Aspinall"
+          ],
+          "primary_category": "cs.CR",
+          "categories": [
+            "cs.CR",
+            "cs.LO"
+          ],
+          "published": "2026-09-16T13:52:16+00:00",
+          "link": "https://arxiv.org/pdf/2609.18674v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "defense against prompt injection in tool-using LLM agents",
+          "llm_evidence_cn": "工具型LLM智能体的提示注入防御",
+          "llm_evidence": "工具型LLM智能体的提示注入防御",
+          "canonical_evidence": "工具型LLM智能体的提示注入防御",
+          "llm_tldr_en": "LLM agents execute multi-step plans invoking tools that access private data, so security is a property of the whole plan. CaMeLoT adds a static verification layer to CaMeL, translating a plan into a finite-state system with taint labels and checking it against temporal properties before any tool runs.",
+          "llm_tldr_cn": "基于LLM的智能体会生成并执行调用外部工具的多步计划，安全性是计划整体执行的属性而非单步。本文提出CaMeLoT，在现有提示注入防御CaMeL基础上增加静态验证层，在任何工具被调用前将计划翻译为有限状态转移系统，并标注工具调用、来源与污点信息。该方法用时序逻辑检查计划安全性，为工具型智能体提供更完整的注入防御。",
+          "llm_tldr": "基于LLM的智能体会生成并执行调用外部工具的多步计划，安全性是计划整体执行的属性而非单步。本文提出CaMeLoT，在现有提示注入防御CaMeL基础上增加静态验证层，在任何工具被调用前将计划翻译为有限状态转移系统，并标注工具调用、来源与污点信息。该方法用时序逻辑检查计划安全性，为工具型智能体提供更完整的注入防御。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.18674v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.18471v1",
+          "source": "arxiv",
+          "title": "First Token Matters: Understanding Safety Collapse in Large Reasoning Models",
+          "abstract": "Large Reasoning Models (LRMs) exhibit strong problem-solving abilities, yet their safety alignment often degrades when handling harmful queries. Existing approaches to improving safety largely rely on additional training or preference optimization, while offering limited understanding of the internal mechanisms behind safety failures. In this work, we investigate this failure through a token-level positional analysis of refusal dynamics and identify a localized vulnerability at the onset of reasoning, which we term Onset Refusal Collapse (ORC). We find that the refusal-related signal of LRMs drops sharply at the first generated token under harmful queries, which is associated with unsafe response generation. Motivated by this finding, we propose SafeToken, a lightweight inference-time intervention that injects a learned continuous safety anchor precisely at reasoning onset. Despite updating only a single token embedding, SafeToken effectively mitigates ORC, improves safety on harmful-query benchmarks, and largely preserves reasoning utility. These results suggest that safety failures in LRMs can arise from a transient breakdown at the critical transition from understanding to generation.",
+          "authors": [
+            "Yizheng Yang",
+            "Haining Yu",
+            "Yuechen Wang",
+            "Yikai Hou",
+            "Xing Fu",
+            "Jinbo Yang",
+            "Tianqing Zhu"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-09-16T11:06:22+00:00",
+          "link": "https://arxiv.org/pdf/2609.18471v1",
+          "tags": [
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "safety collapse and refusal dynamics in large reasoning models",
+          "llm_evidence_cn": "大型推理模型的安全崩塌与拒答动态机制",
+          "llm_evidence": "大型推理模型的安全崩塌与拒答动态机制",
+          "canonical_evidence": "大型推理模型的安全崩塌与拒答动态机制",
+          "llm_tldr_en": "Large reasoning models show strong problem-solving but their safety alignment degrades on harmful queries, and prior fixes lack mechanistic understanding. This work analyzes refusal dynamics at token level, identifies Onset Refusal Collapse, and proposes a mitigation.",
+          "llm_tldr_cn": "大型推理模型虽推理能力强，但在面对有害查询时安全对齐常会退化，现有方法多靠额外训练而缺乏机制性解释。本文从令牌级位置分析拒答动态，发现推理起点处存在局部脆弱性，称为起始拒答崩塌（ORC）。据此提出针对性缓解方法，为理解并修复语言模型安全失效提供了内部机制视角。",
+          "llm_tldr": "大型推理模型虽推理能力强，但在面对有害查询时安全对齐常会退化，现有方法多靠额外训练而缺乏机制性解释。本文从令牌级位置分析拒答动态，发现推理起点处存在局部脆弱性，称为起始拒答崩塌（ORC）。据此提出针对性缓解方法，为理解并修复语言模型安全失效提供了内部机制视角。",
+          "llm_tags": [
+            "query:llm-security"
+          ],
+          "matched_query_tag": "query:llm-security",
+          "matched_query_text": "safety mechanisms for language models",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.18471v1",
+          "carry_days": 1
+        }
+      ]
     },
     "agent-evol": {
-      "updated_date": "20260916",
+      "updated_date": "20260917",
       "carryover_days": 9,
       "items": []
     },
