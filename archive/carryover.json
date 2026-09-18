@@ -1,15 +1,63 @@
 {
-  "generated_at": "2026-09-17T22:21:02.217879+00:00",
-  "updated_date": "20260917",
+  "generated_at": "2026-09-18T22:08:21.877275+00:00",
+  "updated_date": "20260918",
   "carryover_days": 9,
   "tag_states": {
     "llm-agent": {
-      "updated_date": "20260917",
+      "updated_date": "20260918",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2609.19759v1",
+          "source": "arxiv",
+          "title": "Rethinking Multi-Agent Collaboration: When More Is Less",
+          "abstract": "The rapid advancement of large language models and single-agent harnesses has reshaped the landscape of autonomous systems, raising a critical question of when multi-agent collaboration offers genuine value. As individual agent capabilities continue to scale, multi-agent collaboration faces diminishing returns while incurring growing context overhead. Through systematic analysis, we delineate the capability boundaries of multi-agent collaboration relative to single-agent alternatives, showing that it confers systematic benefits specifically in long-horizon tasks with sparse dependencies, while single-agent harnesses remain superior in tightly coupled, sequential workflows. Building on these insights, we propose SAIGE, a lightweight multi-agent collaboration mechanism based on Semantic-Aware Incremental Graph Evolution. SAIGE models collaboration as a dynamically evolving graph, where nodes are agent instances spawned on demand and edges encode semantic dependencies established through content-based information retrieval. Experiments on long-horizon, complex task benchmarks show that SAIGE achieves a favorable trade-off between context efficiency and task performance, and that scaling the agent pool or deepening the recursion level does not consistently improve outcomes. Our findings suggest that multi-agent superiority is bounded by task structure rather than universal, and that more agents do not necessarily make a system more intelligent.",
+          "authors": [
+            "Yishuo Yuan",
+            "Yibo Wu",
+            "Yihan Zhang",
+            "Minyuan Sun",
+            "Shenliang Li",
+            "Xinkai Ma",
+            "Yifan Li",
+            "Jiaheng Liu"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-09-17T06:29:12+00:00",
+          "link": "https://arxiv.org/pdf/2609.19759v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Multi-agent collaboration versus single-agent capability boundaries",
+          "llm_evidence_cn": "多智能体协作与单智能体能力边界对比",
+          "llm_evidence": "多智能体协作与单智能体能力边界对比",
+          "canonical_evidence": "多智能体协作与单智能体能力边界对比",
+          "llm_tldr_en": "This paper analyzes when multi-agent collaboration truly helps LLM systems, showing gains in long-horizon sparse-dependency tasks while single agents win in tightly coupled workflows, and proposes SAIGE.",
+          "llm_tldr_cn": "随着大语言模型与单智能体框架能力提升，多智能体协作收益递减而上下文开销上升，何时协作才真正有价值成为关键问题。论文系统分析多智能体协作相对单智能体的能力边界，指出其在长周期、依赖稀疏任务中具系统性优势，而在紧耦合顺序流程中单智能体更优。基于此提出轻量多智能体协作机制 SAIGE，为多智能体系统协调设计提供了取舍依据。",
+          "llm_tldr": "随着大语言模型与单智能体框架能力提升，多智能体协作收益递减而上下文开销上升，何时协作才真正有价值成为关键问题。论文系统分析多智能体协作相对单智能体的能力边界，指出其在长周期、依赖稀疏任务中具系统性优势，而在紧耦合顺序流程中单智能体更优。基于此提出轻量多智能体协作机制 SAIGE，为多智能体系统协调设计提供了取舍依据。",
+          "llm_tags": [
+            "query:llm-agent"
+          ],
+          "matched_query_tag": "query:llm-agent",
+          "matched_query_text": "multi-agent system coordination",
+          "matched_requirement_id": "req-16",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.19759v1",
+          "carry_days": 1
+        }
+      ]
     },
     "llm-security": {
-      "updated_date": "20260917",
+      "updated_date": "20260918",
       "carryover_days": 9,
       "items": [
         {
@@ -30,13 +78,13 @@
             "keyword:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "benchmark on whether frontier models acquire safety evidence before acting",
-          "llm_evidence_cn": "评测前沿模型行动前是否主动获取安全证据",
-          "llm_evidence": "评测前沿模型行动前是否主动获取安全证据",
-          "canonical_evidence": "评测前沿模型行动前是否主动获取安全证据",
-          "llm_tldr_en": "Introduces SAFE, a benchmark probing whether frontier models seek safety-relevant evidence before acting, revealing distinct evidence-acquisition policies across GPT-5.5, o3 and Claude models.",
-          "llm_tldr_cn": "以往对前沿模型的安全评估多在安全信息已进入上下文后进行，本文研究更早的决策点：模型是否会主动获取安全相关证据再行动。作者构建受控基准SAFE，让模型在检索成本、概率、严重性与呈现方式可变的条件下做部署决策。实验发现GPT-5.5、o3与Claude系列呈现不同的证据获取策略，检查行为随严重性上升、随检索成本下降，而概率影响较弱。该工作为语言模型安全机制与对齐评估提供了新视角。",
-          "llm_tldr": "以往对前沿模型的安全评估多在安全信息已进入上下文后进行，本文研究更早的决策点：模型是否会主动获取安全相关证据再行动。作者构建受控基准SAFE，让模型在检索成本、概率、严重性与呈现方式可变的条件下做部署决策。实验发现GPT-5.5、o3与Claude系列呈现不同的证据获取策略，检查行为随严重性上升、随检索成本下降，而概率影响较弱。该工作为语言模型安全机制与对齐评估提供了新视角。",
+          "llm_evidence_en": "models acquiring safety evidence before acting",
+          "llm_evidence_cn": "模型行动前主动获取安全证据",
+          "llm_evidence": "模型行动前主动获取安全证据",
+          "canonical_evidence": "模型行动前主动获取安全证据",
+          "llm_tldr_en": "Introduces SAFE, a benchmark testing whether frontier models acquire safety evidence before acting, varying retrieval cost, probability, severity, and presentation. GPT-5.5, o3, and Claude models show distinct evidence-acquisition policies.",
+          "llm_tldr_cn": "论文关注一个更早的决策点：模型在行动前是否会主动获取安全相关证据，而非仅在安全信息已入上下文时做出响应。作者构建SAFE受控基准，让模型在检索成本、概率、严重度和呈现方式各异的可选证据下做部署决策。结果显示GPT-5.5、o3与Claude系列呈现截然不同的证据获取策略，检查率随严重度上升、随成本下降，而概率影响较弱。该工作为前沿模型的安全行为评测提供了新视角。",
+          "llm_tldr": "论文关注一个更早的决策点：模型在行动前是否会主动获取安全相关证据，而非仅在安全信息已入上下文时做出响应。作者构建SAFE受控基准，让模型在检索成本、概率、严重度和呈现方式各异的可选证据下做部署决策。结果显示GPT-5.5、o3与Claude系列呈现截然不同的证据获取策略，检查率随严重度上升、随成本下降，而概率影响较弱。该工作为前沿模型的安全行为评测提供了新视角。",
           "llm_tags": [
             "query:llm-security"
           ],
@@ -45,91 +93,6 @@
           "matched_requirement_id": "req-4",
           "selection_source": "carryover_cache",
           "paper_id": "2609.17865v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.16287v1",
-          "source": "arxiv",
-          "title": "AgentGuard: Learning Execution Guardrails from Anomalous Coding-Agent Trajectories",
-          "abstract": "AI coding agents increasingly rely on execution harnesses to interact with repositories and external tools. However, task success does not guarantee reliable execution. Agents may still modify unrelated files, rewrite tests, issue unsafe commands, or ignore failed validations, motivating behavioral guardrails for reliable execution. We present AgentGuard, an instruction-level guardrail framework that learns conditional execution constraints from anomalous trajectories of coding agents. Rather than relying on manually specified safety rules, AgentGuard automatically extracts recurring execution failure patterns, generalizes them into instruction-level behavioral constraints, and organizes them as a lightweight guardrail skill that dynamically activates only the rules relevant to the current instruction.   This design enables behavioral guidance while minimizing unnecessary restrictions on normal execution. We evaluate AgentGuard using 642 documented failure traces collected from real coding-agent executions across 382 repository tasks. Guardrails are learned from 461 traces covering 282 tasks and evaluated on a disjoint set of 100 tasks. Using Claude Code with Claude Haiku 4.5 as the underlying coding agent, we compare the baseline agent with the same agent augmented by AgentGuard. Experimental results show that AgentGuard reduces the Abnormal Execution Rate from 69.0% to 26.7% and increases the Successful Task Completion Rate from 21.7% to 35.0%. These results demonstrate that execution guardrails learned from historical failures can substantially improve the reliability of AI coding agents while highlighting the remaining challenge of balancing safety and task completion.",
-          "authors": [
-            "Wuyang Dai",
-            "Song Wang"
-          ],
-          "primary_category": "cs.SE",
-          "categories": [
-            "cs.SE"
-          ],
-          "published": "2026-09-14T19:42:03+00:00",
-          "link": "https://arxiv.org/pdf/2609.16287v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "execution guardrails learned from anomalous coding-agent trajectories",
-          "llm_evidence_cn": "从异常编码智能体轨迹中学习执行护栏",
-          "llm_evidence": "从异常编码智能体轨迹中学习执行护栏",
-          "canonical_evidence": "从异常编码智能体轨迹中学习执行护栏",
-          "llm_tldr_en": "AI coding agents may modify unrelated files, rewrite tests or issue unsafe commands even when tasks succeed. AgentGuard learns instruction-level guardrails automatically from anomalous trajectories, generalizing recurring failure patterns into lightweight dynamic constraints.",
-          "llm_tldr_cn": "AI编码智能体虽能完成任务，却可能修改无关文件、重写测试或执行不安全命令，任务成功并不保证执行可靠。论文提出AgentGuard，一种指令级护栏框架，不依赖人工规则，而是从编码智能体的异常轨迹中自动提取重复出现的执行失败模式，泛化为指令级行为约束，并组织为轻量级动态护栏技能。该工作为智能体执行安全提供了可学习、可推广的防御机制。",
-          "llm_tldr": "AI编码智能体虽能完成任务，却可能修改无关文件、重写测试或执行不安全命令，任务成功并不保证执行可靠。论文提出AgentGuard，一种指令级护栏框架，不依赖人工规则，而是从编码智能体的异常轨迹中自动提取重复出现的执行失败模式，泛化为指令级行为约束，并组织为轻量级动态护栏技能。该工作为智能体执行安全提供了可学习、可推广的防御机制。",
-          "llm_tags": [
-            "query:llm-security"
-          ],
-          "matched_query_tag": "query:llm-security",
-          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
-          "matched_requirement_id": "req-5",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.16287v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.17698v1",
-          "source": "arxiv",
-          "title": "A Large-Scale Empirical Study of Quality Assurance Practices and Gaps in AI Agents",
-          "abstract": "Large language model (LLM)-based agents are increasingly used across software engineering, web automation, research, and productivity applications. Their integration of planning, memory, tool use, code execution, and external interactions enables greater autonomy but also introduces new reliability, safety, and security risks. We present a large-scale empirical study of quality assurance (QA) practices in 157 open-source LLM-based agent projects with at least 100 GitHub stars. We analyze documentation, source code, configurations, and tests to characterize QA practices across execution surfaces, safeguards, testing artifacts, risk scenarios, and recurring gaps. We find that current QA primarily focuses on basic functionality and high-risk actions, while coverage remains fragmented. Safeguards are inconsistently applied across equivalent execution routes, tests rarely examine boundary, adversarial, or multi-step tool-use failures, and identified risks are seldom translated into end-to-end QA checks. These findings highlight the need to move beyond feature-level testing toward systematic end-to-end validation that ensures agent workflows remain within intended boundaries when interacting with untrusted inputs, tools, persistent state, and external APIs.",
-          "authors": [
-            "Wuyang Dai",
-            "Moses Openja",
-            "Jiho Shin",
-            "Hung Viet Pham",
-            "Song Wang"
-          ],
-          "primary_category": "cs.SE",
-          "categories": [
-            "cs.SE"
-          ],
-          "published": "2026-09-15T18:10:57+00:00",
-          "link": "https://arxiv.org/pdf/2609.17698v1",
-          "tags": [
-            "keyword:agent-evol",
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "empirical study of safety and security gaps in LLM agent projects",
-          "llm_evidence_cn": "LLM智能体项目安全与防护差距的实证研究",
-          "llm_evidence": "LLM智能体项目安全与防护差距的实证研究",
-          "canonical_evidence": "LLM智能体项目安全与防护差距的实证研究",
-          "llm_tldr_en": "LLM agents integrate planning, memory and tool use, enabling autonomy but adding reliability, safety and security risks. This study examines QA practices across 157 open-source agent projects, characterizing safeguards, risk scenarios and recurring gaps.",
-          "llm_tldr_cn": "基于大语言模型的智能体日益用于软件工程、网页自动化与研究等场景，其规划、记忆、工具使用与代码执行带来更强自主性的同时也引入可靠性、安全与安保风险。论文对157个GitHub星标过百的开源LLM智能体项目开展大规模实证研究，分析文档、源码、配置与测试，刻画执行面、防护措施、测试工件与风险场景中的质量保障实践。结果揭示当前质量保障多聚焦基础功能，安全防护存在系统性缺口。",
-          "llm_tldr": "基于大语言模型的智能体日益用于软件工程、网页自动化与研究等场景，其规划、记忆、工具使用与代码执行带来更强自主性的同时也引入可靠性、安全与安保风险。论文对157个GitHub星标过百的开源LLM智能体项目开展大规模实证研究，分析文档、源码、配置与测试，刻画执行面、防护措施、测试工件与风险场景中的质量保障实践。结果揭示当前质量保障多聚焦基础功能，安全防护存在系统性缺口。",
-          "llm_tags": [
-            "query:llm-security"
-          ],
-          "matched_query_tag": "query:llm-security",
-          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
-          "matched_requirement_id": "req-5",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.17698v1",
           "carry_days": 1
         },
         {
@@ -159,13 +122,13 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Safety vigilance mechanisms for aligned large language models",
-          "llm_evidence_cn": "面向对齐大语言模型的安全警觉机制",
-          "llm_evidence": "面向对齐大语言模型的安全警觉机制",
-          "canonical_evidence": "面向对齐大语言模型的安全警觉机制",
-          "llm_tldr_en": "Safety alignment teaches LLMs to reject risky requests, but models fail when harmful intent hides in benign contexts. This work introduces cunning questions containing misleading premises to cultivate vigilance, improving detection of latent risks beyond surface semantics.",
-          "llm_tldr_cn": "安全对齐让大语言模型学会识别并拒绝有害请求，但当有害意图隐藏在看似无害的语境中时，对齐模型仍会失效。作者认为稳健安全不仅需要知道安全边界，还需具备警觉能力，能识别异常前提、误导性推理与潜在风险。为此提出含误导前提或细微矛盾的狡猾问题来训练模型。实验表明该方法能提升模型对表层语义之下潜在风险的审查与识别能力，为更稳健的安全对齐提供新思路。",
-          "llm_tldr": "安全对齐让大语言模型学会识别并拒绝有害请求，但当有害意图隐藏在看似无害的语境中时，对齐模型仍会失效。作者认为稳健安全不仅需要知道安全边界，还需具备警觉能力，能识别异常前提、误导性推理与潜在风险。为此提出含误导前提或细微矛盾的狡猾问题来训练模型。实验表明该方法能提升模型对表层语义之下潜在风险的审查与识别能力，为更稳健的安全对齐提供新思路。",
+          "llm_evidence_en": "safety alignment and vigilance cultivation in large language models",
+          "llm_evidence_cn": "大型语言模型的安全对齐与警觉性培养",
+          "llm_evidence": "大型语言模型的安全对齐与警觉性培养",
+          "canonical_evidence": "大型语言模型的安全对齐与警觉性培养",
+          "llm_tldr_en": "Safety-aligned LLMs still fail when harmful intent hides in benign contexts, so robust safety needs vigilance. This paper introduces cunning questions containing misleading premises and subtle inconsistencies to cultivate vigilance, helping models scrutinize underlying intent and assumptions before acting.",
+          "llm_tldr_cn": "安全对齐让大型语言模型学会识别并拒绝有害请求，但当有害意图隐藏在看似无害的语境中时，对齐模型仍可能失效。本文认为稳健安全既需要安全边界知识，也需要警觉性，即识别异常前提、误导推理与潜在风险的能力。作者提出狡黠问题，这类问题未必与安全相关，却包含误导性前提、非常规推理或细微矛盾，用以训练模型在行动前审视请求背后的意图与假设。该工作为提升LLM的深层安全能力提供了数据驱动的对齐思路。",
+          "llm_tldr": "安全对齐让大型语言模型学会识别并拒绝有害请求，但当有害意图隐藏在看似无害的语境中时，对齐模型仍可能失效。本文认为稳健安全既需要安全边界知识，也需要警觉性，即识别异常前提、误导推理与潜在风险的能力。作者提出狡黠问题，这类问题未必与安全相关，却包含误导性前提、非常规推理或细微矛盾，用以训练模型在行动前审视请求背后的意图与假设。该工作为提升LLM的深层安全能力提供了数据驱动的对齐思路。",
           "llm_tags": [
             "query:llm-security"
           ],
@@ -177,25 +140,28 @@
           "carry_days": 1
         },
         {
-          "id": "2609.18674v1",
+          "id": "2609.19391v1",
           "source": "arxiv",
-          "title": "CaMeLoT: CaMeL orchestrated with Temporal logic for static verification and liveness",
-          "abstract": "LLM-based agents generate and execute multi-step plans that invoke external tools which can access private data or execute commands. In this setting, security is a property of the entire execution that a plan creates, not just any single step. The plan itself is a critical artefact that captures the tool calls, control flow, and data dependencies. We present CaMeLoT, a complement to CaMeL, an existing defence against prompt injection in tool-using LLM agents. CaMeLoT extends CaMeL by adding a static verification layer that checks an agent's plan before any tool is invoked. CaMeLoT translates a generated plan into a finite-state transition system, labels it with tool calls, provenance and taint information, and checks it against temporal policies expressed in CTL using the nuXmv model checker. Because verification happens before execution, unsafe plans are rejected without using LLM calls or tool calls, saving tokens that runtime could have cost, as well as the need to unwind changes or teardown temporary sandboxes. When a verification fails, the model checker returns a counterexample to give feedback to the agent to repair the plan. We evaluate CaMeLoT on policies derived from the AgentDojo benchmark, SOC workflows, and prompt-extraction experiments, showing that it verifies a broad class of temporal properties before execution while preserving CaMeL's runtime-checkable coverage.",
+          "title": "MAGS: Multi-agent Auto-formalization Guarantees Safety for Agentic Outputs",
+          "abstract": "LLM coding agents now generate complex programs at a scale that makes thorough human review increasingly difficult, raising the risk of safety and security failures. Common approaches, including fuzz testing, static analysis, and LLM-as-a-Verifier, can detect many failures but struggle to cover all possible edge cases. Formal verification addresses this by providing machine-checkable guarantees over specified properties, but traditionally demands substantial manual specification and proof engineering. We introduce a unified multi-agent framework, MAGS, that generates executable programs with formal safety guarantees, using Dafny as a verification-aware intermediate representation where safety properties can be mechanically checked. MAGS formalizes and freezes human-audited APIs and safety requirements, translates generated code into Dafny, repairs violations using verifier feedback, and compiles verified programs back into executable code. We evaluate MAGS on 100 CUDA kernels, 100 terminal scripts, and 20 robotic-arm tasks. Across all 220 examples, it achieves a 100% success rate in producing programs with non-trivial safety guarantees against frozen specifications. Independent safety and functional evaluations further show strong performance across all three domains, while revealing failures when the auto-formalized semantics do not fully capture the target behavior.",
           "authors": [
-            "Elia Nikolaou",
-            "Magnus Wiik Eckhoff",
-            "Robert Flood",
-            "Gudmund Grov",
-            "Vasileios Mavroeidis",
-            "David Aspinall"
+            "Albert Wu",
+            "Nicholas Roberts",
+            "Tzu-Heng Huang",
+            "Haoran Lin",
+            "Gil Friedman",
+            "Sungjun Cho",
+            "Gabriel Orlanski",
+            "Frederic Sala"
           ],
-          "primary_category": "cs.CR",
+          "primary_category": "cs.AI",
           "categories": [
+            "cs.AI",
             "cs.CR",
-            "cs.LO"
+            "cs.SE"
           ],
-          "published": "2026-09-16T13:52:16+00:00",
-          "link": "https://arxiv.org/pdf/2609.18674v1",
+          "published": "2026-09-16T20:15:36+00:00",
+          "link": "https://arxiv.org/pdf/2609.19391v1",
           "tags": [
             "keyword:agent-evol",
             "keyword:llm-agent",
@@ -205,58 +171,13 @@
             "query:llm-security"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "defense against prompt injection in tool-using LLM agents",
-          "llm_evidence_cn": "工具型LLM智能体的提示注入防御",
-          "llm_evidence": "工具型LLM智能体的提示注入防御",
-          "canonical_evidence": "工具型LLM智能体的提示注入防御",
-          "llm_tldr_en": "LLM agents execute multi-step plans invoking tools that access private data, so security is a property of the whole plan. CaMeLoT adds a static verification layer to CaMeL, translating a plan into a finite-state system with taint labels and checking it against temporal properties before any tool runs.",
-          "llm_tldr_cn": "基于LLM的智能体会生成并执行调用外部工具的多步计划，安全性是计划整体执行的属性而非单步。本文提出CaMeLoT，在现有提示注入防御CaMeL基础上增加静态验证层，在任何工具被调用前将计划翻译为有限状态转移系统，并标注工具调用、来源与污点信息。该方法用时序逻辑检查计划安全性，为工具型智能体提供更完整的注入防御。",
-          "llm_tldr": "基于LLM的智能体会生成并执行调用外部工具的多步计划，安全性是计划整体执行的属性而非单步。本文提出CaMeLoT，在现有提示注入防御CaMeL基础上增加静态验证层，在任何工具被调用前将计划翻译为有限状态转移系统，并标注工具调用、来源与污点信息。该方法用时序逻辑检查计划安全性，为工具型智能体提供更完整的注入防御。",
-          "llm_tags": [
-            "query:llm-security"
-          ],
-          "matched_query_tag": "query:llm-security",
-          "matched_query_text": "security vulnerabilities and defenses in large language models and autonomous agents",
-          "matched_requirement_id": "req-5",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.18674v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.18471v1",
-          "source": "arxiv",
-          "title": "First Token Matters: Understanding Safety Collapse in Large Reasoning Models",
-          "abstract": "Large Reasoning Models (LRMs) exhibit strong problem-solving abilities, yet their safety alignment often degrades when handling harmful queries. Existing approaches to improving safety largely rely on additional training or preference optimization, while offering limited understanding of the internal mechanisms behind safety failures. In this work, we investigate this failure through a token-level positional analysis of refusal dynamics and identify a localized vulnerability at the onset of reasoning, which we term Onset Refusal Collapse (ORC). We find that the refusal-related signal of LRMs drops sharply at the first generated token under harmful queries, which is associated with unsafe response generation. Motivated by this finding, we propose SafeToken, a lightweight inference-time intervention that injects a learned continuous safety anchor precisely at reasoning onset. Despite updating only a single token embedding, SafeToken effectively mitigates ORC, improves safety on harmful-query benchmarks, and largely preserves reasoning utility. These results suggest that safety failures in LRMs can arise from a transient breakdown at the critical transition from understanding to generation.",
-          "authors": [
-            "Yizheng Yang",
-            "Haining Yu",
-            "Yuechen Wang",
-            "Yikai Hou",
-            "Xing Fu",
-            "Jinbo Yang",
-            "Tianqing Zhu"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-09-16T11:06:22+00:00",
-          "link": "https://arxiv.org/pdf/2609.18471v1",
-          "tags": [
-            "keyword:llm-agent",
-            "keyword:llm-security",
-            "query:agent-evol",
-            "query:llm-agent",
-            "query:llm-security"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "safety collapse and refusal dynamics in large reasoning models",
-          "llm_evidence_cn": "大型推理模型的安全崩塌与拒答动态机制",
-          "llm_evidence": "大型推理模型的安全崩塌与拒答动态机制",
-          "canonical_evidence": "大型推理模型的安全崩塌与拒答动态机制",
-          "llm_tldr_en": "Large reasoning models show strong problem-solving but their safety alignment degrades on harmful queries, and prior fixes lack mechanistic understanding. This work analyzes refusal dynamics at token level, identifies Onset Refusal Collapse, and proposes a mitigation.",
-          "llm_tldr_cn": "大型推理模型虽推理能力强，但在面对有害查询时安全对齐常会退化，现有方法多靠额外训练而缺乏机制性解释。本文从令牌级位置分析拒答动态，发现推理起点处存在局部脆弱性，称为起始拒答崩塌（ORC）。据此提出针对性缓解方法，为理解并修复语言模型安全失效提供了内部机制视角。",
-          "llm_tldr": "大型推理模型虽推理能力强，但在面对有害查询时安全对齐常会退化，现有方法多靠额外训练而缺乏机制性解释。本文从令牌级位置分析拒答动态，发现推理起点处存在局部脆弱性，称为起始拒答崩塌（ORC）。据此提出针对性缓解方法，为理解并修复语言模型安全失效提供了内部机制视角。",
+          "llm_evidence_en": "multi-agent auto-formalization guarantees safety for agentic outputs",
+          "llm_evidence_cn": "多智能体自动形式化保障智能体输出安全",
+          "llm_evidence": "多智能体自动形式化保障智能体输出安全",
+          "canonical_evidence": "多智能体自动形式化保障智能体输出安全",
+          "llm_tldr_en": "MAGS is a multi-agent auto-formalization framework that generates executable programs with formal safety guarantees, using Dafny as a verification-aware intermediate representation to overcome the limits of fuzzing, static analysis, and LLM verifiers.",
+          "llm_tldr_cn": "论文针对LLM编码智能体大规模生成复杂程序、人工审查困难且易出现安全失效的问题，指出现有模糊测试、静态分析和LLM验证难以覆盖全部边界情况。作者提出统一多智能体框架MAGS，以Dafny作为验证感知中间表示，自动生成带形式化安全保证的可执行程序。该方法可对指定安全属性提供机器可检验的保证。该工作将形式化验证引入智能体输出安全，弥补了现有检测手段的不足。",
+          "llm_tldr": "论文针对LLM编码智能体大规模生成复杂程序、人工审查困难且易出现安全失效的问题，指出现有模糊测试、静态分析和LLM验证难以覆盖全部边界情况。作者提出统一多智能体框架MAGS，以Dafny作为验证感知中间表示，自动生成带形式化安全保证的可执行程序。该方法可对指定安全属性提供机器可检验的保证。该工作将形式化验证引入智能体输出安全，弥补了现有检测手段的不足。",
           "llm_tags": [
             "query:llm-security"
           ],
@@ -264,15 +185,58 @@
           "matched_query_text": "safety mechanisms for language models",
           "matched_requirement_id": "req-4",
           "selection_source": "carryover_cache",
-          "paper_id": "2609.18471v1",
+          "paper_id": "2609.19391v1",
           "carry_days": 1
         }
       ]
     },
     "agent-evol": {
-      "updated_date": "20260917",
+      "updated_date": "20260918",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2609.20089v1",
+          "source": "arxiv",
+          "title": "UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning",
+          "abstract": "Self-evolving methods reduce the need for human-annotated trajectories by allowing tool-using agents to generate their own training data. Yet existing methods typically separate trajectory generation from evaluation, relying on static verifiers that cannot adapt to emerging failure modes or self-consistency signals that may reinforce errors shared across trajectories. Jointly adapting planning, execution, and evaluation offers a promising alternative, but introduces a fundamental coordination challenge: each component continuously changes the data or feedback used to train the others. We address this challenge with \\textbf{UnifiedPlayers}, a cooperative framework comprising a Planning Player that generates tasks, an Execution Player that produces multi-turn trajectories with Python tool calls, and an Evaluation Player that constructs executable verifiers. We design role-specific rewards that coordinate the three players toward a shared learning objective under GRPO. Across two model backbones and twelve reasoning benchmarks, UnifiedPlayers outperforms the strongest prior baseline by at least 3.5\\% on mathematical reasoning and 3.9\\% on general reasoning tasks. Moreover, the learned verifier achieves 84.2\\% adversarial detection accuracy, while its reward signal exhibits 2.03$\\times$ higher per-question variance than a self-consistency baseline, providing more discriminative verifications. These results highlight cooperation among specialized players as a promising path toward self-enhanced tool-integrated agents.",
+          "authors": [
+            "Wenjie Liao",
+            "Liangjie Zhao",
+            "Zehong Cao"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-09-17T11:49:31+00:00",
+          "link": "https://arxiv.org/pdf/2609.20089v1",
+          "tags": [
+            "keyword:agent-evol",
+            "keyword:llm-agent",
+            "keyword:llm-security",
+            "query:agent-evol",
+            "query:llm-agent",
+            "query:llm-security"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "self-evolving tool-using agents jointly adapting planning, execution and evaluation",
+          "llm_evidence_cn": "自进化工具使用智能体联合适配规划、执行与评估",
+          "llm_evidence": "自进化工具使用智能体联合适配规划、执行与评估",
+          "canonical_evidence": "自进化工具使用智能体联合适配规划、执行与评估",
+          "llm_tldr_en": "UnifiedPlayers is a cooperative framework with planning and execution players that jointly adapt planning, execution and evaluation for self-evolving tool-integrated agentic reinforcement learning.",
+          "llm_tldr_cn": "自进化方法让工具使用智能体自行生成训练数据，但现有方法将轨迹生成与评估分离，静态验证器难以适应新出现的失败模式。本文提出UnifiedPlayers协作框架，包含生成任务的规划玩家与执行任务的执行玩家，联合适配规划、执行与评估。该框架缓解了各组件持续变化带来的协调难题，提升了工具集成推理的智能体强化学习效果。",
+          "llm_tldr": "自进化方法让工具使用智能体自行生成训练数据，但现有方法将轨迹生成与评估分离，静态验证器难以适应新出现的失败模式。本文提出UnifiedPlayers协作框架，包含生成任务的规划玩家与执行任务的执行玩家，联合适配规划、执行与评估。该框架缓解了各组件持续变化带来的协调难题，提升了工具集成推理的智能体强化学习效果。",
+          "llm_tags": [
+            "query:agent-evol"
+          ],
+          "matched_query_tag": "query:agent-evol",
+          "matched_query_text": "agents evolving their own capabilities autonomously through learning and adaptation",
+          "matched_requirement_id": "req-9",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.20089v1",
+          "carry_days": 1
+        }
+      ]
     },
     "company": {
       "updated_date": "20260626-20260705",
