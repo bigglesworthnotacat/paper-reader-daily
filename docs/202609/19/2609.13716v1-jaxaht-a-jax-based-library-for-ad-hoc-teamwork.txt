@@ -1,0 +1,867 @@
+Title: JaxAHT: A JAX-Based Library for Ad Hoc Teamwork
+
+URL Source: https://arxiv.org/pdf/2609.13716v1
+
+Published Time: Tue, 15 Sep 2026 00:36:44 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+Preprint 
+
+## JAX AHT: A JAX-B ASED LIBRARY FOR AD HOC TEAM -
+
+WORK 
+
+Caroline Wang 1∗ Rolando Fernandez 1 Zelal Su Mustafaoglu 1 Montek Kundan 1
+
+Jiaxun Cui 1,2 Lingyun Xiao 1 Zhihan Wang 1 Di Yang Shi 1 Aditya Madhan 1
+
+Johnny Liu 1 Arrasy Rahman 1 Peter Stone 1,3 1Department of Computer Science, The University of Texas at Austin 
+
+> 2
+
+Google 3Sony AI 
+
+ABSTRACT 
+
+Ad Hoc Teamwork (AHT) addresses the challenge of designing agents capable of coordinating with novel partners without prior coordination. However, progress in the field is hindered by the prohibitive computational cost of the AHT research lifecycle, the lack of standardized benchmark implementations, and the absence of a diverse, validated evaluation teammate suite. In this work, we introduce JaxAHT ,the first open-source, JAX-based library designed to accelerate and standardize the AHT research lifecycle. Leveraging JAX’s hardware acceleration and massive parallelization capabilities, JaxAHT provides a unified framework for teammate generation, ego agent training, and evaluation against unseen teammates, achieving approximately 95x wall-clock speedup over PyTorch counterparts. Alongside the library, we contribute a diverse suite of evaluation teammates across the domains of Level-Based Foraging, Overcooked, and Hanabi. To illustrate the value of the framework, we use it to conduct a large-scale, compute-controlled benchmark study comparing teammate generation and AHT agent learning methods, finding that no algorithm consistently performs best, and that agent modeling primarily offers benefits in role-based scenarios with diverse teammates. 
+
+1 INTRODUCTION 
+
+Truly autonomous agents operating in the real world must possess social intelligence to work with other agents in shared environments. Ad Hoc Teamwork (AHT) formalizes this challenge by requiring agents to coordinate effectively with teammates whose behaviors are unknown (Stone et al., 2010). Unlike traditional multi-agent reinforcement learning (MARL), where agents are trained jointly, AHT agents must adapt on the fly to novel partners—a capability essential for real-world deployment in domains such as search-and-rescue operations and human-robot coordination (Mirsky et al., 2022). Despite its importance, AHT research faces three critical bottlenecks. First, computational cost severely limits research iteration and rigor. The AHT research lifecycle requires generating diverse teammate populations, training ego agents against generated teammates, and evaluating against an unseen set of teammates (Rahman et al., 2023; Papoudakis et al., 2021). These stages are computationally prohibitive under standard PyTorch frameworks (Paszke et al., 2019), limiting iteration speed and adherence to ideal experimental practices such as hyperparameter searches. Second, lack of standard evaluation teammates leads researchers to design their own with limited diversity validation, raising questions of evaluation thoroughness and making results non-comparable across publications. Third, the lack of standardized benchmark implementations combined with the complexity of the AHT research lifecycle forces researchers to perform time-intensive orchestration of algorithm implementations from various sources. This both creates a high barrier to entry and limits investigation of methods addressing different components of the AHT problem. This work introduces JaxAHT , a JAX-based library that mitigates all three bottlenecks. By leveraging JAX’s hardware acceleration and massive parallelization capabilities (Bradbury et al., 2018), JaxAHT provides a unified and accelerated AHT training and evaluation pipeline, and a suite of diverse evaluation teammates across various standard benchmark tasks. The contributions of the paper are as follows:  
+
+> ∗
+
+Corresponding author: caroline.l.wang@utexas.edu 
+
+1arXiv:2609.13716v1 [cs.AI] 12 Sep 2026 Preprint 
+
+Library JAX Multi-Env Ego Algs. Team Gen. Eval Teammates Human Data JaxAHT ✓ ✓ ✓ ✓ ✓ ✓
+
+ZSC-Eval (Wang et al., 2024b) ✓ ✓ ✓ ✓
+
+AH2AC2 (Dizdarevi´ c et al., 2025) ✓ ✓
+
+SocialJax (Guo et al., 2026) ✓ ✓ ✓
+
+Table 1: Library comparison. Comparison of features included by closely related libraries. • Unified AHT Framework: JaxAHT is the first framework that supports the full AHT research lifecycle by providing teammate generation, ego agent training, and cooperative MARL algorithms within one unified framework. • JAX-Based AHT Library: JaxAHT is the first JAX-based library for AHT research, providing standardized implementations of commonly used AHT algorithms. We demonstrate that JaxAHT algorithm implementations achieve approximately 95x wall-clock speedup over PyTorch. • Diverse Evaluation Teammate Suite: We provide a diverse suite of evaluation teammates, consisting of heuristic teammates, RL-based teammates, and those generated based on human gameplay data, on the standard AHT benchmark tasks of Level-Based Foraging (LBF), Overcooked, and Hanabi. We also present the first open-source human gameplay dataset for LBF. • Benchmark Study: We perform a benchmark study that rigorously compares all algorithms on the JaxAHT evaluation teammates, demonstrating the large-scale, unified empirical analysis possible with JaxAHT, and providing insights on the current state of AHT research. By reducing computational barriers, providing a suite of diverse evaluation teammates, and offering a unified framework for methods across the AHT lifecycle, JaxAHT enables rigor-ous, large-scale AHT studies that were previously intractable. Code and datasets of pre-generated teammates and human gameplay are open-sourced; links are provided in App. A. 
+
+2 RELATED WORK 𝜋 !"# 
+
+🔁  
+
+> 𝜋 $!%&&%$! '
+> 𝜋 $!%&&%$! (
+> Ego Agent Training
+> …
+> Ad Hoc Teamwork Algorithm Development and Evaluation Life Cycle
+> JAX Accelerated + Unified
+
+🚀 🌐  
+
+> Eval. Teammate Policies
+> Teammate Generation Evaluation
+> 𝜋 !"#$_&'(
+> 𝜋 !"')*+(*,+
+> 𝜋 !"#
+
+✔
+
+❌
+
+Figure 1: AHT Lifecycle. AHT research requires developing independent sets of training and evalua-tion teammates, training AHT agents, and evaluat-ing said agents against unseen teammates to assess cooperative generalization. We provide a brief overview of related work on JAX-based RL libraries, as well as benchmarks and evaluation specific to AHT. 
+
+JAX-based RL Libraries. JAX (Bradbury et al., 2018) enables GPU-accelerated numerical computing and large-scale ML through JIT com-pilation and auto-vectorization. The PureJaxRL paradigm (Lu et al., 2022) demonstrated that end-to-end JAX implementations in which en-vironments, policies, and training loops all exe-cute on GPUs can achieve over 1000 × speedups compared to conventional, PyTorch-based ap-proaches, when running many environments and seeds in parallel. PureJaxRL provides minimal, single-file implementations of core RL algo-rithms that are fully JIT-compiled and vector-izable. NiceWebRL (Carvalho, 2025) extends JAX environments to web-based human sub-ject experiments, enabling human-AI interaction studies. JaxMARL (Rutherford et al., 2024) brought the benefits of JAX to MARL with implemen-tations of standard environments and algorithms. Jumanji (Bonnet et al., 2023) offers JAX-based environments enabling faster iteration and large-scale experimentation with reduced complexity. 
+
+Benchmarks and Evaluation for AHT. Environments such as Overcooked (Carroll et al., 2019) and Hanabi (Bard et al., 2020) are widely used to evaluate AHT methods, yet few libraries support multiple AHT algorithms and environments jointly (Mirsky et al., 2022). The most closely related works are ZSC-Eval (Wang et al., 2024b), AH2AC2 (Dizdarevi´ c et al., 2025), and SocialJax (Guo et al., 2026). ZSC-Eval focuses on teammate generation algorithms and proposes BRDiv for partner selection and BRProx for measuring generalization, but remains computationally expensive due 2Preprint to its PyTorch implementation. AH2AC2 focuses exclusively on the computationally demanding benchmark of Hanabi, providing gold-standard human proxies trained on approximately 100k human games. However, access to these proxies is gated behind an API. SocialJax provides JAX implementa-tions of environments and algorithms for social dilemmas rather than AHT. A structured comparison is provided in Table 1. JaxAHT complements prior work as the first end-to-end JAX framework supporting the complete AHT research lifecycle across multiple environments and algorithm classes. 
+
+3 PROBLEM SETTING AND DESIGN PHILOSOPHY 
+
+We consider cooperative multi-agent decision making under partial observability, modeled as an N -agent decentralized partially observable Markov decision process (Dec-POMDP; Bernstein et al., 2000; Oliehoek & Amato, 2016). A Dec-POMDP is defined by M =
+
+⟨S , {A i}Ni=1 , P, {O i}Ni=1 , Ω, r, ρ, γ ⟩, where S is the state space, Ai and Oi are the action and ob-servation spaces of agent i, P (s′ | s, a) is the transition function, Ω( o | s′, a) is the observation function, r(s, a) is a shared team reward, ρ is the initial-state distribution, and γ ∈ [0 , 1) is the discount factor. Each agent i selects an action ati conditioned on its local action-observation history 
+
+τ ti = ( o0 
+
+> i
+
+, a 0 
+
+> i
+
+, . . . , o ti), which ends with the private observation oti that agent i receives at time t,yielding a decentralized policy πi(ati | τ ti ). Denote the joint policy by π = ( π1, . . . , π N ).AHT studies the setting in which an ego agent must coordinate effectively with teammates whose behaviors are not known in advance and with whom it has not had the opportunity to pre-coordinate (Stone et al., 2010; Mirsky et al., 2022). Let e ∈ { 1, . . . , N } denote the ego agent and let π−e denote the joint policy of the N − 1 teammates the ego agent is paired with, which are drawn from Ttrain 
+
+during training and from Teval at evaluation time. Following standard AHT evaluation practice, the ego agent is trained to cooperate broadly and then evaluated with previously unseen teammates drawn from a held-out set Teval (Papoudakis et al., 2021; Rahman et al., 2023; Wang et al., 2024a): 
+
+JAHT (πe) = 1
+
+|T eval |
+
+X
+
+> π−e∈T eval
+
+J(πe, π−e),
+
+where J(πe, π−e) is the expected discounted team return. Addressing this problem in practice involves three stages, each of which corresponds to a component of JaxAHT. First, a set of training teammates Ttrain must be constructed, either by hand or by relying on teammate generation or cooperative MARL algorithms. Second, the ego policy πe is learned by interacting with teammates sampled from Ttrain , using an ego agent training or cooperative MARL algorithm. Third, the resulting ego policy must be evaluated against a held-out set of teammates, which requires a standardized evaluation set of teammates. Because raw returns are not comparable across teammates of differing competence, JaxAHT reports each return relative to that of the best response (BR) to the teammate. The BR, BR( π−e) ∈ arg max π J(π, π−e), is the policy that achieves the highest return with that teammate, and may be approximated by training with an ego agent training or MARL algorithm. BR reasoning is central to prior AHT work for constructing teammate populations (Albrecht & Ramamoorthy, 2013; Strouse et al., 2021; Rahman et al., 2023; 2024). 1
+
+To support these stages, AHT research relies on three main algorithm types: teammate generation algorithms, AHT agent training algorithms, and cooperative MARL algorithms. The first two are types of AHT algorithms (Mirsky et al., 2022), while the third has conventionally been investigated as its own problem area (Albrecht et al., 2024; Yuan et al., 2023), although all three may be applied to support every stage of AHT research. Research on one algorithm type often requires others for training or evaluation; for instance, evaluating a teammate generation method requires an AHT agent training method. JaxAHT provides a unified interface for these procedures, enabling research on individual components or their combinations. Fig. 2 illustrates how these components fit together. To facilitate fast iteration and clean code, we take inspiration from the single-file model used by JaxMARL and CleanRL (Huang et al., 2022), but minimally modularize the code. Algorithms are implemented in single files to enable researchers to easily understand and extend existing methods. However, the agent and population interface is shared across all methods, allowing agents trained by one algorithm to be easily used by another—a common AHT research workflow. The library 
+
+> 1Given an agent, MARL algorithms may be applied to train a BR to that agent by treating it as part of the environment. The same idea allows cooperative MARL algorithms to train ego policies (Wang et al., 2024a).
+
+3Preprint MARL  Teammate     
+
+> Generation
+> AHT Agent
+> Learning
+> Teammates
+> Unified AHT
+> Learning
+> aTeammates
+> Best Response
+> EVALUATION
+> Human Proxy
+> Teammates
+> Algorithmic
+> Teammates
+> Heuristic
+> Teammates
+> Best Response Best Response
+> TRAINING
+
+Figure 2: JaxAHT Design Philosophy. JaxAHT unifies the full AHT research lifecycle within a shared codebase. During training, common agent and population abstractions support MARL, teammate-generation, ego-agent learning, and unified AHT methods that jointly construct training teammates and ego policies. During evaluation, learned agents are tested against a standardized suite of heuristic, algorithmic, and human-data-informed teammates, together with BR references, enabling consistent and scalable benchmarking across AHT methods. also supports hydra configuration management (Yadan, 2019) and WandB logging (Biewald, 2020), facilitating reproducibility and research collaboration. With these components, JaxAHT supports AHT algorithms beyond the conventional two-stage framework. We implement AHT algorithms that generate teammates and ego agents in a single, unified procedure. These algorithms rely on building blocks from the basic library structure, such as agent and population architectures, and on MARL procedures to train BR agents. 
+
+4 JAX AHT L IBRARY 
+
+JaxAHT addresses the bottlenecks identified in Sec. 1 by providing a library with JAX-accelerated algorithms and environments that support all three stages of the AHT research lifecycle (Sec. 3), and a standardized evaluation set of teammates. The algorithms and environments are described first, followed by the evaluation teammates and metrics. 
+
+Category Algorithm 
+
+Ego Agent Training PPO (Schulman et al., 2017) LIAM (Papoudakis et al., 2021) MeLIBA (Zintgraf et al., 2021) 
+
+Teammate Generation FCP (Strouse et al., 2021) BRDiv (Rahman et al., 2023) LBRDiv (Rahman et al., 2024) CoMeDi (Sarkar et al., 2023) 
+
+MARL IPPO (de Witt et al., 2020) 
+
+Unified Training TrajeDi (Lupu et al., 2021) COLE (Li et al., 2023) ROTATE (Wang et al., 2025) 
+
+Table 2: JaxAHT Algorithms. Algorithms Table 2 summarizes the al-gorithms currently implemented in Jax-AHT. Each algorithm is briefly described below, with more complete descriptions in App. E. In addition to the efficient im-plementations, we perform a thorough hy-perparameter sweep of each algorithm for benchmarked tasks, to provide performant baseline configurations to support future research (Sec. 5.3). For teammate generation , we implement Fictitious Co-Play (FCP; Strouse et al., 2021), which generates diverse teammates by varying the seed and storing multiple checkpoints, and population-based algorithms that maximize diversity through adversarial objectives, such as BRDiv (Rahman et al., 2023), its coverage-set extension LBRDiv (Rahman et al., 2024), and CoMeDi (Sarkar et al., 2023). For ego agent training , we support PPO (Schulman et al., 2017) and the agent modeling methods LIAM (Papoudakis et al., 2021) and MeLIBA (Zintgraf et al., 2021), which extend PPO by conditioning the ego policy on latent representations inferred from interaction history. LIAM infers these representations through trajectory-based agent modeling under partial observability, while MeLIBA further incorporates meta-learning to support faster adaptation to novel partners. For MARL , we include IPPO (de Witt et al., 2020). Finally, we support unified training methods that jointly train ego agents and teammate populations. These include TrajeDi (Lupu et al., 2021), which maximizes population diversity through trajectory-based, information-theoretic objectives, COLE (Li et al., 2023), a method that relies on graph-theoretic notions of cooperative compatibility to define a sampling distribution over a population, and iteratively trains a BR to the 4Preprint Environment Source Eval Teammates Variants 
+
+Level-Based Foraging Jumanji ✓ 7x7 grid, constant levels 12x12 grid 
+
+Overcooked-v1 JaxMARL ✓ Asymmetric Advantages Coordination Ring Counter Circuit Cramped Room Forced Coordination 
+
+Hanabi JaxMARL ✓ Full (5 colors × 5 ranks) Mini (3 colors × 3 ranks) Table 3: JaxAHT Environments. Overview of environments supported by JaxAHT. distributionally weighted population, and ROTATE (Wang et al., 2025), an open-ended method that iteratively generates competent teammates maximizing the ego agent’s cooperative regret, and trains the ego agent against the accumulated population. 
+
+Environments Table 3 provides an overview of supported environments. We leverage the growing ecosystem of hardware-accelerated RL environments by building upon JAX-based re-implementations of commonly used AHT environments (Bonnet et al., 2023; Rutherford et al., 2024). We selected environments for their prevalence in AHT research and their ability to support diverse cooperative conventions. Currently, the codebase supports LBF (Albrecht & Ramamoorthy, 2013; Bonnet et al., 2023), Overcooked, and Hanabi (Carroll et al., 2019; Bard et al., 2020; Rutherford et al., 2024). 
+
+Evaluation Teammates JaxAHT evaluates AHT agents against a standardized held-out teammate suite for each supported environment. The suite includes human-designed heuristic teammates, algo-rithmically generated teammates trained with IPPO, BRDiv, LBRDiv, and CoMeDi, and teammates learned from human data. For each held-out teammate, JaxAHT provides empirical BR references used to estimate per-teammate upper bounds and compute normalized returns following the BRProx metric of Wang et al. (2024b). Evaluation scripts report aggregate metrics and 95% bootstrapped confidence intervals with rliable (Agarwal et al., 2021). The heuristic teammates are hand-designed policies that induce distinct coordination demands across environments. In LBF, they target foods according to fixed-ordering, greedy, or wait-for-partner rules; in Overcooked-v1, they implement role-based strategies; and in Hanabi, they consist of the Walton-Rivers heuristic suite (Walton-Rivers et al., 2017) and SmartBot (O’Dwyer, 2019). Detailed descriptions of the heuristic teammate suite are provided in App. F. On Overcooked, the human-data-derived policies are trained via behavior cloning (Bain & Sammut, 1999) using the human gameplay data released by Carroll et al. (2019). For LBF, we collect a dataset of human gameplay and use human-regularized RL to derive a performant policy that behaves similarly to humans (Jacob et al., 2022; Cornelisse & Vinitsky, 2024). The dataset is open-sourced as part of this work, and the procedure is described in App. G. For Hanabi, we refer users to AH2AC2 (Dizdarevi´ c et al., 2025), which provides gold-standard human proxy agents accessible only through an evaluation API, as described in Sec. 2. 
+
+5 EXPERIMENTAL STUDIES                   
+
+> Algorithm Seeds PyTorch JAX LIAM 140m 27s 08m 22s
+> BRDiv 144m 18s 01m 46s
+> LIAM 3–09m 10s LIAM 10 –12m 17s LIAM 300 –126m
+
+Table 4: Wall-clock time comparison on LBF 7x7. JaxAHT achieves ∼5x (LIAM) and ∼25 x(BRDiv) single-seed speedups over PyTorch, and 95x for LIAM across 300 seeds. This section reports results generated by the Jax-AHT library corresponding to three questions: (1) What is the speedup provided by the JaxAHT framework compared to conventional PyTorch frameworks? (2) What is the quality and diver-sity of the JaxAHT evaluation teammates? (3) How well are the library’s algorithms able to coordinate with JaxAHT evaluation teammates? It closes by providing novel insights on the chal-lenge of BR return estimation. 5.1 WALL CLOCK TIME COMPARISON 
+
+To evaluate the improvements generated by our library’s end-to-end JAX pipeline over default PyTorch implementations, we performed a wall-clock comparison of representative teammate generation 5Preprint ippo_mlp ippo_mlp_s2c0 brdiv-conf1_0 brdiv-conf1_1 brdiv-conf1_2 brdiv-conf2_0 brdiv-conf2_1 lbrdiv-conf_0 lbrdiv-conf_1 lbrdiv-conf_2 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 seq_agent_lexi seq_agent_rlexi seq_agent_col seq_agent_rcol seq_agent_nearest seq_agent_farthest entitled_agent greedy_closest_teammate human_proxy 
+
+0.0 0.2 0.4 
+
+LBF 7x7 
+
+> ippo_mlp ippo_mlp_s2c1 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 seq_agent_lexi seq_agent_rlexi seq_agent_col seq_agent_rcol seq_agent_nearest seq_agent_farthest entitled_agent greedy_closest_teammate greedy_lowest_level greedy_highest_level human_proxy
+
+0.0 0.2 0.4 
+
+LBF 12x12 
+
+> ippo_mlp_0 ippo_mlp_1 ippo_mlp_2 brdiv-conf_0 brdiv-conf_1 lbrdiv-conf_0 lbrdiv-conf_1 lbrdiv-conf_2 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 onion_agent_0.1 plate_agent_0.1 independent_agent_0.4 independent_agent_0 human_proxy
+
+0100 200 
+
+Cramped Room (Overcooked) 
+
+> ippo_mlp_0 ippo_mlp_1 ippo_mlp_2 brdiv-conf_0 brdiv-conf_1 brdiv-conf_2 lbrdiv-conf_0 lbrdiv-conf_1 lbrdiv-conf_2 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 onion_agent_0 plate_agent_0 independent_agent_0 human_proxy
+
+0100 200 300 
+
+Asymmetric Advantages (Overcooked) 
+
+> ippo_mlp_cc_0 ippo_mlp_cc_1 ippo_mlp_cc_2 ippo_mlp_pass_0 ippo_mlp_pass_1 ippo_mlp_pass_2 lbrdiv-conf_0 lbrdiv-conf_1 lbrdiv-conf_2 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 onion_agent_0 onion_agent_0.9 plate_agent_0 plate_agent_0.9 independent_agent_0 human_proxy
+
+0100 200 
+
+Counter Circuit (Overcooked) 
+
+> ippo_mlp_0 ippo_mlp_1 ippo_mlp_2 brdiv-conf1_0 brdiv-conf1_1 brdiv-conf2 lbrdiv-conf_0 lbrdiv-conf_1 lbrdiv-conf_2 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 onion_agent_0 plate_agent_0 independent_agent_0 human_proxy
+
+0100 200 
+
+Coordination Ring (Overcooked) 
+
+> ippo_mlp_0 ippo_mlp_1 ippo_mlp_2 brdiv-conf1_0 brdiv-conf1_1 brdiv-conf2 brdiv-conf3_0 brdiv-conf3_1 lbrdiv-conf_0 lbrdiv-conf_1 lbrdiv-conf_2 comedi_0 comedi_1 comedi_2 comedi_3 comedi_4 independent_agent_0.6 human_proxy
+
+0100 200 
+
+Forced Coordination (Overcooked) 
+
+> obl_r2d2_l1 obl_r2d2_l4 ippo_mlp_seed0 ippo_mlp_seed1 ippo_mlp_seed2 ippo_s5_seed42 ippo_s5_seed123 ippo_s5_seed31415 ippo_s5_op_seed42 ippo_s5_op_seed123 ippo_s5_op_seed31415 ippo_s5_seed99999 iggi piers flawed outer van_den_bergh smartbot cautious internal bc_lstm_human_proxy
+
+010 20 
+
+Hanabi 
+
+> ippo_mlp_seed0 ippo_mlp_seed1 ippo_mlp_seed2 brdiv_conf_0 brdiv_conf_1 brdiv_conf_2 lbrdiv_conf_0 lbrdiv_conf_1 lbrdiv_conf_2 comedi_conf_0 comedi_conf_1 comedi_conf_2 comedi_conf_3 comedi_conf_4 ippo_s5_seed42 ippo_s5_seed123 ippo_s5_seed31415 ippo_s5_op_seed42 ippo_s5_op_seed123 ippo_s5_op_seed31415 iggi piers flawed outer van_den_bergh smartbot cautious internal
+
+0.0 2.5 5.0 7.5 
+
+Mini-Hanabi 
+
+> Agent Type Heuristic RL-Based Human Data
+> Empirical Best Response Returns
+
+Figure 3: BR return estimates for JaxAHT evaluation teammates. Evaluation teammates achieve a range of returns across all tasks. algorithms and ego agent algorithms in JaxAHT versus their original PyTorch implementations (Table 4). For fair comparison, all comparisons are performed on a single Nvidia A6000 GPU with 48 GB of VRAM, across 8 environments and 3 million timesteps. Table 4 demonstrates that in the single-seed scenario, JAX yields a 5x runtime improvement over PyTorch for LIAM and a 25 x improvement for BRDiv. To demonstrate the substantial parallelization capabilities of our JAX implementations, we also present results for training 300 seeds of LIAM on a single GPU, an approximately 95x speedup over the corresponding PyTorch implementation. 2
+
+5.2 EVALUATION TEAMMATE QUALITY AND DIVERSITY 
+
+This section presents results evaluating the quality and diversity of the JaxAHT evaluation teammates. To assess quality, we report estimated BR returns achievable against each teammate. We assess teammate diversity based on the cross-play (XP) matrix of returns achieved by teammate and BR pairs, and by visualizing latent embeddings of behavioral trajectories. 
+
+Teammate Quality For most teammates, empirical BR returns are estimated by training a PPO agent to maximize the returns against each teammate, computing an XP returns matrix generated by evaluating all teammates with all BRs, and using the maximum seen return with any teammate as the BR return. The resulting empirical BR return estimates are shown in Fig. 3. For certain LBF heuristic teammates, the BR returns are known because it is possible to program an optimal partner for these teammates. The full procedure is reported in App. B. 
+
+Return-Based Diversity Following prior work (Agapiou et al., 2022; Rahman et al., 2023; Nekoei et al., 2023), we use the XP matrix to assess return-based diversity of teammates. If the evaluation teammates are both high-quality and behaviorally diverse, each teammate should require a distinct response strategy, resulting in an XP matrix with high diagonal entries and lower off-diagonal entries. App. Figs. 7–9 display the XP matrices for LBF, Hanabi, and Overcooked domains. Diagonal entries are generally stronger than off-diagonal entries, indicating that achieving higher returns against the set of evaluation teammates requires an AHT agent to model distinct response strategies. Some off-diagonal blocks nonetheless retain high returns, suggesting partial overlap in teammate behavior or transferability across response strategies, especially within agent types (e.g., PPO). 
+
+2Note that the drastic speedups reported by similar benchmarks such as JaxMARL (Rutherford et al., 2024) result from massive environment parallelization, typically up to several thousand. However, massive environment parallelization must trade off parallelization over seeds (and any other forms of parallelization in the algorithm implementation), as the ultimate constraint is the GPU memory. 
+
+6Preprint 20 10 0 10 20 
+
+> t-SNE 1
+> 10
+> 5
+> 0510 15
+> t-SNE 2 Overcooked-V1 (coord_ring)
+> brdiv1-1 brdiv1-2 brdiv-conf2 comedi_1_0 comedi_1_1 comedi_1_2 comedi_1_3 comedi_1_4 human_proxy independent_agent_0 ippo_mlp_1 ippo_mlp_2 ippo_mlp_3 lbrdiv-conf_1_0 lbrdiv-conf_1_1 lbrdiv-conf_1_2 onion_agent_0 plate_agent_0
+
+Figure 4: Representations of Behavior Trajec-tories for Evaluation Teammates. The behavior trajectories of teammate/BR policies are meaning-fully different from each other. 
+
+Behavioral Diversity The previous return-based analysis determines whether teammates require distinct BR strategies, but does not as-sess the extent to which the underlying behav-ioral trajectories differ. Two teammates that both require separate BR policies may nonetheless produce similar trajectories, which would sug-gest that the two BRs differ only because the policies are brittle to small perturbations in team-mate behavior, rather than because the team-mates realize distinct conventions. To assess behavioral diversity directly, we train a classifier on joint interaction data to predict the identity of the teammate–BR pair, and apply t-SNE (van der Maaten & Hinton, 2008) to embed the resulting latent representations. This produces a struc-tured latent space that captures behavioral vari-ation across teammates. Fig. 4 visualizes the latent embeddings obtained when each evaluation teammate is paired with its own BR partner for Overcooked Coordination Ring, showing that the evaluation teammates and corresponding BRs occupy largely non-overlapping regions of the embed-ding space, confirming that the evaluation set achieves behavioral variety. See App. C for the full procedure and LBF results. 5.3 BENCHMARKING AHT A LGORITHM PERFORMANCE 
+
+As an illustration of the studies JaxAHT is designed to support, we present a comprehensive bench-mark of AHT algorithm performance across the suite. This kind of systematic, controlled comparison across algorithms and environments has not previously been feasible at this scale, and both the results and the methodology are intended to motivate further investigation across the community. The benchmark covers all AHT algorithms in JaxAHT on a representative task subset: LBF 7x7, LBF 12x12, Overcooked Cramped Room (CR), Overcooked Coordination Ring (CoR), and Mini Hanabi. 3
+
+Below, we provide an overview of the procedure, before presenting results from the hyperparameter sweep and full benchmark results. Full details are reported in App. D.1 and D.2. For each algorithm–task pair, 140 hyperparameter configurations are sampled, or a full search is performed if the total number of hyperparameter configurations is fewer than 140. The best-performing configuration is then selected by its mean return against a validation set of teammates that is disjoint from both the training teammates and the JaxAHT evaluation teammates, so that the selected configuration is benchmarked on teammates it was never tuned against. To ensure a fair comparison, the number of training timesteps is strictly controlled for both the hyperparameter sweep and the final benchmark. The final compute budget for the benchmark study for LBF 7x7, LBF 12x12, Mini Hanabi, and CR is 195M timesteps for teammate generation and unified methods, and 30M timesteps for ego agent methods. For CoR, a larger compute budget of 390M and 60M is used, as methods take longer to converge on CoR. The compute budget was chosen to allow even the higher-compute, population-based methods sufficient data for optimization. 
+
+Hyperparameter Sweep Results Fig. 5 displays the normalized return distributions over swept hyperparameters for all teammate generation and unified AHT methods on CR. Those for the ego agent methods and for LBF 12x12 are displayed in App. Figs. 11 and 12. We swept the unique hyperparameters introduced by each algorithm, as well as the learning rate, entropy coefficient, and clip parameter from the base RL algorithm. The remaining hyperparameters from the base RL algorithm were held fixed and set to the same value for all methods. We observe that a large range of performances can be induced by different hyperparameters, pointing to the need for compute-controlled hyperparameter tuning when comparing the performances of different algorithms. While extensive hyperparameter tuning is not feasible at academic-scale compute 
+
+> 3
+
+Counter Circuit is excluded due to similarity to CoR, while Asymmetric Advantages and Forced Coordi-nation are excluded because Wang et al. (2024b) found they do not substantially differentiate AHT algorithm performance. Full Hanabi is excluded as its computational cost is prohibitive for the hyperparameter sweep procedure (IPPO self-play typically requires ∼ 10 9 training steps). 
+
+7Preprint 0.0 0.2 0.4 0.6 0.8 1.0   
+
+> Mean Normalized Return
+> FCP
+> median=0.595
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Mean Normalized Return
+> BRDiv
+> median=0.519
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Mean Normalized Return
+> LBRDiv
+> median=0.516
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Mean Normalized Return
+> CoMeDi
+> median=0.639 0.541 0.503 0.492 0.656
+> Cramped Room (Overcooked)
+
+(a) Teammate generation methods. 0.0 0.2 0.4 0.6 0.8 
+
+> Mean Normalized Return
+> ROTATE
+> median=0.659
+> 0.0 0.2 0.4 0.6 0.8
+> Mean Normalized Return
+> COLE
+> median=0.463
+> 0.0 0.2 0.4 0.6 0.8
+> Mean Normalized Return
+> TrajeDi
+> median=0.584 0.539 0.378 0.640
+> Cramped Room (Overcooked)
+
+(b) Unified methods. 
+
+Figure 5: Hyperparameter sweep return distributions. Each point represents the performance of a distinct hyperparameter configuration on a validation set of teammates. Best performing configurations are selected for the benchmark study. under conventional PyTorch implementations, it is now possible under the JAX-based framework introduced by this paper. The optimized hyperparameters are released as part of the JaxAHT library to provide a good starting point for researchers and enable fairer future comparisons. 
+
+Benchmark Study Results AHT algorithm performance on the JaxAHT evaluation teammate suite is compared using the best discovered hyperparameters in Fig. 6. The normalized mean return (BRProx; Wang et al., 2024b) and 95% bootstrapped confidence intervals (Agarwal et al., 2021) across 5 seeds are visualized. Our analysis focuses first on ego agent methods, followed by an analysis of the teammate generation and unified methods. For all algorithms, learning curves, losses, and key statistics are provided in App. Fig. 15. Fig. 6a compares PPO, LIAM, and MeLIBA across training populations generated by FCP and CoMeDi. The FCP population consists of seeds and intermediate checkpoints of IPPO spanning a range of skill levels, while CoMeDi agents maximize an adversarial diversity objective designed to combat self-sabotage (Strouse et al., 2021; Sarkar et al., 2023), yielding more varied cooperative conventions. Note that JaxAHT’s unified support for teammate generation and ego agent training enables studying how ego agent performance depends on training population diversity, a line of inquiry previously hindered by the complexity of orchestrating non-compatible implementations. LIAM is expected to outperform PPO through explicit autoencoder-based agent modeling, with MeLIBA expected to improve further by combining meta-learning with sequential and hierarchical variational autoencoders. On both LBF tasks, however, all three methods perform similarly, indicating that agent modeling provides little-to-no benefit. On Mini Hanabi, LIAM and MeLIBA actually achieve markedly lower returns than PPO. The opposite trend emerges on Overcooked, where MeLIBA substantially outperforms PPO and LIAM for both training populations, with LIAM outperforming PPO on CR. We attribute the split to the role structure of the tasks: unlike LBF and Mini Hanabi, Overcooked layouts require partners to occupy complementary roles, so the ego agent’s BR strategy varies sharply with teammate identity. We hypothesize that it is challenging for an ego policy to represent the BR strategies to role-based behaviors common in Overcooked (e.g., transporting onions, delivering dishes), without being provided latent representations of teammate behavior (Mieczkowski et al., 2025), allowing methods with explicit agent modeling objectives to outperform PPO. The absence of a benefit on LBF and Mini Hanabi is consistent with the finding that 8Preprint LBF 12x12 LBF 7x7 Mini Hanabi CoR CR 0.0 0.2 0.4 0.6 0.8 Mean Normalized Return 
+
+> PPO (FCP) PPO (CoMeDi) LIAM (FCP) LIAM (CoMeDi) MeLIBA (FCP) MeLIBA (CoMeDi)
+
+(a) Ego agent methods. LBF 12x12 LBF 7x7 Mini Hanabi CoR CR 0.0 0.2 0.4 0.6 0.8 Mean Normalized Return 
+
+> FCP BRDiv LBRDiv CoMeDi ROTATE COLE TrajeDi
+
+(b) Teammate generation and unified meth-ods. 
+
+Figure 6: AHT Algorithm Benchmark Results. (Left) Ego training methods with agent modeling (LIAM, MeLIBA) outperform PPO only in Overcooked environments, which have role-based con-ventions, and in the presence of diverse teammate populations (CoMeDi). (Right) No single AHT method dominates on all tasks; the best overall are ROTATE, FCP, and CoMeDi. recurrent PPO agents implicitly learn to model teammates when the task demands it (Mon-Williams et al., 2025). If implicit modeling suffices, an explicit agent modeling auxiliary objective adds no information, and may instead interfere with the PPO return maximization objective, leading to the slightly lower task returns we observe on LBF and the markedly lower returns on Mini Hanabi (Liu et al., 2021). Designing agent modeling auxiliary objectives that avoid interference with ego agent learning while preserving benefits in role-based scenarios such as Overcooked remains an open direction. Fig. 6b displays the performance of the teammate generation and unified methods. While no single method performs best across all scenarios, ROTATE, FCP, and CoMeDi are the strongest overall, each performing best on at least one task. COLE is frequently the weakest, consistent with Wang et al. (2024b). Per-teammate-type analysis (App. Fig. 14) shows COLE performs best against IPPO teammates, suggesting its population closely resembles IPPO. Although COLE upweights the most cooperatively incompatible teammates during training, its diversity remains limited to conventions discoverable through return maximization, likely explaining why it underperforms FCP despite a similar population structure. FCP and TrajeDi are surprisingly competitive given that their limitations motivated the adversarial diversity methods that followed. Prior comparisons were likely not compute-controlled to the degree that ours are. Combining the diversity mechanisms of FCP, TrajeDi, and the adversarial methods through multi-objective optimization or population pooling may be promising. Per-task average returns over algorithms indicate that the Overcooked variants and Mini Hanabi pose greater learning challenges for ego agent algorithms than the LBF variants. Teammate generation and unified methods display the same trend, with the exception that these methods perform notably worse on LBF 12x12 than on LBF 7x7 (whereas ego agent algorithms perform comparably on both). This suggests that teammate generation and unified methods scale less well to larger state spaces than ego agent learning algorithms, despite receiving substantially larger training budgets. The gap is unsurprising, since these methods are largely population based and must train several policies at once. 5.4 CHALLENGES OF BEST RESPONSE RETURN ESTIMATION 
+
+Even with a two-stage procedure to estimate high-quality BR return bounds, first training PPO BR policies, then taking the per-teammate maximum across all BR policies as the upper bound, AHT agents created during the benchmark study sometimes outperformed the PPO-derived BR return estimates (App. Fig. 13), occasionally by substantial margins. We attribute these benefits to generalization: AHT agents are trained against diverse populations, while during BR return estimation, the PPO agent is trained against a single teammate that may be hard to learn against. There are a variety of implications for AHT research, as some AHT algorithms are developed on the premise of being able to use RL algorithms to estimate the BR policy to an AHT agent (Rahman et al., 2023; 2024; Li et al., 2023), or leverage BR policies as part of the procedure (Barrett et al., 2017). First, we recommend that evaluation of such algorithms should theoretically or empirically consider the sensitivity of the algorithm to BR estimation error. Second, our result suggests that BR 9Preprint estimation may be improved by leveraging pretrained, generally capable agents. To our knowledge, this avenue of improvement has not previously been considered for AHT algorithms. 
+
+6 DISCUSSION AND CONCLUSION 
+
+This paper introduces JaxAHT, the first open-source, JAX-based library for the full AHT research lifecycle, achieving approximately 95 × wall-clock speedup over PyTorch counterparts, making compute-controlled, large-scale AHT studies tractable at academic scale. Alongside the library, we contribute a diverse suite of validated evaluation teammates across LBF, Overcooked, and Hanabi. We also conduct the first benchmark study comparing various teammate generation and ego agent methods under controlled compute budgets. Our results show that no single existing algorithm performs best, and that existing agent-modeling-based AHT algorithms are beneficial primarily in role-based tasks, and sometimes harm learning compared to a non-agent-modeling baseline. We also find that BR returns may be systematically underestimated by standard single-agent PPO training, with direct implications for algorithms relying on BR estimation. JaxAHT opens several directions for future research. The unified framework enables joint study of teammate generation and ego agent learning, an interaction that has historically been difficult to investigate due to the complexity of orchestrating differing algorithm implementations. The released optimized hyperparameters and evaluation teammates provide a foundation for fairer future comparisons. More capable BR estimation via population-pretrained agents, suggested by our findings, is a promising and underexplored direction. We identify two limitations of the current work. First, this work focuses on providing a JAX-based library of AHT algorithms and evaluation teammates for existing AHT benchmark tasks rather than designing new tasks. The development of environments with richer state spaces, continuous control, and more complex role structure is equally important for enabling AHT progress, and we view this as a complementary direction for the community to pursue. Second, the full Hanabi game is excluded from the benchmark study due to its prohibitive compute requirements. Designing sample-efficient algorithms and training frameworks for Hanabi remains an open challenge. 
+
+REFERENCES 
+
+John P Agapiou, Alexander Sasha Vezhnevets, Edgar A Duéñez-Guzmán, Jayd Matyas, Yiran Mao, Peter Sunehag, Raphael Köster, Udari Madhushani, Kavya Kopparapu, Ramona Comanescu, et al. Melting pot 2.0. arXiv preprint arXiv:2211.13746 , 2022. Rishabh Agarwal, Max Schwarzer, Pablo Samuel Castro, Aaron C Courville, and Marc Belle-mare. Deep Reinforcement Learning at the Edge of the Statistical Precipice. In Ad-vances in Neural Information Processing Systems , volume 34, pp. 29304–29320. Curran Asso-ciates, Inc., 2021. URL https://proceedings.neurips.cc/paper_files/paper/ 2021/hash/f514cec81cb148559cf475e7426eed5e-Abstract.html .Stefano V. Albrecht and Subramanian Ramamoorthy. A game-theoretic model and best-response learning method for ad hoc coordination in multiagent systems. In Proceedings of the 2013 international conference on Autonomous agents and multi-agent systems , AAMAS ’13, pp. 1155– 1156, Richland, SC, May 2013. International Foundation for Autonomous Agents and Multiagent Systems. ISBN 978-1-4503-1993-5. Stefano V. Albrecht, Filippos Christianos, and Lukas Schäfer. Multi-agent reinforcement learning: Foundations and modern approaches . MIT Press, 2024. URL https://www.marl-book. com .Michael Bain and Claude Sammut. A Framework for Behavioural Cloning. In Machine Intelligence 15, Intelligent Agents [St. Catherine’s College, Oxford, July 1995] , pp. 103–129, GBR, January 1999. Oxford University. ISBN 978-0-19-853867-7. Nolan Bard, Jakob N Foerster, Sarath Chandar, Neil Burch, Marc Lanctot, H Francis Song, Emilio Parisotto, Vincent Dumoulin, Subhodeep Moitra, Edward Hughes, et al. The Hanabi challenge: A new frontier for AI research. Artificial Intelligence , 280:103216, 2020. 10 Preprint Samuel Barrett, Avi Rosenfeld, Sarit Kraus, and Peter Stone. Making friends on the fly: Cooperating with new teammates. Artificial Intelligence , 242:132–171, January 2017. ISSN 0004-3702. doi: 10.1016/j.artint.2016.10.005. URL https://www.sciencedirect.com/science/ article/pii/S0004370216301266 .Daniel S. Bernstein, Robert Givan, Neil Immerman, and Shlomo Zilberstein. The complexity of decentralized control of Markov decision processes. In Proceedings of the Sixteenth Conference on Uncertainty in Artificial Intelligence , pp. 32–37. Morgan Kaufmann, 2000. Lukas Biewald. Experiment tracking with weights and biases, 2020. URL https://www.wandb. com/ . Software available from wandb.com. Clément Bonnet, Daniel Luo, Donal John Byrne, Shikha Surana, Sasha Abramowitz, Paul Duckworth, Vincent Coyette, Laurence Illing Midgley, Elshadai Tegegn, Tristan Kalloniatis, Omayma Mahjoub, Matthew Macfarlane, Andries Petrus Smit, Nathan Grinsztajn, Raphael Boige, Cemlyn Neil Waters, Mohamed Ali Ali Mimouni, Ulrich Armel Mbou Sob, Ruan John de Kock, Siddarth Singh, Daniel Furelos-Blanco, Victor Le, Arnu Pretorius, and Alexandre Laterre. Jumanji: a Diverse Suite of Scalable Reinforcement Learning Environments in JAX. In The Twelfth International Conference on Learning Representations , October 2023. URL https://openreview.net/forum? id=C4CxQmp9wc .James Bradbury, Roy Frostig, Peter Hawkins, Matthew James Johnson, Chris Leary, Dougal Maclaurin, George Necula, Adam Paszke, Jake VanderPlas, Skye Wanderman-Milne, and Qiao Zhang. JAX: composable transformations of Python+NumPy programs, 2018. URL 
+
+http://github.com/jax-ml/jax .Micah Carroll, Rohin Shah, Mark K Ho, Tom Griffiths, Sanjit Seshia, Pieter Abbeel, and Anca Dragan. On the Utility of Learning about Humans for Human-AI Coordination. In 
+
+Advances in Neural Information Processing Systems , volume 32. Curran Associates, Inc., 2019. URL https://proceedings.neurips.cc/paper_files/paper/2019/ hash/f5b1b89d98b7286673128a5fb112cb9a-Abstract.html .Wilka Carvalho. NiceWebRL: a framework for comparing humans and AI across many domains, 2025. URL https://github.com/wcarvalho/nicewebrl .Daphne Cornelisse and Eugene Vinitsky. Human-compatible driving partners through data-regularized self-play reinforcement learning, June 2024. URL http://arxiv.org/abs/2403.19648 .arXiv:2403.19648 [cs]. Christian Schroeder de Witt, Tarun Gupta, Denys Makoviichuk, Viktor Makoviychuk, Philip H. S. Torr, Mingfei Sun, and Shimon Whiteson. Is Independent Learning All You Need in the StarCraft Multi-Agent Challenge? arXiv:2011.09533, November 2020. Tin Dizdarevi´ c, Ravi Hammond, Theodor Gessler, Anisoara Calinescu, Jonathan Cook, Matteo Gallici, Andrei Lupu, Darius Muglich, Johannes Forkel, and Jakob N. Foerster. Ad-hoc human-ai coordination challenge. In Proceedings of the 42nd International Conference on Machine Learning (ICML) , 2025. Zihao Guo, Shuqing Shi, Richard Willis, Tristan Tomilin, Joel Z. Leibo, and Yali Du. SocialJax: An evaluation suite for multi-agent reinforcement learning in sequential social dilemmas. In 
+
+Proceedings of the International Conference on Learning Representations (ICLR) , 2026. Hengyuan Hu, Adam Lerer, Brandon Cui, Luis Pineda, Noam Brown, and Jakob Foerster. Off-Belief Learning. In Proceedings of the 38th International Conference on Machine Learning , pp. 4369–4379. PMLR, July 2021. URL https://proceedings.mlr.press/v139/hu21c. html .Shengyi Huang, Rousslan Fernand Julien Dossa, Chang Ye, Jeff Braga, Dipam Chakraborty, Kinal Mehta, and João G.M. Araújo. CleanRL: High-quality single-file implementations of deep reinforcement learning algorithms. Journal of Machine Learning Research , 23(274):1–18, 2022. URL http://jmlr.org/papers/v23/21-1342.html .11 Preprint Athul Paul Jacob, David J. Wu, Gabriele Farina, Adam Lerer, Hengyuan Hu, Anton Bakhtin, Jacob Andreas, and Noam Brown. Modeling Strong and Human-Like Gameplay with KL-Regularized Search. In Proceedings of the 39th International Conference on Machine Learning , pp. 9695–9728. PMLR, June 2022. URL https://proceedings.mlr.press/v162/jacob22a.html .Yang Li, Shao Zhang, Jichen Sun, Yali Du, Ying Wen, Xinbing Wang, and Wei Pan. Cooperative open-ended learning framework for zero-shot coordination. In Proceedings of the 40th International Conference on Machine Learning , ICML’23. JMLR.org, 2023. Bo Liu, Xingchao Liu, Xiaojie Jin, Peter Stone, and Qiang Liu. Conflict-averse gradient descent for multi-task learning. In Proceedings of the 35th International Conference on Neural Information Processing Systems , pp. 18878–18890, Red Hook, NY, USA, December 2021. Curran Associates Inc. ISBN 978-1-7138-4539-3. Chris Lu, Jakub Kuba, Alistair Letcher, Luke Metz, Christian Schroeder de Witt, and Jakob Foerster. Discovered policy optimisation. Advances in Neural Information Processing Systems , 35:16455– 16468, 2022. Chris Lu, Yannick Schroecker, Albert Gu, Emilio Parisotto, Jakob Nicolaus Foerster, Satinder Singh, and Feryal Behbahani. Structured State Space Models for In-Context Reinforcement Learning. In Thirty-seventh Conference on Neural Information Processing Systems , November 2023. URL 
+
+https://openreview.net/forum?id=4W9FVg1j6I&noteId=38Anv4M4TW .Andrei Lupu, Brandon Cui, Hengyuan Hu, and Jakob Foerster. Trajectory diversity for zero-shot coordination. In Marina Meila and Tong Zhang (eds.), Proceedings of the 38th International Conference on Machine Learning , volume 139 of Proceedings of Machine Learning Research , pp. 7204–7213. PMLR, 18–24 Jul 2021. URL https://proceedings.mlr.press/v139/ lupu21a.html .Elizabeth Mieczkowski, Ruaridh Mon-Williams, Neil Bramley, Christopher G. Lucas, Natalia Velez, and Thomas L. Griffiths. Predicting Multi-Agent Specialization via Task Parallelizability, Septem-ber 2025. Reuth Mirsky, Ignacio Carlucho, Arrasy Rahman, Elliot Fosong, William Macke, Mohan Sridharan, Peter Stone, and Stefano V Albrecht. A survey of ad hoc teamwork research. In European conference on multi-agent systems , pp. 275–293. Springer, 2022. Ruaridh Mon-Williams, Max Taylor-Davies, Elizabeth Mieczkowski, Natalia Velez, Neil R. Bramley, Yanwei Wang, Thomas L. Griffiths, and Christopher G. Lucas. Partner modelling emerges in recurrent agents (but only when it matters). In The Thirty-ninth Annual Conference on Neural Information Processing Systems , October 2025. Hadi Nekoei, Xutong Zhao, Janarthanan Rajendran, Miao Liu, and Sarath Chandar. Towards Few-shot Coordination: Revisiting Ad-hoc Teamplay Challenge In the Game of Hanabi. In Proceedings of The 2nd Conference on Lifelong Learning Agents , pp. 861–877. PMLR, November 2023. URL 
+
+https://proceedings.mlr.press/v232/nekoei23b.html .Arthur O’Dwyer. quuxplusone/hanabi: framework for writing bots that play Hanabi., 2019. URL 
+
+https://github.com/Quuxplusone/Hanabi .Frans A. Oliehoek and Christopher Amato. A Concise Introduction to Decentralized POMDPs .Springer, 2016. Hirotaka Osawa. Solving hanabi: Estimating hands by opponent’s actions in cooperative game with incomplete information. In AAAI Workshop on Computer Poker and Imperfect Information , 2015. Georgios Papoudakis, Filippos Christianos, and Stefano V. Albrecht. Agent modelling under partial observability for deep reinforcement learning. In Advances in Neural Information Processing Systems , 2021. Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, et al. PyTorch: An imperative style, high-performance deep learning library. Advances in neural information processing systems , 32, 2019. 12 Preprint Arrasy Rahman, Elliot Fosong, Ignacio Carlucho, and Stefano V. Albrecht. Generating teammates for training robust ad hoc teamwork agents via best-response diversity. 2023. ISSN 2835-8856. URL https://openreview.net/forum?id=l5BzfQhROl .Muhammad Rahman, Jiaxun Cui, and Peter Stone. Minimum coverage sets for training robust ad hoc teamwork agents. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 38, pp. 17523–17530, 2024. doi: 10.1609/aaai.v38i16.29702. URL https://ojs.aaai.org/ index.php/AAAI/article/view/29702 .Alexander Rutherford, Benjamin Ellis, Matteo Gallici, Jonathan Cook, Andrei Lupu, Garodar Ingvarsson, Timon Willi, Ravi Hammond, Akbir Khan, Christian S. de Witt, Alexandra Souly, Saptarashmi Bandyopadhyay, Mikayel Samvelyan, Minqi Jiang, Robert Lange, Shimon Whiteson, Bruno Lacerda, Nick Hawes, Tim Rocktäschel, Chris Lu, and Jakob Foerster. JaxMARL: Multi-Agent RL Environments and Algorithms in JAX. In Ad-vances in Neural Information Processing Systems , volume 37, pp. 50925–50951, December 2024. URL https://proceedings.neurips.cc/paper_files/paper/2024/ hash/5aee125f052c90e326dcf6f380df94f6-Abstract-Datasets_and_ Benchmarks_Track.html .Bidipta Sarkar, Andy Shih, and Dorsa Sadigh. Diverse conventions for human-ai collaboration. 
+
+Advances in neural information processing systems , 36:23115–23139, 2023. John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. Proxi-mal policy optimization algorithms. ArXiv , abs/1707.06347, 2017. URL https://api. semanticscholar.org/CorpusID:28695052 .Peter Stone, Gal Kaminka, Sarit Kraus, and Jeffrey Rosenschein. Ad hoc autonomous agent teams: Collaboration without pre-coordination. In Proceedings of the AAAI conference on artificial intelligence , volume 24, pp. 1504–1509, 2010. DJ Strouse, Kevin McKee, Matt Botvinick, Edward Hughes, and Richard Everett. Col-laborating with humans without human data. In M. Ranzato, A. Beygelzimer, Y. Dauphin, P.S. Liang, and J. Wortman Vaughan (eds.), Advances in Neural In-formation Processing Systems , volume 34, pp. 14502–14515. Curran Associates, Inc., 2021. URL https://proceedings.neurips.cc/paper_files/paper/2021/ file/797134c3e42371bb4979a462eb2f042a-Paper.pdf .Mark van den Bergh, Anne Hommelberg, Walter Kosters, and Flora Spieksma. Aspects of the cooperative card game hanabi. pp. 93–105, 09 2017. ISBN 978-3-319-67467-4. doi: 10.1007/ 978-3-319-67468-1_7. Laurens van der Maaten and Geoffrey Hinton. Visualizing data using t-SNE. Journal of Machine Learning Research , 9:2579–2605, 2008. Joseph Walton-Rivers, Piers R. Williams, Richard A. Bartle, Diego Perez Liebana, and Simon M. Lucas. Evaluating and modelling Hanabi-playing agents. CoRR , abs/1704.07069, 2017. Caroline Wang, Arrasy Rahman, Ishan Durugkar, Elad Liebman, and Peter Stone. N-agent ad hoc teamwork. In The Thirty-eighth Annual Conference on Neural Information Processing Systems ,2024a. URL https://openreview.net/forum?id=q7TxGUWlhD .Caroline Wang, Arrasy Rahman, Jiaxun Cui, Yoonchang Sung, and Peter Stone. ROTATE: Regret-driven open-ended training for ad hoc teamwork, 2025. URL https://arxiv.org/abs/ 2505.23686 .Xihuai Wang, Shao Zhang, Wenhao Zhang, Wentao Dong, Jingxiao Chen, Ying Wen, and Weinan Zhang. ZSC-Eval: An evaluation toolkit and benchmark for multi-agent zero-shot coordination. 
+
+Advances in Neural Information Processing Systems , 37:47344–47377, 2024b. Omry Yadan. Hydra - a framework for elegantly configuring complex applications. Github, 2019. URL https://github.com/facebookresearch/hydra .Lei Yuan, Ziqian Zhang, Lihe Li, Cong Guan, and Yang Yu. A survey of progress on cooperative multi-agent reinforcement learning in open environment. arXiv preprint arXiv:2312.01058 , 2023. 13 Preprint Luisa Zintgraf, Sam Devlin, Kamil Ciosek, Shimon Whiteson, and Katja Hofmann. Deep interactive Bayesian reinforcement learning via meta-learning. In Proceedings of the 20th International Conference on Autonomous Agents and MultiAgent Systems , pp. 1712–1714, 2021. 14 Preprint 
+
+A CODE AND DATA 
+
+The library is open-sourced on GitHub, while the datasets of evaluation teammates, best responses, and LBF human gameplay data are released on Hugging Face. • Code: https://github.com/LARG/jax-aht 
+
+• Evaluation Teammate Policies: 
+
+https://huggingface.co/datasets/jaxaht/eval-teammates 
+
+• Best Response Policies: 
+
+https://huggingface.co/datasets/jaxaht/eval-teammates-br 
+
+• LBF Human Gameplay Data: 
+
+https://huggingface.co/datasets/jaxaht/lbf-human-data 
+
+B BEST -R ESPONSE POLICIES AND UPPER BOUND ESTIMATION 
+
+To assess behavioral diversity among the evaluation teammates, we construct a cross-play (XP) matrix between each teammate and a corresponding best-response (BR) policy. 
+
+Training protocol. BR policies are trained using the ppo_br implementation, fixing one teammate policy per run and optimizing an ego policy against that teammate alone. Each BR run uses a budget of 10M timesteps. The PPO-BR ego policies use a recurrent S5 actor–critic architecture (Lu et al., 2023). Observations are encoded through dense layers and passed to an S5 sequence model with model dimension 128 and SSM state size 128. Separate MLP heads (three hidden layers of 1024 units each) produce a masked categorical action distribution and a scalar value estimate, respectively. 
+
+Cross-play matrix construction. We evaluate every evaluation teammate against every BR policy, yielding an N × N XP matrix per task, where rows index evaluation teammates and columns index BR policies. We report normalized episode return based on estimated BR return bounds. XP matrices for LBF, Overcooked, and Hanabi are shown in Figs. 7, 8, and 9. Diagonal entries are generally stronger than off-diagonal entries, indicating that most evaluation teammates require distinct response policies. Some off-diagonal blocks remain, suggesting partial overlap in teammate behavior or transferability across BR policies, especially within agent types (e.g., PPO). BR IPPO-0 (0) BR IPPO (2, 0) BR BRDiv1-0 (0) BR BRDiv1-1 (1) BR BRDiv1-2 (2) BR BRDiv2-0 (0) BR BRDiv2-1 (1) BR Seq-Lexi (0) BR Seq-RLexi (0) BR Seq-Col (0) BR Seq-RCol (0) BR Seq-Nearest (0) BR Seq-Farthest (0) BR Entitled (0) BR Greedy-closest BR lBRDiv-br (1, 0) BR lBRDiv-br (1, 1) BR lBRDiv-br (1, 2) BR CoMeDi-br (1, 0) BR CoMeDi-br (1, 1) BR CoMeDi-br (1, 2) BR CoMeDi-br (1, 3) BR CoMeDi-br (1, 4) BR Human (0) 
+
+Best-response policy 
+
+IPPO (0) IPPO (2, 0) BRDiv1 (0) BRDiv1 (1) BRDiv1 (2) BRDiv2 (0) BRDiv2 (1) Seq-Lexi Seq-RLexi Seq-Col Seq-RCol Seq-Nearest Seq-Farthest Entitled Greedy-closest lBRDiv (1, 0) lBRDiv (1, 1) lBRDiv (1, 2) CoMeDi (1, 0) CoMeDi (1, 1) CoMeDi (1, 2) CoMeDi (1, 3) CoMeDi (1, 4) Human 
+
+> Held-out teammates
+
+1.00 0.91 0.82 0.79 0.88 0.90 0.67 0.79 0.73 0.71 0.84 1.00 0.99 0.95 0.89 0.82 0.96 0.97 0.92 0.76 0.53 0.77 0.82 0.97 0.87 0.96 0.71 0.64 0.90 0.77 0.74 0.70 0.88 0.79 0.75 0.90 0.81 0.83 0.80 0.86 0.89 0.85 0.90 0.79 0.74 0.81 0.78 0.94 0.69 0.78 0.96 0.39 0.30 0.71 0.52 0.53 0.72 0.61 0.51 0.89 0.86 0.79 0.53 0.79 0.76 0.88 0.89 0.65 0.41 0.63 0.72 0.90 0.88 0.81 0.28 1.00 0.26 0.52 0.16 0.74 0.67 0.55 0.84 0.97 0.89 0.97 0.62 0.78 1.00 0.66 0.88 0.78 0.43 0.68 0.46 0.92 0.48 0.55 0.44 0.20 0.96 0.42 0.90 0.45 0.51 0.79 0.31 0.74 0.63 0.74 0.40 0.70 0.47 0.44 0.54 0.44 0.47 0.30 0.62 0.57 0.89 0.89 0.70 0.64 0.12 1.00 0.03 0.51 0.77 0.58 0.86 0.97 0.92 0.88 0.43 0.57 0.94 0.96 0.85 0.77 0.38 0.73 0.57 0.94 0.26 0.52 0.50 0.12 0.54 0.06 0.95 0.43 0.46 0.47 0.32 0.56 0.51 0.53 0.19 0.50 0.44 0.28 0.46 0.27 0.30 0.13 0.41 0.49 0.54 0.57 0.33 0.62 0.45 0.21 0.40 1.00 0.16 0.58 0.44 1.00 0.94 0.79 0.41 0.72 0.55 0.07 0.52 0.66 0.22 0.38 0.16 0.82 0.51 0.87 0.72 0.34 0.37 0.77 0.55 0.16 1.00 0.29 0.41 0.97 0.98 0.86 0.26 0.59 0.61 0.85 0.69 0.47 0.28 0.34 0.78 0.75 0.40 0.53 0.41 0.23 0.62 0.35 0.85 0.48 0.33 1.00 0.20 0.94 0.95 0.78 0.41 0.82 0.34 0.31 0.71 0.42 0.22 0.13 0.40 0.75 0.59 0.78 0.38 0.64 0.15 0.57 0.18 0.37 0.60 0.15 1.00 0.94 0.97 0.92 0.25 0.51 0.81 0.60 0.55 0.74 0.28 0.56 0.41 0.86 0.61 0.70 0.66 0.41 0.40 0.44 0.51 0.62 0.61 0.57 0.47 1.00 0.93 0.92 0.24 0.75 0.69 0.45 0.76 0.54 0.25 0.29 0.46 0.86 0.29 0.64 0.54 0.35 0.44 0.52 0.36 0.35 0.46 0.47 0.43 0.95 0.95 0.83 0.46 0.52 0.51 0.31 0.46 0.40 0.30 0.38 0.21 0.64 0.27 0.37 0.34 0.43 0.31 0.25 0.37 0.38 0.31 0.33 0.31 0.67 0.69 0.98 0.21 0.26 0.29 0.27 0.26 0.57 0.26 0.26 0.26 0.48 0.92 0.92 1.00 0.83 1.00 0.94 0.94 0.93 1.00 0.94 0.88 1.00 1.00 0.99 0.96 0.93 0.96 0.85 0.98 0.98 0.86 0.89 0.89 0.92 0.48 0.88 0.86 0.42 0.77 0.53 1.00 0.72 0.64 0.73 0.59 0.99 0.98 0.93 0.65 1.00 0.71 0.58 0.91 0.66 0.78 0.42 0.81 0.97 0.90 0.84 0.46 0.97 0.26 0.52 0.21 0.70 0.64 0.43 0.88 1.00 0.97 0.95 0.53 0.86 1.00 0.66 0.91 0.72 0.57 0.76 0.55 1.00 0.83 0.94 0.98 0.47 0.64 0.92 0.45 0.40 0.94 0.56 0.65 0.98 0.99 0.89 0.50 0.73 0.77 1.00 0.86 0.68 0.45 0.58 0.77 0.91 0.93 1.00 0.96 0.87 0.95 0.95 0.94 0.90 0.97 0.93 0.75 1.00 0.99 1.00 1.00 0.92 0.95 0.94 1.00 0.85 0.69 0.71 0.87 0.99 0.54 0.63 0.37 0.74 0.33 0.26 0.43 0.65 0.42 0.42 0.55 0.81 0.76 0.76 0.37 0.68 0.62 0.28 0.56 1.00 0.20 0.54 0.28 0.75 0.47 0.83 0.64 0.44 0.42 0.43 0.77 0.60 0.44 0.51 0.57 0.98 0.94 0.93 0.43 0.87 0.71 0.41 0.69 0.59 1.00 0.18 0.43 0.92 0.80 0.74 0.56 0.66 0.41 0.72 0.16 0.67 0.51 0.46 0.57 1.00 0.97 0.92 0.53 0.57 0.91 0.55 0.67 0.77 0.05 1.00 0.28 0.88 0.53 0.73 0.92 0.19 0.44 0.80 0.78 0.49 0.67 0.46 0.36 0.85 0.83 0.77 0.39 0.77 0.61 0.79 0.70 0.66 0.32 0.26 1.00 0.72 0.58 0.71 0.50 0.47 0.48 0.54 0.59 0.62 0.60 0.55 0.59 0.95 0.95 0.85 0.54 0.76 0.74 0.51 0.77 0.59 0.55 0.53 0.61 0.98 
+
+LBF 7x7 No Levels 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Mean return
+
+(a) LBF 7 ×7. BR IPPO-0 (0) BR ippo_mlp_s2c1 (0) BR comedi_0 (0) BR comedi_2 (0) BR comedi_4 (0) BR comedi_6 (0) BR comedi_8 (0) BR Seq-Lexi (0) BR Seq-RLexi (0) BR Seq-Col (0) BR Seq-RCol (0) BR Seq-Nearest (0) BR Seq-Farthest (0) BR Entitled (0) BR Greedy-closest (0) BR Greedy-lowest (0) BR Greedy-highest (0) BR Human (0) 
+
+Best-response policy 
+
+IPPO (0) IPPO (2, 1) CoMeDi (-1, 0) CoMeDi (-1, 2) CoMeDi (-1, 4) CoMeDi (-1, 6) CoMeDi (-1, 8) Seq-Lexi Seq-RLexi Seq-Col Seq-RCol Seq-Nearest Seq-Farthest Entitled Greedy-closest Greedy-lowest Greedy-highest Human 
+
+> Held-out teammates
+
+1.00 1.00 0.96 0.93 1.00 0.88 0.90 0.78 0.75 0.67 0.76 0.97 0.95 0.74 0.88 0.91 0.95 1.00 0.86 0.95 0.94 0.81 0.91 0.73 0.82 0.75 0.68 0.63 0.72 0.86 0.84 0.73 0.82 0.82 0.90 0.88 0.83 0.84 0.83 0.71 0.82 0.69 0.80 0.58 0.64 0.59 0.57 0.75 0.73 0.65 0.73 0.71 0.80 0.74 0.80 0.75 0.84 0.98 0.79 0.84 0.86 0.65 0.74 0.64 0.64 0.84 0.82 0.67 0.77 0.81 0.86 0.74 0.92 0.91 0.89 0.80 0.93 0.82 0.76 0.65 0.57 0.67 0.75 0.84 0.81 0.68 0.81 0.80 0.86 0.86 0.88 0.69 0.78 0.86 0.75 0.97 0.82 0.71 0.72 0.74 0.68 0.87 0.85 0.68 0.84 0.90 0.87 0.72 0.80 0.74 0.71 0.72 0.70 0.79 0.86 0.64 0.63 0.67 0.70 0.86 0.84 0.64 0.76 0.82 0.75 0.78 0.86 0.67 0.73 0.85 0.79 0.75 0.75 1.00 0.38 0.62 0.46 0.96 0.91 0.54 0.78 0.97 0.92 0.35 0.81 0.82 0.87 0.75 0.77 0.94 0.89 0.49 1.00 0.65 0.57 0.92 0.94 0.56 0.82 0.96 0.90 0.63 0.68 0.76 0.89 0.79 0.82 0.81 0.81 0.60 0.51 1.00 0.15 0.94 0.98 0.56 0.78 0.90 0.98 0.35 0.85 0.85 0.83 0.69 0.84 0.97 0.83 0.67 0.63 0.36 1.00 0.95 0.99 0.61 0.86 0.95 0.98 0.58 0.97 0.82 0.86 0.84 0.91 0.92 0.88 0.72 0.66 0.71 0.66 1.00 0.99 0.59 0.94 0.98 0.98 0.52 0.76 0.66 0.81 0.73 0.73 0.83 0.73 0.69 0.66 0.56 0.61 0.92 0.96 0.51 0.75 0.92 0.95 0.48 0.24 0.28 0.37 0.34 0.31 0.31 0.39 0.26 0.24 0.25 0.24 0.27 0.26 0.71 0.28 0.27 0.23 0.26 0.99 0.95 1.00 1.00 0.99 1.00 1.00 0.88 0.92 0.91 0.91 0.96 1.00 1.00 1.00 0.99 0.96 0.95 0.82 0.78 0.75 0.76 0.83 0.77 0.83 0.62 0.66 0.72 0.66 0.97 0.96 0.57 0.73 1.00 0.97 0.56 0.79 0.77 0.76 0.69 0.81 0.79 0.85 0.65 0.52 0.67 0.52 0.93 0.95 0.55 0.70 0.94 1.00 0.50 0.55 0.56 0.57 0.66 0.60 0.64 0.60 0.43 0.50 0.39 0.51 0.57 0.61 0.61 0.53 0.54 0.56 0.76 
+
+LBF 12x12 
+
+0.0 0.2 0.4 0.6 0.8 1.0  
+
+> Mean return
+
+(b) LBF 12 ×12. 
+
+Figure 7: LBF cross-play matrices using normalized return. Rows are evaluation teammates and columns are best-response policies. 
+
+Upper bound estimation. The XP matrix is also used to refine the empirical upper bounds for normalization. For each evaluation teammate, the upper bound is updated if any XP score exceeds the previously recorded value. These bounds remain empirical, as they depend on the particular set of 15 Preprint BR policies evaluated. The resulting upper bound estimates are shown in Fig. 3 and correspond to the blue bars in Fig. 13. 
+
+(a) Hanabi. (b) Mini Hanabi. 
+
+Figure 8: Hanabi cross-play matrices using normalized return. Rows are evaluation teammates and columns are best-response policies. 
+
+C T-SNE B EHAVIORAL DIVERSITY DETAILS 
+
+To visualize behavioral diversity, we train a classifier on joint interaction data (observations and actions from both the ego agent and the evaluation teammate) to predict the identity of the teammate– best-response pair. The learned latent representations from this classifier are then projected into two dimensions using t-SNE (van der Maaten & Hinton, 2008). Each point in Fig. 10 corresponds to a single episode trajectory, colored by teammate identity; the embeddings are generated by running each evaluation teammate with its own best-response partner. The classifier is an LSTM encoder that outputs the latent representation of a trajectory, followed by a linear dense layer that maps the latent representation to the predicted teammate–best-response pair. In order to train the classifier, we collect a fixed number of trajectories from every pair of evaluation teammates and best-responses to evaluation teammates to ensure that the classifier sees a fixed amount of data per pair. For the training data, we collected 1024 trajectories per pair for LBF 7x7 and 48 trajectories per pair for Coordination Ring. For the testing data, we collected 100 trajectories per pair for LBF 7x7 and 20 trajectories per pair for Coordination Ring. 40 20 0 20 40 
+
+t-SNE 1 
+
+> 40
+> 20
+> 020 40 60
+> t-SNE 2
+
+LBF (7x7) brdiv1-0 brdiv1-1 brdiv1-2 brdiv2-0 brdiv2-1 comedi_1_0 comedi_1_1 comedi_1_2 comedi_1_3 comedi_1_4 entitled_agent greedy_closest_teammate ippo-mlp ippo-s2c0 lbrdiv-conf_1_0 lbrdiv-conf_1_1 lbrdiv-conf_1_2 seq-col seq-far seq-lexi seq-near seq-rcol seq-rlexi 
+
+Figure 10: Representations of Behavior Trajectories for RL and Heuristic Teammates on LBF 7x7. 
+
+16 Preprint BR IPPO-0 (0) BR IPPO-1 (0) BR IPPO-2 (0) BR BRDiv-0 (0) BR BRDiv-1 (0) BR BRDiv-2 (0) BR Ind-0 (0) BR Onion-0 (0) BR Plate-0 (0) BR lBRDiv-br (1, 0) BR lBRDiv-br (1, 1) BR lBRDiv-br (1, 2) BR CoMeDi-br (1, 0) BR CoMeDi-br (1, 1) BR CoMeDi-br (1, 2) BR CoMeDi-br (1, 3) BR CoMeDi-br (1, 4) BR Human (0) 
+
+Best-response policy 
+
+IPPO (0) IPPO (1) IPPO (2) BRDiv (0) BRDiv (1) BRDiv (2) Ind-0 Onion-0 Plate-0 lBRDiv (1, 0) lBRDiv (1, 1) lBRDiv (1, 2) CoMeDi (1, 0) CoMeDi (1, 1) CoMeDi (1, 2) CoMeDi (1, 3) CoMeDi (1, 4) Human 
+
+> Held-out teammates
+
+1.00 0.49 0.86 0.59 0.56 0.61 0.82 0.58 0.57 0.33 0.46 0.93 0.51 0.17 0.38 0.66 0.76 0.90 0.36 1.00 0.59 0.69 0.31 0.63 0.71 0.73 0.85 0.37 0.43 0.80 0.52 0.11 0.20 0.44 0.46 0.71 0.31 0.13 0.95 0.28 0.26 0.30 0.13 0.30 0.21 0.29 0.16 0.12 0.11 0.42 0.87 0.76 0.12 0.49 0.11 0.41 0.29 1.00 0.11 0.11 0.59 0.58 0.80 0.09 0.11 0.59 0.33 0.09 0.49 0.10 0.34 0.50 0.21 0.26 0.26 0.14 0.87 0.40 0.13 0.47 0.41 0.18 0.09 0.28 0.22 0.47 0.10 0.31 0.34 0.78 0.35 0.34 0.45 0.32 0.42 1.00 0.31 0.73 0.16 0.58 0.38 0.39 0.30 0.21 0.40 0.44 0.55 0.77 0.64 0.73 0.58 0.93 0.59 0.64 0.96 0.55 0.89 0.59 0.53 0.62 0.49 0.59 0.64 0.56 0.58 0.74 0.15 0.17 0.25 0.40 0.35 0.35 0.31 0.69 0.31 0.28 0.21 0.19 0.21 0.32 0.21 0.26 0.28 0.58 0.57 0.38 0.35 0.64 0.39 0.16 0.69 0.38 0.75 0.36 0.49 0.49 0.27 0.20 0.37 0.48 0.36 0.54 0.46 0.26 0.50 0.38 0.50 0.57 0.32 0.67 0.52 0.88 0.50 0.38 0.30 0.48 0.45 0.56 0.47 0.74 0.74 0.52 0.77 0.48 0.71 0.61 0.79 0.58 0.48 0.78 0.92 0.67 0.33 0.47 0.60 0.84 0.69 0.80 0.44 0.58 0.65 0.63 0.46 0.68 0.73 0.65 0.63 0.46 0.45 1.00 0.51 0.34 0.72 0.55 0.64 0.81 0.99 0.93 1.00 0.85 1.00 0.88 1.00 1.00 1.00 1.00 1.00 0.65 1.00 0.59 0.49 0.95 0.75 0.92 0.12 0.07 0.56 0.43 0.41 0.28 0.08 0.52 0.31 0.39 0.12 0.07 0.09 1.00 0.20 0.69 0.15 0.41 0.08 0.08 0.34 0.29 0.50 0.10 0.10 0.41 0.38 0.10 0.10 0.08 0.08 0.20 1.00 0.18 0.15 0.45 0.12 0.07 0.54 0.42 0.13 0.12 0.09 0.53 0.17 0.49 0.21 0.08 0.08 0.63 0.44 1.00 0.10 0.54 0.37 0.09 0.16 0.23 0.30 0.49 0.14 0.62 0.38 0.24 0.15 0.15 0.08 0.13 0.14 0.10 1.00 0.76 0.53 0.37 0.37 0.65 0.59 0.35 0.49 0.76 0.74 0.33 0.28 0.34 0.41 0.31 0.34 0.35 0.38 1.00 
+
+Asymmetric Advantages 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Mean return
+
+(a) Asymmetric Advantages. BR IPPO-1 (0) BR IPPO-2 (0) BR IPPO-3 (0) BR BRDiv1-1 (0) BR BRDiv1-2 (0) BR BRDiv2-0 (0) BR Ind-0 (0) BR Onion-0 (0) BR Plate-0 (0) BR lBRDiv-br (1, 0) BR lBRDiv-br (1, 1) BR lBRDiv-br (1, 2) BR CoMeDi-br (1, 0) BR CoMeDi-br (1, 1) BR CoMeDi-br (1, 2) BR CoMeDi-br (1, 3) BR CoMeDi-br (1, 4) BR Human (0) 
+
+Best-response policy 
+
+IPPO (1) IPPO (2) IPPO (3) BRDiv1 (1) BRDiv1 (2) BRDiv2 (0) Ind-0 Onion-0 Plate-0 lBRDiv (1, 0) lBRDiv (1, 1) lBRDiv (1, 2) CoMeDi (1, 0) CoMeDi (1, 1) CoMeDi (1, 2) CoMeDi (1, 3) CoMeDi (1, 4) Human 
+
+> Held-out teammates
+
+1.00 0.51 0.19 0.05 0.18 0.10 0.22 0.62 0.21 0.24 0.14 0.13 0.20 0.05 0.14 0.25 0.09 0.18 0.20 1.00 0.97 0.06 0.16 0.10 0.55 0.63 0.17 0.18 0.13 0.09 1.00 0.05 0.12 0.32 0.07 0.80 0.19 0.98 1.00 0.06 0.16 0.11 0.70 0.60 0.20 0.17 0.10 0.10 0.96 0.05 0.10 0.19 0.07 0.87 0.03 0.03 0.04 1.00 0.12 0.02 0.03 0.29 0.08 0.14 0.13 0.04 0.03 0.04 0.36 0.36 0.04 0.19 0.07 0.05 0.03 0.01 1.00 0.02 0.02 0.39 0.14 0.05 0.04 0.05 0.04 0.03 0.09 0.05 0.03 0.09 0.11 0.13 0.05 0.00 0.09 1.00 0.13 0.34 0.37 0.07 0.06 0.19 0.06 0.23 0.12 0.09 0.15 0.07 0.17 0.20 0.15 0.07 0.14 0.11 1.00 0.44 0.34 0.20 0.18 0.17 0.16 0.11 0.18 0.28 0.16 0.14 0.03 0.02 0.02 0.00 0.06 0.02 0.01 0.81 0.04 0.15 0.09 0.04 0.02 0.02 0.05 0.05 0.02 0.07 0.16 0.15 0.12 0.06 0.13 0.18 0.16 0.26 1.00 0.24 0.18 0.40 0.14 0.11 0.17 0.25 0.15 0.16 0.08 0.08 0.14 0.24 0.25 0.05 0.06 0.68 0.33 1.00 0.91 0.07 0.09 0.06 0.57 0.91 0.09 0.67 0.06 0.07 0.15 0.22 0.26 0.06 0.06 1.00 0.30 0.99 1.00 0.09 0.07 0.04 0.42 0.90 0.08 0.57 0.30 0.21 0.15 0.07 0.25 0.21 0.18 0.71 0.93 0.64 0.66 1.00 0.22 0.51 0.43 0.75 0.43 0.43 0.46 0.78 0.62 0.18 0.24 0.22 0.59 0.99 0.51 0.64 0.38 0.24 0.88 0.10 0.25 0.77 0.35 0.81 0.09 0.04 0.04 0.02 0.06 0.36 0.07 0.44 0.36 0.55 0.63 0.13 0.03 1.00 0.12 0.31 0.12 0.13 0.08 0.04 0.03 0.14 0.07 0.03 0.03 0.34 0.08 0.12 0.13 0.06 0.03 0.04 1.00 0.29 0.36 0.08 0.09 0.03 0.02 0.12 0.09 0.04 0.02 0.52 0.09 0.39 0.47 0.04 0.03 0.03 0.45 1.00 0.21 0.19 0.03 0.04 0.04 0.01 0.12 0.04 0.02 0.24 0.07 0.10 0.13 0.04 0.02 0.02 0.26 0.15 1.00 0.09 0.32 0.26 0.41 0.06 0.24 0.11 0.10 0.57 0.36 0.47 0.41 0.36 0.28 0.12 0.47 0.74 0.30 1.00 
+
+Coordination Ring 
+
+0.0 0.2 0.4 0.6 0.8 1.0  
+
+> Mean return
+
+(b) Coordination Ring. BR IPPO-cc-0 (0) BR IPPO-cc-1 (0) BR IPPO-cc-2 (0) BR IPPO-pass-0 (0) BR IPPO-pass-1 (0) BR IPPO-pass-2 (0) BR Ind-0 (0) BR Onion-0 (0) BR Plate-0 (0) BR Onion-0.9 (0) BR Plate-0.9 (0) BR lBRDiv-br (1, 0) BR lBRDiv-br (1, 1) BR lBRDiv-br (1, 2) BR CoMeDi-br (1, 0) BR CoMeDi-br (1, 1) BR CoMeDi-br (1, 2) BR CoMeDi-br (1, 3) BR CoMeDi-br (1, 4) BR Human (0) 
+
+Best-response policy 
+
+IPPO-cc (0) IPPO-cc (1) IPPO-cc (2) IPPO-pass (0) IPPO-pass (1) IPPO-pass (2) Ind-0 Onion-0 Plate-0 Onion-0.9 Plate-0.9 lBRDiv (1, 0) lBRDiv (1, 1) lBRDiv (1, 2) CoMeDi (1, 0) CoMeDi (1, 1) CoMeDi (1, 2) CoMeDi (1, 3) CoMeDi (1, 4) Human 
+
+> Held-out teammates
+
+1.00 0.81 0.67 0.33 0.36 0.39 0.30 0.41 0.47 0.62 0.29 0.27 0.29 0.32 0.33 0.37 0.65 0.25 0.56 0.95 0.68 1.00 0.90 0.31 0.36 0.41 0.25 0.57 0.50 0.53 0.46 0.32 0.40 0.31 0.30 0.29 0.75 0.16 0.65 0.82 0.88 0.88 1.00 0.33 0.37 0.41 0.21 0.49 0.71 0.57 0.29 0.32 0.30 0.27 0.31 0.36 0.69 0.23 0.59 0.67 0.03 0.04 0.03 1.00 0.12 0.19 0.03 0.36 0.11 0.42 0.24 0.39 0.20 0.25 0.09 0.13 0.15 0.23 0.09 0.13 0.07 0.04 0.06 0.23 1.00 0.18 0.11 0.40 0.19 0.38 0.23 0.23 0.24 0.20 0.11 0.13 0.40 0.16 0.16 0.13 0.05 0.06 0.06 0.19 0.16 1.00 0.05 0.40 0.45 0.82 0.61 0.32 0.34 0.72 0.08 0.27 0.30 0.39 0.16 0.10 0.26 0.22 0.20 0.31 0.36 0.28 1.00 0.58 0.69 0.42 0.64 0.22 0.24 0.34 0.48 0.16 0.29 0.25 0.24 0.18 0.02 0.01 0.02 0.35 0.24 0.19 0.02 0.93 0.25 0.75 0.38 0.31 0.24 0.29 0.13 0.20 0.18 0.25 0.06 0.17 0.19 0.17 0.15 0.22 0.21 0.23 0.22 0.43 0.92 0.41 0.70 0.22 0.26 0.39 0.22 0.16 0.27 0.28 0.20 0.18 0.03 0.02 0.02 0.12 0.19 0.13 0.03 0.49 0.30 0.73 0.39 0.40 0.48 0.55 0.09 0.52 0.20 0.51 0.07 0.23 0.05 0.05 0.04 0.20 0.17 0.15 0.09 0.44 0.37 0.53 1.00 0.41 0.48 0.58 0.15 0.24 0.20 0.43 0.11 0.15 0.04 0.03 0.02 0.24 0.29 0.29 0.07 0.62 0.67 0.90 0.90 0.89 0.93 0.98 0.18 0.60 0.34 0.87 0.07 0.44 0.03 0.03 0.03 0.24 0.33 0.27 0.09 0.61 0.66 0.98 0.90 0.90 0.93 1.00 0.17 0.62 0.32 0.89 0.06 0.46 0.06 0.03 0.02 0.21 0.30 0.27 0.09 0.56 0.66 1.00 0.90 0.93 0.93 0.96 0.18 0.70 0.33 0.92 0.05 0.45 0.40 0.42 0.38 0.69 0.74 0.56 0.46 1.00 1.00 1.00 0.91 1.00 1.00 0.91 1.00 0.94 1.00 0.92 1.00 0.88 0.07 0.04 0.05 0.18 0.10 0.09 0.04 0.39 0.14 0.54 0.37 0.19 0.26 0.35 0.04 1.00 0.53 0.84 0.18 0.15 0.07 0.06 0.09 0.12 0.25 0.20 0.05 0.34 0.23 0.45 0.39 0.33 0.43 0.62 0.08 0.60 0.71 0.84 0.32 0.16 0.04 0.05 0.05 0.13 0.09 0.14 0.06 0.29 0.18 0.51 0.32 0.22 0.33 0.41 0.07 0.63 0.26 1.00 0.09 0.16 0.06 0.09 0.10 0.29 0.21 0.18 0.08 0.52 0.32 0.67 0.42 0.39 0.32 0.66 0.10 0.68 0.44 0.87 0.74 0.31 0.27 0.22 0.21 0.34 0.33 0.36 0.19 0.62 0.58 0.88 0.57 0.56 0.52 0.52 0.37 0.58 0.52 0.76 0.42 1.00 
+
+Counter Circuit 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Mean return
+
+(c) Counter Circuit. BR IPPO-0 (0) BR IPPO-1 (0) BR IPPO-2 (0) BR BRDiv-0 (0) BR BRDiv-1 (0) BR Ind-0.4 (0) BR Ind-0 (0) BR Onion-0.1 (0) BR Plate-0.1 (0) BR lBRDiv-br (1, 0) BR lBRDiv-br (1, 1) BR lBRDiv-br (1, 2) BR CoMeDi-br (1, 0) BR CoMeDi-br (1, 1) BR CoMeDi-br (1, 2) BR CoMeDi-br (1, 3) BR CoMeDi-br (1, 4) BR Human (0) 
+
+Best-response policy 
+
+IPPO (0) IPPO (1) IPPO (2) BRDiv (0) BRDiv (1) Ind-0.4 Ind-0 Onion-0.1 Plate-0.1 lBRDiv (1, 0) lBRDiv (1, 1) lBRDiv (1, 2) CoMeDi (1, 0) CoMeDi (1, 1) CoMeDi (1, 2) CoMeDi (1, 3) CoMeDi (1, 4) Human 
+
+> Held-out teammates
+
+1.00 0.45 0.52 0.09 0.42 0.10 0.04 0.17 0.06 0.14 0.08 0.12 0.42 0.08 0.14 0.04 0.61 0.15 0.20 1.00 0.18 0.08 0.12 0.16 0.03 0.17 0.06 0.07 0.07 0.10 0.43 0.09 0.11 0.03 0.35 0.16 0.68 0.66 1.00 0.11 0.23 0.17 0.04 0.19 0.05 0.11 0.07 0.14 0.46 0.09 0.11 0.04 0.11 0.17 0.10 0.10 0.08 1.00 0.03 0.04 0.03 0.25 0.15 0.94 0.04 0.04 0.03 0.04 0.04 0.05 0.03 0.77 0.38 0.21 0.59 0.03 1.00 0.65 0.02 0.65 0.04 0.03 0.44 0.11 0.19 0.22 0.22 0.03 0.91 0.12 0.08 0.14 0.28 0.53 0.58 1.00 0.82 0.64 0.78 0.61 0.36 0.16 0.09 0.54 0.66 0.60 0.07 0.44 0.07 0.10 0.18 0.13 0.30 0.99 1.00 0.24 0.65 0.20 0.20 0.12 0.09 0.24 0.37 0.24 0.12 0.15 0.20 0.08 0.13 0.33 0.01 0.02 0.02 1.00 0.05 0.30 0.03 0.53 0.02 0.39 0.02 0.02 0.02 0.53 0.08 0.09 0.18 0.21 0.43 0.89 0.57 0.62 1.00 0.28 0.67 0.08 0.08 0.61 0.61 0.59 0.08 0.53 0.10 0.14 0.10 0.98 0.04 0.05 0.04 0.67 0.24 1.00 0.06 0.11 0.04 0.30 0.05 0.04 0.04 0.83 0.08 0.07 0.07 0.23 0.09 0.07 0.07 0.74 0.26 0.23 1.00 0.14 0.08 0.36 0.11 0.20 0.08 0.38 0.10 0.08 0.13 0.12 0.02 0.03 0.02 0.87 0.45 0.14 0.05 1.00 0.02 0.48 0.03 0.02 0.03 0.72 0.65 0.83 0.75 0.39 0.16 0.23 0.15 0.40 0.22 0.30 0.22 0.15 1.00 0.26 0.68 0.03 0.37 0.72 0.04 0.06 0.01 0.07 0.03 0.17 0.15 0.37 0.32 0.05 0.04 0.07 0.04 1.00 0.14 0.07 0.16 0.24 0.02 0.05 0.05 0.07 0.08 0.06 0.02 0.19 0.07 0.04 0.06 0.07 0.03 0.07 1.00 0.02 0.07 0.11 0.02 0.04 0.03 0.07 0.07 0.07 0.04 0.41 0.10 0.05 0.04 0.21 0.04 0.12 0.08 1.00 0.08 0.20 0.09 0.17 0.11 0.05 0.18 0.39 0.04 0.29 0.08 0.06 0.03 0.13 0.08 0.10 0.47 0.02 1.00 0.08 0.04 0.07 0.19 0.17 0.17 0.17 0.28 0.90 0.27 0.14 0.16 0.19 0.07 0.43 0.14 0.30 0.31 1.00 
+
+Cramped Room 
+
+0.0 0.2 0.4 0.6 0.8 1.0  
+
+> Mean return
+
+(d) Cramped Room. BR IPPO-0 (0) BR IPPO-1 (0) BR IPPO-2 (0) BR BRDiv1-0 (0) BR BRDiv1-2 (0) BR BRDiv2-1 (0) BR BRDiv3-0 (0) BR BRDiv3-2 (0) BR Ind-0.6 (0) BR lBRDiv-br (1, 0) BR lBRDiv-br (1, 1) BR lBRDiv-br (1, 2) BR CoMeDi-br (1, 0) BR CoMeDi-br (1, 1) BR CoMeDi-br (1, 2) BR CoMeDi-br (1, 3) BR CoMeDi-br (1, 4) BR Human (0) 
+
+Best-response policy 
+
+IPPO (0) IPPO (1) IPPO (2) BRDiv1 (0) BRDiv1 (2) BRDiv2 (1) BRDiv3 (0) BRDiv3 (2) Ind-0.6 lBRDiv (1, 0) lBRDiv (1, 1) lBRDiv (1, 2) CoMeDi (1, 0) CoMeDi (1, 1) CoMeDi (1, 2) CoMeDi (1, 3) CoMeDi (1, 4) Human 
+
+> Held-out teammates
+
+0.97 0.95 0.33 0.65 0.09 0.28 0.13 0.69 0.48 0.10 0.06 0.56 0.46 0.78 0.19 0.22 0.09 0.31 1.00 1.00 0.32 0.69 0.06 0.19 0.08 0.66 0.32 0.08 0.06 0.55 0.87 0.46 0.14 0.18 0.10 0.21 0.22 0.23 1.00 0.67 0.07 0.36 0.10 0.49 0.37 0.08 0.05 0.33 0.19 0.26 0.18 0.20 0.09 0.41 0.45 0.50 0.32 0.95 0.16 0.27 0.36 0.55 0.53 0.20 0.13 0.53 0.22 0.56 0.52 0.56 0.32 0.50 0.15 0.14 0.22 0.24 1.00 0.48 0.37 0.16 0.77 0.32 0.52 0.22 0.11 0.79 0.48 0.53 0.38 0.74 0.18 0.19 0.37 0.31 0.25 1.00 0.22 0.18 0.60 0.15 0.13 0.31 0.14 0.70 0.33 0.50 0.25 0.84 0.12 0.11 0.19 0.20 0.16 0.23 1.00 0.15 0.56 0.43 0.20 0.18 0.10 0.39 0.68 0.82 0.58 0.45 0.81 0.78 0.34 1.00 0.15 0.26 0.27 1.00 0.69 0.19 0.15 0.69 0.52 0.52 0.38 0.46 0.28 0.57 0.14 0.15 0.41 0.30 0.18 0.18 0.27 0.20 1.00 0.23 0.22 0.16 0.16 0.57 0.61 0.60 0.18 0.52 0.12 0.10 0.21 0.22 0.13 0.12 0.80 0.12 0.57 1.00 0.36 0.11 0.11 0.26 1.00 1.00 1.00 0.47 0.15 0.11 0.19 0.22 0.43 0.26 0.46 0.17 0.68 0.37 1.00 0.17 0.14 0.67 0.80 0.89 0.87 0.89 0.27 0.26 0.30 0.55 0.19 0.38 0.24 0.33 0.50 0.16 0.11 1.00 0.28 1.00 0.45 0.49 0.31 0.42 0.78 0.86 0.39 0.93 0.08 0.22 0.13 0.64 0.51 0.08 0.11 0.53 1.00 0.42 0.24 0.24 0.13 0.41 0.04 0.05 0.08 0.12 0.21 0.20 0.17 0.06 0.53 0.09 0.20 0.16 0.04 0.90 0.22 0.26 0.17 0.55 0.03 0.02 0.03 0.05 0.04 0.08 0.25 0.03 0.17 0.12 0.09 0.04 0.02 0.09 0.75 0.49 0.23 0.16 0.03 0.04 0.06 0.06 0.05 0.05 0.20 0.03 0.20 0.08 0.10 0.04 0.02 0.14 0.49 0.98 0.14 0.13 0.04 0.03 0.05 0.07 0.06 0.05 0.34 0.05 0.19 0.16 0.09 0.05 0.04 0.08 0.34 0.47 0.95 0.25 0.22 0.28 0.54 0.37 0.30 0.25 0.41 0.30 0.53 0.32 0.17 0.27 0.12 0.64 0.43 0.60 0.50 1.00 
+
+Forced Coordination 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Mean return
+
+(e) Forced Coordination. 
+
+Figure 9: Overcooked cross-play matrices using normalized return. Rows are evaluation team-mates and columns are best-response policies. Diagonal entries reflect matched best-response performance; off-diagonal structure indicates the degree of transferability across teammate types. 17 Preprint 
+
+D BENCHMARK STUDY DETAILS 
+
+We describe the benchmark study in further detail in this section, and present supplemental results. For the purposes of the benchmark, tasks are categorized as “easy” and “hard” based on the general number of timesteps required for MARL algorithms to converge. The LBF tasks, Cramped Room, and Mini Hanabi are categorized as easy, while Coordination Ring is categorized as hard. D.1 HYPERPARAMETER SWEEP 
+
+We report additional details of the procedure not already stated in the main paper. 
+
+Procedure We used Weights & Biases hyperparameter sweeps. The network architecture was fixed for all methods. The sweeps varied the unique hyperparameters introduced by each algorithm, as well as the learning rate, entropy coefficient, and clip parameter from the base RL algorithm. The remaining hyperparameters from the base RL algorithm were held fixed and set to the same value for all methods. For each algorithm and task, 140 hyperparameter configurations were swept using random search, with the exception of FCP, which was tuned via grid search over all 90 available configurations, and CoR, where a Bayesian sweep was performed. The configuration with the highest mean return on an independent validation set consisting of IPPO, LBRDiv, BRDiv, and CoMeDi teammates was selected. 
+
+Ego agent methods (PPO, LIAM, MeLIBA) were trained for 7M timesteps on easy tasks and 15M timesteps on harder tasks, and were provided FCP partners as teammates. Teammate generation 
+
+methods were allocated 100M timesteps for easy tasks and 200M timesteps for harder tasks. Popu-lation sizes were varied such that the largest population size exhausted the full budget. Ego agents were subsequently trained on the fixed generated teammates for 30M steps (easy) and 60M steps (hard), using the same architecture and hyperparameters across methods. Unified methods —which simultaneously train teammates and ego agents—were allocated 130M timesteps on easy tasks and 260M timesteps on harder tasks. 
+
+Hyperparameter Return Distributions To visualize the effects of hyperparameter variation, we plot the distribution of final normalized returns for each algorithm–task combination. 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 
+
+> Mean Normalized Return
+> PPO
+> median=0.475
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7
+> Mean Normalized Return
+> LIAM
+> median=0.383
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7
+> Mean Normalized Return
+> MeLIBA
+> median=0.420 0.613 0.386 0.432
+> Cramped Room (Overcooked)
+
+Figure 11: Hyperparameter sweep return distributions for ego methods on Cramped Room. 
+
+D.2 BENCHMARK STUDY 
+
+This section describes the detailed benchmarking procedure, and presents supplemental results. Due to the large number of compared algorithms, tasks, and hyperparameters, we do not directly include them in the paper. We refer the interested reader to the open-sourced codebase’s benchmark_expts 
+
+branch to view hyperparameter configurations and reproduce experiments. 18 Preprint 0.0 0.2 0.4 0.6 0.8 
+
+> Mean Normalized Return
+
+PPO 
+
+> median=0.638
+
+0.0 0.2 0.4 0.6 0.8 
+
+> Mean Normalized Return
+
+LIAM 
+
+> median=0.294
+
+0.0 0.2 0.4 0.6 0.8 
+
+> Mean Normalized Return
+
+MeLIBA 
+
+> median=0.413 0.736 0.270 0.413
+
+LBF 12x12 
+
+(a) Ego methods. 0.0 0.2 0.4 0.6 0.8  
+
+> Mean Normalized Return
+> FCP
+> median=0.567
+> 0.0 0.2 0.4 0.6 0.8
+> Mean Normalized Return
+> BRDiv
+> median=0.601
+> 0.0 0.2 0.4 0.6 0.8
+> Mean Normalized Return
+> LBRDiv
+> median=0.565
+> 0.0 0.2 0.4 0.6 0.8
+> Mean Normalized Return
+> CoMeDi
+> median=0.692 0.462 0.534 0.498 0.752
+
+LBF 12x12 
+
+(b) Teammate generation methods. 0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Mean Normalized Return
+> ROTATE
+> median=0.879
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Mean Normalized Return
+> COLE
+> median=0.654
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Mean Normalized Return
+> TrajeDi
+> median=0.677 0.972 0.603 0.704
+
+LBF 12x12 
+
+(c) Unified methods. 
+
+Figure 12: Hyperparameter sweep return distributions on LBF 12x12. Procedure The benchmark study uses a 50% larger timestep budget than the hyperparameter sweep for teammate generation and unified methods, and a 4x larger budget for ego agent training methods, to better allow each method to converge. Ego agents are trained for 30M timesteps on easy tasks and 60M timesteps on harder tasks, against training populations generated by FCP and CoMeDi. All ego agents share the same recurrent S5 agent architecture (Lu et al., 2023). Teammate generation is allocated 165M timesteps for easy tasks and 330M timesteps for harder tasks, with population sizes varied to exhaust the budget. Ego agents are then trained on the fixed generated populations for 30M steps (easy) and 60M steps (hard), for a total of 195M and 390M timesteps respectively. All teammate generation algorithms are compared by training a PPO ego agent on the generated population. For fair comparison, the PPO ego agents all use identical architectures and learning configurations. Unified methods are allocated 195M total timesteps on easy tasks and 390M on harder tasks. 19 Preprint D.2.1 SUPPLEMENTAL FIGURES 
+
+This section provides the supplemental figures previously referenced in Section 5. Fig. 13 displays the improvement in BR return bounds attained by AHT agents, as described in Section 5.4. Fig. 15 presents key training and loss statistics for all algorithms in the JaxAHT library, on the LBF 12x12 domain. Fig. 14 displays the returns of teammate generation and unified methods, broken down by RL agent type. ippo_mlp ippo_mlp_s2c0 brdiv-conf1[0] brdiv-conf1[1] brdiv-conf1[2] brdiv-conf2[0] brdiv-conf2[1] lbrdiv-conf[0] lbrdiv-conf[1] lbrdiv-conf[2] comedi[0] comedi[1] comedi[2] comedi[3] comedi[4] seq_agent_lexi seq_agent_rlexi seq_agent_col seq_agent_rcol seq_agent_nearest seq_agent_farthest entitled_agent greedy_closest_teammate 0.0 0.1 0.2 0.3 0.4 0.5 
+
+LBF 7x7 
+
+Original bound Best-seen BR delta 
+
+> ippo_mlp ippo_mlp_s2c1 comedi[0] comedi[1] comedi[2] comedi[3] comedi[4] seq_agent_lexi seq_agent_rlexi seq_agent_col seq_agent_rcol seq_agent_nearest seq_agent_farthest entitled_agent greedy_closest_teammate greedy_lowest_level greedy_highest_level
+
+0.0 0.2 0.4 0.6 
+
+LBF 12x12 
+
+> ippo_mlp[0] ippo_mlp[1] ippo_mlp[2] brdiv-conf[0] brdiv-conf[1] lbrdiv-conf[0] lbrdiv-conf[1] lbrdiv-conf[2] comedi[0] comedi[1] comedi[2] comedi[3] comedi[4] onion_agent_0.1 plate_agent_0.1 independent_agent_0.4 independent_agent_0
+
+0100 200 300 
+
+Cramped Room (Overcooked) 
+
+> ippo_mlp[0] ippo_mlp[1] ippo_mlp[2] brdiv-conf1[0] brdiv-conf1[1] brdiv-conf2 lbrdiv-conf[0] lbrdiv-conf[1] lbrdiv-conf[2] comedi[0] comedi[1] comedi[2] comedi[3] comedi[4] onion_agent_0 plate_agent_0 independent_agent_0
+
+0100 200 300 400 
+
+Coordination Ring (Overcooked) 
+
+> ippo_mlp_seed0 ippo_mlp_seed1 ippo_mlp_seed2 brdiv_conf[0] brdiv_conf[1] brdiv_conf[2] lbrdiv_conf[0] lbrdiv_conf[1] lbrdiv_conf[2] comedi_conf[0] comedi_conf[1] comedi_conf[2] comedi_conf[3] comedi_conf[4] ippo_s5_seed42 ippo_s5_seed123 ippo_s5_seed31415 ippo_s5_op_seed42 ippo_s5_op_seed123 ippo_s5_op_seed31415 iggi piers flawed outer van_den_bergh smartbot cautious internal
+
+02468
+
+Mini Hanabi 
+
+> Empirical Best Response Returns
+
+Original vs Best-Seen BR Performance Bounds 
+
+Figure 13: BR Return Bounds Gap. AHT agents can sometimes improve the empirical BR estimates derived by RL. CoMeDi IPPO Heuristic Human Proxy 
+
+0.2 0.4 0.6 0.8 1.0 
+
+LBF 12x12 
+
+CoMeDi LBRDiv IPPO BRDiv Heuristic Human Proxy 
+
+0.2 0.4 0.6 0.8 1.0 
+
+LBF 7x7 
+
+CoMeDi LBRDiv IPPO BRDiv Heuristic 
+
+0.2 0.4 0.6 0.8 1.0 
+
+Mini Hanabi 
+
+CoMeDi LBRDiv IPPO BRDiv Heuristic Human Proxy 
+
+0.2 0.4 0.6 0.8 1.0 
+
+Coordination Ring (Overcooked) 
+
+CoMeDi LBRDiv IPPO BRDiv Heuristic Human Proxy 
+
+0.2 0.4 0.6 0.8 
+
+Cramped Room (Overcooked) 
+
+Algorithms FCP BRDiv LBRDiv CoMeDi ROTATE COLE TrajeDi 
+
+Figure 14: Teammate generation and unified methods performance, broken down by RL agent type. 20 Preprint 0.0 0.8 1.6 2.4 3.2 4.0 
+
+Env Steps (1e6) 
+
+0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Partner Training Return (Overlayed) 
+
+mean 
+
+0.0 0.5 1.0 1.5 2.0 2.5 3.0 
+
+Env Steps 1e7 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Training Return 
+
+comedi fcp 
+
+0 1 2012      
+
+> 0.46 0.29 0.27 0.26 0.45 0.26 0.23 0.26 0.47
+
+Final XP Matrix 
+
+0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 
+
+Env Steps 1e8 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Training Return 
+
+0.0 0.5 1.0 1.5 2.0 2.5 3.0 
+
+Env Steps 1e7 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Training Return 
+
+comedi fcp 
+
+0 1 2012      
+
+> 0.46 0.34 0.15 0.25 0.44 0.18 0.15 0.25 0.46
+
+Final XP Matrix 
+
+0.00 0.25 0.50 0.75 1.00 1.25 1.50 
+
+Env Steps 1e8 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> LM Value
+
+Lagrange Multipliers 
+
+LM Type Horizontal Vertical 
+
+0.0 0.5 1.0 1.5 2.0 2.5 3.0 
+
+Env Steps 1e7 050 100 150 200 250 300 350 
+
+> Loss
+
+Reconstruction Loss 
+
+comedi fcp 0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 
+
+Env Steps 1e8 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Partner Training Return 
+
+0.0 0.5 1.0 1.5 2.0 2.5 3.0 
+
+Env Steps 1e7 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Training Return 
+
+comedi fcp 
+
+0 4 8 12 17 04812 17 
+
+Final XP Matrix 
+
+0.00 0.25 0.50 0.75 1.00 1.25 1.50 1.75 
+
+Env Steps 1e8 0.0 0.1 0.2 0.3 0.4 0.5 
+
+> Return
+
+Partner Training Return 
+
+0.0 0.5 1.0 1.5 2.0 2.5 3.0 
+
+Env Steps 1e7 10 2
+
+10 1
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+> Loss
+
+Autoencoder Losses 
+
+comedi · reconstruction_loss comedi · kl_divergence_loss fcp · reconstruction_loss fcp · kl_divergence_loss 
+
+0.0 0.1 0.2 0.3 0.4 0.5 
+
+0.0 0.1 0.2 0.3 0.4 0.5 
+
+0.0 0.1 0.2 0.3 0.4 0.5 
+
+Teammate Generation Ego Algorithms 
+
+FCP BRDiv TrajeDi LBRDiv CoMeDi COLE PPO Ego LIAM Ego MeLIBA Ego 
+
+Figure 15: Training statistics for all methods on LBF 12x12. 21 Preprint 
+
+E ALGORITHMS OVERVIEW 
+
+We summarize the learning-based ad hoc teamwork (AHT) algorithms evaluated in our benchmark. The methods fall into three broad categories. First, standard ego-agent baselines train a single ego policy against either a fixed teammate distribution or an implicit partner model. Second, two-stage teammate generation methods first construct a population of training teammates and then train an ego agent against this fixed population. Third, unified methods simultaneously train teammates and ego agents. 
+
+PPO ego. The PPO ego baseline trains an ego policy using Proximal Policy Optimization (PPO) (Schulman et al., 2017). In our setting, the ego agent is trained directly against the available training teammate distribution for each task. This baseline provides a simple reference point for evaluating whether more specialized AHT and teammate-generation methods improve robustness to evaluation partners. 
+
+MeLIBA. MeLIBA is a meta-learning approach for interactive Bayesian reinforcement learn-ing (Zintgraf et al., 2021). It is designed to support adaptation by learning representations that allow an agent to infer task- or partner-specific information from interaction history. In the AHT setting, MeLIBA serves as a learned adaptation baseline that conditions behavior on observed experience with the current teammate. 
+
+LIAM. LIAM learns latent representations for agent modeling under partial observability (Pa-poudakis et al., 2021). The method uses interaction trajectories to infer hidden information about other agents and conditions the ego policy on this inferred representation. In our benchmark, LIAM represents a partner-modeling baseline for adapting to unfamiliar teammates through learned latent inference. 
+
+Fictitious Co-Play (FCP). Fictitious Co-Play (FCP) is a two-stage AHT method designed to improve robustness to independently trained partners (Strouse et al., 2021). In the first stage, a popula-tion of teammate policies is generated by running independent cooperative MARL training, typically with different random seeds and checkpoints. In the second stage, the ego agent is trained against this fixed teammate population. FCP can generalize well to teammates that resemble independently trained agents, but its coverage is limited by the behavioral diversity of the generated teammate pool. 
+
+BRDiv. Best-Response Diversity (BRDiv) is a two-stage teammate-generation method that con-structs a population of confederate teammate policies together with corresponding best-response policies (Rahman et al., 2023). BRDiv maintains a cross-play matrix between generated teammates and their best responses. The objective encourages high matched teammate–best-response perfor-mance and low mismatched cross-play performance. This encourages the generated teammates to require distinct best-response strategies. After the teammate population is generated, an ego agent is trained against the fixed confederate population. 
+
+LBRDiv. LBRDiv extends the BRDiv framework by seeking a compact teammate set that provides sufficient behavioral coverage for robust AHT training (Rahman et al., 2024). Rather than simply increasing the number of generated teammates, LBRDiv focuses on identifying a minimum coverage set of teammates. This makes it a useful comparison for evaluating whether a smaller but more strategically selected teammate population can provide similar or better generalization than larger generated populations. 
+
+CoMeDi. CoMeDi is a two-stage teammate-generation method designed to generate diverse con-ventions while avoiding the self-sabotage that can arise from purely adversarial diversity objec-tives (Sarkar et al., 2023). It trains teammate policies sequentially. For each new teammate, the objective encourages strong self-play performance, low compatibility with previously generated teammates, and high mixed-play performance. The mixed-play term exposes the new teammate to states that arise when conventions are partially mismatched, encouraging it to remain cooperative outside its own self-play trajectory distribution. After the teammate population is generated, an ego agent is trained against the fixed population. 22 Preprint 
+
+ROTATE. ROTATE is an open-ended AHT algorithm that alternates between teammate generation and ego-agent training (Wang et al., 2025). At each iteration, ROTATE generates a new teammate that maximizes the current ego agent’s cooperative regret, defined as the gap between the return achievable by a best response to that teammate and the return achieved by the current ego agent. The ego agent is then trained against the accumulated buffer of generated teammates. Unlike two-stage teammate-generation methods, ROTATE generates new teammates in response to the ego agent’s current weaknesses rather than constructing a fixed population before ego training begins. ROTATE also optimizes a per-state regret objective, which is intended to reduce the sabotage-inducing properties of regret-based teammate generation objectives. 
+
+TrajeDi. Trajectory Diversity (TrajeDi) is a population-based diversity method originally proposed for zero-shot coordination (Lupu et al., 2021). TrajeDi trains a population of policies while regulariz-ing them to induce diverse trajectory distributions. Because the diversity objective is defined at the trajectory level, it can capture behavioral differences that may not be visible from action distributions alone. In our benchmark, TrajeDi serves as an information-theoretic unified baseline that emphasizes broad behavioral coverage rather than explicit best-response diversity. 
+
+COLE. Cooperative Open-Ended Learning (COLE) is a unified framework for zero-shot coordi-nation that addresses cooperative incompatibility within a population of strategies (Li et al., 2023). Rather than only maximizing behavioral diversity, COLE evaluates cooperative relationships among policies using graph-theoretic notions of compatibility. At each generation, the method identifies weaknesses in the current population and adds a new strategy that improves the population’s ability to coordinate with different partners. In this sense, COLE is related to open-ended teammate generation, but its central focus is maintaining cooperative compatibility across the policy population rather than only increasing diversity. 
+
+F EVALUATION TEAMMATE DESCRIPTIONS 
+
+A key contribution of JaxAHT is a comprehensive suite of heuristic teammates spanning all three environments. The Hanabi heuristic suite consists of eight rule-based agents drawn from two sources: seven agents from the Walton-Rivers et al. (2017) rule-based suite, and SmartBot, the strongest teammate in the suite (O’Dwyer, 2019). To our knowledge, JaxAHT provides the first JAX implementation of these rule-based agents. The LBF heuristic teammate suite consists of three agent types spanning 12 strategies. The Overcooked-v1 heuristic teammates comprise three role-based agents, including role specialists such as Onion and Plate. Table 5 summarizes the human-designed heuristic teammates used across the benchmark environ-ments. 
+
+G LBF H UMAN DATA COLLECTION 
+
+To create human-data based agents for LBF, we collect and provide a dataset of human gameplay against various agents. The data collection study was approved by The University of Texas at Austin Institutional Review Board (IRB #STUDY00008549). Participants were informed that participation was voluntary and were provided contact information for questions about the study, consistent with IRB requirements. G.1 PROCEDURE 
+
+Participants first encounter an instructional interface that explains the rules and mechanics of the online LBF game. These instructions are presented through a popup prior to gameplay to ensure that all participants understand the objectives, controls, and cooperative aspects of the environment. Each participant then plays a sequence of ten games in a two-player setting consisting of one human participant and an automated LBF bot uniformly sampled from a set of bots. Every game lasts for a maximum of 50 steps, where a step corresponds to a single action input from the human player. To assist participants in pacing their gameplay, the interface displays the number of steps completed out of the total 50 allowed in the current game. 23 Preprint 
+
+Env Agent Behavior 
+
+Hanabi Cautious Derived from human gameplay; avoids plays that can lose lives. IGGI Extends Cautious with conservative play and predictable discards. Piers Risk-taking extension of IGGI, including Hail Mary plays when the deck is empty. Internal (Osawa, 2015) Tracks hints received about its own hand, without maintaining the full history of hints given to its partner. Outer (Osawa, 2015) Tracks hints about its own hand and hints given to its partner, using the latter to avoid redundant tells. Van Den Bergh Rule-based agent whose rule ordering was found by a genetic algorithm (van den Bergh et al., 2017). Flawed Uses generally informed play but lacks non-random tell rules and includes a risky play rule. SmartBot (O’Dwyer, 2019) Convention-based agent that tracks per-card knowledge from accumulated hint history, and prioritizes safe plays. The strongest heuristic teammate in the suite. 
+
+LBF Sequential Plans a food order before the episode using 
+
+lexicographic , reverse_lexicographic ,
+
+column_major , reverse_column_major ,
+
+nearest_agent , or farthest_agent .Greedy Selects the next uneaten food online using 
+
+closest_self , closest_teammate ,
+
+closest_avg , lowest_level , or 
+
+highest_level .Entitled Chooses a pair of adjacent squares for each food and waits until the teammate occupies one of them before approaching the other square and loading. 
+
+Overcooked-v1 Onion Collects onions and places them in pots, with a configurable probability of staging onions on counters. Plate Gets plates, plates ready soup, and delivers dishes, with a configurable probability of staging plates on counters. Independent Executes the full onion–plate–deliver pipeline, with configurable probabilities of staging onions or plates on counters. 
+
+Table 5: Heuristic teammate suite. The hand-designed teammates span convention-based Hanabi policies, LBF food-targeting strategies, and Overcooked-v1 role-specialist policies; the listed behav-iors define the coordination demands used in held-out evaluation. The first two games serve as warm-up rounds intended to familiarize participants with the gameplay dynamics and interface. These warm-up games are selected randomly from the set of possible game configurations, and data from these rounds are not included in the final dataset. Their sole purpose is to allow participants to gain experience with the mechanics of Level-Based Foraging before the experimental data collection begins. Following the warm-up phase, participants complete eight additional games from which data are collected. G.2 VARIANTS 
+
+The experiment includes four distinct game configurations, the cross product of grid sizes (7x7 and 12x12) and whether or not fruits have different levels. All variants had teammates comprising all applicable heuristic agents (sequential, greedy, entitled) and one agent trained via IPPO (de Witt et al., 2020). 24 Preprint G.3 PROLIFIC 
+
+This study was conducted on Prolific with 180 different participants, each providing 8 episodes, for a total of 1440 episodes across all variants. Participants were compensated via the Prolific platform between 8 and 9 USD per hour. We filtered out participants whom we deemed not to be playing in good faith if any of the following criteria held: (1) >35% of actions were unsuccessful, (2) >15% of actions were idle (wait), (3) they scored zero in 5 or more of their 8 games. This left us with 1299 episodes in our dataset. The user study dashboard is released with our codebase.  
+
+> (a) Prolific Study Gameplay. (b) Prolific Study Instructions.
+
+Figure 16: Prolific study interface. 
+
+H ATTRIBUTIONS 
+
+We gratefully acknowledge the following open-source software, datasets, and model weights used in this work. • JaxMARL (Rutherford et al., 2024): Our IPPO implementations build on the JaxMARL codebase. We also use the Overcooked and Hanabi environments provided by this library. (Apache 2.0 License.) • Jumanji (Bonnet et al., 2023): We use the Level-Based Foraging (LBF) environment from this library. (Apache 2.0 License.) • AH2AC2 (Dizdarevi´ c et al., 2025): We use the publicly released human gameplay data. (Apache 2.0 License.) • Overcooked human data (Carroll et al., 2019): We use the human gameplay data open-sourced alongside the original Overcooked Benchmark. (MIT License.) • Off-Belief Learning (OBL) policy weights (Hu et al., 2021): We use the pretrained OBL policy weights released under a CC BY 4.0 License. We additionally use a third-party Flax port providing OBL at all five belief levels, available at https://huggingface.co/ mttga/obl-r2d2-flax .
+
+I COMPUTE INFRASTRUCTURE 
+
+Experiments were performed on various servers, with the configurations listed below. 25 Preprint • Intel(R) Xeon(R) Gold 6342 CPUs; NVIDIA A40 GPUs (48GB) • Intel(R) Xeon(R) Gold 6342 CPUs; NVIDIA A100 GPUs (80GB) • Intel(R) Xeon(R) Platinum 8468; NVIDIA H100 GPUs (96GB) • Arm Neoverse-V2 CPU; NVIDIA GH200 (96GB) • AMD EPYC 7763 CPU (Milan); NVIDIA A100 GPUs (40GB) • AMD Ryzen Threadripper PRO 9955WX; NVIDIA RTX 6000 Ada Generation (48 GB) • AMD EPYC; NVIDIA RTX Pro 6000 (Blackwell; 96GB) 26
