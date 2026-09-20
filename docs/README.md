@@ -6,80 +6,82 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-19
-- 运行时间：2026-09-19 21:56:36 UTC
+- 最新运行日期：2026-09-20
+- 运行时间：2026-09-20 21:29:35 UTC
 - 运行状态：成功
 - 本次总论文数：20
 - 精读区：7
 - 速读区：13
 
 ### 今日简报（AI）
-2026-09-19 日报精选 20 篇 AI 论文，精读 7 篇、速读 13 篇，聚焦 LLM Agent 的安全与持续进化。最值得看的是两篇 9.0 分研究：AGENTQ 揭示量化可被利用对 Agent 植入后门，另一篇重审“信任信任”并警告被污染基准会侵蚀自我修改型编码 Agent。普通读者可优先了解 Agent 供应链与基准数据的安全风险，再按需速读失败归因与记忆学习等方向。
-- 详情：[/202609/19/README](/202609/19/README)
+今天从20篇中精读7、速读13，头条聚焦LLM智能体安全审计与计算机使用智能体防护。  
+最值得看：ActGuard（9.0）的预执行动作审计防间接提示注入，以及HazardAuditor（9.0）把可执行威胁转成更安全的computer-use agents。  
+普通读者可先读这两篇精读建立Agent安全观，再按兴趣速读多智能体图记忆推理、冲突义务决策与TuiML等7分方向。
+- 详情：[/202609/20/README](/202609/20/README)
 
 ### 精读区论文标签
-1. [AGENTQ: Quantization-Conditioned Backdoor Attacks on LLM Agents](/202609/19/2609.14060v1-agentq-quantization-conditioned-backdoor-attacks-on-llm-agents)  
+1. [ActGuard: Pre-execution Action Auditing against Indirect Prompt Injection in LLM Agents](/202609/20/2609.14987v1-actguard-pre-execution-action-auditing-against-indirect-prompt-injection-in-llm-agents)  
    标签：评分：9.0/10、query:llm-security
-   evidence：针对LLM智能体的量化条件后门攻击与防御
-2. [Reflections on Trusting Trust, Revisited: Contaminating Self-Modifying AI Coding Agents with Poisoned Benchmarks](/202609/19/2609.17817v1-reflections-on-trusting-trust-revisited-contaminating-self-modifying-ai-coding-agents-with-poisoned-benchmarks)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：通过自改进过程投毒自我修改的 AI 编程智能体
-3. [Do Frontier Models Seek Safety Evidence Before Acting?](/202609/19/2609.17865v1-do-frontier-models-seek-safety-evidence-before-acting)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：前沿模型行动前是否获取安全证据的基准
-4. [Beyond Routine Compliance: Cunning Data Cultivates Safety Vigilance in Large Language Models](/202609/19/2609.18515v1-beyond-routine-compliance-cunning-data-cultivates-safety-vigilance-in-large-language-models)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：用狡黠问题培养大模型识破隐蔽有害意图的安全警觉性
-5. [CERA-MoA: Co-Evolving Routing Mechanisms with Continually Learning LLM Agents](/202609/19/2609.18779v1-cera-moa-co-evolving-routing-mechanisms-with-continually-learning-llm-agents)  
+   evidence：针对LLM智能体间接提示注入的防御
+2. [HazardAuditor: From Executable Threats to Safer Computer-Use Agents](/202609/20/2609.15134v1-hazardauditor-from-executable-threats-to-safer-computer-use-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：面向计算机使用智能体的执行级安全框架
+3. [Adversarial Testing of Automated Program Repair Agents for Security Vulnerabilities](/202609/20/2609.15963v1-adversarial-testing-of-automated-program-repair-agents-for-security-vulnerabilities)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：对LLM程序修复智能体的安全漏洞对抗测试
+4. [Trust propagation and structural containment in Multi-agent LLM pipelines](/202609/20/2609.17648v1-trust-propagation-and-structural-containment-in-multi-agent-llm-pipelines)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：多智能体LLM流水线的攻击传播与授权
+5. [Red-Teaming Auto Mode: Improving Blocking Classifiers Against Malign Coding Agents](/202609/20/2609.19587v1-red-teaming-auto-mode-improving-blocking-classifiers-against-malign-coding-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：针对恶意编码智能体的阻断监控红队测试
+6. [UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning](/202609/20/2609.20089v1-unifiedplayers-enhance-tool-integrated-reasoning-in-agentic-reinforcement-learning)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：路由与智能体能力协同进化
-6. [MAGS: Multi-agent Auto-formalization Guarantees Safety for Agentic Outputs](/202609/19/2609.19391v1-mags-multi-agent-auto-formalization-guarantees-safety-for-agentic-outputs)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：多智能体自动形式化为智能体输出提供安全保障
-7. [Rethinking Multi-Agent Collaboration: When More Is Less](/202609/19/2609.19759v1-rethinking-multi-agent-collaboration-when-more-is-less)  
-   标签：评分：8.0/10、query:llm-agent
-   evidence：分析多智能体协作的价值边界并提出SAIGE协作机制
+   evidence：自进化工具使用型智能体自行生成训练数据
+7. [SoL-Pi: Recursively Scaling Auto-Research Loops for Efficient Agent Harness](/202609/20/2609.20519v1-sol-pi-recursively-scaling-auto-research-loops-for-efficient-agent-harness)  
+   标签：评分：8.0/10、query:agent-evol
+   evidence：通过自动研究循环实现编码智能体的递归自我改进
 
 ### 速读区论文标签
-1. [RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents](/202609/19/2609.15684v1-reskill-explicit-failure-attribution-and-structured-repair-for-interactive-language-agents)  
+1. [GraMRAG: Orchestrating Multi-Agent Multi-Step Reasoning via Graph Memory with Reinforcement Learning](/202609/20/2609.14066v1-gramrag-orchestrating-multi-agent-multi-step-reasoning-via-graph-memory-with-reinforcement-learning)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向交互式语言智能体的结构化失败归因与修复
-2. [Smarter by the Moment: Environment-Driven Dynamic Policies for Continual LLM Improvement](/202609/19/2609.16800v1-smarter-by-the-moment-environment-driven-dynamic-policies-for-continual-llm-improvement)  
+   evidence：图记忆引导的多智能体协同RAG
+2. [Moral Rebel Agents: Decision-Making Under Conflicting Obligations](/202609/20/2609.14716v1-moral-rebel-agents-decision-making-under-conflicting-obligations)  
+   标签：评分：7.0/10、query:llm-security
+   evidence：自主智能体的道德反叛与安全对齐架构
+3. [TuiML: Machine Learning for AI Agents](/202609/20/2609.17984v1-tuiml-machine-learning-for-ai-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向LLM持续改进的动态策略
-3. [Interactive Memory Learning for Long-Term Conversations](/202609/19/2609.17088v1-interactive-memory-learning-for-long-term-conversations)  
+   evidence：为语言模型智能体构建的机器学习库
+4. [Bad Genius: Counterfactual-Guided Harness Evolution Beyond Task-Specific Shortcuts](/202609/20/2609.18366v1-bad-genius-counterfactual-guided-harness-evolution-beyond-task-specific-shortcuts)  
    标签：评分：7.0/10、query:agent-evol
-   evidence：可自我进化的多智能体记忆框架
-4. [RideWay: Benchmarking Efficient Task Completion for Tool-Using Language Agents](/202609/19/2609.17985v1-rideway-benchmarking-efficient-task-completion-for-tool-using-language-agents)  
+   evidence：反事实引导的智能体工具链演化
+5. [Characterizing Web Search by Conversational LLM Agents: From Search Decisions and Strategies to Results and Responses](/202609/20/2609.19244v1-characterizing-web-search-by-conversational-llm-agents-from-search-decisions-and-strategies-to-results-and-responses)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：工具使用语言智能体基准
-5. [DualSQL: Text-to-SQL with Multi-Agent Reinforcement Learning](/202609/19/2609.18135v1-dualsql-text-to-sql-with-multi-agent-reinforcement-learning)  
+   evidence：会话式 LLM 智能体的网络搜索决策与工具使用研究
+6. [An Architecture for Long-Horizon Agents: Levels, Ticks and Cascaded Intelligence](/202609/20/2609.19519v1-an-architecture-for-long-horizon-agents-levels-ticks-and-cascaded-intelligence)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：共享骨干的两智能体多智能体强化学习协同
-6. [Rollback the World, Keep the Reflection: Rollback-Induced Reflection for Long-Horizon LLM Agents](/202609/19/2609.18304v1-rollback-the-world-keep-the-reflection-rollback-induced-reflection-for-long-horizon-llm-agents)  
-   标签：评分：7.0/10、query:llm-agent
-   evidence：面向长程LLM智能体的错误恢复
-7. [Rollback the World, Keep the Reflection: Rollback-Induced Reflection for Long-Horizon LLM Agents](/202609/19/2609.18304v2-rollback-the-world-keep-the-reflection-rollback-induced-reflection-for-long-horizon-llm-agents)  
-   标签：评分：7.0/10、query:llm-agent
-   evidence：面向长时程LLM代理的回滚式恢复
-8. [JaxAHT: A JAX-Based Library for Ad Hoc Teamwork](/202609/19/2609.13716v1-jaxaht-a-jax-based-library-for-ad-hoc-teamwork)  
+   evidence：面向长时程语言模型智能体的层级架构，含层级与节拍
+7. [A Unified Evaluation Framework for Trustworthy Large Language Models, Agentic AI, and Multimodal Systems](/202609/20/2609.19524v1-a-unified-evaluation-framework-for-trustworthy-large-language-models-agentic-ai-and-multimodal-systems)  
+   标签：评分：7.0/10、query:llm-security
+   evidence：面向LLM与智能体的统一可信评估框架涵盖安全与鲁棒性
+8. [LIMBO: Lifelong Inference-Time Memory and Budget Optimization for LLM Agents](/202609/20/2609.14138v1-limbo-lifelong-inference-time-memory-and-budget-optimization-for-llm-agents)  
+   标签：评分：6.0/10、query:agent-evol
+   evidence：终身智能体通过经验回放获取新能力
+9. [T-SMART: Mechanism-Level Attribution for Tool-Augmented Time-Series Question Answering](/202609/20/2609.14142v1-t-smart-mechanism-level-attribution-for-tool-augmented-time-series-question-answering)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：支持智能体与陌生伙伴协调的临时团队协作库
-9. [DynSTEER: Dynamic Stage-wise Trajectory Evaluation and Execution-time Review for Agents](/202609/19/2609.14637v2-dynsteer-dynamic-stage-wise-trajectory-evaluation-and-execution-time-review-for-agents)  
+   evidence：工具增强的LLM框架与确定性工具
+10. [ANASSA: An Agentic AI Orchestration Framework for Spatial Intelligence](/202609/20/2609.14824v1-anassa-an-agentic-ai-orchestration-framework-for-spatial-intelligence)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：面向大模型智能体的动态分阶段轨迹评估与执行期审查
-10. [Large Language Models in the Loop: A Stability- and Network-Aware Survey in Networked Control, Cyber-Physical, and Multi-Agent Systems](/202609/19/2609.16599v1-large-language-models-in-the-loop-a-stability--and-network-aware-survey-in-networked-control-cyber-physical-and-multi-agent-systems)  
-   标签：评分：6.0/10、query:llm-security
-   evidence：LLM引入控制回路的稳定性与安全保证综述
-11. [Turn-level Multiscale Density Ratio Estimation for LLM Agents](/202609/19/2609.16760v1-turn-level-multiscale-density-ratio-estimation-for-llm-agents)  
-   标签：评分：6.0/10、query:llm-security
-   evidence：面向LLM智能体的对齐与后训练
-12. [Grounding SWE-Agent Decisions in Architecture-0 Design: Navigating Unknown Unknowns through Physical Mapping](/202609/19/2609.17221v1-grounding-swe-agent-decisions-in-architecture-0-design-navigating-unknown-unknowns-through-physical-mapping)  
+   evidence：集成大模型与工具执行的智能体编排框架
+11. [Symbolic Separation: Grounding Deep Agents in Knowledge Graphs for Trustworthy Operational Data Analytics](/202609/20/2609.17107v1-symbolic-separation-grounding-deep-agents-in-knowledge-graphs-for-trustworthy-operational-data-analytics)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：自主软件工程智能体应对未知约束的能力研究
-13. [Mo' Models, Mo' Problems: How to best select model pools when designing Multi-Agent Systems](/202609/19/2609.17306v1-mo-models-mo-problems-how-to-best-select-model-pools-when-designing-multi-agent-systems)  
+   evidence：以本体约束知识图谱为工具型深度智能体奠基以提升可信度
+12. [Collaborative Memory for Multi-Agent VLM Systems](/202609/20/2609.17921v1-collaborative-memory-for-multi-agent-vlm-systems)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：多智能体系统设计与模型选择
+   evidence：多智能体VLM系统的协作记忆与协调
+13. [WFM: Wiki Foundation Model for Complex Agentic Reasoning](/202609/20/2609.18182v1-wfm-wiki-foundation-model-for-complex-agentic-reasoning)  
+   标签：评分：6.0/10、query:llm-agent
+   evidence：支持持久记忆与检索的维基基础模型，用于复杂智能体推理
 
 
 <div class="dpr-home-promo-card">
