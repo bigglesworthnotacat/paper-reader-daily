@@ -6,87 +6,77 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-23
-- 运行时间：2026-09-23 22:45:06 UTC
+- 最新运行日期：2026-09-24
+- 运行时间：2026-09-24 22:00:17 UTC
 - 运行状态：成功
-- 本次总论文数：21
-- 精读区：8
+- 本次总论文数：18
+- 精读区：5
 - 速读区：13
 
 ### 今日简报（AI）
-今天共筛出 21 篇文献，精读 8 篇、速读 13 篇，重点集中在可信智能体与智能体安全两条主线。
-
-最值得看的是两篇 9.0 分精读：《Trustworthy Agentic AI》梳理失效模式、缓解策略与生命周期框架，《Connecting the Dots in Agentic AI Security》给出跨维度威胁分类、评估成熟度与开放挑战。
-
-普通读者可先读这两篇的分类框架，再顺 8.0 分的智能体安全系统化、SSP-Bench 评测和 Qwen3.8-Omni 全模态智能体了解落地与评测进展。
-- 详情：[/202609/23/README](/202609/23/README)
+- 今日共生成 18 篇推荐（精读 5 篇，速读 13 篇）
+- 精读：《PASTABench: Proactive Assessment of Sequential Trajectories for Agent Safety》（9.0/10）, 《When Tomorrow Becomes Today: Self-Evolving Policies for Agentic Time-Series Forecasting》（8.0/10）
+- 速读：《BabelArena: A Large-Scale Multilingual Benchmark for LLM Agents》（7.0/10）, 《AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction》（7.0/10）, 《EDGEGEN: Improving Tool-Calling Agents Beyond Happy Paths with Synthetic Edge Case Generation》（7.0/10）
+- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
+- 详情：[/202609/24/README](/202609/24/README)
 
 ### 精读区论文标签
-1. [Trustworthy Agentic AI: Failure Modes, Mitigation Strategies, and a Lifecycle Framework for Autonomous LLM Systems](/202609/23/2609.22712v1-trustworthy-agentic-ai-failure-modes-mitigation-strategies-and-a-lifecycle-framework-for-autonomous-llm-systems)  
+1. [PASTABench: Proactive Assessment of Sequential Trajectories for Agent Safety](/202609/24/2609.28197v1-pastabench-proactive-assessment-of-sequential-trajectories-for-agent-safety)  
    标签：评分：9.0/10、query:llm-security
-   evidence：综述自主LLM智能体的安全风险与缓解
-2. [Connecting the Dots in Agentic AI Security: A Cross-Dimensional Threat Taxonomy, Evaluation Maturity, and Open Challenges](/202609/23/2609.23894v1-connecting-the-dots-in-agentic-ai-security-a-cross-dimensional-threat-taxonomy-evaluation-maturity-and-open-challenges)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：智能体AI安全的跨维度威胁分类
-3. [TTSE: A Two-Track Online Self-Evolution Framework](/202609/23/2609.24289v1-ttse-a-two-track-online-self-evolution-framework)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：面向LLM智能体的双轨在线自我进化框架
-4. [ActGov: Governing LLM Agent Actions via Policy-Constrained Validation](/202609/23/2609.24446v2-actgov-governing-llm-agent-actions-via-policy-constrained-validation)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：LLM智能体动作的运行时安全校验
-5. [Indirect tipping: a social attack surface in AI agent populations](/202609/23/2609.25194v1-indirect-tipping-a-social-attack-surface-in-ai-agent-populations)  
-   标签：评分：9.0/10、query:llm-security
-   evidence：AI智能体群体的社会攻击面与安全脆弱性
-6. [Recursive self-improvement of AI research agents](/202609/23/2609.26457v1-recursive-self-improvement-of-ai-research-agents)  
-   标签：评分：9.0/10、query:agent-evol
-   evidence：AI研究智能体的递归自我改进
-7. [ScienceBuddy: Recursive-in-Recursive Self-Improvement for Interactive Scientific Agents](/202609/23/2609.17523v1-sciencebuddy-recursive-in-recursive-self-improvement-for-interactive-scientific-agents)  
+   evidence：自主LLM智能体的主动安全监控基准
+2. [When Tomorrow Becomes Today: Self-Evolving Policies for Agentic Time-Series Forecasting](/202609/24/2609.24862v1-when-tomorrow-becomes-today-self-evolving-policies-for-agentic-time-series-forecasting)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：递归式自我改进将harness演化与模型强化学习耦合以实现智能体持续进化
-8. [MedRSI: Recursive Self-Improvement for Medical Agents via Clinically Aligned Self-Evolution](/202609/23/2609.24838v1-medrsi-recursive-self-improvement-for-medical-agents-via-clinically-aligned-self-evolution)  
+   evidence：智能体策略随部署反馈自我演化以自主适应预测与编排
+3. [Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents](/202609/24/2609.26760v1-grow-the-harness-not-the-context-from-strategy-free-scaffolds-to-reusable-specialist-agents)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：递归自我改进智能体，自主从失败中扩展能力
+   evidence：通过失败引导学习并进化智能体自身执行框架
+4. [Ajar: Measuring Open Privilege in Agent Defenses](/202609/24/2609.26900v1-ajar-measuring-open-privilege-in-agent-defenses)  
+   标签：评分：8.0/10、query:llm-security
+   evidence：度量智能体安全防御中的开放权限
+5. [Learning from Failures: Heterogeneous Graph Memory for Small Language Model Tool-Using Agents](/202609/24/2609.28003v1-learning-from-failures-heterogeneous-graph-memory-for-small-language-model-tool-using-agents)  
+   标签：评分：8.0/10、query:llm-agent
+   evidence：面向小模型工具调用智能体的异构图记忆
 
 ### 速读区论文标签
-1. [When the Agent Becomes the Kernel: A Systematization of Security on the Path to AI-Native Operating Systems](/202609/23/2609.23700v1-when-the-agent-becomes-the-kernel-a-systematization-of-security-on-the-path-to-ai-native-operating-systems)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：面向LLM智能体操作系统的安全性系统化研究
-2. [SSP-Bench: A Hybrid Data Generation Framework for Safety, Security, and Privacy Evaluation](/202609/23/2609.25352v1-ssp-bench-a-hybrid-data-generation-framework-for-safety-security-and-privacy-evaluation)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：按需生成LLM安全、安保与隐私评估实例的动态基准
-3. [Qwen3.8-Omni: Towards Native Omni-Modal Agents](/202609/23/2609.25611v1-qwen38-omni-towards-native-omni-modal-agents)  
-   标签：评分：8.0/10、query:company
-   evidence：来自头部厂商Qwen的原生全模态智能体模型
-4. [Toolcompass: Guiding Tool Trialing, Not Suppressing It](/202609/23/2609.25678v1-toolcompass-guiding-tool-trialing-not-suppressing-it)  
-   标签：评分：8.0/10、query:llm-agent
-   evidence：引导LLM智能体工具试探的后训练框架
-5. [Rollback the World, Keep the Reflection: Rollback-Induced Reflection for Long-Horizon LLM Agents](/202609/23/2609.18304v3-rollback-the-world-keep-the-reflection-rollback-induced-reflection-for-long-horizon-llm-agents)  
+1. [BabelArena: A Large-Scale Multilingual Benchmark for LLM Agents](/202609/24/2609.23490v1-babelarena-a-large-scale-multilingual-benchmark-for-llm-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向长时程LLM智能体的可靠恢复
-6. [EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data](/202609/23/2609.19523v1-econskills-studying-skill-transfer-and-retrieval-for-web-agents-on-live-economic-data)  
+   evidence：面向LLM智能体工具使用与多语言评测的基准
+2. [AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction](/202609/24/2609.23512v1-agentbetta-verification-driven-adaptive-configuration-of-an-ai-nano-agent-through-selective-expansion-and-verified-contraction)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向网页智能体的技能库与迁移评测
-7. [An Iterative LangGraph Agent for Text-to-SQL: Natural Language Access to the Chicago Crime Database](/202609/23/2609.22917v1-an-iterative-langgraph-agent-for-text-to-sql-natural-language-access-to-the-chicago-crime-database)  
+   evidence：LLM纳米智能体架构的自适应配置
+3. [EDGEGEN: Improving Tool-Calling Agents Beyond Happy Paths with Synthetic Edge Case Generation](/202609/24/2609.24115v1-edgegen-improving-tool-calling-agents-beyond-happy-paths-with-synthetic-edge-case-generation)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：用于Text-to-SQL任务自动化的LangGraph智能体
-8. [XYEval: Agents say yes to bad advice](/202609/23/2609.23939v1-xyeval-agents-say-yes-to-bad-advice)  
-   标签：评分：7.0/10、query:llm-security
-   evidence：评估智能体能否抵制误导性建议
-9. [Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents](/202609/23/2609.23986v1-jev-mem-system-one-controlled-agentic-memory-for-efficient-ai-agents)  
+   evidence：面向工具调用LLM智能体的合成边缘用例生成
+4. [MCP-GRANITE Benchmark: GRANularity Interface TEsting for MCP-Based LLM Agents](/202609/24/2609.24161v1-mcp-granite-benchmark-granularity-interface-testing-for-mcp-based-llm-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向高效LLM智能体的智能体记忆架构
-10. [Not All AI Agents Are Equal: Characterizing Resource and Performance Dynamics](/202609/23/2609.19947v1-not-all-ai-agents-are-equal-characterizing-resource-and-performance-dynamics)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：刻画基于LLM的智能体架构与服务的资源与性能动态
-11. [A Scalable Trust Discovery Architecture for the Internet of Agents](/202609/23/2609.20095v1-a-scalable-trust-discovery-architecture-for-the-internet-of-agents)  
+   evidence：面向MCP工具调用智能体的接口粒度基准
+5. [Qwen3.8-Omni: Towards Native Omni-Modal Agents](/202609/24/2609.25611v1-qwen38-omni-towards-native-omni-modal-agents)  
+   标签：评分：7.0/10、query:company
+   evidence：Qwen原生全模态智能体模型与长程任务
+6. [Knowledge-as-Skill: A Structural Design for Autonomous Knowledge-Base Use by LLM Agents](/202609/24/2609.25991v1-knowledge-as-skill-a-structural-design-for-autonomous-knowledge-base-use-by-llm-agents)  
+   标签：评分：7.0/10、query:llm-agent
+   evidence：面向LLM智能体自主使用知识库的结构设计
+7. [REFLEX with Jev for Efficient Selective Control in LLM Agents](/202609/24/2609.26532v1-reflex-with-jev-for-efficient-selective-control-in-llm-agents)  
+   标签：评分：7.0/10、query:llm-agent
+   evidence：面向LLM高效控制的智能体架构
+8. [ANI-Gamut: Benchmarking Agent Reliability across the Gamut of Agent-Network Interface Abstractions](/202609/24/2609.22723v1-ani-gamut-benchmarking-agent-reliability-across-the-gamut-of-agent-network-interface-abstractions)  
    标签：评分：6.0/10、query:llm-security
-   evidence：面向自主智能体网络的可扩展信任发现架构
-12. [CodeMidas: Scaling Agentic Coding RL Environments from Code Itself](/202609/23/2609.22068v1-codemidas-scaling-agentic-coding-rl-environments-from-code-itself)  
+   evidence：评估操作网络的LLM智能体可靠性
+9. [LLMs as Linguistic Chameleons: Decoupling Semantics and Structure for Privacy-Preserving Communication](/202609/24/2609.23193v1-llms-as-linguistic-chameleons-decoupling-semantics-and-structure-for-privacy-preserving-communication)  
+   标签：评分：6.0/10、query:llm-security
+   evidence：通过语义解耦实现大模型API推理时隐私保护
+10. [Data Agents: Agentic Data Systems](/202609/24/2609.24137v1-data-agents-agentic-data-systems)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：智能体流水线把代码库转为可执行RL环境以训练编码智能体
-13. [Semantics Delivery Network: Rethinking Web Retrieval Infrastructure for LLM Agents](/202609/23/2609.22486v1-semantics-delivery-network-rethinking-web-retrieval-infrastructure-for-llm-agents)  
+   evidence：自主执行数据任务的智能体
+11. [The Work Behind Delegation: A Framework for Supervising AI Coding Agents](/202609/24/2609.24234v1-the-work-behind-delegation-a-framework-for-supervising-ai-coding-agents)  
    标签：评分：6.0/10、query:llm-agent
-   evidence：面向LLM智能体的检索基础设施
+   evidence：监督自主AI编程智能体的框架
+12. [Canonical Procedural Actions: An Auditable Annotation Protocol for Tool-Use Agent Traces](/202609/24/2609.24264v1-canonical-procedural-actions-an-auditable-annotation-protocol-for-tool-use-agent-traces)  
+   标签：评分：6.0/10、query:llm-agent
+   evidence：面向工具使用智能体轨迹的标注协议
+13. [GRUET: Quantifying Uncertainty of Agentic Reasoning-and-Acting Processes](/202609/24/2609.24831v1-gruet-quantifying-uncertainty-of-agentic-reasoning-and-acting-processes)  
+   标签：评分：6.0/10、query:llm-agent
+   evidence：量化智能体推理-行动轨迹的不确定性
 
 
 <div class="dpr-home-promo-card">
