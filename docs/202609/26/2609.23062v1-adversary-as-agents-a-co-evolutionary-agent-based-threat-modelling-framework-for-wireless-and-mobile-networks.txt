@@ -1,0 +1,802 @@
+Title: Adversary-as-Agents: A Co-Evolutionary Agent-Based Threat-Modelling Framework for Wireless and Mobile Networks
+
+URL Source: https://arxiv.org/pdf/2609.23062v1
+
+Published Time: Tue, 22 Sep 2026 00:55:33 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+> 1
+
+# Adversary-as-Agents: A Co-Evolutionary Agent-Based Threat-Modelling Framework for Wireless and Mobile Networks 
+
+Indrakshi Dey, Senior Member, IEEE, Mohamed Khalfallah Hassan, Sayanti Ghosh, Member, IEEE, 
+
+and Nicola Marchetti, Senior Member, IEEE 
+
+Abstract —Threat modelling for wireless and mobile networks is dominated by static, catalogue-driven methods that fix the adversary in advance and never ask whether an attack is feasible against the defence actually deployed; agent-based resilience studies share this limitation, optimising a defender against an exogenous threat profile. We instead endogenise the adver-sary. Network entities run a decentralised consensus agent-based model (DC-ABM) defence, while an adaptive adversary population co-evolves by allocating a bounded attack budget across vulnerability-mode partitions. The equilibrium is a rank-able, feasibility-grounded threat model expressed through three structural metrics: degeneracy-weighted path robustness, trust-weighted functional substitutability, and robust degeneracy. We prove that the DC-ABM defence contracts below its Byzantine breakdown threshold and that the induced adversary payoff is convex against that threshold, so the emergent attack drives a subset of partitions to breakdown in priority order. We further prove that this attack concentrates on the least substitutable partitions, that severity diverges as the induced corrupted-mass fraction approaches breakdown, and that operators can shrink the attack surface at deployment time along a closed-form connectivity-substitutability exchange rate. A reference imple-mentation covering Byzantine faults, jamming, pilot contami-nation, eavesdropping, and correlated function failure, bench-marked against state-of-the-art baselines, confirms each result. It predicts consensus breakdown with a root-mean-square error of 
+
+0.014 , attains a mean Kendall correlation of 0.34 with indepen-dently measured consensus degradation where catalogue-based baselines remain near zero, and cuts the average Threat Exposure Index by 37% under runtime adaptation. The equilibrium solver scales as O(M log M ) in the number of partitions. 
+
+Index Terms —Agent-based modelling, threat modelling, wire-less and mobile networks, adversarial co-evolution, attack sur-face, structural metrics, Byzantine resilience, distributed consen-sus, network security. 
+
+I. I NTRODUCTION 
+
+# WIRELESS and mobile networks are evolving into highly distributed, autonomous systems that span vir-tualised radio access, edge intelligence, and consensus-driven orchestration. Their control and data planes increasingly rely 
+
+Indrakshi Dey is with the Department of Computing and Mathematics, South East Technological University, Waterford, X91 K0EK Ireland (e-mail: indrakshi.dey@setu.ie). Mohamed Khalafalla Hassan is with the School of Computing, National College of Ireland, Dublin, D01 K5Y6 Ireland (e-mail: mohamed.KhalafallaHassan@ncirl.ie). Sayanti Ghosh and Nicola Marchetti are with the Department of Electrical and Electronic Engineering, Trin-ity College Dublin, Dublin, D02 PN40 Ireland (e-mail: saghosh@tcd.ie; nicola.marchetti@tcd.ie). Supported in part by the US-Ireland Research and Development Partnership RI-SFI-23/US/3924, and Research Ireland Grant 13/RC/2077_P2. 
+
+on many interacting entities that reach agreement through local message exchange, rather than on a single central controller. This shift enlarges the attack surface in ways that conventional threat modelling struggles to capture [1], [2]. It also changes the fundamental question that a threat model must answer. In a distributed network the relevant question is no longer only which assets an attacker can reach, but whether the network can absorb an attack by substituting a compromised function with an equivalent one and still reach a correct collective decision. This is a networking-layer question about topology, redundancy, and the resilience of the distributed protocol, and it is exactly the question that catalogue-based methods leave unanswered. Established methodologies enumerate threats from a static catalogue and score them with expert-assigned weights. The Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, and Elevation of privilege taxonomy, known as STRIDE [2], attack trees [3], and logic-based attack-graph analysers such as the Multihost, multistage Vulnerability Analysis tool, known as MulVAL [4], all take this form, and the resulting threats are commonly scored through the Common Vulnerability Scoring System, known as CVSS [5]. Two structural weaknesses follow. First, the adversary is exogenous. The catalogue is fixed in advance and does not react to the defence that the operator actually deploys, so it cannot represent an attacker that reallocates effort once it observes where the network is hardened. Second, the analysis is feasibility-blind. It does not ask whether an attack can be absorbed by the redundant, distributed structure of the network, so it systematically over-rates or under-rates threats in architectures such as cell-free and virtualised deployments that carry substantial functional redundancy [12]. A threat that a catalogue rates as critical may be harmless because the network reroutes around it, and a threat that a catalogue ignores may be the one that pushes a distributed consensus past its breakdown point. Agent-based modelling represents network entities as au-tonomous, locally interacting agents whose collective be-haviour produces emergent system-level outcomes. It is a nat-ural tool for distributed wireless systems and has been applied to distributed resource management [11] and to Byzantine-resilient consensus [9]. Yet existing agent-based resilience studies model only the defensive half of the interaction. They assume a given threat, such as a fixed fraction of Byzantine agents or a fixed salience profile over attack modes, and arXiv:2609.23062v1 [eess.SP] 19 Sep 2026 2
+
+they then optimise a defender against it. The threat model itself is never an output of the analysis. Agent-based ideas have also been applied directly to security, for example to simulate cyber-warfare between attacker and defender agents [13], while catalogue-based threat modelling has matured through structured frameworks such as the MITRE ATT&CK (Adversarial Tactics, Techniques, and Common Knowledge) knowledge base [14], and through STRIDE-based analyses of cyber-physical systems [15]. These efforts either replay fixed adversary playbooks or enumerate static catalogues. None couples an adaptive adversary to a feasibility-grounded distributed defence so that the ranking of threats emerges from the interaction between that adversary and the defence it actually faces. This paper closes that gap by endogenising the adversary. We cast threat modelling as a co-evolutionary agent-based interaction. The network runs a decentralised consensus agent defence, which we call the decentralised consensus agent-based model (DC-ABM), and an adaptive adversary population allocates a bounded budget over vulnerability-mode partitions. We adopt DC-ABM because it provides a fully distributed defence mechanism with adaptive trust-weighted consensus, exposes an explicit resilience breakdown threshold, and admits analytical characterisation of the relationship between network topology, functional substitutability, and Byzantine resilience. These properties make it a suitable foundation for feasibility-grounded threat modelling while remaining compatible with large-scale wireless and mobile networks. The equilibrium of this interaction is the threat model. It is an emergent, feasibility-grounded, and rankable object, rather than a hand-curated list. To keep the framework within the networking layer rather than the physical layer, the only cross-layer quantity we import is a scalar feasibility signal, namely the target-to-achieved service-level ratio that any management plane can observe. Everything else, including the structural metrics, the breakdown threshold, and the equilibrium ranking, is computed from the network topology and the consensus dynamics. Fig. 1 summarises the resulting architecture and is referred to throughout Sec. III. The framework is positioned squarely within the concerns of the networking community. This perspective enables threat modelling to evolve alongside network adaptation rather than remaining fixed throughout the system lifecycle. The defence is a distributed consensus protocol whose resilience is gov-erned by the algebraic connectivity of the coordination graph, a topological design variable. The threat ranking is feasibility-grounded through functional substitution, which is a statement about routing and redundancy in the network. The central control result shows how the two deployment-time levers avail-able to an operator, namely raising the algebraic connectivity of the coordination graph by adding coordination links, and raising functional substitutability by reassigning substitutable functions across entities, reshape the attack surface, and it prices one lever against the other. The solver that produces the ranking runs in O(M log M ) time in the number of partitions, which keeps the analysis practical for large mobile deployments with drifting conditions. Our contributions are as follows.  
+
+> •
+
+We give an adversary-as-agents co-evolutionary formu-lation over vulnerability-mode partitions with an explicit attack budget, defended by a self-contained DC-ABM de-fence whose consensus update we state in full (Sec. III).  
+
+> •
+
+We prove a contraction and convergence theorem for the DC-ABM defence below its breakdown threshold, we prove that the micro-tuning factor is unimodal, and we give the breakdown factorisation that separates topologi-cal from substitution effects (Sec. IV).  
+
+> •
+
+We build a feasibility-grounded threat calculus on top of that defence, consisting of a per-partition exploitability-severity score and an aggregate Threat Exposure Index. Within this calculus we prove the following five results. 1) The adversary payoff is convex against the break-down barrier, so the optimal attack is a vertex allocation rather than a smooth spread. 2) The emergent attack concentrates on the least sub-stitutable partitions. 3) Severity diverges as the induced corruption ap-proaches breakdown. 4) A Stackelberg configuration of the operator problem exists. 5) The operator can shrink the emergent attack surface at design time along a closed-form exchange rate. We close the section with a Lipschitz sensitivity bound and an O(M log M ) complexity guarantee (Sec. V).  
+
+> •
+
+We validate every analytical result with a reference im-plementation, specified in Sec. V-H, that integrates the agent-level consensus and trust dynamics of equations (1) and (2) directly, extracts the structural coordinates from the converged agent state, and closes the loop with the priority-fill equilibrium solver of Proposition 2. We compare against several state-of-the-art threat-modelling and defence baselines across five representative wireless and mobile threats (Sec. VI). II. R ELATED WORK 
+
+A. Catalogue-Based and Graph-Based Threat Modelling 
+
+The dominant threat-modelling methods build a catalogue of threats and score it. STRIDE organises threats into six classes and drives a checklist analysis [2]. Attack trees decompose a goal into conjunctive and disjunctive subgoals and propagate leaf costs to the root [3]. Attack-graph tools such as MulVAL reason over reachability and configuration to enumerate mul-tistage paths [4], and Bayesian attack graphs add probabilistic dependence between exploitation steps [7]. CVSS attaches severity scores drawn from expert judgement [5]. The MITRE matrix systematises adversary tactics and techniques into a shared vocabulary [14], and topological vulnerability analysis composes reachability and configuration data into network-wide attack graphs [30]. All of these represent the adversary as an exogenous input. The threat set and its scores are fixed before the defence is considered, so the analysis cannot express an attacker that reallocates effort in response to hardening, and it cannot express whether a distributed network can absorb a given attack by substituting the functions it compromises with structurally equivalent functions hosted elsewhere in 3
+
+the network. Our framework differs in both respects. The adversary is a budget-constrained optimiser whose allocation emerges from its interaction with the deployed consensus defence, and every partition carries structural coordinates that make its criticality a computed quantity rather than an assigned one. 
+
+B. Game-Theoretic Security 
+
+Game theory models security as an interaction between strategic attackers and defenders [6]. Stackelberg security games, in which a defender commits to a strategy that an attacker then best-responds to, have been applied widely to resource allocation for protection [25], [26]. Our formula-tion shares the leader-follower structure, since the operator commits to a topology and a tuning, and the adversary best-responds with a budget allocation. The difference is that our follower problem is grounded in the feasibility of a specific distributed defence: the attacker payoff is not an abstract utility but the realised proximity of each partition to the consensus breakdown threshold, which we derive from the dynamics rather than assume. This gives the equilibrium a physical meaning that a generic security game does not carry. 
+
+C. Resilient Distributed Consensus 
+
+The defence we adopt belongs to the literature on Byzantine-resilient consensus. Classical results establish that agreement among distributed agents can tolerate abounded fraction of arbitrarily faulty participants [16]. Mean-subsequence- reduced and trimmed-mean filters discard ex-treme neighbour values and admit resilience guarantees on graphs with sufficient connectivity [17], [18]. Fault-tolerant multi-agent optimisation extends these ideas to distributed ob-jectives [9]. Approximate agreement under faults [35], iterative Byzantine consensus on directed graphs [36], resilience to locally bounded adversaries [37], and scaled consensus [38] extend the same filtering principle in different directions. The resilience of such protocols is controlled by graph-theoretic quantities [24], in particular the algebraic connectivity [20] that governs the rate of information diffusion [21], [22] and the robustness notions that govern tolerance to adversarial nodes [17]. We take a trust-weighted trimmed-mean consensus as the defence, and rather than proving a new resilience guarantee for it, we extract from it the operating characteristic that a threat model needs, namely the breakdown threshold as a function of connectivity and substitutability, and the contraction of the honest disagreement below that threshold. 
+
+D. Agent-Based and Learning Approaches 
+
+Agent-based modelling has been used to simulate cyber-conflict between attacker and defender populations [13] and to manage distributed wireless resources with multi-agent reinforcement learning [11]. Learning red teams can discover strong attacks by interacting with a defended environment. These approaches are complementary to ours. They produce attacks or policies but not a ranked, feasibility-grounded, and interpretable threat model with closed-form design levers, such as the connectivity-substitutability exchange rate of (13) and the interior trimming and trust optimum of Lemma 1, that tell an operator what to change and by how much. Recent advances have also explored large language models (LLMs) and autonomous AI agents for cyber-defence planning, at-tack simulation, vulnerability analysis, and security reasoning [39]–[42]. These approaches provide semantic reasoning and automated decision support but generally operate over pre-defined attack knowledge, textual descriptions, or historical security artefacts rather than explicitly modelling the under-lying network dynamics. Consequently, they do not capture the interaction between distributed resilience mechanisms and adaptive adversaries that determines whether attacks remain operationally feasible. The proposed framework is comple-mentary, providing a mathematically grounded network-level model that can serve as a structural reasoning layer beneath fu-ture AI-driven security agents. Our equilibrium is analytically characterised, which is what allows the controllability and exchange-rate results, and the priority-fill solver that produces it is orders of magnitude cheaper than training a learning red team. We include a multi-agent reinforcement learning red team and a defence based on the alternating direction method of multipliers [10] among our baselines in Sec. VI. III. S YSTEM , A DVERSARY , AND THREAT SURFACE 
+
+Fig. 1 summarises the framework developed in this section and the next two: a population of defender agents running the DC-ABM consensus, a population of adversary agents spending a bounded budget, the vulnerability-mode partitions over which the two populations meet, the structural metrics through which their interaction is read, and the macro and micro levers with which the operator reshapes it. 
+
+A. Network as Defender Agents 
+
+Let K = {1, . . . , K } index the K network entities, which may be nodes, virtualised functions, or slices. The entities are interconnected by a coordination graph Gf , which is the graph over which the management plane runs its consensus-based control exchanges [34] and which may be regular, small-world [27], or scale-free [28]. We write Lf for its graph Laplacian and λ2(Lf ) for its algebraic connectivity, the second-smallest eigenvalue of Lf , which governs the rate of information diffusion across the network. Each entity k
+
+holds a state xk(t) ∈ R that represents its local view of a quantity on which the network must agree, for example a resource-allocation decision, a slice configuration, or a trust estimate. Each entity runs a decentralised consensus update that aggregates the reports of its neighbours with a trust-weighted trimmed mean. Let Nk denote the neighbours of 
+
+k, let τkj (t) ∈ [0 , 1] denote the reputation that k assigns to neighbour j, and let β ∈ (0 , 1/2) denote the trim fraction that discards the most extreme reports on each side. The update is 
+
+xk(t + 1) = 
+
+P  
+
+> j∈R k(t)
+
+τkj (t) xj (t)
+
+P  
+
+> j∈R k(t)
+
+τkj (t) , (1) where Rk(t) ⊆ N k ∪ { k} is the retained set that remains after sorting the values {xj (t) : j ∈ N k ∪ { k}} and removing the 4
+
+⌊β |N k ∪ { k}|⌋ largest and smallest. The reputations evolve so that persistently inconsistent neighbours lose influence, 
+
+τkj (t + 1) = τkj (t)  1 − ητ ϕ |xj (t) − xk(t + 1) | , (2) where ητ ∈ (0 , 1) is a trust learning rate and ϕ(·) ∈ [0 , 1) 
+
+is a bounded, non-decreasing penalty, taken here as ϕ(z) = tanh( z). Reputations are clipped to a small positive floor so that no neighbour is permanently excluded on the basis of transient disagreement. As a management-plane observable we retain the scalar feasibility signal 
+
+Dk = star 
+
+> k
+
+sach 
+
+> k
+
+, (3) the ratio of the target service level star  
+
+> k
+
+to the achieved service level sach  
+
+> k
+
+of entity k. Entity k is feasible if and only if Dk ≤
+
+1. This degeneracy ratio is deliberately transmission-agnostic, so that the framework remains a networking-layer construct and does not depend on the details of the physical layer. The achieved service level degrades as the consensus is disrupted, so Dk is the bridge between the disagreement dynamics of (1) and the operational health of the network. 
+
+B. Vulnerability-Mode Partitions 
+
+Let Π = {P 1, . . . , PM } partition the M attackable modes of the network. Representative wireless and mobile partitions are Byzantine or compromised nodes, jamming and interference [8], pilot or identity contamination, cache-aware eavesdrop-ping, and correlated virtualised network function (VNF) failure [32]; together they cover the classes that dominate published 5G threat analyses [33]. Partitions are the atoms over which the adversary spends effort and over which the operator assigns a salience profile {ζP }, with ζP ≥ 0 weighting the operational importance of partition P. These partitions subsume the cat-egories of catalogue methods. Spoofing and tampering map to pilot or identity contamination and to Byzantine nodes, information disclosure maps to cache-aware eavesdropping, and denial of service maps to jamming and to correlated function failure. MITRE tactics map onto the same five modes: impact onto jamming and correlated VNF failure, since both degrade the service that the consensus is meant to deliver, and defence evasion onto Byzantine or compromised nodes and pilot or identity contamination, since both operate by passing values that the trimming and trust filters of (1)–(2) do not reject [14], [15]. The difference is that each partition here also carries the quantitative structural coordinates of Definition 1, so that its criticality is computed rather than assigned. 
+
+C. Structural Metrics as Attack-Surface Coordinates 
+
+For each partition P we use three structural metrics as the coordinates of the attack surface. First, path robustness, the degeneracy-weighted path robustness DWPR( P) = 1 −∥αP ∥2, is the Gini-Simpson spread of an entity’s serviced resources across modes, where αP is the rate-weighted mode-mass distribution over P. A low value means that the serviced resources are concentrated on few modes, so the partition  
+
+> Fig. 1. Adversary-as-agents threat modelling. The defender and adversary agent populations co-evolve over the vulnerability-mode partitions. Their interaction, read through the structural metrics, emerges as a rankable threat model that the operator can reshape through the macro levers, namely the coordination-graph topology and the grouping of network functions into vulnerability-mode partitions, and through the micro levers of trimming and trust.
+
+is exposed, because losing one mode cannot be compen-sated by the others. Second, trust-weighted functional substi-tutability, the functional substitution score FSS trust (P), is the reputation-weighted count of structurally distinct substitutes for the functions attacked in P, and its network-wide average is denoted FSS( P). A high value means that the network can reroute around an attack on P by invoking equivalent functions elsewhere. Third, robust degeneracy Drob (P) =max a star /s ach (a) is the worst-case feasibility ratio over admissible adversary actions a, and it measures how badly the achieved service can degrade under the strongest admissible attack on P.
+
+Definition 1 (Threat surface) . The threat surface is the map 
+
+Σ : P 7 →  DWPR( P), FSS trust (P), D rob (P) evaluated over all P ∈ Π. The pair (Σ , b ⋆), where b⋆ is the adversary equilibrium of Sec. V, is the emergent threat model. 
+
+IV. A NALYSIS OF THE DC-ABM D EFENCE 
+
+This section establishes the operating characteristic of the DC-ABM defence that the threat calculus of Sec. V relies on. We show that below a breakdown threshold the honest disagreement contracts to zero, we give the rate, we show that the micro-tuning factor is unimodal in the trimming and trust parameters, and we state the breakdown factorisation that separates the topological contribution from the substitution contribution. 
+
+A. Contraction and Convergence Below Breakdown 
+
+Let H ⊆ K denote the set of honest entities and let 
+
+B = K \ H denote the Byzantine entities, which may send arbitrary and time-varying values. Let f = |B| /K denote the corrupted-mass fraction. Write the honest disagreement as 
+
+∆( t) = max k∈H xk(t) − min k∈H xk(t). We use the standard notion of graph robustness for resilient consensus. 
+
+Definition 2 (r-robustness [17]) . A graph is r-robust if for every pair of disjoint non-empty vertex subsets, at least one of the two subsets contains a vertex with at least r neighbours 5
+
+outside its own subset. The graph is (r, s )-robust if in addition the required property holds for at least s vertices jointly across the two subsets. 
+
+Theorem 1 (Contraction and convergence) . Consider the trust-weighted trimmed-mean update (1) with trim fraction 
+
+β on a coordination graph that is (2 F + 1) -robust, where 
+
+F = ⌈βK ⌉ bounds the number of trimmed values per neigh-bourhood. If the corrupted-mass fraction satisfies f < f max ,where fmax is the largest fraction for which every honest entity retains at least one honest neighbour after trimming, then there exists a contraction factor ρ(f ) ∈ [0 , 1) such that 
+
+∆( t + 1) ≤ ρ(f ) ∆( t), ρ(f ) = 1 − γ (1 − f /f max ), (4) 
+
+for a constant γ ∈ (0 , 1] that depends on the connectivity and the trust floor. Consequently the honest states converge geometrically to a common value, and ρ(f ) → 1− as f →
+
+f −
+
+> max
+
+.Proof. The argument combines the safety of the trimmed mean with a diffusion bound. First, consider safety. After sorting the values in the neighbourhood of an honest entity 
+
+k and removing the F = ⌈βK ⌉ largest of them and the F
+
+smallest of them, every retained value lies within the interval spanned by the honest values, because at most F Byzantine values can lie above the honest range and at most F can lie below it, and the trim of size F on each side removes them before they can enter the average. This is the standard safety property of the mean-subsequence-reduced filter on a (2 F +1) -robust graph [17], [18]. Hence the honest update in (1) is a convex combination of honest values, with weights given by the retained reputations, and no honest state can leave the current honest interval. This gives ∆( t + 1) ≤ ∆( t).Next, consider strict contraction, which we quantify through the ergodicity coefficient of the honest averaging operator rather than an aggregate diffusion argument. By the safety property just established, the honest update can be written as xH (t + 1) = P (t) xH (t), where xH collects the honest states and P (t) ∈ RH×H is row-stochastic: its entry Pkj (t) is the normalised retained reputation that honest entity k places on honest entity j after trimming, and the rows sum to one because every retained value lies in the honest interval and the Byzantine contributions have been trimmed out. For any row-stochastic P the span seminorm ∆( x) = max i xi − min i xi
+
+obeys the classical Dobrushin bound ∆( P x ) ≤ τ1(P ) ∆( x),where 
+
+τ1(P ) = 1 − min 
+
+> k,ℓ
+
+X
+
+> j
+
+min  Pkj , P ℓj 
+
+ ∈ [0 , 1] (5) is the ergodicity (scrambling) coefficient [19]. It remains to lower bound the scrambling mass min k,ℓ 
+
+P 
+
+> j
+
+min( Pkj , P ℓj ).Let wmin > 0 be the smallest normalised retained reputation, which is bounded below because the reputations are clipped to a positive floor τ > 0. The (2 F + 1) -robustness of the coordination graph guarantees that any two honest entities k
+
+and ℓ retain at least c(f ) ≥ 1 common honest neighbours after trimming whenever f < f max , since fewer than the robustness margin of neighbours can be removed by the combined trim and corruption. Here c(f ) := min k,ℓ ∈H |R k ∩R ℓ ∩H| denotes the smallest number of honest entities that survive the trim simultaneously in the retained sets of any two honest entities at corrupted-mass fraction f ; it is the common support through which information is guaranteed to flow between any two hon-est views. Each such common neighbour contributes at least 
+
+wmin to the inner minimum, so min k,ℓ 
+
+P 
+
+> j
+
+min( Pkj , P ℓj ) ≥
+
+wmin c(f ) and hence τ1(P (t)) ≤ 1 − wmin c(f ). The number of retained common honest neighbours degrades linearly with the corrupted mass and vanishes at breakdown, so we write 
+
+c(f ) = c0 (1 − f /f max ) with c0 > 0 fixed by the connec-tivity margin. Setting γ = wmin c0 ∈ (0 , 1] gives the rate 
+
+ρ(f ) = 1 − γ (1 − f /f max ) in (4) with all constants identified explicitly. As f → f − 
+
+> max
+
+the common honest support shrinks to nothing, so c(f ) → 0 and τ1(P (t)) → 1−. In this limit the averaging operator P (t) ceases to be scrambling , namely there is a pair of honest entities k, ℓ whose retained sets share no honest neighbour, so the rows Pk·(t) and Pℓ·(t) have disjoint supports and P 
+
+> j
+
+min( Pkj , P ℓj ) = 0 . No honest value is then common to the two updates, the views of k and ℓ are no longer mixed, and the Dobrushin bound (5) becomes vacuous because it no longer contracts the span seminorm. Hence ρ(f ) → 1−.Geometric convergence of ∆( t) to zero for f < f max follows by iterating (4). Theorem 1 is the analytical backbone of the severity result in Sec. V, and its operational reading is the following. The defence remains effective for every f < f max , but the per-step contraction factor ρ(f ) degrades smoothly and predictably towards one as the attack approaches breakdown. Since the honest states are the values on which the entities act, the disagreement ∆( T ) that survives after a fixed operating hori-zon T is what the network carries into its resource-allocation decisions, and by (4) it grows like ρ(f )T ∆(0) . A larger surviving disagreement means the entities serve their traffic from inconsistent decisions, so the achieved service level sach 
+
+> k
+
+falls and the feasibility ratio Dk of (3) rises. In the limit 
+
+f → f − 
+
+> max
+
+we have ρ(f ) → 1−, the disagreement no longer contracts at all, and Dk diverges. The empirical contraction curves in Sec. VI confirm both effects: a geometric decay of 
+
+∆( t) whose measured per-step factor matches the ρ(f ) of (4), and a stall of that decay as f approaches the threshold. 
+
+B. Breakdown Threshold and Its Factorisation 
+
+The contraction result of Theorem 1 shows that the break-down threshold fmax depends on two qualitatively different mechanisms. The first is the local consensus dynamics , gov-erned by the trimming fraction β and the trust adaptation rate 
+
+ητ , which determine how effectively the defender suppresses corrupted information. The second is the network structure ,determined by the coordination topology and the availability of functionally substitutable resources, which governs the amount of redundancy available to tolerate attacks. Since these two mechanisms operate at different decision scales and influence the consensus dynamics through independent pathways, we model the breakdown threshold as a separable macro–micro factorisation. This factorisation is motivated by the structure of the consensus process and is subsequently validated through numerical experiments rather than derived from first principles. 6
+
+Assumption 1 (Breakdown factorisation) . The DC-ABM breakdown threshold for partition P is modelled as 
+
+fmax (P) = κ(β, η τ )
+
+| {z }
+
+> micro
+
+· g(λ2(Lf )) 1 + c2
+
+ 1 − FSS( P)| {z }
+
+> macro
+
+, (6) 
+
+where κ(β, η τ ) ∈ [0 , κ ⋆] captures the influence of the run-time consensus parameters, g(λ2(Lf )) is a monotone non-decreasing function of the algebraic connectivity, and c2 > 0
+
+quantifies the penalty associated with limited functional sub-stitutability. The separable form reflects the modelling as-sumption that runtime adaptation (micro scale) and structural redundancy (macro scale) contribute approximately indepen-dently to the resilience margin. For g we adopt the saturating model 
+
+g(λ2(Lf )) = λ2(Lf )1 + c3λ2(Lf ) ,
+
+which captures the diminishing marginal resilience obtained from increasing network connectivity. The constant c3 ≥ 0 is the saturation coefficient: it fixes the connectivity scale 1/c 3
+
+beyond which additional links buy little further resilience, and it is estimated once per deployment together with c2
+
+by fitting (6) to measured thresholds. In the low-connectivity regime λ2(Lf ) ≪ 1/c 3 the model reduces to the linear form g(λ2(Lf )) ≈ λ2(Lf ), and c3 = 0 recovers it exactly. Section VI demonstrates that this factorised model accurately predicts the measured breakdown threshold across diverse network topologies and substitutability levels. 
+
+The factorised form separates deployment-level design de-cisions from runtime parameter adaptation, simplifying sub-sequent optimisation. The micro factor κ captures the effect of the trimming and trust parameters. Trimming too little lets Byzantine values through, and trimming too much discards honest neighbours and weakens the retained honest support, so there is an interior optimum. The trust rate behaves similarly, since too small a rate fails to suppress persistent attackers and too large a rate destabilises the reputations on transient disagreement. The macro term captures the effect of topology and substitutability. Higher algebraic connectivity raises the retained honest support and therefore the tolerable corrupted mass, while higher substitutability lowers the substitution penalty and again raises the threshold. The following lemma formalises the interior optimum of the micro factor. 
+
+Lemma 1 (Unimodality of the micro factor) . For fixed topol-ogy and partition, the breakdown threshold as a function of the trim fraction β and the trust rate ητ is quasi-concave and attains an interior maximum κ⋆ at a point (β⋆, η ⋆τ ) with 
+
+0 < β ⋆ < 1/2 and 0 < η ⋆τ < 1.Proof. Fix ητ and vary β. At β = 0 no values are trimmed, so a single extreme Byzantine value enters every honest average and the tolerable corrupted mass is zero. As β increases from zero, each additional unit of trim removes one potential Byzantine value from each side, which raises the tolerable corrupted mass, so the threshold is increasing for small β.As β approaches 1/2, the trim removes almost all neighbours, including honest ones, so the retained honest support collapses and the threshold falls to zero. Hence the threshold is zero at both ends of the interval and positive in the interior, and by the single-crossing property of the marginal gain from trimming, which switches once from positive to negative as trimming begins to remove honest rather than Byzantine values, the threshold is quasi-concave in β with a unique interior maximiser. The same argument applies to ητ , since a zero rate fails to demote persistent attackers and a unit rate zeroes reputations on transient disagreement, again giving zero threshold at both ends and a positive interior. Quasi-concavity of the two-parameter threshold follows because the two effects act on disjoint mechanisms, the retained set and the retained weights, and their composition preserves the single interior maximiser. The maximiser lies strictly inside the domain, which gives κ⋆ and (β⋆, η ⋆τ ).Lemma 1 guarantees that the micro levers have a well-defined optimum that the operator can seek, and Sec. VI recovers this optimum empirically. We now use the operating characteristic established here to build and analyse the co-evolutionary threat model. V. C O-E VOLUTIONARY THREAT MODEL 
+
+A. Adversary Agents and Induced Stress 
+
+The adversary allocates a budget vector b = ( b1, . . . , b M ),where bP ≥ 0 denotes the effort assigned to vulnerability parti-tion P and P 
+
+> P
+
+bP ≤ B is the total attack budget. To compare heterogeneous attack mechanisms on a common resilience scale, we map the attack expenditure to an induced Byzantine-equivalent corruption fraction, fP (bP ), which represents the effective fraction of compromised consensus influence gener-ated by investing budget bP against partition P. Rather than modelling the underlying physical attack process, this mapping serves as an abstract resource-to-impact transformation that enables diverse attack types to be analysed within a unified consensus-resilience framework. We adopt the saturating ex-ponential model 
+
+fP (bP ) = f∞
+
+ 1 − e−aP bP  , (7) where fP (0) = 0, f∞ denotes the maximum attainable effective corruption level, and aP > 0 is a partition-specific attack-efficiency parameter. This model captures the practi-cal phenomenon of diminishing marginal returns : the initial attack budget preferentially compromises the most vulnera-ble entities, whereas additional expenditure must overcome progressively stronger protection, redundancy, or functional diversity, resulting in a gradual saturation of the achievable corruption level. The exponential mapping is analytically attractive because it is smooth, strictly increasing, naturally bounded by f∞, and avoids unrealistically unbounded growth in the induced corruption level. The subsequent analysis is not tied to the specific exponential form. Rather, it requires only that fP (·) be continuously differentiable, monotonically increasing, and saturating. Hence, alternative mappings that satisfy these properties, including logistic and Michaelis– Menten functions, may be employed without affecting the structural validity of the analytical results developed in the remainder of the paper. 7
+
+B. Feasibility-Grounded Threat Score 
+
+Using the breakdown threshold (6), we define for each partition an exploitability term EP and a severity term SP ,
+
+EP = 1FSS trust (P) DWPR( P) + ε , (8) 
+
+SP (bP ) = Drob (P) fP (bP )
+
+fmax (P) , (9) where ε > 0 is a small constant that prevents division by zero. Low substitutability and low path robustness raise exploitability, since the network cannot reroute around the attack, and worst-case degeneracy together with proximity to breakdown raise severity. Consistent with Theorem 1, as 
+
+fP → fmax (P) the achieved service collapses and the robust degeneracy Drob diverges. We model this divergence explicitly as 
+
+Drob (P) = D0
+
+1 − fP /f max (P) , (10) where D0 > 0 is the attack-free feasibility ratio of the partition, that is, the value of Drob (P) at bP = 0 , so that 
+
+Drob = D0 when the partition is unattacked. The denominator of (10) is the residual honest agreement of the partition, namely the normalised margin 1 − fP /f max (P) ∈ (0 , 1] 
+
+that separates the induced corruption from the breakdown threshold. It is exactly the factor that multiplies γ in the contraction rate (4), and Theorem 1 shows that it vanishes, together with the contraction of ∆( t), as fP → fmax (P)−.The per-partition exploitability-severity score ΘP and the aggregate Threat Exposure Index are 
+
+ΘP (bP ) = EP SP (bP ), TEI( b) = X
+
+> P∈ Π
+
+ζP ΘP (bP ).
+
+(11) 
+
+C. Bilevel Interaction and Its Equilibrium 
+
+The operator sets the macro and micro configuration, and the adversary best-responds by maximising the damage it can inflict for its budget, 
+
+b⋆ = arg max  
+
+> b≥0,1⊤b≤B
+
+X
+
+> P∈ Π
+
+UP (bP ), UP := ζP ΘP , (12) where 1 is the all-ones vector. The emergent threat model is the pair (Σ , b ⋆), the surface coordinates ranked by the realised scores {ΘP (b⋆ 
+
+> P
+
+)}. We first establish that the adversary problem is well posed. 
+
+Proposition 1 (Convex payoff, breakdown barrier, and ex-istence) . Each payoff UP is strictly increasing and strictly convex in bP on the feasible region where fP < f max (P),and UP → ∞ as fP → fmax (P)−. The adversary problem is therefore well posed only against the breakdown barrier 
+
+fP ≤ (1 − ϵ)fmax (P), equivalently a per-partition budget cap 
+
+bP ≤ ¯bP = f −1
+
+> P
+
+ (1 − ϵ)fmax 
+
+. Over the resulting compact feasible set a maximiser b⋆ exists, and because the objective is convex it is attained at an extreme point of that set, that is, at an allocation that drives a subset of partitions to their caps and leaves the rest at zero. Proof. Fix a partition and write u = fP /f max ∈ [0 , 1) .Substituting (10) into (9) gives severity SP = D0 u/ (1 − u),so UP = ζP EP D0 h(u) with h(u) = u/ (1 − u), which is strictly increasing and diverges as u → 1−, giving the barrier at breakdown. Differentiating through u = fP (b)/f max with 
+
+f ′P (b) = aP (f∞ − fP ) > 0 and f ′′ P (b) = −aP f ′P (b),
+
+U ′′ P (b) = ζP EP D0
+
+fmax 
+
+f ′P (b)(1 − u)2
+
+ 2 f ′P (b)
+
+fmax (1 − u) − aP
+
+
+
+.
+
+The prefactor is positive, and the bracket equals aP
+
+2( f∞ −
+
+fP )/(fmax − fP ) − 1. Since the corruption efficiency sat-urates at a level above breakdown, f∞ > f max , we have 
+
+f∞ − fP > f max − fP > 0 for all feasible fP < f max ,so the bracket exceeds aP > 0 and U ′′ P (b) > 0. Each payoff is thus strictly convex and increasing on its feasible interval. This is the mathematically important correction to a naive water-filling reading: the divergence of severity at breakdown makes the payoff convex, not concave, so the problem is not a smooth interior optimisation but a convex maximisation against the breakdown barrier. Imposing fP ≤ (1 −ϵ)fmax yields the caps 
+
+¯bP and the feasible set K = {b : b ≥ 0, 1⊤b ≤ B, b P ≤ ¯bP },which is compact and convex. The objective is continuous, so a maximiser exists by the Weierstrass theorem. A convex function on a compact convex polytope attains its maximum at an extreme point of the polytope [23], and the extreme points of K set each coordinate to 0, to its cap ¯bP , or, for at most one coordinate, to the residual budget. Hence the optimal attack fills a subset of partitions to breakdown and leaves the rest untouched. 
+
+Remark 1. The convex-barrier structure sharpens rather than weakens the concentration thesis. A concave payoff would spread the budget smoothly across all partitions, whereas the convex payoff drives the adversary to commit fully to the partitions it selects and to select them in a strict priority order, which is exactly the vertex behaviour above. When the budget exceeds the sum of caps the adversary can push every partition to its barrier; the interesting regime is B below that sum, where the choice of which partitions to bring to breakdown is forced, and Proposition 2 identifies that choice. D. Emergent Threat Concentration 
+
+Proposition 2 (Emergent threat concentration) . Let each partition have feasibility cap ¯bP and cap efficiency ρP =
+
+UP (¯bP )/¯bP . As the budget B increases, the optimal attack 
+
+b⋆ activates partitions and drives them to their caps in order of decreasing ρP , with at most one partition partially filled at any budget. For partitions of equal salience ζ,the ordering by ρP coincides with the order of increasing 
+
+FSS trust (P) DWPR( P), so the least substitutable and least path-robust partitions are attacked first. Proof. By Proposition 1 the payoffs are convex and the maximiser lies at an extreme point of the feasible polytope 
+
+K, so each active partition is either at its cap or, for at most one, partially filled by the residual budget. It remains to identify the priority order. Since the budget is continuous, one partition may be split, so the outer problem is the fractional relaxation of a knapsack that packs the fixed values UP (¯bP )
+
+into the budget with weights ¯bP . The fractional knapsack 8
+
+is solved exactly by the greedy rule that selects items in decreasing value-to-weight ratio ρP = UP (¯bP )/¯bP , which is the stated activation order. At the caps every partition sits at the same normalised fraction u = 1 − ϵ, so UP (¯bP ) = 
+
+ζP EP D0 h(1 −ϵ) with the common factor h(1 −ϵ), and hence 
+
+ρP = ζP EP D0h(1 − ϵ)/¯bP . For equal salience the order of decreasing ρP is the order of decreasing EP /¯bP . Both factors move the same way with substitutability: EP is decreasing in FSS trust DWPR by (8), and the cap ¯bP is smaller for less substitutable partitions because their breakdown threshold 
+
+fmax is lower through Assumption 1. Hence decreasing ρP is increasing FSS trust DWPR , and the least substitutable, least path-robust partitions are brought to breakdown first. 
+
+Corollary 1 (Two-partition exchange) . Take two partitions with ρ1 ≥ ρ2, that is, partition one has the higher cap efficiency. The adversary spends its entire budget bringing partition one toward breakdown until that partition reaches its cap, and only then activates partition two. The exchange therefore occurs at the budget bth = ¯b1, the feasibility cap of the first partition. Proof. By Proposition 2 the greedy priority order fills partition one to its cap before partition two receives any budget, because 
+
+ρ1 ≥ ρ2. Any budget below ¯b1 is therefore placed entirely on partition one, and partition two becomes active exactly when the budget exceeds ¯b1. Since the convex payoff never rewards splitting between two partitions before the first is saturated, the switch is sharp rather than gradual. This prioritisation reflects the adversary’s rational preference for partitions where structural recovery is inherently limited. 
+
+E. Severity-Breakdown Coupling 
+
+Proposition 3 (Severity divergence at breakdown) . For every partition, ΘP is non-decreasing in the induced fraction fP
+
+and satisfies ΘP ∼ EP D0/(1 − fP /f max (P)) → ∞ as 
+
+fP → fmax (P)−. Threat severity is therefore governed by proximity to the defence’s Byzantine breakdown threshold, and the divergence rate is set by the exploitability EP .Proof. Since EP does not depend on bP , differentiating (11) through (9) and (10) gives ∂ΘP /∂f P = EP D0/[fmax (1 −
+
+fP /f max )2] ≥ 0, so ΘP is monotonically non-decreasing in fP . Substituting (10) into ΘP = EP Drob fP /f max gives 
+
+ΘP = EP D0(fP /f max )/(1 − fP /f max ), whose leading be-haviour as fP → f − 
+
+> max
+
+is EP D0/(1 − fP /f max ), a simple pole at breakdown. This divergence is the analytic counterpart of the contraction stall in Theorem 1, where ρ(f ) → 1
+
+and the achieved service, and hence the inverse degeneracy, collapses. 
+
+F. Stackelberg Configuration and Design-Time Control 
+
+The operator moves first by choosing the macro configu-ration, then the adversary best-responds. We record that this leader-follower problem is well posed. 
+
+Proposition 4 (Existence of the Stackelberg configura-tion) . Let the operator choose a macro configuration θ =(λ2(Lf ), FSS , {ζP }) from a compact set Θ, and let the adversary respond with the unique b⋆(θ) of Proposition 1. Then b⋆(θ) is continuous in θ, and the operator problem 
+
+min θ∈Θ TEI( b⋆(θ)) attains a minimiser. Proof. The adversary objective is jointly continuous in (θ, b ),and for each θ the feasible set K(θ) of Proposition 1 is nonempty, compact, and varies continuously with θ. Berge’s maximum theorem [29] then gives that the value function is continuous and the best-response correspondence b⋆(θ)
+
+is upper hemicontinuous, without requiring concavity of the objective. The maximiser is generically single-valued, since ties in cap efficiency occur only on a measure-zero set of parameters, so b⋆(θ) is a continuous selection off that set. The composition TEI( b⋆(θ)) is therefore continuous on the compact set Θ, so it attains a minimum by the Weierstrass theorem. 
+
+Proposition 5 (Design-time controllability and exchange rate) .
+
+Any operator macro action that raises fmax (P), whether through the algebraic connectivity λ2(Lf ), through the group-ing of functions into partitions, or through the salience profile, does not increase any ΘP (b⋆ 
+
+> P
+
+) and hence does not increase 
+
+TEI( b⋆), and strictly decreases them whenever the budget constraint binds. Moreover, in the low-connectivity regime 
+
+λ2(Lf ) ≪ 1/c 3, the marginal substitution between connectiv-ity λ2(Lf ) and substitutability FSS along an iso-fmax contour is constant and equal to 
+
+dλ 2(Lf )
+
+dFSS fmax 
+
+= − c2f ⋆
+
+κ⋆ , (13) 
+
+where f ⋆ is the contour level and κ⋆ is the maximal value of the micro factor κ(β, η τ ), attained at the interior opti-mum (β⋆, η ⋆τ ) of Lemma 1. The negative sign records that the two levers are substitutes: the connectivity-substitutability exchange rate, that is, the amount of algebraic connectivity the operator may give up per unit of additional substitutability at constant exposure, is c2f ⋆/κ ⋆. In the saturating regime the local exchange rate is dλ 2(Lf ) 
+
+> dFSS
+
+|fmax = −c2fmax (1 + 
+
+c3λ2(Lf )) 2/κ ⋆, which reduces to (13) as c3 → 0.Proof. By (9) and (10), severity SP is decreasing in fmax (P)
+
+at fixed fP , since both the ratio fP /f max and the divergence factor 1/(1 − fP /f max ) decrease. By Proposition 1 the best response b⋆ is a continuous selection, and raising fmax lowers the achievable damage per unit budget, so no ΘP (b⋆ 
+
+> P
+
+) in-creases and TEI( b⋆) does not increase. When the budget binds, some partition sits strictly below breakdown with positive marginal severity, and lowering that severity strictly lowers the aggregate, so the decrease is strict. For the exchange rate, hold 
+
+fmax = f ⋆ fixed in (6). With the linear macro g(λ2(Lf )) = 
+
+λ2(Lf ) the contour is κ⋆λ2(Lf )/ 1 + c2(1 − FSS)  = f ⋆,that is, 
+
+κ⋆λ2(Lf ) = f ⋆ 1 + c2
+
+ − c2f ⋆FSS .
+
+Both sides are differentiable in FSS , and f ⋆ and κ⋆ are held constant along the contour, so differentiating gives 
+
+κ⋆ dλ 2(Lf )/d FSS = −c2f ⋆ and hence dλ 2(Lf )/d FSS = 
+
+−c2f ⋆/κ ⋆, which is independent of the operating point and therefore constant along the contour. For the saturating macro 9
+
+g(λ2(Lf )) = λ2(Lf )/(1 + c3λ2(Lf )) the contour reads 
+
+κ⋆g(λ2(Lf )) = f ⋆ 1 + c2(1 − FSS) , and the same differ-entiation gives κ⋆g′(λ2(Lf )) dλ 2(Lf )/d FSS = −c2f ⋆. Since 
+
+g′(λ2(Lf )) = (1 + c3λ2(Lf )) −2 and f ⋆ = fmax on the con-tour, this is dλ 2(Lf )/d FSS = −c2fmax (1 + c3λ2(Lf )) 2/κ ⋆,and taking c3 → 0 recovers (13). The two levers therefore trade off with a negative slope, and the magnitude of that slope is the exchange rate quoted in the statement. 
+
+Remark 2 (Design-time versus runtime) . Proposition 5 uses the slow macro levers, which gives a design-time threat model set at deployment. The micro knobs (β, η τ ) act on a faster timescale through Lemma 1 and give a runtime threat model as the surface Σ drifts. This separation formalises, with a feasibility grounding, the design-time and runtime split that checklist methods such as STRIDE apply informally. 
+
+The proposed framework naturally accommodates slowly varying network topologies. Whenever the coordination graph changes due to node mobility, link failures, virtual-network-function migration, or infrastructure reconfiguration, the graph Laplacian and the associated structural metrics are recomputed from the updated topology. The breakdown threshold, threat scores, and equilibrium attack allocation are then re-evaluated using the same analytical framework without modifying the underlying consensus protocol. Consequently, the proposed formulation is not restricted to static deployments but extends directly to quasi-static dynamic networks whose topology evolves on a slower timescale than the consensus convergence process. 
+
+G. Sensitivity and Complexity 
+
+Proposition 6 (Lipschitz sensitivity) . Suppose the structural metrics are estimated with bounded relative error, so that the exploitabilities and thresholds used by the solver deviate from their true values by at most δ in relative terms. Then the resulting equilibrium allocation and the Threat Exposure Index deviate from their true values by O(δ), so the ranking is stable under small metric misspecification. Proof. By Proposition 2 the equilibrium is the priority-fill allocation determined by the caps ¯bP and the cap efficiencies 
+
+ρP . Both are smooth functions of the metrics: the cap ¯bP =
+
+f −1 
+
+> P
+
+((1 − ϵ)fmax ) is smooth in fmax through the invertible map (7), and ρP is smooth in EP , Drob , and fmax . A relative error of size δ in the metrics therefore perturbs every cap and efficiency by O(δ). Away from ties in ρP , the priority order is locally constant, so the allocation moves each filled cap by 
+
+O(δ) and moves the single partial spend by O(δ) to preserve the budget, giving an O(δ) change in b⋆. By continuity of (11) the Threat Exposure Index also changes by O(δ). The only non-smooth events are exchanges of adjacent priorities, which occur when two efficiencies cross; these are confined to a measure-zero set of parameters, and at such a crossing the two partitions carry nearly equal efficiency so the reordering has vanishing effect on the index. Rankings, being determined by the ordering of the scores, are preserved except within an 
+
+O(δ) band around ties. 
+
+Proposition 7 (Complexity) . The design-time pass solves the budget problem (12) over M partitions in O(M log M )
+
+time once the structural metrics are known, and the metrics themselves are read from the DC-ABM equilibrium at a cost linear in the number of agents and neighbours. Proof. By Proposition 2 the optimal attack fills partitions to their caps in decreasing order of cap efficiency ρP . Computing each cap ¯bP is a constant-time evaluation of the closed forms (6) and (7), since the induced-corruption map is analytically invertible, and computing each ρP is then a constant-time evaluation of (8), (10) and (11). Sorting the M efficiencies costs O(M log M ), and a single linear sweep then fills the caps in priority order until the budget is exhausted, at O(M )
+
+cost, so the solver runs in O(M log M ). The metric extraction reads local quantities from the converged consensus, which costs O(K ¯d) for K agents of average degree ¯d, linear in the problem size. 
+
+H. Reference Implementation 
+
+Every result reported in Sec. VI is produced by one self-contained reference implementation with three components, which we describe here so that the numerical section can be read as a validation of the analysis rather than as a separate artefact. The first component is an agent-level simulator . It instantiates the K defender agents on the coordination graph 
+
+Gf , initialises the states xk(0) and the reputations τkj (0) ,and integrates the trust-weighted trimmed-mean update (1) to-gether with the reputation update (2) synchronously. A fraction 
+
+f of the agents, drawn uniformly at random, is Byzantine and may emit an arbitrary bounded value to each neighbour at each step, independently across neighbours and across time. The simulator is the only place where the consensus dynamics are evaluated; nothing downstream approximates them. The second component is a metric extractor . It reads the structural coordinates Σ( P) of Definition 1 from the converged agent state, one partition at a time, and evaluates the break-down threshold fmax (P) through (6) and the exploitability 
+
+EP through (8). The third component is the priority-fill equilibrium solver of Proposition 2. It forms the caps ¯bP
+
+and the cap efficiencies ρP , sorts the M partitions by ρP ,and fills the caps in that order until the budget is exhausted, which is the O(M log M ) pass of Proposition 7. Each baseline is implemented against the same graph instances, the same partition definitions, and the same random seeds, so that every comparison in Sec. VI differs only in the scoring or defence rule and not in the underlying network realisation. Algorithm 1 summarises the design-time and runtime procedure that results from the analysis above. VI. N UMERICAL RESULTS 
+
+We instantiate a mobile-network deployment with M = 5 
+
+partitions, namely Byzantine nodes, jamming, pilot or iden-tity contamination, cache-aware eavesdropping, and correlated virtualised network function failure. The DC-ABM defence runs on a coordination graph of K = 60 entities. Unless stated otherwise the operating point uses a 16 -regular topology 10 
+
+Algorithm 1 Adversary-as-agents threat modelling 
+
+Require: partitions Π, macro config (Gf , {ζP }), micro knobs 
+
+(β, η τ ), budget B, alarm level TEI th  
+
+> 1:
+
+Design time (macro): run the DC-ABM defence (1) to equilibrium; for each P read Σ( P) and compute fmax (P)
+
+via (6)  
+
+> 2:
+
+compute exploitability EP (8) for all P 
+
+> 3:
+
+solve the adversary best response (12) by filling partitions to their breakdown caps in decreasing cap-efficiency order to obtain b⋆ {Prop. 2, O(M log M )} 
+
+> 4:
+
+evaluate ΘP (b⋆ 
+
+> P
+
+) and rank partitions; report TEI( b⋆) 
+
+> 5:
+
+Runtime (micro):  
+
+> 6:
+
+while network operating do  
+
+> 7:
+
+refresh Σ from local agent state; update {ΘP } and TEI  
+
+> 8:
+
+if TEI > TEI th then  
+
+> 9:
+
+retune (β, η τ ) one step toward (β⋆, η ⋆τ ), which raises 
+
+κ and hence fmax {Lemma 1, (6)}  
+
+> 10:
+
+recompute b⋆ and the ranking  
+
+> 11:
+
+if TEI > TEI th and the micro levers are exhausted 
+
+then  
+
+> 12:
+
+schedule a macro reconfiguration that raises 
+
+λ2(Lf ) or FSS on the slower deployment timescale {Prop. 5}  
+
+> 13:
+
+end if  
+
+> 14:
+
+end if  
+
+> 15:
+
+end while Ensure: ranked threat model {ΘP }, index TEI , recom-mended levers with algebraic connectivity λ2(Lf ) ≈ 2.15 and network-wide substitutability FSS = 0 .80 , which by (6) gives a predicted breakdown threshold fmax ≈ 0.175 on the most substitutable partition. The structural coordinates of the five partitions are listed in Table I. The consensus, breakdown, and defence results are produced by the agent-level simulator of Sec. V-H, which integrates (1) and (2) directly, and the equilibrium re-sults are produced by the priority-fill solver of the same imple-mentation. Reported figures average over independent seeds as noted per experiment. We compare against several state-of-the-art baselines, namely static attack trees [3], CVSS scoring [5], MulVAL attack graphs [4], a game-theoretic Stackelberg secu-rity model [6], [25], and a multi-agent reinforcement learning red team [11]. For the defended-utility comparison we further include the alternating direction method of multipliers [10], a multi-agent reinforcement learning defence with a graph neural network [11], the Su-Vaidya Byzantine consensus [9], a trimmed-mean-only defence, and an undefended baseline. Table II first places the threat-modelling baselines beside the proposed framework along the five capabilities that Secs. IV and V establish, namely an emergent rather than exogenous adversary, feasibility grounding, substitutability awareness, design-time control, and coupling to a breakdown threshold. Figs. 6, 8, and 10 then quantify the rows of that summary. Fig. 2 shows the honest disagreement ∆( t) under the DC-ABM update for increasing corrupted-mass fractions, averaged over ten seeds. Below the breakdown threshold the disagree-ment contracts geometrically, in agreement with Theorem 1.                                                                        
+
+> TABLE I STRUCTURAL COORDINATES OF THE FIVE PARTITIONS AT THE OPERATING POINT .Partition FSS DWPR FSS ·DWPR ζfmax
+> Byzantine nodes 0.55 0.45 0.248 1.00 0.131 Pilot contamination 0.65 0.55 0.358 0.80 0.146 Correlated VNF 0.60 0.85 0.510 0.95 0.138 Jamming 0.80 0.70 0.560 0.90 0.175 Cache eavesdropping 0.90 0.80 0.720 0.70 0.201 TABLE II QUALITATIVE COMPARISON OF THREAT -MODELLING APPROACHES .✓:
+> SUPPORTED ;✗:NOT SUPPORTED .
+> Approach Emergent adversary Feasibility grounded Substit. aware Design-time control Breakdown coupled Attack trees [3] ✗✗✗✗✗
+> STRIDE/CVSS [2], [5] ✗✗✗✗✗
+> MulVAL graph [4] ✗✗✗✓✗
+> Game-theoretic [6] ✓✗✗✓✗
+> Bayesian graph [7] ✗✓✗✓✗
+> MARL red team [11] ✓✗✗✗✗
+> This work ✓✓✓✓✓
+
+The measured per-step factor at f = 0 .10 , obtained by regress-ing log ∆( t) on t over the geometric portion of the trajectory, is ˆρ ≈ 0.95 , that is, the honest spread shrinks by about five percent per consensus iteration; matching this against (4) with 
+
+fmax ≈ 0.175 identifies γ ≈ 0.12 for this topology and trust floor. As f rises toward the predicted threshold the contraction slows and stalls, and at f = 0 .22 , above the threshold for this topology, the honest states no longer agree. This is the plateau-then-cliff behaviour that the severity result exploits. Fig. 3 compares the breakdown threshold predicted by the factorisation (6) with the threshold measured directly from the dynamics, across seven topologies of increasing algebraic connectivity and four substitutability levels, that is, over 28 
+
+configurations. The comparison is informative only if the two sides are obtained independently, so we state the measurement in full. For a fixed topology and substitutability level we sweep the corrupted-mass fraction f by bisection on the interval 
+
+[0 , 0.5] . At each trial value we run the agent-level simulator of Sec. V-H from random initial states for the same horizon and over the same seeds as Fig. 2, and we declare the run converged when the honest spread ∆( t) falls below a fixed tolerance within that horizon. The measured threshold ˆfmax 
+
+is the largest f for which the majority of seeds converge, and the bisection is stopped once the bracketing interval is narrower than the sweep resolution. The measured threshold is thus read off the simulated trajectories alone: the bisection never evaluates (6), and none of the terms on its right-hand side, namely κ(β, η τ ), g(λ2(Lf )) , and c2(1 −FSS) , enters the measurement. The two sides share only the scalar constants c2
+
+and c3, fitted once and held fixed across all 28 configurations. Two fitted degrees of freedom against 28 measured thresholds is what makes Fig. 3 a predictive test of the factorisation rather than a restatement of it, since a wrong functional form could not be rescued by two constants. The model tracks the mea-11 0 25 50 75 100 125 150 
+
+iteration t
+
+10 5
+
+10 4
+
+10 3
+
+10 2
+
+10 1
+
+10 0            
+
+> honest spread  (t)
+> f= 0.00
+> f= 0.05
+> f= 0.10
+> f= 0.15
+> f= 0.18
+> f= 0.22
+> Fig. 2. Consensus contraction of the honest disagreement ∆( t)under the DC-ABM defence for increasing corrupted-mass fraction f. Below breakdown the disagreement decays geometrically as predicted by Theorem 1, and it stalls as fapproaches the threshold.
+
+0 1 2 3 4
+
+algebraic connectivity 2
+
+0.00 0.05 0.10 0.15 0.20 0.25       
+
+> breakdown threshold  fmax
+> model, FSS = 0.5 model, FSS = 0.65 model, FSS = 0.8 model, FSS = 0.95
+> Fig. 3. Breakdown threshold fmax against algebraic connectivity λ2(Lf)
+> for four substitutability levels. Solid curves are the model (6); open markers are the empirically measured thresholds. The model tracks the measurement with root-mean-square error 0.014 .
+
+surement with a root-mean-square error of 0.014 and a median relative error of about 8.9 percent. The saturating macro term of Assumption 1 fits the measured thresholds substantially better than a linear term, with residuals of 0.014 against 0.059 ,which confirms the diminishing marginal resilience of added connectivity and justifies the saturating form. Fig. 4 shows the empirically recovered micro factor ˆκ(β, η τ )
+
+as a surface over the trim fraction and the trust rate. The surface is unimodal, as Lemma 1 predicts, with an interior maximum at (β⋆, η ⋆τ ) ≈ (0 .21 , 0.33) , which matches the design values (0 .22 , 0.30) assumed at the operating point. The threshold falls to zero at both ends of each axis, confirming the two failure modes of trimming too little or too much and of demoting neighbours too slowly or too aggressively. Fig. 5 shows the optimal per-partition spend b⋆ 
+
+> P
+
+as the attack budget grows. The partitions activate in a strict order that matches Proposition 2 exactly. Byzantine nodes enter first, followed by pilot contamination, correlated function failure, jamming, and cache eavesdropping. This is precisely the order of increasing 0.2 0.4 0.6 
+
+0.1 0.2 0.3 0.4 
+
+0.0 0.1 0.2 0.3 0.4        
+
+> Fig. 4. Empirically recovered micro factor ˆκas a function of the trim fraction
+> βand the trust rate ητ. The surface is unimodal with an interior maximum near (0 .21 ,0.33) , confirming Lemma 1.
+
+0.0 0.5 1.0 1.5 2.0 2.5 3.0 
+
+attack budget B
+
+0.00 0.05 0.10 0.15 0.20       
+
+> allocated spend  b
+> Byzantine nodes Jamming Pilot contamination Cache eavesdropping Correlated VNF
+> Fig. 5. Optimal attack allocation b⋆
+> Pagainst total budget B. Partitions activate in order of increasing FSS ·DWPR , matching the emergent concentration of Proposition 2 exactly.
+
+FSS · DWPR , which runs 0.248 , 0.358 , 0.510 , 0.560 , 0.720 
+
+across the five partitions, so the emergent attack concentrates on the least substitutable and least path-robust partitions first. The experiment reported in Fig. 6 tests whether the emer-gent ranking predicts where the network actually degrades, using a deliberately non-circular ground truth. For each of a set of random instances we build M = 6 partitions realised as consensus subgraphs of different degree, so that each partition has a distinct connectivity and therefore a distinct breakdown threshold. The ground-truth criticality of a partition is the residual consensus disagreement measured by running the DC-ABM dynamics of Section IV on that subgraph at the equilibrium attack level produced by the priority-fill solver. Crucially, this measurement is read from the trajectory of the averaging process and never uses the exploitability term, the severity term, or the score Θ, so a correlation between the predicted ranking and the measured degradation is genuine predictive evidence rather than an identity. We compare the 12 
+
+score against four baselines that see the same instances: a CVSS-style expert severity, an attack-tree size proxy, node-degree centrality as a representative graph-based method, and a random ordering. Kendall correlations are averaged over the instances and over a sweep of attack budgets, and Fig. 6 reports the pooled means with standard errors. The score of this work attains a mean Kendall correlation of 0.34 ± 0.03 with the measured degradation, whereas ev-ery baseline clusters near or below zero: attack trees reach 
+
+0.07 , CVSS 0.01 , and the random ordering is statistically indistinguishable from zero. Node-degree centrality is not merely uninformative but strongly anti-correlated, at −0.41 ,and the reason is structural. In these instances a partition realised on a higher-degree subgraph has a larger algebraic connectivity, hence by (6) a higher breakdown threshold, hence a larger margin 1 − fP /f max (P) at the equilibrium attack level, and therefore a smaller residual disagreement. Degree centrality ranks exactly those partitions as the most critical, so it does not simply miss the true ordering, it reverses it. The separation is the quantitative content of the paper’s thesis in an honest form: endogenising the adversary produces a ranking that tracks realised degradation, while catalogue and naive-structural scores that ignore the coupling between substitutability and breakdown do not. The absolute correlation is moderate rather than near-perfect, and two effects cap it. First, the ground truth is a noisy scalar read from finite-length consensus trajectories, so partitions whose true criticalities are close are frequently swapped by the measurement itself. Second, once the budget is large enough to drive every partition to its cap, all partitions sit at the same normalised fraction 1 − ϵ of their thresholds, the measured residual disagreements become nearly tied, and any ranking of near-ties is close to arbitrary. What Fig. 6 therefore establishes is the ceiling of an in-model validation, in which both the ranking and the ground truth are generated by the same simulator; Sec. VII states what a validation on operational topologies with measured attack traces would add beyond it. Fig. 7 compares the defended utility of six defences as the attacked fraction grows. The defended utility of a defence at attacked fraction 
+
+fP is the achieved-to-target service ratio that the network still delivers under that defence, that is, the reciprocal 1/D k of the feasibility signal (3) averaged over the honest entities at the end of the consensus run, normalised so that an unattacked network has utility one. A utility of one means the network still meets its service target; a utility approaching zero means the consensus no longer supports a usable decision. The DC-ABM defence sustains a utility of 0.99 at an attacked fraction of 0.16 , near its predicted breakdown threshold, and holds the plateau-then-cliff shape that Theorem 1 predicts. Over the same range the alternating direction method of multipliers degrades to 0.17 , and the undefended baseline has already failed below an attacked fraction of 0.10 . The Su-Vaidya and trimmed-mean defences hold an intermediate plateau but break earlier than DC-ABM, because they lack the trust weighting that suppresses persistent attackers. Fig. 8 shows the equilibrium Threat Exposure Index against algebraic connectivity for four substitutability levels, under a binding budget, by which we mean a total budget B strictly This work CVSS Attack trees Degree centrality Random       
+
+> 0.6
+> 0.4
+> 0.2
+> 0.0 0.2 0.4
+> Kendall  vs. measured degradation
+> +0.34 +0.01 +0.07 -0.41 -0.01
+> Fig. 6. Ranking fidelity against an independently measured ground truth. Bars are the Kendall rank correlation between each method’s predicted partition criticality and the consensus degradation measured directly from the defence dynamics, pooled over random instances and attack budgets with standard-error whiskers. The score of this work separates clearly from severity-catalogue, attack-tree, graph-centrality, and random baselines. 0.00 0.05 0.10 0.15 0.20 0.25 0.30
+
+attacked fraction f   
+
+> 0.2 0.4 0.6 0.8 1.0
+> defended utility
+> fmax  (pred.)
+> DC-ABM (ours) Su-Vaidya Trimmed mean MARL/GNN ADMM Undefended
+> Fig. 7. Defended utility against attacked fraction fPfor six defences. DC-ABM sustains utility to its predicted threshold, while linear-averaging and undefended baselines degrade far earlier.
+
+below the sum P 
+
+> P
+
+¯bP of the per-partition feasibility caps of Proposition 1, so that the constraint 1⊤b ≤ B is active at the optimum and the adversary cannot bring every partition to its barrier. Figs. 8 and 9 fix B = 0 .5, against P 
+
+> P
+
+¯bP ≈ 0.85 at the operating point of Table I. This is the regime in which the ordering of Proposition 2 decides which partitions reach breakdown; under a slack budget every partition would sit at the same normalised fraction 1 − ϵ of its own threshold and the index would be far less sensitive to either lever. Raising connectivity monotonically lowers the index, as Proposition 5 requires, and raising substitutability shifts the whole family downward. Doubling the connectivity reduces the index by about 19 percent at fixed substitutability. A connectivity-blind CVSS baseline is flat across the whole range, since it cannot represent either lever. Fig. 9 shows the Threat Exposure Index as a surface over connectivity and substitutability, with iso-exposure contours projected beneath. The contours trace the connectivity-substitutability exchange of Proposition 5: an 13 0.5 1.0 1.5 2.0 2.5 3.0 3.5 
+
+algebraic connectivity 2
+
+10 1
+
+10 2                    
+
+> Threat Exposure Index TEI( b )
+> FSS = 0.55 FSS = 0.7 FSS = 0.85 FSS = 0.95 CVSS (insensitive)
+> Fig. 8. Threat Exposure Index against algebraic connectivity for four substitutability levels under a binding budget B= 0 .5, that is, a budget below the cap sum P
+> P¯bP≈0.85 , so the constraint is active at the optimum. Both levers lower the index, as Proposition 5 predicts, while the CVSS baseline is insensitive. 1.0 1.5 2.0 2.5 3.0
+> 20.5 0.6 0.7 0.8 0.9
+
+FSS       
+
+> 2.0 2.2 2.4 2.6 2.8
+> log 10  TEI
+> Fig. 9. Threat Exposure Index surface over connectivity and substitutability with iso-exposure contours beneath, at the binding budget B= 0 .5. Colour encodes surface height, that is log 10 TEI( b⋆)on the vertical axis, and carries no information beyond it: dark blue and purple mark low exposure, orange and yellow mark high exposure. The projected contours use the same scale, so each contour is a locus of constant TEI. The contours realise the connectivity-substitutability exchange of Proposition 5.
+
+operator can hold the exposure fixed by trading a decrease in one lever for an increase in the other. The magnitude 
+
+c2f ⋆/κ ⋆ of the closed-form exchange rate (13) describes the slope of these contours in the low-connectivity regime, and the saturating correction steepens the slope as connectivity grows, consistent with the diminishing marginal resilience seen in Fig. 3. Fig. 10 shows the Threat Exposure Index over time as the substitutability of the critical partition erodes. This models a drifting mobile environment, for example one in which user mobility and successive handovers progressively remove the alternative entities that could serve a function, a virtualised network function is migrated away from the hosts that carried its redundant replicas, or a link failure removes a substitute 0 10 20 30 40 50 60 
+
+time step (partition drift) 
+
+0200 400 600 800 1000    
+
+> TEI
+> This work (retune) ADMM (no retune) CVSS (static) alarm TEI th
+> Fig. 10. Threat Exposure Index over time under partition drift. Runtime retuning holds the index near the alarm level and reduces the mean index by about 37 percent against a no-retune baseline, while the static baseline is blind to the drift.
+
+path; in each case FSS trust of the affected partition falls while the operator makes no change of its own. The runtime loop of Algorithm 1 responds as follows. At every step the controller refreshes the surface Σ from the local agent state, recomputes the scores {ΘP } and the index 
+
+TEI( b⋆), and compares the index against the operator-set alarm level TEI th , drawn as the dotted line in Fig. 10. While the index stays below the alarm level the controller does noth-ing, because the drift is still absorbed by the existing margin. The first time the index crosses the alarm level the controller takes one retuning step of the micro knobs (β, η τ ) towards the interior optimum (β⋆, η ⋆τ ) of Lemma 1. That step raises the micro factor κ, hence raises fmax through (6), hence lowers every severity term (9), and the equilibrium allocation and the index are then recomputed on the new configuration. Because the drift is continuous and each retuning step is bounded, the crossing recurs and the loop fires repeatedly, which is what produces the staircase in the curve. The controller therefore tracks the drift instead of correcting it once, holding the index well below the no-retune baseline based on the alternating direction method of multipliers and achieving about a 37 
+
+percent reduction in the mean index over the drift. A static CVSS assessment is flat and blind to the drift, so it neither detects nor mitigates the erosion. Fig. 11 shows the solve time of the priority-fill equilibrium solver against the number of partitions on log-log axes, together with an O(M log M )
+
+reference and the superlinear scaling of a learning red team and of a mixed-integer attack-graph solver. The measured solver follows the near-linear reference across three orders of magnitude in M , in agreement with Proposition 7, while the learning and mixed-integer baselines grow far more steeply and become impractical for large partition counts. The near-linear cost is what keeps the analysis usable for large mobile deployments with many attackable modes. Fig. 12 shows the rank stability of the emergent threat model, measured as the Kendall correlation between the rank-ing under noisy metrics and the ranking under true metrics, as the relative metric noise grows. The ranking degrades grace-14 10 1 10 2 10 3
+
+number of partitions M
+
+10 1
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+10 4
+
+10 5         
+
+> solve time (ms)
+> measured water-filling
+> O(Mlog M) reference MARL red team O(M1.9 )MILP attack-graph
+> Fig. 11. Solver time against the number of partitions Mon log-log axes. The solver follows the O(Mlog M)reference of Proposition 7, while learning and mixed-integer baselines scale superlinearly.
+
+fully, and how gracefully depends on how many coordinates are corrupted at once. Noise injected into a single metric, whether substitutability, path robustness, or robust degeneracy, gives three nearly indistinguishable curves that hold above a correlation of 0.8 up to a relative noise of about 0.18 and are still near 0.5 at σ = 0 .5. Perturbing all three metrics jointly is the worst case and degrades faster, crossing 0.8 at about σ = 0 .12 and reaching 0.59 at σ = 0 .2. The gap is expected, since the priority order of Proposition 2 is set by the cap efficiency ρP , in which independent errors in the three coordinates compound rather than cancel; the single-metric curves apply when one coordinate is poorly estimated and the all-metric curve bounds the case in which all of them are. Neither case shows a threshold at which the ranking collapses. This is the empirical counterpart of the Lipschitz bound of Proposition 6 and shows that the ranking does not require perfect metric estimation to be useful. Fig. 13 shows the per-partition score ΘP as a heatmap over partitions and budget. It visualises the emergent structure directly. The most exploitable partitions light up first and most intensely as the budget grows, and the ordering across rows reproduces the concentration order of Fig. 5, giving a compact operator-facing view of where and when the attack surface fills. VII. C ONCLUSION 
+
+Endogenising the adversary turns wireless and mobile threat modelling from a static catalogue into an emergent, feasibility-grounded, and operator-controllable analysis. We gave the explicit decentralised consensus defence, proved that its honest disagreement contracts below a breakdown threshold with a rate that stalls at the threshold, and proved that the threshold factorises into a topological and a substitution contribution with a unimodal micro factor. We then built a feasibility-grounded threat calculus on top of this defence and estab-lished, in order: (i) the adversary payoff is convex against the breakdown barrier, so the emergent attack drives a subset of partitions to breakdown in a strict priority order rather than spreading its budget; (ii) that priority order is the order of 0.0 0.1 0.2 0.3 0.4 0.5 
+
+relative metric noise 
+
+0.0 0.2 0.4 0.6 0.8 1.0              
+
+> rank stability (Kendall  )
+> FSS noise DWPR noise
+> Drob noise all-metric noise
+> Fig. 12. Rank stability of the emergent threat model against relative metric noise, for four noise sources. Single-metric noise holds the correlation above
+> 0.8up to σ≈0.18 ; perturbing all three metrics jointly is the worst case and crosses 0.8at σ≈0.12 . The graceful degradation matches the Lipschitz sensitivity of Proposition 6. 123
+
+attack budget B   
+
+> Byzantine nodes Jamming Pilot contamination Cache eavesdropping Correlated VNF
+> 3
+> 2
+> 1
+> 012
+> log 10
+> Fig. 13. Per-partition score ΘPover partitions and attack budget. The emergent attack surface fills from the most exploitable partitions outward, reproducing the concentration order of Fig. 5.
+
+increasing substitutability, so the emergent attack concentrates on the least substitutable partitions; (iii) severity diverges as the induced corrupted fraction approaches breakdown; (iv) a Stackelberg configuration of the operator problem exists; (v) operators can shrink the emergent attack surface at deploy-ment time along a closed-form connectivity-substitutability exchange rate; (vi) the resulting ranking is Lipschitz stable under misspecification of the structural metrics; and (vii) the equilibrium solves in O(M log M ) time. The reference im-plementation specified in Sec. V-H, which integrates the consensus and trust dynamics directly and closes the loop with the priority-fill solver, confirmed every result and, in an inde-pendent test whose ground truth is the consensus degradation measured directly from the defence dynamics, showed that the emergent ranking attains a mean Kendall correlation of about 0.34 with the measured degradation and outperforms severity-catalogue, attack-tree, and graph-centrality baselines that all cluster near zero. The moderate absolute correlation and its dependence on the operating regime mark the current 15 
+
+in-model validation as a first step; a validation on operational topologies with real attack traces is the most important ex-tension, alongside learning adversaries, mobility-induced non-stationary partitions, and closing the loop with online macro and micro retuning. REFERENCES 
+
+[1] ITU-R, “Framework and overall objectives of the future devel-opment of IMT for 2030 and beyond,” Int. Telecommun. Union, Geneva, Switzerland, Rec. ITU-R M.2160, 2023. [2] A. Shostack, Threat Modeling: Designing for Security . Hoboken, NJ, USA: Wiley, 2014. [3] B. Schneier, “Attack trees,” Dr. Dobb’s Journal , vol. 24, no. 12, pp. 21–29, 1999. [4] X. Ou, S. Govindavajhala, and A. W. Appel, “MulVAL: A logic-based network security analyzer,” in Proc. 14th USENIX Secur. Symp. , Baltimore, MD, USA, 2005, pp. 113–128. [5] P. Mell, K. Scarfone, and S. Romanosky, “Common vulnerability scoring system,” IEEE Security Privacy , vol. 4, no. 6, pp. 85–89, 2006. [6] M. H. Manshaei, Q. Zhu, T. Alpcan, T. Ba¸ sar, and J.-P. Hubaux, “Game theory meets network security and privacy,” ACM Com-put. Surv. , vol. 45, no. 3, pp. 1–39, 2013. [7] N. Poolsappasit, R. Dewri, and I. Ray, “Dynamic security risk management using Bayesian attack graphs,” IEEE Trans. Dependable Secure Comput. , vol. 9, no. 1, pp. 61–74, 2012. [8] K. Pelechrinis, M. Iliofotou, and S. V. Krishnamurthy, “Denial of service attacks in wireless networks: The case of jammers,” 
+
+IEEE Commun. Surveys Tuts. , vol. 13, no. 2, pp. 245–257, 2011. [9] L. Su and N. H. Vaidya, “Fault-tolerant multi-agent optimiza-tion: Optimal iterative distributed algorithms,” in Proc. ACM Symp. Princ. Distrib. Comput. (PODC) , Chicago, IL, USA, 2016, pp. 425–434. [10] R.-J. Reifert, S. Roth, A. A. Ahmad, and A. Sezgin, “Comeback kid: Resilience for mixed-critical wireless network resource management,” IEEE Trans. Commun. , vol. 70, no. 11, pp. 7350– 7365, 2022. [11] A. Ivoghlian, Z. Salcic, and K. I.-K. Wang, “Adaptive wireless network management with multi-agent reinforcement learning,” 
+
+Sensors , vol. 22, no. 18, pp. 1–22, 2022. [12] H. Q. Ngo, A. Ashikhmin, H. Yang, E. G. Larsson, and T. L. Marzetta, “Cell-free massive MIMO versus small cells,” IEEE Trans. Wireless Commun. , vol. 16, no. 3, pp. 1834–1850, 2017. [13] I. Kotenko, “Agent-based modeling and simulation of cyber-warfare between malefactors and security agents in the Internet,” in Proc. 19th Eur. Simul. Multiconf. (ESM) , Riga, Latvia, 2005. [14] W. Xiong, E. Legrand, O. Åberg, and R. Lagerström, “Cyber se-curity threat modeling based on the MITRE Enterprise ATT&CK matrix,” Softw. Syst. Model. , vol. 21, no. 1, pp. 157–177, 2022. [15] R. Khan, K. McLaughlin, D. Laverty, and S. Sezer, “STRIDE-based threat modeling for cyber-physical systems,” in Proc. IEEE PES Innov. Smart Grid Technol. Conf. Europe (ISGT-Europe) , Torino, Italy, 2017, pp. 1–6. [16] L. Lamport, R. Shostak, and M. Pease, “The Byzantine generals problem,” ACM Trans. Program. Lang. Syst. , vol. 4, no. 3, pp. 382–401, 1982. [17] H. J. LeBlanc, H. Zhang, X. Koutsoukos, and S. Sundaram, “Resilient asymptotic consensus in robust networks,” IEEE J. Sel. Areas Commun. , vol. 31, no. 4, pp. 766–781, 2013. [18] S. Sundaram and C. N. Hadjicostis, “Distributed function calcu-lation via linear iterative strategies in the presence of malicious agents,” IEEE Trans. Autom. Control , vol. 56, no. 7, pp. 1495– 1508, 2011. [19] E. Seneta, Non-negative Matrices and Markov Chains , 2nd ed. New York, NY, USA: Springer, 1981. [20] M. Fiedler, “Algebraic connectivity of graphs,” Czechoslovak Math. J. , vol. 23, no. 2, pp. 298–305, 1973. [21] R. Olfati-Saber, J. A. Fax, and R. M. Murray, “Consensus and cooperation in networked multi-agent systems,” Proc. IEEE , vol. 95, no. 1, pp. 215–233, 2007. [22] L. Xiao and S. Boyd, “Fast linear iterations for distributed averaging,” Syst. Control Lett. , vol. 53, no. 1, pp. 65–78, 2004. [23] S. Boyd and L. Vandenberghe, Convex Optimization . Cam-bridge, U.K.: Cambridge Univ. Press, 2004. [24] M. Mesbahi and M. Egerstedt, Graph Theoretic Methods in Multiagent Networks . Princeton, NJ, USA: Princeton Univ. Press, 2010. [25] M. Tambe, Security and Game Theory: Algorithms, Deployed Systems, Lessons Learned . Cambridge, U.K.: Cambridge Univ. Press, 2011. [26] T. Alpcan and T. Ba¸ sar, Network Security: A Decision and Game-Theoretic Approach . Cambridge, U.K.: Cambridge Univ. Press, 2010. [27] D. J. Watts and S. H. Strogatz, “Collective dynamics of small-world networks,” Nature , vol. 393, no. 6684, pp. 440–442, 1998. [28] A.-L. Barabási and R. Albert, “Emergence of scaling in random networks,” Science , vol. 286, no. 5439, pp. 509–512, 1999. [29] C. Berge, Topological Spaces: Including a Treatment of Multi-Valued Functions, Vector Spaces and Convexity . New York, NY, USA: Dover, 1963. [30] S. Jajodia, S. Noel, and B. O’Berry, “Topological analysis of network attack vulnerability,” in Managing Cyber Threats .Boston, MA, USA: Springer, 2005, pp. 247–266. [31] G.-l. Cai, B.-s. Wang, W. Hu, and T.-z. Wang, “Moving target defense: State of the art and characteristics,” Frontiers Inf. Technol. Electron. Eng. , vol. 17, no. 11, pp. 1122–1153, 2016. [32] S. Lal, T. Taleb, and A. Dutta, “NFV: Security threats and best practices,” IEEE Commun. Mag. , vol. 55, no. 8, pp. 211–217, 2017. [33] I. Ahmad, T. Kumar, M. Liyanage, J. Okwuibe, M. Ylianttila, and A. Gurtov, “Overview of 5G security challenges and solu-tions,” IEEE Commun. Standards Mag. , vol. 2, no. 1, pp. 36–43, 2018. [34] J. Vestin and A. Kassler, “Resource management for consensus-based distributed network control,” IEEE Trans. Netw. Service Manag. , vol. 16, no. 3, pp. 972–985, 2019. [35] D. Dolev, N. A. Lynch, S. S. Pinter, E. W. Stark, and W. E. Weihl, “Reaching approximate agreement in the presence of faults,” J. ACM , vol. 33, no. 3, pp. 499–516, 1986. [36] N. H. Vaidya, L. Tseng, and G. Liang, “Iterative approximate Byzantine consensus in arbitrary directed graphs,” in Proc. ACM Symp. Princ. Distrib. Comput. (PODC) , Madeira, Portugal, 2012, pp. 365–374. [37] H. Zhang and S. Sundaram, “Robustness of information diffu-sion algorithms to locally bounded adversaries,” in Proc. Amer. Control Conf. (ACC) , Montreal, QC, Canada, 2012, pp. 5855– 5861. [38] S. Roy, “Scaled consensus,” Automatica , vol. 51, pp. 259–262, 2015. [39] G. Deng, Y. Liu, V. Mayoral-Vilches, P. Liu, Y. Li, Y. Xu, T. Zhang, Y. Liu, M. Pinzger, and S. Rass, “PentestGPT: Evaluating and harnessing large language models for automated penetration testing,” in Proc. 33rd USENIX Secur. Symp. , Philadelphia, PA, USA, 2024, pp. 847–864. [40] R. Fang, R. Bindu, A. Gupta, and D. Kang, “LLM agents can autonomously exploit one-day vulnerabilities,” 2024, 
+
+arXiv:2404.08144 .[41] S. G. Bianou and R. G. Batogna, “PENTEST-AI, an LLM-powered multi-agents framework for penetration testing automa-tion leveraging MITRE ATT&CK,” in Proc. IEEE Int. Conf. Cyber Secur. Resilience (CSR) , 2024, pp. 763–770. [42] Y. Yao, J. Duan, K. Xu, Y. Cai, Z. Sun, and Y. Zhang, “A survey on large language model (LLM) security and privacy: The good, the bad, and the ugly,” High-Confidence Computing , vol. 4, no. 2, art. no. 100211, 2024.
