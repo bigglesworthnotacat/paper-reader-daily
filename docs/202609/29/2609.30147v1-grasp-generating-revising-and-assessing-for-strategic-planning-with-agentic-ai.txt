@@ -1,0 +1,749 @@
+Title: GRASP: Generating, Revising, and Assessing for Strategic Planning with Agentic AI
+
+URL Source: https://arxiv.org/pdf/2609.30147v1
+
+Published Time: Fri, 25 Sep 2026 01:35:54 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# GRASP: Generating, Revising, and Assessing for Strategic Planning with Agentic AI 
+
+Arunabh Srivastava 1, Mohammad A. (Amir) Khojastepour 2, Srimat Chakradhar 2,Sennur Ulukus 1
+
+> 1
+
+University of Maryland, College Park, MD 
+
+> 2
+
+NEC Laboratories America, Inc. 
+
+Abstract 
+
+Large Language Models (LLMs) typically ex-hibit a performance profile where reliability degrades as task complexity increases. We ad-dress the challenge of generating high-quality natural language executable plans for complex tasks by introducing GRASP , a strategy-aware, multi-stage planning framework. GRASP de-couples the planning pipeline across special-ized, context-isolated modules: it pre-compiles global macro-guidelines ( GenPlan ), explores alternative localized strategies within isolated context windows ( RevPlan ), and independently evaluates trajectories using a multi-criteria discriminator ( VerPlan ). Empirical evalua-tions show that GRASP consistently estab-lishes a new state-of-the-art frontier across diverse datasets, yielding substantial accu-racy gains over direct LLM planners on Nat-ural Plan Calendar Scheduling ( ∼12.4% ↑), ZebraLogic ( ∼30.8% ↑), and SciBench Math. Crucially, under multi-task scaling—where standard planners suffer immediate perfor-mance collapse—GRASP completely flattens the multi-task degradation penalty. In in-terleaved dual-task environments, GRASP achieves an absolute accuracy gain of up to 16.7% over direct LLM planners. Furthermore, by isolating context and enforcing strict macro-regularization, GRASP outperforms frontier reasoning models (such as GPT-5-mini) by a margin of 14.5%. 
+
+1 Introduction 
+
+Large Language Model (LLM) agents have emerged as a prominent paradigm for automating complex, multi-step workflows across diverse en-terprise domains (Wang et al., 2025a). Unlike tra-ditional deterministic software, LLM-based agents can dynamically interpret open-vocabulary natural language specifications ( tasks ) and adapt to real-time context shifts ( task instances ) without explicit reprogramming (Wooldridge and Jennings, 1995). However, directly steering an LLM using layered, long-horizon natural language instructions presents severe architectural challenges. As task complexity (as defined in (Dziri et al., 2023)) scales, models experience a sharp performance degradation, often termed the “Curse of Instructions” (Harada et al., 2025), where constraint collisions and attention fatigue trigger hallucinations and multi-step exe-cution failures (Wei et al., 2022; Yao et al., 2023). This vulnerability highlights the need for explicit plan generation that transforms high-level descrip-tions into structured, decomposed execution paths. Effective plan generation mitigates this scaling penalty by dividing an intricate task into ordered sub-steps whose individual complexity falls within the model’s reliable operating range. In this pa-per, we propose GRASP , an autonomous frame-work for asynchronous plan generation in agen-tic AI systems. Inspired by human cognitive pro-cesses—namely identification, reasoning, and judg-ment—GRASP decouples the planning pipeline into specialized, context-isolated modules. The architecture first compiles global hard constraints and soft guidelines ( GenPlan ), explores localized strategic paths across separate context windows (RevPlan ), and independently evaluates trajecto-ries using a multi-criteria discriminator ( VerPlan ). This strict contextual separation prevents cross-contamination and breaks the compounding error cascades that degrade single-track planners. Finally, robust execution is paramount to trans-lating high-quality plans into correct downstream results. Attempting to execute a multi-step plan within a single monolithic LLM track collapses the structural benefits of decomposition and ex-acerbates context pollution. To address this, we interface GRASP with RunAgent (Srivastava et al., 2026), a multi-agent plan execution platform. In summary, the primary contributions of this work are three-fold: (1) We introduce GRASP, an autonomous, multi-stage planning framework that enforces global macro-regularization and context-arXiv:2609.30147v1 [cs.AI] 24 Sep 2026 Task  Final Plan   
+
+> Instance
+> GenPlan RevPlan VerPlan Figure 1: A description of GRASP, defining our main blocks.
+
+isolated strategic refinement to eliminate com-pounding error feedback loops in LLM planning. (2) We demonstrate the critical interdependence of modular planning components through a compre-hensive ablation study, revealing how local search optimization collapses into unconstrained halluci-nation loops without global macro guardrails. (3) Through extensive empirical evaluations spanning programmatic execution and pure LLM execution, we demonstrate that GRASP establishes a new state-of-the-art frontier. Strikingly, under multi-task scaling, GRASP completely neutralizes the contextual degradation penalties that plague stan-dard language architectures. In interleaved dual-task environments, GRASP enabled by standard language backbones achieves an absolute accuracy gain of up to 16 .7% over direct baselines, systemat-ically outpacing premium, native frontier reasoning models such as GPT-5-mini by 14 .5% .
+
+2 Related Work 
+
+Autonomous Agents Computing agents originated in 1970s rule-based expert systems like DEN-DRAL and MYCIN (Buchanan et al., 1969; Short-liffe, 1974), later evolving through decision theory and cognitive architectures into autonomous sys-tems (Pearl, 1988; Newell, 1990; Kaelbling et al., 1998). Modern language model (LLM) agents act as task-directed workflows that perceive, plan, and execute within complex environments (Wang et al., 2025a,b; Mohammadi et al., 2025). Rather than acting as rigid programmatic scripts, effec-tive agents must exhibit human-like adaptability to handle complex multi-step routines autonomously under dynamic context shifts. 
+
+Inference-Time Algorithms Core prompting tech-niques like Chain-of-Thought (Wei et al., 2022), Self-Consistency (Wang et al., 2022), and In-Context Learning (Dong et al., 2024) enhance step-by-step reasoning but lack long-horizon planning capabilities. Search-based extensions such as Tree of Thoughts (Yao et al., 2023), Graph of Thoughts (Besta et al., 2024), and REBASE (Wu et al., 2024) expand trajectory exploration to improve plan ro-bustness, yet they lack structured constraint en-forcement. While agentic frameworks attempt to separate planning from execution via incremen-tal adjustments (ReAct (Yao et al., 2022), Pre-Act (Rawat et al., 2025)) or critique loops (Reflexion (Shinn et al., 2023), TextGrad (Yuksekgonul et al., 2024)), they remain vulnerable to conversational noise. GRASP builds on these paradigms by com-pletely isolating generation, revision, and verifica-tion across decoupled context windows. 
+
+Automated Planning Multi-agent and constraint-guided frameworks mark recent advances in plan optimization. PlanGEN (Parmar et al., 2025) com-bines constraint, selection, and verification agents to refine test-time search spaces. Similarly, hy-brid symbolic-LLM methods like PDDL-Instruct (Verma et al., 2025) demonstrate that guiding in-ference through structured rules and determinis-tic constraints dramatically optimizes plan valid-ity (Mahdavi et al., 2024; Wei et al., 2025; Cao et al., 2025). While advanced multi-agent orches-trators like Magentic UI (Mozannar et al., 2025) incorporate memory and execution guards, they rely heavily on human-in-the-loop interaction for plan validation. In contrast, GRASP operates as a fully autonomous algorithm tailored specifically for high-quality, zero-shot plan generation and struc-tural regularization. 
+
+3 GRASP 
+
+In this section, we introduce the GRASP (Gener-ating, Revising, and Assessing for Strategic Plan-ning) framework and explain the operational details of its constituent components. The framework de-composes the end-to-end planning problem into three specialized modules that are executed sequen-tially: (i) GenPlan , which generates a structural blueprint of the plan strictly based on the natural language task description T ; (ii) RevPlan , which adapts and refines this baseline plan using a local-ized task instance I by exploring distinct strategic paths (defined as heuristics in (Polya, 1945)); and (iii) VerPlan , which acts as an independent evalua-tor to verify whether constraints are satisfied and selects the optimal plan P∗. Each module com-prises distinct computational blocks that leverage targeted prompting to keep the language model fo-cused on the specific sub-task and operating in a reliable manner. Architecturally, GRASP is designed to enable explicit context isolation. Standard plan generation frameworks often suffer from performance degrada-tion because they force a model to simultaneously process global constraints, track variables, and gen-erate local steps within the same context window. GRASP avoids this contextual overload by split-ting these requirements across the three decoupled stages. We now describe each module in detail. The exact prompts, detailed configurations, and al-gorithmic pseudo-code for each component agent are provided in the Appendix. 
+
+3.1 GenPlan 
+
+The GenPlan module handles macro-level plan gen-eration by mapping the task description T into a structured baseline plan PG while remaining oblivious to the task instance I. PG serves as a blueprint based on which instance-specific plans will be structured. Monolithic LLMs struggle with single-shot plan generation. They produce fluent text that fails under rigorous inspection due to miss-ing logical primitives or implicit constraint viola-tions. This degradation occurs because standard LLMs lack explicit mechanisms to separate task parameters from runtime variables, leading to un-recoverable cascading errors. To balance the flexi-bility of natural language and the strict adherence to task requirements, GenPlan decomposes plan-ning into component steps with memory managed through the knowledge base ( KB ) and three spe-cialized, prompt-engineered agents: the Constraint Agent (CA), the Guidelines Agent (GA) and the Plan Generation Agent (PGA). Our design is conceptually grounded in formal cognitive models of human planning, specifically working memory management and self regulation. When human experts encounter dense specifica-tions, they do not try to do detailed planning imme-diately. Instead, they isolate abstract environmental rules from T , continuously reflecting and refining their mental model before applying it to concrete instances I.GenPlan formalizes this cognitive reflection loop. We define the KB as a memory store for the task, constraints, guidelines and the tentative plan. The CA, GA and PGA operate over this shared KB 
+
+within an iterative feedback loop, balancing natural language flexibility with structural reliability. This continuous reflection process enables the frame-work to incrementally correct inconsistencies, un-cover overlooked details, and converge towards a stable, accurate plan PGMerge the generated new guidelines to KB 
+
+> Initialize KB with user guidelines and constraints or generate ones
+> Plan
+> Generator
+> Guidelines and Constraint Generator
+> Is there new ones?
+> Yes
+> No
+> Output plan by GenPlan Agent
+> Task
+> Guidelines
+> Plan(s)
+> Knowledge Base (KB)
+> Constraints
+> Instance
+> Rubrics
+> GenPlan Agent in GRASP
+
+Figure 2: A block diagram of the GenPlan agent, dis-cussed in Section 3.1. 
+
+Knowledge Base 
+
+The Knowledge Base serves as the centralized state manager for the GenPlan module. Instead of main-taining floating context variables, the framework aggregates all supporting directives such as con-straints and guidelines and the tentative plan into a single structured tuple. Formally, at any iterative step t, we have, 
+
+KB t = ⟨T , Ct, Gt, Pt⟩ (1) where Ct represents the set of hard constraints, Gt
+
+represents the set of soft guidelines, and Pt rep-resents the tentative baseline plan. The KB han-dles user-specifications, which include the initial guidelines and constraints. If provided, the KB is initialized as, 
+
+KB 0 = ⟨T , Cinit , Ginit , ∅⟩ (2) If no initial guidelines G0 or constraints C0 are pro-vided, then they are also initialized as empty sets. The CA, GA and PGA read from the KB and per-form updates to generate new entries or structurally modify existing entries. 
+
+Guidelines Agent (GA) 
+
+Guidelines operate as soft, non-binding regular-izers or operational heuristics that are designed to optimize plan quality and coherence (Gerevini et al., 2009). The GA identifies new guidelines from the existing KB and merges them with the current guidelines. More formally, 
+
+Gt+1 = MERGE (Gt, GA (KB t)) . (3) Guidelines enforce structural consistency, uniform phrasing, and boundaries across the plan. How-ever, even if a specific guideline in G is violated, a candidate plan may remain logically valid. In general, enforcing guidelines minimizes genera-tive drift, highlighting the role of guidelines as soft regularizers over the decoding space of the LLM. 
+
+Constraint Agent (CA) 
+
+In contrast to soft guidelines, constraints repre-sent strict, necessary conditions that the plan must satisfy to be classified as executable and valid (Gerevini et al., 2009). The CA operates in a simi-lar way to the GA by identifying new constraints from the existing KB and merges them with the current constraints. Formally, 
+
+Ct+1 = MERGE (Ct, CA (KB t)) . (4) To ensure maximum plan reliability, GRASP al-lows users to manually enter constraints at initial-ization. However, even when GenPlan operates in a zero-shot fashion without user defined priors (C0 = ϕ), the CA automatically generates a list of constraints from T . This process ensures that the baseline plan and downstream plan synthesis fol-low operational boundaries. Mathematically, con-straints function as hard regularizers that clip and prune logically infeasible states from the down-stream plan search space. 
+
+Plan Generation Agent (PGA) 
+
+The PGA is an agent which synthesizes the tenta-tive base plan under the structural and operational boundaries defined by C and G. If user-specified guidelines and constraints are provided at t = 0 ,then the PGA immediately constructs the initial plan and places it in the KB . Otherwise, the CA and GA are invoked to build the initial constraints and guidelines. After the plan has been initialized, it is updated as follows at the t + 1 th iteration, 
+
+Pt+1 = PGA (KB t) (5) GenPlan implements the iterative optimization and symbolic reflection loop across the agents, rather than executing a single-shot forward gen-eration pass. At each iteration t, the agents inspect the complete KB t, and generate new iterates by identifying logical mismatches or constraint viola-tions. This process is similar to the techniques used in (Yuksekgonul et al., 2024; Shinn et al., 2023). The KB is then updated as, 
+
+KB t+1 = ⟨T , Ct+1 , Gt+1 , Pt+1 ⟩. (6) This optimization loop executes continuously until an external judge block determines that the updates have converged and no further structural changes have been qualitatively observed between iteration, 
+
+KB ∗ = KB t where KB t+1 ≡ KB t (7) Through this continuous optimization loop over the 
+
+KB , the GenPlan module dynamically accumulates new constraints and guidelines, and produces the final, highly resilient baseline plan PG ∈ KB ∗,that strictly adheres to the hard constraints, while honoring the soft guidelines, and acts as a blueprint for downstream plan generation. The detailed algorithm and prompts of GenPlan are given in Appendix F. Further, please see Ap-pendix J and K for examples of guidelines, con-straint and plans generated and used by GenPlan. 
+
+3.2 RevPlan 
+
+The RevPlan module takes the macro-level base-line plan PG generated by the GenPlan block, and specializes it for a specific task instance I. In tradi-tional software engineering, an execution instance simply supplies static data parameters to a deter-ministic function. In contrast, within the GRASP framework, I introduces dynamic runtime direc-tives, such as edge-case exceptions, shifting op-erational priorities and unmodeled environmental circumstances. To satisfy these runtime directives without violating the core structural plan rules es-tablished in GenPlan, RevPlan refines the plan PG
+
+by systematically introducing, modifying or remov-ing discrete execution steps based on a multi-path exploration on the strategy space. To prevent the model from prematurely con-verging on a single suboptimal decoding path, we forego a linear revision pass. Instead, as outlined in Algorithm 2, we expand the planning space into parallel, strategy-based tracks using two primary stages, strategy induction and strategy-specific plan merging. In the strategy induction stage, we first derive a set of strategies by evaluating the task T and the task instance I. We define this strategy space as, 
+
+S = {s1, s 2, . . . , s K } (8) where K represents the number of distinct strate-gies explored. In this work, we typically consider 
+
+2 ≤ K ≤ 4. This parallelization captures diverse and valid strategic paths that an LLM might oth-erwise discard if it is forced to commit to a single path early on. RevPlan then initiates K contextually isolated tracks, one for each strategy. Within each track, we generate a set of localized constraints Csk , which act as rigid guardrails for the subsequent planning phase. For each isolated track, we construct a strategy-specific plan candidate P(k) through the following three-phase pipeline. • First, we leverage the ReAct framework (Yao et al., 2022) to generate a strategy-specific so-lution trajectory χsk . The reason-observe-act framework in the ReAct solution interleaves reasoning traces with structural actions, while aligning with the strategy-specific constraints 
+
+Csk . This solution provides a valid path to-wards the goal of the pair of T and I.• We then apply an extraction function to isolate the executable steps from the verbose solution trajectory χsk ,
+
+P(k) 
+
+> specific
+
+= ExtractPlan (χsk ) (9) This operation isolates the structural plan from the exact solution details, yielding an instance-focused plan without the GenPlan guardrails. • Finally, we reconcile this instance-specific plan with the structural blueprint provided by GenPlan, 
+
+P(k) = MergePlans (P(k)
+
+> specific
+
+, PG). (10) This plan-merge operation preserves the struc-tural blueprint established via PG, while inte-grating the strategy-specific logic of P(k)
+
+> specific
+
+.Thus, maintaining strict contextual isolation across the K tracks ensures that hallucinations and com-pounding errors in one trajectory do not harm other trajectories. RevPlan finally outputs a set of special-ized candidate plans P = {P (1) , P(2) , . . . , P(K)},representing a diverse set of valid, instance-calibrated plans. In Appendix G and Appendix K, we present the detailed algorithm and prompts for RevPlan and examples of plan revisions based on strategies. 
+
+3.3 VerPlan 
+
+VerPlan is the final module of GRASP. VerPlan functions as a decoupled plan evaluator to assess the set of candidate plans P generated by RevPlan. We implement this verification stage because the individual strategy-based plans may still contain logical errors, omit crucial steps, or suffer from Revise Plan for each 
+
+> strategy and output revised plans
+> Generate
+> Strategies
+> based on task & instance
+> Generate
+> instance
+> specific constraints Task
+> Guidelines
+> Plan(s)
+> Knowledge Base (KB)
+> Constraints
+> Instance
+> Rubrics
+> RevPlan Agent in GRASP
+
+Figure 3: A block diagram of the RevPlan agent, dis-cussed in Section 3.2 Verify Plans Against Rubrics and Constraints 
+
+> Output the plan with best score
+> Score Plans based on verification and feasibility Task
+> Guidelines
+> Plan(s)
+> Knowledge Base (KB)
+> Constraints
+> Instance
+> Rubrics
+> VerPlan Agent ion GRASP
+
+Figure 4: A block diagram of the VerPlan agent, dis-cussed in Section 3.3 
+
+varying levels of infeasibility depending on the exact task and instance. To identify these short-comings and filter out low-quality plans, VerPlan evaluates each candidate plan independently within an isolated context window. Each candidate plan is assessed using an LLM, which acts as the scoring function. The LLM func-tions as an unbiased discriminator and scorer to provide an objective assessment of feasibility and reliability. For each track k, we evaluate the candidate plan 
+
+P(k) against the task T , instance I, GenPlan con-straints C, strategy-specific constraints Csk and in-ternal rubrics. We prompt the LLM to output a plan quality score Ψ(k) ∈ [0 , 100] . This score re-flects the plan’s likelihood of success and its strict adherence to the constraints. More formally, 
+
+Ψ(k) = Score (P(k)|T , I, C, Csk , Rubrics ) (11) This verification mechanism acts as a strict constraint-satisfaction and feasibility check, ensur-ing that plans that satisfy the constraints and are feasible are given higher scores. By scoring each trajectory independently, we prevent mistakes or noise due to one strategy path from biasing the evaluation of other candidates. Once the model has computed the evaluation scores for all K can-didates, we choose the plan with the highest score, 
+
+P∗ = arg max 
+
+> P(k)∈P
+
+Ψ(k). (12) The selected plan P∗ is chosen as the final, high-confidence output of GRASP. 
+
+4 Evaluation 
+
+4.1 Experimental Setup 
+
+To evaluate the quality of plan generation with GRASP, we utilize four distinct benchmarks span-ning administrative logistics, hard logic matrices, and expert-level scientific reasoning: Natural Plan Calendar Scheduling (Zheng et al., 2024), GPQA (Rein et al., 2024), SciBench Math (Wang et al., 2024) and ZebraLogic (Lin et al., 2025). 
+
+The Execution Platform: RunAgent 
+
+In order to guarantee a standard, objective baseline for how plans translate into actions, all generated plans across all frameworks are systematically run through RunAgent (Srivastava et al., 2026). RunA-gent functions as a multi-agent execution platform that interprets natural language steps of a plan and executes them. RunAgent utilizes frontier LLMs for executing plans. RunAgent (GPT-4o (Hurst et al., 2024)) is utilized for the Natural Plan Calen-dar Scheduling, Scibench Math and GPQA datasets. RunAgent (GPT-4.1-mini (OpenAI, 2025)) is uti-lized for the ZebraLogic dataset. Even though RunAgent includes many features such as con-straint generation and verification, fact utilization, agentic language and running state summaries, we run a bare-bones version of RunAgent, where only the LLM or Python code execution are utilized for executing steps. Further, error correction is only invoked to overcome runtime errors. This ensures that poor plan quality is not compensated by verifi-cation protocols. 
+
+Experimental Setup 
+
+Our evaluation isolates GRASP’s effectiveness in planning across two distinct experiments. More details are provided in Appendix D. • Single Task Planning with Programmatic exe-cution (Experiment 1): In this experiment, a common task is described to GRASP based on the specific dataset, and each problem is provided as an instance. Each generated plan is executed with RunAgent. This experiment shows the utility of GRASP plans for agentic-tool-use use cases across all datasets. • Robustness for Compound Task Scaling (Ex-periment 2): To evaluate the resilience of GRASP under dual-task objectives, we test the planners on Natural Plan Calendar Scheduling by scaling the tasks from simple tasks with single goals to tasks with two or three objectives. We turn off the Python code execution in RunAgent for this experiment, and run each step using only LLMs. This experiment highlights GRASP’s structural re-silience under complex task loads. 
+
+Evaluation Metrics and Baselines 
+
+We report Exact Match (EM) accuracy for the Natural Plan Calendar Scheduling dataset, and standard accuracy percentages for the SciBench Math, GPQA and ZebraLogic datasets. Equiva-lence between RunAgent outputs and gold answers is judged using an LLM judge block, running with GPT-5 (OpenAI, 2025). Manual evaluation of 50 random instances per dataset classified by GPT-5 demonstrates full agreement with human judgment. For Experiment 1, we benchmark GRASP against three types of baselines: • Direct LLM execution: Single-shot problem solving by baseline LLMs. • Baseline LLM Planner: Single-shot plan gen-erated by LLM based on task and instance with structural guardrails in the prompt, and executed with RunAgent. • State-of-the-art Methods: Advanced algo-rithms including PlanGEN (Parmar et al., 2025) (all four variants), Tree-of-thoughts (ToT) (Yao et al., 2023) and Best-of-N (BoN) (Gui et al., 2024) are used to generate plans, which are then executed by RunAgent. To rigorously examine whether GRASP can outper-form frontier reasoning models in plan generation for dual-task objectives, we introduce GPT-5-mini (medium reasoning effort) (OpenAI, 2025) as a baseline direct planner alongside GPT-4o and GPT-4o-mini for comparison in Experiment 2. 
+
+4.2 Main Results 
+
+We summarize and discuss our main results in this section. Statistical analysis, plan efficiency analy-sis and impacts of information leakage are investi-gated in Appendix E. Method EM Acc. (%)GPT-4o-mini baseline 41.9 GPT-4o-mini Planner 54.3 GRASP(GPT-4o-mini) planner 74.3 GPT-4o baseline 58.3 GPT-4o Planner 63 GRASP(GPT-4o) planner 75.4 
+
+Table 1: Results for Natural Plan Calendar Scheduling      
+
+> Method Accuracy (%)GPT-4o baseline 29.5 GPT-4o Planner 30.6 GRASP (GPT-4o) Planner 61.4
+
+Table 2: Results for the ZebraLogic Dataset 
+
+Single-Task Planning with Programmatic Execution Performance on Natural Plan Calendar Schedul-ing The results for this dataset are summarized in Table 1. We observe that GRASP outperforms LLM planners by 12 .4% for GPT-4o and by 20% 
+
+for GPT-4o-mini. Surprisingly, GRASP(GPT-4o-mini) outperforms the GPT-4o planner by 11 .3% .
+
+Performance on ZebraLogic The results are sum-marized in Table 2. In this dataset, GRASP(GPT-4o) outperforms the GPT-4o planner by 30 .8% .
+
+Performance on SciBench Math The results are summarized in Table 3. GRASP(GPT-4o) outperforms the GPT-4o planner on all subsets. GRASP(GPT-4o-mini) outperforms the GPT-4o-mini planner on the Stat and Diff subsets, but equals on the Calc subset. On the Stat subset, GRASP(GPT-4o-mini) outperforms other methods. 
+
+Performance on GPQA The results for this dataset are summarized in Table 4. The results are aver-aged over 3 runs, and we find that GRASP does not perform better than either the GPT-4o baseline or the planner in a statistically significant way. 
+
+Comparison against State-of-the-art The state-of-the-art algorithms and GRASP perform plan-ning using GPT-4o-mini, and each plan is executed using RunAgent. The results are summarized in Table 5. We observe that GRASP outperforms all other methods on Natural Plan Calendar Schedul-ing, SciBench Stat, and ZebraLogic dataset, but PlanGEN equals GRASP on SciBench Calc and Diff. 
+
+Ablation Studies We conduct ablation studies on Natural Plan Calendar Scheduling. Varying the number of strategies in RevPlan (1–4) yields ac-curacies of 73 .0% , 74 .1% , 75 .4% , and 71 .2% , re-spectively, indicating a performance sweet spot at                      
+
+> Method Stat Calc Diff
+> GPT-4o-mini baseline 73.61 65.85 34 GPT-4o-mini Planner 70.83 73.17 28 GRASP(GPT-4o-mini) planner 81.94 73.17 50 GPT-4o baseline 77.78 70.73 50 GPT-4o Planner 70.83 73.17 54 GRASP(GPT-4o) planner 80.56 78.05 62
+
+Table 3: Accuracy Percentage for the SciBench Dataset      
+
+> Method Accuracy (%)GRASP (GPT-4o, 2 strat.) planner 47.54 GPT-4o baseline 47.99 GRASP (GPT-4o, 4 strat.) planner 48.23
+
+Table 4: Results for the GPQA Dataset 
+
+three strategies and highlighting the impact of strat-egy initialization on plan generation. By using 3 strategies in RevPlan and removing constraint and guideline generation in GenPlan the accuracy drops from 75 .4% to 58 .5% .
+
+Token and Cost Comparisons We summarize the average input and output token counts per in-stance for Natural Plan Calendar Scheduling in Table 6. Using the current GPT token prices (see Appendix B), we compute the cost and report the normalized cost versus baseline GPT-4o model in Table 6. GRASP (GPT-4o) increases cost by 
+
+∼ 13 .5x while improving accuracy by 12 .4% over the GPT-4o planner. GRASP (GPT-4o-mini) with three strategies achieves an 11 .3% accuracy gain at ∼ 0.95 x the cost. Further discussion of token usage for Table 5 is given in Appendix C. 
+
+Robustness for Compound Task Scaling Performance under Multi-Task Scaling The re-sults for multi-task scaling are summarized in Ta-ble 7. While all planners achieve parity on isolated single tasks (hovering between 44 .5% and 45 .8% ), expanding the workspace to interleaved multi-task streams causes direct planners to collapse due to context pollution. Moving from dual to triple tasks, the direct GPT-4o planner decays from 30 .5% to 
+
+29 .1% , and the GPT-4o-mini planner drops from 
+
+24 .5% to 21 .2% . Conversely, GRASP(GPT-4o) maintains performance, achieving 45 .7% on dual tasks and rising to 46 .6% on triple tasks, outper-forming its direct planner counterpart by 17 .5% .GRASP also enables smaller LLMs to excel on dual tasks, driving GRASP(GPT-4o-mini) to 41 .2% 
+
+(a 16 .7% absolute gain over its direct baseline). 
+
+Comparison Against Reasoning Models We eval-uate direct planners driven by GPT-5-mini, a fron-tier reasoning model. Despite this optimization, Method Calendar Scheduling SciBench Stat SciBench Calc SciBench Diff ZebraLogic                                    
+
+> PlanGEN (Mix) 52.3 72.22 73.17 50.0 31.5 PlanGEN (ToT) 55.7 50.00 40.48 26.0 10.0 PlanGEN (Rebase) 49.4 77.78 64.29 34.0 39.2 PlanGEN (BoN) 72.3 73.16 66.67 48.0 41.6 BoN 60.4 77.78 70.73 34.0 41.0 ToT 52.2 58.33 48.78 40.0 13.0 GRASP (Ours) 74.3 81.94 73.17 50.0 58.0
+
+Table 5: Performance Comparison of PlanGEN Variants, Baselines, and GRASP Across Benchmarks                                   
+
+> Method Input Output NC
+> GPT-4o Baseline 262 352 1GPT-4o Planner 374 418 1.2 GRASP(GPT-4o, 1strat.) 4703 1316 6GRASP(GPT-4o, 2strat.) 8497 2400 10.8 GRASP(GPT-4o, 3strat.) 12664 3741 16.5 GRASP(GPT-4o, 4strat.) 16455 4753 21.2 GRASP(GPT-4o-mini, 3strat.) 13683 4711 1.16
+
+Table 6: Average token count and normalized cost (NC) per instance for Natural Plan Calendar Scheduling             
+
+> Method Dual Tasks Triple Tasks
+> GPT-4o-mini Planner 24.5 21.2 GPT-4o Planner 30.5 29.1 GPT-5-mini Planner 26.7 25.5
+> GRASP(GPT-4o-mini) 41.2 28.1
+> GRASP(GPT-4o ) 45.7 46.6
+
+Table 7: Performance under multi-task scaling. 
+
+the direct GPT-5-mini planner succumbs to multi-task context degradation, scoring only 26 .7% on dual tasks and dropping to 25 .5% on triple tasks. Both GRASP configurations comprehensively out-perform this frontier reasoning model. Crucially, GRASP(GPT-4o-mini) achieves 41 .2% on dual tasks, outperforming the direct GPT-5-mini planner by a 14 .5% absolute margin. 
+
+Ablation Studies We execute an ablation study under the dual-task setup, summarized in Table 8. Isolating single modules shows that GenPlan Only yields 40 .8% accuracy, proving the vital anchoring role of guidelines and constraints. In contrast, acti-vating local strategy exploration without structural boundaries (RevPlan Only or RevPlan + VerPlan) causes a catastrophic drop to 10 .9% and 12 .5% ,respectively—performing substantially worse than VerPlan Only ( 30 .7% ). The highest overall per-formance is unlocked strictly when all modules interact in the full GRASP architecture ( 45 .7% ). 
+
+Discussion The ablation study reveals a profound modular interdependence. VerPlan Only acts as a passive filter over standard direct generations, yielding baseline levels. However, executing local updates (RevPlan) without the invariant structural                 
+
+> Setting Configuration Accuracy (%)
+> 1Direct Planner 30.5 2RevPlan Only 10.9 3VerPlan Only 30.7 4GenPlan Only 40.8 5RevPlan + VerPlan 12.5 6GenPlan + RevPlan 42.5 7GRASP 45.7
+
+Table 8: Ablation matrix across GRASP modules under dual-task mode. 
+
+guardrails of GenPlan triggers unconstrained se-mantic drift and plan hallucinations. This creates a set of low quality plans, catching the downstream VerPlan module in a classic "garbage-in, garbage-out" trap that drops performance to 12 .5% . This confirms that local strategy optimization requires global regularization. Additionally, our triple-task results uncover a clear capacity boundary condition for smaller models. While GRASP(GPT-4o-mini) performs robustly on dual tasks ( 41 .2% ), it col-lapses to 28 .1% on triple tasks. This demonstrates that under extreme multi-task workloads, smaller LLMs lack the raw parameter capacity to success-fully manage complex instructions without suffer-ing local attention drift, establishing a hardware-bound capability threshold. 
+
+5 Conclusion 
+
+In this paper, we introduced GRASP, an au-tonomous framework that neutralizes context degra-dation and plan hallucinations in complex tasks. By decoupling plan generation, strategy exploration, and validation across context-isolated agents, our architecture successfully eliminates compounding error cascades. Our evaluations prove that explicit structural guardrails enable standard LLMs to sys-tematically outperform the unguided internal rea-soning chains of frontier reasoning models. Limitations 
+
+Latency Considerations While our framework pri-oritizes execution reliability, the iterative genera-tion, local refinement, and systematic verification of multiple alternative strategies inherently incurs higher runtime latency compared to single-pass, monolithic generation. We consider this additional computational overhead a necessary trade-off to en-sure structural robustness and eliminate compound-ing error loops in highly complex tasks. How-ever, this latency characteristic may limit the frame-work’s suitability for real-time, interactive applica-tions where immediate response times are critical, defining a clear trajectory for future work to ex-plore parallelized generation pipelines or early-exit optimization heuristics to reduce inference time. 
+
+Orthogonal to Model-Level Reasoning A funda-mental characteristic of GRASP is that it operates strictly as an inference-time plan regularizer rather than a mechanism for improving the intrinsic, low-level reasoning capabilities of the underlying lan-guage model. If a backbone possesses severe base-line domain ignorance or lacks the foundational logic to understand a given task space, our frame-work cannot bridge that cognitive deficit. GRASP is explicitly designed to optimize plan execution safety by decoupling context and enforcing macro-constraints, allowing models to fully express their latent capabilities without attention fatigue. It does not train or structurally alter the underlying model’s multi-stage internal reasoning chains. This limita-tion is specifically highlighted in our experiments. We observe that GRASP does not outperform the direct planner on the GPQA dataset, the SciBench Diff and the SciBench Calc datasets. Problems in all three datasets rely not just on building a good plan, but on improving the reasoning capability of the underlying LLM itself. 
+
+Task-Dependent Strategy Tuning A key limita-tion of the current framework is that the optimal number of generated strategy-based plans behaves as a task-dependent hyperparameter rather than a fixed, universal value. For instance, in our Calen-dar Scheduling evaluations, system performance peaks sharply at a sweet spot of three candidate strategies; while fewer strategies limit the explored search space, generating more introduces excessive diversity that can mislead the VerPlan discrimi-nator toward sub-optimal choices. Consequently, deploying GRASP across highly heterogeneous do-mains currently requires manual tuning to balance strategic exploration with downstream execution reliability, highlighting a valuable avenue for auto-mated, dynamically adjusting number of strategies in future iterations. 
+
+Ethical Considerations 
+
+OpenAI Policy Compliance: The use of GPT-4o, GPT-4o-mini and GPT-5-mini throughout this work adheres to the OpenAI developer terms, data governance guidelines and safety usage policies. 
+
+Dual-Use and Misuse Risks: GRASP increases the structural reliability, logical consistency and execution fidelity of complex multi-step plans, and could be potentially adapted by malicious actors to optimize harmful plans. We note that GRASP functions strictly as a plan optimization framework, and lacks physical agency, real-world permissions, or independent tool-use capabilities. We strongly advocate for the enforcement of strict verification guardrails and human-in-the-loop validation pro-tocols in any production environments that deploy planners such as GRASP. 
+
+Bias and Safety Alignment: GRASP fundamen-tally relies on the internal semantic representations and latent knowledge space of its underlying base LLM. While it enforces structural correctness, con-straint verification, and soft guideline regulariza-tion, it doesn’t natively correct or filter out embed-ded historical, cultural, or demographic biases hid-den in the base model’s weights. If user-provided parameters or instructions introduce biased or prob-lematic premises, running GRASP may produce plans that are structurally sound and optimized, but are ethically compromised or socially harmful. 
+
+Privacy and Data Governance: Our work uti-lizes standard and publicly available benchmarks, but executes real-world planning tasks such as cal-endar scheduling involves handling highly sensitive user data. Multi-agent pipelines risk context-bleed or unauthorized data persistence. Care should be taken to prevent sensitive parameters from leaking into public training loops. 
+
+Environmental Impact and Computational Overhead: Iterative multi-agent frameworks lead to compounding computational costs and en-vironmental footprints, if not engineered with care. Poorly optimized multi-agent setups regularly trap LLMs in verbose, unconstrained self-reflection loops that use huge number of tokens, incurring substantial environmental costs for negligible accu-racy returns. GRASP mitigates this environmental concern through its design. As shown in Sec. 4.2, GRASP provides performance gains while limiting token costs. Moreover GRASP’s token usage is highly competitive when compared to other base-lines, as shown in Table 9. This results in a rea-sonable overhead for the environmental impact and computational costs of GRASP for the performance gains provided. 
+
+References 
+
+Maciej Besta, Nils Blach, Ales Kubicek, Robert Gersten-berger, Michal Podstawski, Lukas Gianinazzi, Joanna Gajda, Tomasz Lehmann, Hubert Niewiadomski, Pi-otr Nyczyk, and 1 others. 2024. Graph of thoughts: Solving elaborate problems with large language mod-els. In Proceedings of the AAAI conference on artifi-cial intelligence , volume 38, pages 17682–17690. Bruce G Buchanan, Edward A Feigenbaum, and Joshua Lederberg. 1969. Heuristic dendral: A computer program for generating explanatory hypotheses in organic chemistry. Machine Intelligence , 4. Pengfei Cao, Tianyi Men, Wencan Liu, Jingwen Zhang, Xuzhao Li, Xixun Lin, Dianbo Sui, Yanan Cao, Kang Liu, and Jun Zhao. 2025. Large language models for planning: A comprehensive and systematic survey. 
+
+arXiv preprint arXiv:2505.19683 .Qingxiu Dong, Lei Li, Damai Dai, Ce Zheng, Jingyuan Ma, Rui Li, Heming Xia, Jingjing Xu, Zhiyong Wu, Baobao Chang, and 1 others. 2024. A survey on in-context learning. In Proceedings of the 2024 con-ference on empirical methods in natural language processing , pages 1107–1128. Nouha Dziri, Ximing Lu, Melanie Sclar, Xiang Lorraine Li, Liwei Jiang, Bill Yuchen Lin, Peter West, Chan-dra Bhagavatula, Ronan Le Bras, Jena D. Hwang, Soumya Sanyal, Sean Welleck, Xiang Ren, Allyson Ettinger, Zaid Harchaoui, and Yejin Choi. 2023. Faith and fate: limits of transformers on composi-tionality. In Proceedings of the 37th International Conference on Neural Information Processing Sys-tems , NIPS ’23, Red Hook, NY, USA. Curran Asso-ciates Inc. Alfonso E. Gerevini, Patrik Haslum, Derek Long, Alessandro Saetti, and Yannis Dimopoulos. 2009. Deterministic planning in the fifth international plan-ning competition: Pddl3 and experimental evaluation of the planners. Artificial Intelligence , 173(5):619– 668. Advances in Automated Plan Generation. Lin Gui, Cristina Gârbacea, and Victor Veitch. 2024. Bonbon alignment for large language models and the sweetness of best-of-n sampling. In Advances in Neural Information Processing Systems , volume 37, pages 2851–2885. Curran Associates, Inc. Keno Harada, Yudai Yamazaki, Masachika Taniguchi, Takeshi Kojima, Yusuke Iwasawa, and Yutaka Mat-suo. 2025. Curse of instructions: Large language models cannot follow multiple instructions at once. Aaron Hurst, Adam Lerer, Adam P Goucher, Adam Perelman, Aditya Ramesh, Aidan Clark, AJ Ostrow, Akila Welihinda, Alan Hayes, Alec Radford, and 1 others. 2024. Gpt-4o system card. arXiv preprint arXiv:2410.21276 .Leslie Pack Kaelbling, Michael L Littman, and An-thony R Cassandra. 1998. Planning and acting in partially observable stochastic domains. Artificial Intelligence , 101(1–2):99–134. Bill Yuchen Lin, Ronan Le Bras, Kyle Richardson, Ashish Sabharwal, Radha Poovendran, Peter Clark, and Yejin Choi. 2025. Zebralogic: On the scaling lim-its of LLMs for logical reasoning. In Forty-second International Conference on Machine Learning .Sadegh Mahdavi, Raquel Aoki, Keyi Tang, and Yan-shuai Cao. 2024. Leveraging environment interac-tion for automated pddl translation and planning with large language models. Advances in Neural Informa-tion Processing Systems , 37:38960–39008. Mahmoud Mohammadi, Yipeng Li, Jane Lo, and Wendy Yip. 2025. Evaluation and benchmarking of llm agents: A survey. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2 , KDD ’25, page 6129–6139. ACM. Hussein Mozannar, Gagan Bansal, Cheng Tan, Adam Fourney, Victor Dibia, Jingya Chen, Jack Gerrits, Tyler Payne, Matheus Kunzler Maldaner, Madeleine Grunde-McLaughlin, and 1 others. 2025. Magentic-ui: Towards human-in-the-loop agentic systems. 
+
+arXiv preprint arXiv:2507.22358 .Allen Newell. 1990. Unified Theories of Cognition .Harvard University Press. OpenAI. 2025. Gpt-5 system card. https://cdn. openai.com/gpt-5-system-card.pdf .OpenAI. 2025. Introducing GPT-4.1 in the API. https: //openai.com/index/gpt-4-1/ .Mihir Parmar, Xin Liu, Palash Goyal, Yanfei Chen, Long Le, Swaroop Mishra, Hossein Mobahi, Jindong Gu, Zifeng Wang, Hootan Nakhost, and 1 others. 2025. Plangen: A multi-agent framework for gener-ating planning and reasoning trajectories for complex problem solving. CoRR .Judea Pearl. 1988. Probabilistic Reasoning in Intelli-gent Systems: Networks of Plausible Inference . Mor-gan Kaufmann. George Polya. 1945. How to solve it: A new aspect of mathematical method . Princeton university press. Mrinal Rawat, Ambuje Gupta, Rushil Goomer, Alessan-dro Di Bari, Neha Gupta, and Roberto Pierac-cini. 2025. Pre-act: Multi-step planning and rea-soning improves acting in llm agents. Preprint ,arXiv:2505.09970. David Rein, Betty Li Hou, Asa Cooper Stickland, Jack-son Petty, Richard Yuanzhe Pang, Julien Dirani, Ju-lian Michael, and Samuel R Bowman. 2024. Gpqa: A graduate-level google-proof q&a benchmark. In 
+
+First Conference on Language Modeling .Noah Shinn, Federico Cassano, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao. 2023. Re-flexion: Language agents with verbal reinforcement learning. Advances in Neural Information Process-ing Systems , 36:8634–8652. Edward H Shortliffe. 1974. MYCIN: A rule-based com-puter program for advising physicians regarding an-timicrobial therapy selection . Ph.D. thesis, Stanford University. Arunabh Srivastava, Mohammad A., Khojastepour, Srimat Chakradhar, and Sennur Ulukus. 2026. Runagent: Interpreting natural-language plans with constraint-guided execution. Preprint ,arXiv:2605.00798. Pulkit Verma, Ngoc La, Anthony Favier, Swaroop Mishra, and Julie A Shah. 2025. Teaching llms to plan: Logical chain-of-thought instruc-tion tuning for symbolic planning. arXiv preprint arXiv:2509.13351 .X. Wang, Z. Hu, P. Lu, Y. Zhu, J. Zhang, S. Subrama-niam, A.R. Loomba, S. Zhang, Y. Sun, and W. Wang. 2024. Scibench: evaluating college-level scientific problem-solving abilities of large language models. In Proceedings of the 41st International Conference on Machine Learning , pages 50622–50649. Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc Le, Ed Chi, Sharan Narang, Aakanksha Chowdhery, and Denny Zhou. 2022. Self-consistency improves chain of thought reasoning in language models. The Eleventh International Conference on Learning Rep-resentations .Zeyu Wang and 1 others. 2025a. A survey on large language model based human-agent systems. arXiv preprint arXiv:2505.00753 .Zhenyi Wang and 1 others. 2025b. A survey on the optimization of large language model-based agents. 
+
+arXiv preprint arXiv:2503.12434 .Hui Wei, Zihao Zhang, Shenghua He, Tian Xia, Shijia Pan, and Fei Liu. 2025. Plangenllms: A modern survey of llm planning capabilities. Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics .Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou, and 1 others. 2022. Chain-of-thought prompting elic-its reasoning in large language models. Advances in neural information processing systems , 35:24824– 24837. Michael Wooldridge and Nicholas R Jennings. 1995. In-telligent agents: Theory and practice. The knowledge engineering review , 10(2):115–152. Yangzhen Wu, Zhiqing Sun, Shanda Li, Sean Welleck, and Yiming Yang. 2024. An empirical analysis of compute-optimal inference for problem-solving with language models. CoRR .Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Tom Griffiths, Yuan Cao, and Karthik Narasimhan. 2023. Tree of thoughts: Deliberate problem solving with large language models. Advances in neural information processing systems , 36:11809–11822. Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik R Narasimhan, and Yuan Cao. 2022. React: Synergizing reasoning and acting in language models. In The eleventh international conference on learning representations .Mert Yuksekgonul, Federico Bianchi, Joseph Boen, Sheng Liu, Zhi Huang, Carlos Guestrin, and James Zou. 2024. Textgrad: Automatic" differentiation" via text. arXiv preprint arXiv:2406.07496 .Huaixiu Steven Zheng, Swaroop Mishra, Hugh Zhang, Xinyun Chen, Minmin Chen, Azade Nova, Le Hou, Heng-Tze Cheng, Quoc V Le, Ed H Chi, and 1 others. 2024. Natural plan: Benchmarking llms on natural language planning. CoRR .
+
+A Future Work 
+
+We plan to extend our plan-generation framework by incorporating a human-in-the-loop component. In the current design, human input can be injected alongside the task and instance specification—for example, by supplying additional guidelines, facts, or constraints beyond those automatically inferred by our algorithm. In practice, however, task spec-ifications may contain ambiguous or incomplete information. To address this, we plan to introduce an interactive chat interface that automatically for-mulates clarification queries to the user. While generating questions about missing or unclear in-formation is relatively straightforward, using the same interface to solicit high-level guidance for plan construction (e.g., decomposition strategies or expert heuristics) is significantly more challenging. A second extension involves enabling runtime plan modification by examining the output of each step and adjusting the plan dynamically. This in-cludes verifying the correctness and relevance of Method Calendar Scheduling SciBench Stat SciBench Calc SciBench Diff ZebraLogic                                     
+
+> PlanGEN (Mix) 15,823 / 7,095 13,344 / 6,375 12,783 / 6,196 13,796 / 6,683 17,566 / 7,918 PlanGEN (ToT) 144,970 / 30,709 85,338 / 25,485 129,245 / 34,948 117,901 / 34,309 173,987 / 56,963 PlanGEN (Rebase) 9,318 / 4,239 7,072 / 31,35 6,627 / 3,001 7,684 / 3,489 11,973 / 5,166 PlanGEN (BoN) 16,776 / 6,064 13,804 / 5,865 13,297 / 5,706 14,624 / 6,246 20,297 / 7,686 Best of N5,032 / 905 2,871 / 822 3,884 / 1,078 3,935 / 1,158 5,072 / 1,275 Tree-of-Thoughts 342,951 / 14,316 627,831 / 48,529 456,324 / 36,949 539,018 / 43,308 743,532 / 33,621
+> GRASP (Ours) 13,683 / 4,711 10,754 / 4,652 14,878 / 6,854 15,474 / 7,432 14,026 / 4,936
+
+Table 9: Comprehensive token cost matrix across target benchmarks. Metrics are presented as Total Input Tokens /
+
+Total Output Tokens .
+
+intermediate results and re-executing steps when necessary by feeding verification feedback back into the LLM. In more complex cases, the system may need to insert new steps or revise existing ones to ensure proper plan execution. The evalua-tion of step-level outputs can leverage task-specific rubrics, and the interactive chat window also allows the system to request such rubrics from the human when dealing with critical stages of the plan. 
+
+B Token Prices 
+
+We list the prices for input and output tokens for GPT-4o, GPT-4o-mini and GPT-5-mini in Table 10. This cost is in dollars, and per million tokens.         
+
+> Model Input Price ($) Output Price ($)
+> GPT-4o 2.5 10 GPT-4o-mini 0.15 0.6 GPT-5-mini 0.25 2
+
+Table 10: Token Prices for the models 
+
+C Token Usage 
+
+The token usage for state-of-the-art baseline meth-ods and GRASP is given in Table 9. We observe that GRASP’s token usage is competitive with other algorithms such as PlanGEN(Mix) and Plan-GEN(BoN). PlanGEN(Rebase) and Best of N al-gorithms consume less tokens than GRASP, but also perform worse than GRASP across datasets. PlanGEN(ToT) and ToT consume a large number of tokens, and also perform worse than GRASP. On the Natural Plan Calendar Scheduling dataset, PlanGEN (BoN) performs very well, following the trend shown in (Parmar et al., 2025) for the Nat-ural Plan datasets. However, it performs worse than GRASP, while consuming 22% extra tokens. PlanGEN models perform at the same level as GRASP on the SciBench Calc and SciBench Diff datasets. This solidifies the discussion in Section 5 that GRASP does not improve the reasoning power of the underlying LLM powering the framework. 
+
+D Experimental Details 
+
+To ensure deterministic behavior, we set the tem-perature of all models to 0 while running GRASP and RunAgent. For baselines ToT and PlanGEN, we used the temperature and other parameters sug-gested in the original works. We utilized gpt-4o-2024-11-20 as the gpt-4o version, gpt-4o-mini-2024-07-18 for gpt-4o-mini, gpt-4.1-mini-2025-04-14 for gpt-4.1-mini, gpt-5-mini-2025-08-07 for gpt-5-mini and gpt-5-2025-08-07 for gpt-5. Due to the high costs for each run, we only perform one run for each dataset for each experiment and model. The only exceptions are in the case of the GPQA dataset, where we perform 3 runs, and the ablation study for the second experiment, where we run GRASP and GenPlan+RevPlan 3 times to obtain statistical results. 
+
+D.1 Single-Task Planning with Programmatic Execution 
+
+We run the direct baseline LLMs with temperature 
+
+0, by giving the direct problem from each dataset without the task or any other text. We run the direct LLM planners with the prompt provided in Appendix I under the prompt for Experiment 1. 
+
+BoN, Tree-of-Thought (ToT) and PlanGEN baselines. We evaluate standalone BoN plan-ners (Four direct plans are generated using the prompt for Experiment 1 in Appendix I, and the plan that scores the highest accuracy with Ver-Plan is executed), Tree-of-Thought (directly imple-mented using the code given in the Github Reposi-tory) planners and four PlanGEN (directly imple-mented using the code given in the Github Reposi-tory) algorithm variants, each followed by execu-tion with R UN AGENT (Python). BoN is run with 
+
+nplans = 4 , and VerPlan is used to choose the best plan. The temperature is set to 0 in this baseline. The standalone ToT search uses a Princeton-style propose-value-greedy procedure with at most 15 steps, branching factor 4, beam width 1, and 4 independent value samples per candidate; genera-tion and evaluation use temperature 1.0 (proposal 
+
+max_tokens = 300 , value max_tokens = 800 ). Partial plans are scored by averaging mapped labels (sure = 20 , maybe = 1 , impossible = 0 .001 ). Un-less noted otherwise, the planner is gpt-4o-mini ,the executor is gpt-4o , and answers are judged by 
+
+gpt-5 at temperature 1.0.PlanGEN runs share generation temperature 0.7,
+
+max_tokens = 1024 , judge gpt-5 , and (for the plan-and-execute pipeline) planner gpt-4o-mini 
+
+with executor RunAgent(gpt-4o) . The four vari-ants are: (i) Mixture of Algos. : full constraint-verification-selection with 3 candidate solutions; 
+
+(ii) best-of-n: nplans = 4 , diverse sampling; (iii) tree-of-thought : branching factor 3, max depth 20, beam width 2; and (iv) REBASE : 5 refinement iterations with improvement threshold 0.1.
+
+D.2 Robustness for Compound Task Scaling 
+
+Standard calendar-scheduling instances require finding one feasible meeting time. Dual and triple tasks extend this into composite objectives: the model must solve the original scheduling prob-lem and one or two auxiliary consultant-calendar subproblems, returning a strictly formatted multi-line answer. A dual task has two sub-objectives, with output on exactly two newline-separated lines (no extra text). This prompt is given in Table 11. A triple task adds a third sub-objective (three newline-separated lines must be output). This prompt is given in Table 12. Each instance is composed of two parts. The first part contains the original instance of the Natural Plan Calendar Scheduling zero-shot prompt, and the second part contains the schedule of Consultant D, shown in Table 13, or the schedules of both Consultant D and Consultant E (shown in Table 14). In a similar way, the first part of the gold answers corresponds to the gold answer of the associated calendar scheduling instance, and the second part of the gold answer corresponds to the fixed answer for the latest free slot of Consultant D’s schedule for the dual task, or the latest free slot in both Consultant D and Consultant E’s schedule, for the triple task instruction. The first task measures performance on standard calendar scheduling instances. Therefore, this part of the prompt varies per instance. The second part of the prompt is fixed for every instance, and mea-sures whether the agent can parse dense calendars, apply working-hour bounds, identify 30-minute gaps, and select the latest slot, not merely a free slot. The intent of the second part of the prompt is not to be a challenging problem. The auxiliary tasks are designed to be very simple, so that the individual LLMs can solve them easily. However, when the auxiliary tasks are combined with calen-dar scheduling tasks, the plan accuracy goes down. We use GRASP with 4 strategies for both GPT-4o and GPT-4o-mini, and use the prompt in Ap-pendix I (under Experiment 2) for the direct LLM planners. 
+
+Ablation Setup Below, we describe the exact setup of each method in the ablation study in Ta-ble 8. • Direct Planner : A plan is directly generated using the prompt provided in Appendix I for Experiment 2. This new prompt ensures low plan leakage by GPT-5-mini. • GenPlan Only : A plan is generated using the GenPlan module, and run for all instances. • RevPlan Only : Four strategy-based plans are generated, and one of them is randomly cho-sen and executed. • VerPlan Only : Four plans are generated us-ing the Direct Planner prompt, and VerPlan chooses the best one by scoring each plan. The plan with the highest score is executed. • GenPlan+RevPlan : First a plan is generated by GenPlan based on the task, then four plans are generated by RevPlan based on strategies, and normalized by GenPlan’s output. Then a plan is randomly chosen for execution. • RevPlan+VerPlan : Four strategy-based plans are generated by RevPlan, and then scored by VerPlan. The best plan is chosen for execu-tion. • GRASP : The full framework is used to gener-ate a good plan. 
+
+E Statistical Analysis, Plan Efficiency and Information Leakage 
+
+E.1 Statistical Analysis Experiment 1 
+
+We first note that if GRASP outperforms its closest competitor in a statistically significant way, then it Dual Task Prompt 
+
+Composite Task Instructions: Your objective consists of two distinct scheduling tasks. You must output your final response on exactly two lines " \n" separated, with no additional conver-sational text. Line 1 (Task 1): Output the final schedule for the primary group meeting in the format: Day, HH:MM AM/PM - HH:MM AM/PM Line 2 (Task 2): Analyze the 5-day schedule for Exter-nal Consultant D. Find the absolute latest 30-minute free interval available in their standard working week (Monday through Friday, 9:00 AM to 5:00 PM) and output only the day and start time in the format: Day, HH:MM AM/PM 
+
+Table 11 
+
+Triple Task Prompt 
+
+Composite Task Instructions: Your objective consists of three distinct scheduling tasks. You must output your final response on exactly three lines " \n" separated, with no additional conver-sational text. Line 1 (Task 1): Output the final schedule for the primary group meeting in the format: Day, HH:MM AM/PM - HH:MM AM/PM Line 2 (Task 2): Analyze the 5-day schedule for Exter-nal Consultant D. Find the absolute latest 30-minute free interval available in their standard working week (Monday through Friday, 9:00 AM to 5:00 PM) and output only the day and start time in the format: Day, HH:MM AM/PM Line 3 (Task 3): Analyze the 5-day schedule for Exter-nal Consultant E. Find the absolute latest 30-minute free interval available in their standard working week (Monday through Friday, 9:00 AM to 5:00 PM) and output only the day and start time in the format: Day, HH:MM AM/PM 
+
+Table 12 
+
+Consultant D Schedule Prompt 
+
+External Consultant D’s Calendar Log (Standard Hours: 9:00 AM - 5:00 PM): Monday * 09:00 AM - 11:30 AM: Locked Core Architecture Review * 11:30 AM - 12:00 PM: [No events scheduled] * 12:00 PM - 03:00 PM: Mandatory Security Infrastructure Patching * 03:00 PM - 05:00 PM: HR Policy Alignment & Compliance Audit Tuesday * 09:00 AM - 01:30 PM: External Vendor Negotia-tions (Do Not Disturb) * 01:30 PM - 03:30 PM: Urgent Executive Escalation Sync * 03:30 PM - 05:00 PM: Critical Server Migration Oversight Wednesday * 09:00 AM - 12:00 PM: Legal & Privacy Framework Review * 12:00 PM - 01:00 PM: Stakeholder Alignment Working Lunch * 01:00 PM - 04:00 PM: Quarterly Budget Outlining Workshop * 04:00 PM - 04:30 PM: [No events scheduled] * 04:30 PM - 05:00 PM: Hard Stop - Medical Appointment Thursday * 09:00 AM - 05:00 PM: All-Day Offsite Leadership Bootcamp (Fully Unavailable) Friday * 09:00 AM - 12:30 PM: Production Deployment Readiness Check * 12:30 PM - 03:30 PM: Cross-Departmental Post-Mortem Analysis * 03:30 PM - 04:00 PM: Client Escalation Debrief * 04:00 PM - 04:30 PM: [No events scheduled] * 04:30 PM - 05:00 PM: Mandatory Weekly Sign-off & System Freeze 
+
+Table 13 Consultant E Schedule Prompt             
+
+> External Consultant ECalendar Log (Standard Hours: 9:00 AM - 5:00 PM): Monday * 09:00 AM - 01:00 PM: Cross-Regional Architec-ture Synchronization * 01:00 PM - 04:30 PM: High-Severity Outage Post-Mortem & Remediation *04:30 PM -05:00 PM: Executive Steering Committee Briefing Tuesday * 09:00 AM - 10:30 AM: Bi-Annual Infrastructure Budget Defend * 10:30 AM - 11:00 AM: [No events scheduled] * 11:00 AM - 02:00 PM: Critical Cloud Migration Strategy Lockout * 02:00 PM - 05:00 PM: Core Technical Debt Prioritization Workshop Wednesday * 09:00 AM - 05:00 PM: All-Day Emergency Security Operations Simulation (Do Not Interrupt) Thursday * 09:00 AM - 01:00 PM: Vendor Contract Renegotia-tion & Legal Alignment * 01:00 PM - 01:30 PM: [No events scheduled] * 01:30 PM - 04:00 PM: Departmental Reorg & Resource Allocation Review * 04:00 PM - 05:00 PM: Immediate Escalation Meeting - Client Onboarding Block Friday * 09:00 AM - 12:00 PM: Global Compliance & Privacy Audit Sign-off * 12:00 PM - 12:30 PM: [No events scheduled] * 12:30 PM - 04:30 PM: High-Stakes M&A Due Diligence Deep Dive * 04:30 PM - 05:00 PM: Q3 Product Roadmap Finalization Working Lunch
+
+Table 14 
+
+also statistically outperforms all other competitors. Therefore, we only look at the closest performers in this section. 
+
+ZebraLogic We compare GRASP with Plan-GEN(BoN) in this case. We use the McNemar test to determine that the p-value is < 0.0001 . There-fore, GRASP outperforms every baseline with high confidence from the statistical perspective. 
+
+Natural Plan Calendar Scheduling We com-pare against PlanGEN(BoN) in this case as well. Even though GRASP outperforms PlanGEN(BoN) by 2% , by applying the McNemar test, we find that the result is not statistically significant with a p-value of 0.33 . However, GRASP outperforms all other baselines in a statistically significant fashion, with a p-value < 0.01 .
+
+SciBench Since each SciBench Math subset is a very small dataset, achieving statistical significance requires a significant increase in accuracy. How-ever, due to the difficulty of the dataset, even a rel-atively modest increase is highly valuable. There-fore, we provide the bootstrapped 95% confidence intervals for this dataset. For the SciBench Stat dataset, the confidence intervals are [75% , 91 .67%] 
+
+for GRASP and [68 .06% , 87 .5%] for the other two methods. The p-value is 0.3438 in this case. For SciBench Calc and Diff, the PlanGEN baselines perform at the same level as GRASP, so we do not perform a statistical analysis for them. 
+
+GPQA We compare GRASP against the direct planner in this case, and find that the p-value is 
+
+0.6793 , which clarifies that GRASP does not out-perform the direct gpt-4o planner in a statistically significant way. 
+
+Experiment 2 
+
+First, we observe that GRASP(GPT-4o) outper-forms all other baselines with a p-value of < 0.01 
+
+under the McNemar test. For the ablation study in Table 8, GRASP also outperforms all other models with a p-value of < 0.01 when averaged over three runs. 
+
+E.2 Plan Efficiency for Experiment 1 ZebraLogic The average plan length is 12.67 steps for GRASP and 9.74 steps for Plan-GEN(BoN). This shows that the plans generated by GRASP are much longer. This tells us that GRASP autonomously generates longer plans for challeng-ing problems, and the accuracy increases by a large margin as a result. 
+
+Natural Plan Calendar Scheduling We find that the plans for GRASP average 11.3 steps, whereas for PlanGEN(BoN) they average 13.09 steps. 
+
+SciBench For the SciBench Stat dataset, we find that the plans generated by GRASP average 9.18 steps, the plans for BoN average 6.96 steps and the plans for PlanGEN(Rebase) average 9.53 steps. For the SciBench Diff dataset, we find that the plans generated by GRASP average 11.66 steps and the plans generated by PlanGEN(Mix) average 14.2 steps. For the SciBench Calc dataset, we find that the plans generated by GRASP average 11.39 steps, and the plans generated by PlanGEN(Mix) average 14.85 steps. 
+
+E.3 Information Leakage in Experiment 1 
+
+We say that there is information leakage in a plan if the final answer for the task-instance pair appears anywhere in the plan. 
+
+ZebraLogic We find that 31 plans with informa-tion leakage were generated by GRASP, whereas PlanGEN(BoN) generated 145 such plans. There-fore, if we calculate the accuracy while considering plans that violate the constraint that the final an-swer of the task instance pair should not be given as an output, then the accuracy of GRASP(gpt-4o-mini) remains 55 .7% , whereas the accuracy of PlanGEN(BoN) falls to 27 .1% . This shows that enforcing constraints significantly reduces the ac-curacy in the baseline methods, but GRASP shows very little plan information leakage, and follows constraints in a strict fashion. 
+
+Natural Plan Calendar Scheduling We find that no plan generated by GRASP had informa-tion leakage, whereas 103 plans generated by Plan-GEN(BoN) had information leakage. Therefore, the accuracy of GRASP remains 74 .3% , whereas the accuracy of PlanGEN(BoN) drops to 62% . This shows that when constraints are strictly enforced, GRASP outperforms all other methods by a signifi-cant margin. 
+
+SciBench For the SciBench Stat dataset, we find that there is one plan where information leakage happens in both GRASP and PlanGEN(Rebase), but no leakage happens in BoN. This leads to a re-vised accuracy of 80 .56% for GRASP, 77 .78% for BoN and 76 .39% for PlanGEN(Rebase). For the SciBench Diff dataset, we find that both GRASP and PlanGEN(Mix) have four plans where leak-age happens. This leads to a revised accuracy of 
+
+42% for both GRASP and PlanGEN(Mix). For the SciBench Calc dataset, we find that there are two plans where information leakage happens in GRASP, and seven plans where information leak-age happens in PlanGEN(Mix). This leads to a re-vised accuracy of 68 .27% for GRASP, and 56 .07% 
+
+for PlanGEN(Mix). 
+
+E.4 Discussion 
+
+When we look at the statistical analysis of the re-sults from Section 4.2, we see that some results are not statistically significant. However, upon closer inspection, we see that GRASP consistently generates shorter plans which yield higher accu-racy, while consuming less tokens than state-of-the-art baselines. Moreover, when a simple con-straint is strictly enforced, we see that GRASP maintains a similar accuracy, whereas the accura-cies of baselines drop by more than 10% . This shows that GRASP achieves higher accuracy, gen-erates shorter plans (which leads to downstream savings in token consumption as well), consumes less tokens, while maintaining constraints and ac-curacy under multi-task instructions. 
+
+F GenPlan Algorithm and Prompts 
+
+The algorithm for GenPlan is given in Algorithm 1. The individual prompts are given below. Merge_Agent Prompt  
+
+> messages=[{"role":"system","content":"""You are an expert in organizing and consolidating information. You will be given an existing list and a new list. Your task is to merge them into a single coherent numbered list. Rules: 1. Remove any duplicate or redundant points 2. Combine similar points into single, comprehensive ones 3. Maintain logical flow and organization 4. Output only the numbered list without any headers or additional text 5. Ensure all unique and important points from both inputs are included 6. Use clear, concise language for each guideline 7. If the new list is empty, return the existing list."""}, {"role":"user","content":f"Existing list:\nexisting_list\n\nNew list:\nnew_list\n\nPlease merge these into a single coherent numbered list:"}]
+
+Algorithm 1: GenPlan 
+
+Require: Task T , User Specified Guidelines Guser , User Spec-ified Constraints Cuser , MAX_ITER 
+
+Ensure: Finalized Baseline Plan PG
+
+if Guser = ∅ then 
+
+G0 ← GA (T )
+
+else 
+
+G0 ← G user 
+
+end if if Cuser = ∅ then 
+
+C0 ← CA (T )
+
+else 
+
+C0 ← C user 
+
+end if 
+
+P0 ← ∅ KB ← ⟨T , C0, G0, P0⟩
+
+guidelines _f lag ← TRUE 
+
+constraints _f lag ← TRUE 
+
+j ← 0
+
+while (guidelines _f lag =
+
+TRUE or constraints _f lag = TRUE ) and j ≤
+
+MAX_ITER do 
+
+j ← j + 1 
+
+Gprev ← KB [‘Guidelines’ ]
+
+Cprev ← KB [‘Constraints’ ]
+
+Gnew ← GA (KB )
+
+Cnew ← CA (KB )
+
+Gmerged ← MERGE (Gprev , Gnew )
+
+Cmerged ← MERGE (Cprev , Cnew )
+
+KB [‘Plan’ ] ← PGA (KB )
+
+KB [‘Guidelines’ ] ← G merged 
+
+KB [‘Constraints’ ] ← C merged 
+
+if IsEquivalent (Gprev , Gmerged ) then 
+
+guidelines _f lag ← FALSE 
+
+end if if IsEquivalent (Cprev , Cmerged ) then 
+
+constraints _f lag ← FALSE 
+
+end if end while 
+
+PG ← KB [’Plan’ ]
+
+return PG
+
+is_equivalent Prompt 
+
+messages=[ {"role": "system", "content": """You are an expert at comparing two numbered lists for seman-tic equivalence. You will be given two numbered lists as plain text. Your job is to determine if they contain essentially the same information, even if the wording or order is different. If the lists are equivalent in mean-ing, respond with only ’Yes’. If they are not, respond with only ’No’. Do not provide any explanation or extra text."""}, {"role": "user", "content": f"""List 1:\nlist1_str\n\nList 2:\nlist2_str\n\nAre these two lists essentially the same in terms of the information they contain?"""} ] 
+
+Guidelines_Agent Prompt 
+
+messages = [ { "role": "system", "content": """You are an expert in designing effective guidelines for solving tasks in a general and reusable way. You will be provided with a Knowledge Base that may include: - Existing guidelines - Constraints - A task description - An instance of the task Your task is to: 1. Analyze the entire knowledge base carefully. 2. Identify and generate **new general-purpose guidelines** that are relevant to solving the task, not just for a specific input. 3. These guidelines may include best practices, strategic approaches, or helpful techniques. 5. If there are no new guidelines, output the existing ones unchanged. 6. Make sure that the guidelines do not suggest ideas that are not related to solving the task and instance. Output format: - A **numbered list** of guidelines, as plain text (no headers). Ensure that the following guidelines are included in the list of guidelines: 1. Each step of the plan must clearly describe what needs to be done, providing all necessary information required to implement the step. 2. The output of a step should not be given in the step. For example, the step cannot be "Find the answer to the question: answer". 3. If a step depends on the result of a previous step, refer to that step by its step number (e.g., "use the result from Step 3") — do not reference or include the output value itself. 4. It correctly provides directions to solve the task for the given instance. 5. It should not provide any solutions in each step. It should only provide the complete directions to implement the step. 6. The final solution should not appear in the plan. 7. Each step should include all the information necessary to implement the step, except the final output of the step. 8. The steps should not bias the LLM to a particular solution. If the knowledge base contains no existing guidelines, you may return "No guidelines added.". """ }, { "role": "user", "content": f"Knowledge Base: {KNOWLEDGE_BASE}" } ] Constraints_Agent Prompt 
+
+messages = [ { "role": "system", "content": """You are an expert in understanding problems and formu-lating logical constraints. You will be provided with a Knowledge Base that may include: - Existing constraints - Guidelines - Facts - A task description - An instance of the task Your task is to: 1. Carefully analyze the entire knowledge base. 2. Extract and generate any new constraints that are logically required, including: - Constraints that are implied but not explicitly stated - Assumptions necessary for interpreting or solving the problem 3. Try not to repeat constraints already in the knowl-edge base. 4. If no new constraints are needed, return "No con-straints added." .Output format: - A **numbered list** of constraints, as plain text (no headers). """ }, { "role": "user", "content": f"Knowledge Base: {KNOWLEDGE_BASE}" } ] 
+
+Plan_Generation_Agent Prompt 
+
+messages=[ {"role":"system","content":"""You are an expert in understanding a problem and generating a plan to solve the problem. You are given a task that needs to be carried out in the knowledge base. You will modify the current plan to solve the problem. The knowledge base given by the user already contains a list of guidelines and constraints. Analyze the input knowledge base and modify the current plan to solve the problem. Each step in the plan should be a single sentence without any headers. You will output the plan as a numbered list without any other text."""}, {"role":"user","content":f"Knowledge Base: {KNOWLEDGE_BASE}"}] 
+
+G RevPlan Algorithm and Prompts 
+
+The algorithm for RevPlan is given in Algorithm 2. The individual prompts are given below. merge_plans Prompt 
+
+You are an expert in fitting a plan to a given plan template. You are given a plan template: {KNOWLEDGE_BASE(’PLAN’)} You are given a plan: {specific_plan} You need to fit the plan to the plan template loosely, which means you can add, remove, or modify the plan template to fit the plan in such a way that the plan is more robust. Please output the plan fitted to the plan template as a numbered list of steps. without any other text. 
+
+Algorithm 2: RevPlan 
+
+Require: Task Description T , Task Instance I, Baseline Plan 
+
+PG
+
+Ensure: Set of Specialized Candidate Plans PP ← ∅ S ← GenerateStrategies (T , I)
+
+for each strategy sk ∈ S do 
+
+Csk ← GenerateLocalConstraints (sk , I)
+
+χsk ← RunReAct (T , I, s k , Csk )
+
+P(k) 
+
+> specific
+
+← ExtractPlan (χsk )
+
+P(k) ← MergePlans (P(k)
+
+> specific
+
+, PG)
+
+P ← P ∪ {P (k)}
+
+end for return P
+
+Strategy-specific constraints generation Prompt 
+
+You are an expert at generating boundary constraints and implicit assumptions for a plan. I will give you: - A problem description. - A high-level strategy to solve it. - An overarching task description that is the overarching task associated with the problem. Your task is to list all explicit constraints that the fi-nal plan must satisfy in order to be valid and effective. Overarching task: {task} Instance: {instance} Strategy: {strategy} Strategy Details: {strategy_principle} {strat-egy_explanation} Output: A numbered list of constraints and implicit assumptions. Do not include any other text. extract_plan Prompt 
+
+You are an expert at extracting core steps from a solution to a problem while ignoring minute implementation details and ignoring the results of the steps. You will be given a ReAct based thought process to a problem and a strategy. You need to extract the core steps from the thought process while ignoring minute implementation details and results of the steps. If the information is not present directly in the problem or task description, then do not include it in the plan. The overarching task associated with the problem is: {task} The problem is: {instance} The ReAct based thought process and solution with details is: {ReAct_solution} The strategy is: {strategy}, Strategy Details: {strategy_principle} {strategy_explanation} Please output the plan as a numbered list of steps without any other text. NOTE: Do not include the results of the steps in the plan. 
+
+Generate_Strategies Prompt 
+
+messages=[{"role": "system", "content": "You are an expert in coming up with strategies to solve problems. The strategies you come up with are solvable by an LLM and do not require any external tools or resources."}, {"role": "user", "content": f"""Here is the problem: {instance} Please provide exactly {NUM_STRATEGIES} dif-ferent primary THEORETICAL approaches to solve this problem. Each approach should be distinct and based on a different principle, method, or analytical perspective, covering a range of techniques if possi-ble. Each of the {NUM_STRATEGIES} approaches should be implementable by an LLM with strong logical reasoning capabilities. For each of the {NUM_STRATEGIES} approaches: - Clearly name or title the approach. - Highlight the key principle behind it and provide a brief explanation of how it works and why it could be effective for this type of problem. - Provide the strategy involved in solving the problem. For each strategy, follow the following format: - Principle: <principle> - Explanation: <explanation> The overarching task associated with the problem is: {task} Present your answer as a numbered list of length {NUM_STRATEGIES} for clarity. Do not include any other text and follow the format exactly. """}] 
+
+H VerPlan Algorithm and Prompts 
+
+The algorithm for VerPlan is given in Algorithm 3. The prompt for VerPlan is given below. Algorithm 3: VerPlan 
+
+Require: Task Description T , Task Instance I, Constraints C,Set of Candidate Plans P = {P (1) , P(2) , . . . , P(K)}, Set of Strategy-specific Constraints, {C s1 , . . . , CsK }, Rubrics 
+
+Ensure: Final Plan P∗
+
+Ψbest ← − 1
+
+P∗ ← ∅ 
+
+for each candidate plan P(k) ∈ P do 
+
+Ψ(k) ← Score 
+
+
+
+P(k) | T , I, C, Csk , Rubrics 
+
+
+
+if Ψ(k) > Ψbest then 
+
+Ψbest ← Ψ(k)
+
+P∗ ← P (k)
+
+end if end for return P∗
+
+VerPlan Prompt 
+
+Rate this plan on a scale of 1-100 based on how well it solves the given problem. Problem: {problem_text} Constraints: {strategy_specific_constraints} Plan: {strategy_specific_plan} Overarching task: {task} Consider: - How complete is the plan? - How likely is it to solve the problem correctly? - How clear and actionable are the steps? - How well does it address the requirements of the problem? Respond with only a single integer from 1-100. 
+
+I Direct Planner Generation Prompt 
+
+Direct Planner Generation Prompt: Experi-ment 1 
+
+You are an expert planner. You will be given a TASK and an INSTANCE of the task. Your job is to produce an executable plan as a numbered list. Rules: - Output ONLY the numbered list. No other text. - Do NOT include any intermediate results, computed values, or the final answer inside any step. - Steps should be actionable and reference prior steps by step number when needed. - The plan should give the final answer as the output. <task> {task} </task> <instance> {instance} </instance> Generate an instance-specific plan to solve the task for this instance. Output only the plan as a numbered list. Direct Planner Generation Prompt: Experi-ment 2 
+
+You are an expert planner. You will be given a TASK and an INSTANCE of the task. Your job is to produce an executable plan as a numbered list. Rules: - A feasible solution always exists. - Output ONLY the numbered list. No other text. - Do NOT include any intermediate results, computed values, or the final answer inside any step. - Steps should be actionable and reference prior steps by step number when needed. - The final step of the plan should be an instruction to give the final answer as the output. The final solution should not appear in the plan. <task> {task}</task> <instance> {instance} </instance> Generate a plan to solve the task for this instance. En-sure that the steps can be used to find the final answer organically, rather than using your own calculation. Output only the plan as a numbered list. 
+
+J Examples of Guidelines and Constraints 
+
+We share an example of guidelines and constraints for Natural Plan Calendar Scheduling in Table 15 and Table 16. We share an example of guidelines and constraints for ZebraLogic in Table 17 and Table 18. 
+
+K Plan Revision 
+
+In this section, we present two exemplary scenarios on the plan revision that is made by the RevPlan agent. First, we consider Calendar Scheduling from the Natural Plan dataset (Zheng et al., 2024). The task description and instance of the task are given in Table 19. For this task and a given instance of scheduling a meeting with constraints, the ini-tial generated plan is outlined in Table 20. The RevPlan agent first generates possible strategies to construct feasible schedules. The structure of the suggested strategies comprises of at least a princi-ple and explanation . The two suggested strategies and the revised plan based on each strategy are given in Table 21 and Table 22. Next, we provide another example of plan revision by the RevPlan agent. The task and the specific instance of the task are taken from the GPQA dataset and are given in Table 23. The initial plan generated by the GenPlan agent is shown in Table 24. By setting the num-ber of strategies to four, for this task and instance, Guidelines (Natural Plan Calendar Schedul-ing example: Dual Task) 
+
+1. Each step of the plan must clearly describe what needs to be done, providing all necessary information required to implement the step. 2. The output of a step should not be given in the step. For example, the step cannot be "Find the answer to the question: answer". 3. If a step depends on the result of a previous step, refer to that step by its step number (e.g., "use the result from Step 3") — do not reference or include the output value itself. 4. If you mention a guideline or constraint, explicitly word it out in the step verbatim. 5. Identify the primary group meeting schedule re-quirements, including the day and time range, and ensure the format matches "Day, HH:MM AM/PM -HH:MM AM/PM". 6. Gather all necessary information about the primary group meeting, such as availability, preferences, and constraints, and determine the final schedule. 7. Analyze the 5-day schedule of External Consultant D, ensuring the working hours are limited to Monday through Friday, 9:00 AM to 5:00 PM. 8. Identify all free intervals in External Consultant D’s schedule that are at least 30 minutes long, and determine the absolute latest interval. 9. Output only the day and start time of the latest 30-minute free interval in the format "Day, HH:MM AM/PM". 10. Ensure the final response consists of exactly two lines, with the first line corresponding to Task 1 and the second line corresponding to Task 2, separated by a newline character. 11. Verify that the output adheres strictly to the re-quired formats and constraints before finalizing the response. 
+
+Table 15 Constraints (Natural Plan Calendar Schedul-ing example: Dual Task) 
+
+1. The final response must consist of exactly two lines, separated by a newline character, with no ad-ditional conversational text, intermediate steps, or explanations. 2. The final answer should be given as the output without any additional text or explanation. 3. The format for the primary group meeting schedule (Task 1) must strictly follow: "Day, HH:MM AM/PM - HH:MM AM/PM". 4. The format for the latest 30-minute free interval for External Consultant D (Task 2) must strictly follow: "Day, HH:MM AM/PM". 5. The working hours for External Consultant D are Monday through Friday, 9:00 AM to 5:00 PM. 6. The latest 30-minute free interval for Task 2 must be determined within the standard working week and working hours of External Consultant D. 7. The analysis for Task 2 must consider the absolute latest free interval, meaning the interval closest to the end of the working hours on Friday, if available. 
+
+Table 16 
+
+Guidelines (ZebraLogic example) 
+
+1. Carefully read all given clues and constraints to fully understand the requirements and limitations of the task. 2. Clearly describe each step in the plan, providing all necessary information required to implement it without mentioning the output within the step. 3. Identify key elements and variables pertinent to the task, capturing all details and constraints accurately. 4. List clues sequentially, ensuring accuracy and com-pleteness in capturing constraints and requirements. 5. Develop a logical deduction plan, creating step-by-step instructions to address each part of the task while considering all constraints. 6. Validate consistency and accuracy by cross-referencing each deduction step with the clues. 7. If a step depends on prior results, refer to the output from previous steps by step number without including the output value itself. 8. Once deductions are verified, identify the optimal solution that aligns with all clues and constraints. 9. Format the final solution according to the task specifications, ensuring clarity and correctness. 10. For complex logical deductions, implement them in Python with appropriate use of loops, conditionals, and tracking, ensuring precision. 11. Re-check each step and the final solution for ad-herence to the specified format and constraints. 12. Explicitly word out any guidelines or constraints in the steps as needed. 
+
+Table 17 
+
+Constraints (ZebraLogic example) 
+
+1. The logical riddle may involve a sequence of steps that require interpreting clues accurately, whether provided implicitly or explicitly. 2. Ensure each step logically flows from the previ-ous one, using the outcome of each prior step as the input for the next, without contradicting specified constraints. 3. All assumptions must be consistent with the guide-lines and existing constraints; derived constraints should not alter the given question or its fundamental goal. 4. Only logical reasoning should be utilized for solv-ing the task, without changing the question. 5. Ensure that the final answer is the only deliverable, presented in the specified output format without any introductory or explanatory text. 
+
+Table 18 
+
+we automatically generate 4 different strategies in GRASP, and the RevPlan agent revises the initial plan according to each plan. Table 25 present the strategies and their corresponding refined plans. Task and Instance Description (Natural Plan Calendar Scheduling example) 
+
+Task: 
+
+Your task is to find a feasible schedule for calendar events, taking into account time slots, durations, con-straints, and conflicts. You will analyze the calendar requirements and available time slots to determine the optimal event schedule. Output the final calendar schedule with all relevant details about the events and times, without any other text. 
+
+Instance: 
+
+You need to schedule a meeting for Thomas, Dylan and Jerry for one hour between the work hours of 9:00 to 17:00 on Monday. \ n \ nHere are the existing schedules for everyone during the day: \ nThomas’s calendar is wide open the entire day. \ nDylan has blocked their calendar on Monday during 10:30 to 11:00, 13:30 to 14:00; \ nJerry is busy on Monday during 9:00 to 11:00, 11:30 to 14:30, 16:00 to 17:00; 
+
+\ n\ nFind a time that works for everyone’s schedule and constraints. 
+
+Table 19 Initial plan generated by GenPlan agent 
+
+1. Analyze the calendar requirements and avail-able time slots to list all potential events and their durations. 2. Identify any conflicts and constraints among the events and time slots using the information from the constraints section. 3. Calculate the number of available days for each event by examining the time slots and dura-tions, explicitly counting the number of days spent as per constraints. 4. Determine the sequence of events by consider-ing the dependencies and constraints, ensuring the last day of departure is the same as the first day of arrival at the next event. 5. Allocate the calculated days to each event se-quence, ensuring the total days and flow from event to event follow the constraints. 6. Verify the allocation meets all specified con-straints by checking conditions about the day count and departure/arrival continuity. 7. Compile the final schedule by arranging the events with their respective days and durations while ensuring they adhere to all constraints. 8. Output the final calendar schedule with all rele-vant details about the events and times, without any other text. 
+
+Table 20: Initial plan generated by GenPlan agent for Natural Plan (Calendar Scheduling) 
+
+Refined Plan revised by RevPlan agent 
+
+1. Interval Analysis 
+
+Principle: Interval Intersection 
+
+Explanation: This approach involves representing each person’s schedule as a series of time intervals (busy times) and looks to find a one-hour window (free time) that intersects across all individuals involved. By identifying the gaps between the busy intervals for each participant, the task then evaluates these gaps to find a common free interval. This method is effective as it directly focuses on usable time slots rather than entire schedules. 
+
+Revised Plan: 
+
+1. Analyze the calendar requirements and identify the busy intervals for Dylan and Jerry. 2. Identify constraints and dependencies, ensur-ing the intended meeting includes Thomas’s availability. 3. Determine Dylan’s and Jerry’s free intervals by examining their respective busy schedules. 4. Compare Dylan’s and Jerry’s free intervals to find all common available one-hour slots. 5. Check these common slots against the con-straint of matching Thomas’s availability for final time slot selection. 6. Ensure last-minute adjustments consider any changes in individual schedules while main-taining the main constraints. 7. Compile a draft schedule highlighting all poten-tial common slots, specifying the chosen slot that suits all three individuals. 8. Output the final schedule for the proposed one-hour meeting, listing the confirmed time and date. 
+
+Table 21: Revised Plan Based on Strategy 1 (Calendar Scheduling example, instance #6) Refined Plan revised by RevPlan agent 
+
+2. Slot Evaluation 
+
+Principle: Discrete Slot-Checking 
+
+Explanation: This method discretizes the day into a series of potential one-hour meeting slots and iteratively checks each slot against the calendars of all participants. By scanning through these slots one by one and verifying availability, it finds the first viable time. This approach is effective in systematically ensuring that each potential time is considered, minimizing chances of oversight. 
+
+Revised Plan: 
+
+1. Analyze the calendar for Monday from 9:00 to 17:00 and list all potential one-hour time slots. 2. Identify any conflicts by checking Dylan’s and Jerry’s unavailability against these time slots. 3. Calculate the number of available one-hour slots where all participants are free. 4. Determine the sequence of available slots, en-suring a continuous flow without conflicts. 5. Select the first available time slot where all participants (Dylan and Jerry) are available. 6. Verify the selected time slot meets all specified constraints of availability for both participants. 7. Compile the final schedule by arranging the selected time slot and confirming participant availability. 8. Output the final time slot schedule with all rel-evant details about participant availability. 
+
+Table 22: Revised Plan Based on Strategy 2 (Calendar Scheduling example, instance #6) 
+
+Task and Instance Description (GPQA ex-ample) 
+
+Task: 
+
+You are an expert at reasoning and solving graduate-level science multiple choice questions across physics, chemistry, and biology domains. Please an-swer the question given in the input text by providing detailed reasoning and the final answer, which is the letter choice (A, B, C, D) of the correct answer. 
+
+Instance: 
+
+Two quantum states with energies E1 and E2 have lifetimes of 10 −9 sec and 10 −8 sec, respectively. We want to clearly distinguish these two energy levels. Which one of the following options could be their energy difference so that they can be clearly resolved? 
+
+Table 23: Task and Instance for GPQA Plan Revision 
+
+Initial plan generated by GenPlan agent 
+
+1. Read the entire question and all options A–D, record every given value with units, translate any figures/tables into explicit variables, con-straints, or relationships, identify the scientific domain and subtopic, and state precisely what quantity or concept is being asked. 2. Define symbols for all knowns and unknowns with SI units, choose and state coordinate systems, sign conventions, and reference states, list applicable principles/laws/mechanisms, declare justified assumptions and their domains of validity (e.g., ideal gas, dilute solution, nonrelativistic, small-angle), identify information gaps and minimal reasonable assumptions, and specify standard constants with selected numerical values and units to be used consistently (e.g., g = 9 .81 m · s−2, R =8.314462618 J · mol −1 · K−1, N A =6.02214076 × 10 23 mol −1, kB =1.380649 ×10 −23 J ·K−1, h = 6 .62607015 ×
+
+10 −34 J·s, c = 2 .99792458 ×10 8m·s−1, e =1.602176634 × 10 −19 C, ε 0 =8.854187817 × 10 −12 F · m−1, μ 0 =4π × 10 −7N · A−2, σ = 5.670374419 ×
+
+10 −8W ·m−2 ·K−4), adding any field-specific reference values at T=298 K unless otherwise specified. 3. Translate the problem into governing equations, logical inferences, or mechanistic pathways that connect the defined variables to the target quantity, enumerate the exact sequence of com-putations and unit conversions to be performed and which quantities will be computed, confirm dimensional homogeneity and unit consistency of every equation before use, and plan limiting-case or order-of-magnitude checks (and, for statistical/experimental design items, specify appropriate controls, confounders, test statis-tics, and assumptions). 4. In the reasoning section, carry out the planned algebraic substitutions and arithmetic while tracking units and citing the relevant setup steps by number, and then compare the implications from the setup against each option A–D ex-plicitly by checking signs, units, magnitudes, trends, stoichiometry, or mechanistic plausibil-ity to eliminate incompatible choices. 5. Perform an independent cross-check using a complementary principle that does not reuse the primary equations from Step 3 (e.g., energy vs. force balance, ∆G vs. K, oxidation states vs. stoichiometry, pathway logic vs. pheno-type), reconcile any discrepancies, verify that the tentative option satisfies all assumptions and consistency checks from Steps 2–3 includ-ing unit and limiting-case validations, and then present the final answer on its own line as a single uppercase letter from A, B, C, D. 
+
+Table 24: Initial plan generated by GenPlan agent for GPQA dataset Refined Planning Strategies for the GPQA Example 
+
+1. Uncertainty Principle Approach 
+
+Principle: Energy-Time Uncertainty Principle 
+
+Explanation: The relation ∆E · ∆t ≥ ℏ/2 implies that short-lived states exhibit larger energy uncertainty. To resolve two states, their energy separation must exceed the larger uncertainty. 
+
+Refined Plan: 
+
+1. Identify the problem as an application of the uncertainty principle. 2. Apply ∆E · ∆t ≥ ℏ/2.3. Compute ∆E for 10 −9 s and 10 −8 s. 4. Determine the larger uncertainty. 5. Compare with answer choices. 6. Select the smallest option exceeding the threshold. 
+
+2. Spectroscopic Resolution Approach 
+
+Principle: Spectral Line Width and Resolution 
+
+Explanation: Spectral line width is inversely proportional to lifetime. Two levels are resolvable only if their energy separation exceeds the broader line width. 
+
+Refined Plan: 
+
+1. Recognize spectral resolution context. 2. Estimate ∆E using ℏ/∆t.3. Compute uncertainties for both states. 4. Identify the dominant width. 5. Eliminate options below this threshold. 6. Choose the smallest valid remaining option. 
+
+3. Frequency Difference Approach 
+
+Principle: Energy–Frequency Relation ( E = hν )
+
+Explanation: Energy uncertainty corresponds to frequency width. To resolve two states, their frequency separation must exceed combined spectral widths. 
+
+Refined Plan: 
+
+1. Convert lifetime to frequency width. 2. Translate frequency width to energy uncertainty. 3. Combine uncertainties if needed. 4. Compare with answer choices. 5. Select the smallest option above the minimum resolvable difference. 
+
+4. Lifetime Ratio Analysis 
+
+Principle: Relative Lifetime Comparison 
+
+Explanation: Shorter lifetimes produce broader uncertainties. Comparing the 10:1 lifetime ratio helps determine the dominant energy spread. 
+
+Refined Plan: 
+
+1. Compute ∆E ≈ ℏ/∆t for both states. 2. Identify the dominant uncertainty. 3. Use the 10:1 ratio for proportional reasoning. 4. Eliminate insufficient answer choices. 5. Choose the smallest option exceeding the larger uncertainty. 
+
+Table 25: Refined Planning Strategies for the GPQA Example
