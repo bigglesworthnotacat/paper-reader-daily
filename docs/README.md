@@ -6,83 +6,104 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-10-01
-- 运行时间：2026-10-01 23:08:52 UTC
+- 最新运行日期：2026-10-02
+- 运行时间：2026-10-02 23:37:05 UTC
 - 运行状态：成功
-- 本次总论文数：21
-- 精读区：8
+- 本次总论文数：28
+- 精读区：15
 - 速读区：13
 
 ### 今日简报（AI）
-今天精读8篇、速读13篇共21篇，重点聚焦AI Agent的权限管控与代码智能体进化。最值得看的是《MetaPermit》用LLM推断元属性实现可审计访问控制（9.0分）和《Certified Long-Horizon Code Agent Evolution》用验证门控技能优化（9.0分），另有轨迹遗忘与路由进化等速读亮点。普通读者可先读这两篇精读，建立Agent安全与持续进化的基本判断。
-- 详情：[/202610/01/README](/202610/01/README)
+今日筛选 28 篇 AI 论文，精读 15 篇，重点聚焦智能体自我演化中的安全风险。最值得关注的是两篇 9.0 分工作：一篇揭示 Harness 演化中的组合式安全失效并给出运行时监控方案，另一篇用 SEABench 评测自演化智能体的内生失配问题。普通读者可优先从这两篇了解自演化智能体的安全边界，再按需速读测试时演化与异步智能体方向。
+- 详情：[/202610/02/README](/202610/02/README)
 
 ### 精读区论文标签
-1. [MetaPermit: Scalable and Auditable Access Control for AI Agents via LLM-Inferred Meta-Attributes](/202610/01/2609.31039v1-metapermit-scalable-and-auditable-access-control-for-ai-agents-via-llm-inferred-meta-attributes)  
+1. [Compositional Safety Failures in Harness Evolution: Identification and Runtime Monitoring](/202610/02/2609.33123v2-compositional-safety-failures-in-harness-evolution-identification-and-runtime-monitoring)  
    标签：评分：9.0/10、query:llm-security
-   evidence：防御提示注入的AI智能体访问控制
-2. [Certified Long-Horizon Code Agent Evolution via Validation-Gated Skill Optimization](/202610/01/2609.32990v1-certified-long-horizon-code-agent-evolution-via-validation-gated-skill-optimization)  
+   evidence：自进化智能体装备的复合安全失效与运行时监控
+2. [SEABench: Benchmarking Endogenous Misalignment In Self-Evolving Agents](/202610/02/2609.35596v2-seabench-benchmarking-endogenous-misalignment-in-self-evolving-agents)  
    标签：评分：9.0/10、query:agent-evol
-   evidence：通过技能优化实现长时程代码智能体自进化
-3. [The Right Lesson at the Right Step: Deriving Control Updates for Self-Evolving Agents](/202610/01/2609.34988v1-the-right-lesson-at-the-right-step-deriving-control-updates-for-self-evolving-agents)  
+   evidence：自进化LLM智能体的内生失准基准测试
+3. [SafeCoEvo: Co-Evolving Safety Harnesses and Guards for LLM Agents at Test-Time](/202610/02/2609.36580v1-safecoevo-co-evolving-safety-harnesses-and-guards-for-llm-agents-at-test-time)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：测试时协同进化安全装备与守卫以保障LLM智能体
+4. [Self-Evolving Defense: Continual Security Policy Learning for LLM Agents](/202610/02/2609.36603v1-self-evolving-defense-continual-security-policy-learning-for-llm-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：免训练持续安全策略学习以防御大模型智能体攻击
+5. [EASE: Behavior-Adaptive Skill Curation for Self-Evolving Agents](/202610/02/2609.36746v1-ease-behavior-adaptive-skill-curation-for-self-evolving-agents)  
    标签：评分：9.0/10、query:agent-evol
-   evidence：通过控制程序更新实现自进化智能体
-4. [Share-Borne AI Virus: Memory-Hopping Attacks Across LLM Agents](/202610/01/2609.35576v1-share-borne-ai-virus-memory-hopping-attacks-across-llm-agents)  
+   evidence：面向自进化智能体的行为自适应技能管理
+6. [AnyAct: Universal Action for Self-Evolving Agents](/202610/02/2609.37025v1-anyact-universal-action-for-self-evolving-agents)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：为LLM智能体构建自演化动作空间的通用动作层
+7. [ToolFence: Fine-Grained Authorization for Secure Tool-Using LLM Agents](/202610/02/2609.37196v1-toolfence-fine-grained-authorization-for-secure-tool-using-llm-agents)  
    标签：评分：9.0/10、query:llm-security
-   evidence：跨大模型智能体的自传播记忆跳跃攻击
-5. [SEABench: Benchmarking Endogenous Misalignment In Self-Evolving Agents](/202610/01/2609.35596v1-seabench-benchmarking-endogenous-misalignment-in-self-evolving-agents)  
+   evidence：针对工具型LLM智能体间接提示注入的防御
+8. [Topological Coherence for Self-evolving Multi-agent Systems](/202610/02/2609.37953v1-topological-coherence-for-self-evolving-multi-agent-systems)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：具有拓扑一致性的自进化多智能体系统
+9. [SelfSearch: Reward-Free Search for Self-Improving Agents](/202610/02/2609.37968v2-selfsearch-reward-free-search-for-self-improving-agents)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：智能体无需奖励即可修改自身指令与工具实现自我改进
+10. [Self-Evolving Algorithm-Design Agents: Escaping In-Context Evolutionary Stagnation via Population-Curated Policy Optimization](/202610/02/2609.38757v1-self-evolving-algorithm-design-agents-escaping-in-context-evolutionary-stagnation-via-population-curated-policy-optimization)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：算法设计智能体的样本高效参数化自进化
+11. [Rep2Skill: Representation-Guided Skill Self-Evolution for LLM Agents](/202610/02/2609.39149v1-rep2skill-representation-guided-skill-self-evolution-for-llm-agents)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：表征引导的LLM智能体技能自进化
+12. [Faithful Dual-constrained Erasure for Robust LLM Safety Alignment](/202610/02/2609.39279v1-faithful-dual-constrained-erasure-for-robust-llm-safety-alignment)  
    标签：评分：9.0/10、query:llm-security
-   evidence：面向自进化LLM智能体内生性失配的基准
-6. [Raven: The Harness of Harnesses for Composable Agentic Intelligence](/202610/01/2609.33439v1-raven-the-harness-of-harnesses-for-composable-agentic-intelligence)  
-   标签：评分：8.0/10、query:agent-evol
-   evidence：自动构建并进化模块化框架的多智能体生态系统
-7. [JET: Judge-Guided Evolution at Test Time for Agent Programs](/202610/01/2609.34126v1-jet-judge-guided-evolution-at-test-time-for-agent-programs)  
-   标签：评分：8.0/10、query:agent-evol
-   evidence：通过裁判引导在测试时进化智能体程序
-8. [Remember Before You're Asked: MemDream for Self-Probing Memory Evolution](/202610/01/2609.34545v1-remember-before-youre-asked-memdream-for-self-probing-memory-evolution)  
-   标签：评分：8.0/10、query:agent-evol
-   evidence：让LLM智能体在失败前主动修复记忆的自探测记忆进化
+   evidence：通过双重约束擦除实现鲁棒的LLM安全对齐
+13. [Learning from Research: Toward Lifelong Agent Harness Evolution](/202610/02/2609.40169v1-learning-from-research-toward-lifelong-agent-harness-evolution)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：通过借鉴研究文献进化智能体框架的机制
+14. [Self-Evolving Coding Rules for AI Coding Agents](/202610/02/2610.00650v1-self-evolving-coding-rules-for-ai-coding-agents)  
+   标签：评分：9.0/10、query:agent-evol
+   evidence：通过变异与评判迭代进化编码规则的自我进化框架
+15. [Sapien: A Stateful Policy Engine for Autonomous AI Agents](/202610/02/2610.00797v1-sapien-a-stateful-policy-engine-for-autonomous-ai-agents)  
+   标签：评分：9.0/10、query:llm-security
+   evidence：防御自主AI智能体越权工具调用的状态化策略引擎
 
 ### 速读区论文标签
-1. [Safety Reconstructed: Generative Modeling via Masked Diffusion Builds Strong Safety Guardrails](/202610/01/2609.33634v1-safety-reconstructed-generative-modeling-via-masked-diffusion-builds-strong-safety-guardrails)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：面向语言模型的安全护栏机制
-2. [Trajectory Unlearning on LLM-based Agents](/202610/01/2609.33639v1-trajectory-unlearning-on-llm-based-agents)  
-   标签：评分：8.0/10、query:llm-security
-   evidence：面向LLM智能体的轨迹级遗忘
-3. [RSI-Router: Evolving Subtask-Level LLM Routing and Skills for Cost-Efficient Agents](/202610/01/2609.34712v1-rsi-router-evolving-subtask-level-llm-routing-and-skills-for-cost-efficient-agents)  
+1. [JET: Judge-Guided Evolution at Test Time for Agent Programs](/202610/02/2609.34126v1-jet-judge-guided-evolution-at-test-time-for-agent-programs)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：递归自我改进演化路由策略与技能
-4. [Action-Space Shaping for LLM Agents: Measuring and Mitigating Tool-Schema Bias](/202610/01/2609.34971v1-action-space-shaping-for-llm-agents-measuring-and-mitigating-tool-schema-bias)  
+   evidence：通过可迁移评判器在测试时进化智能体程序
+2. [LLMs are General Asynchronous Agents](/202610/02/2609.35427v1-llms-are-general-asynchronous-agents)  
    标签：评分：8.0/10、query:llm-agent
-   evidence：工具使用 LLM 智能体，工具模式偏差的测量与缓解
-5. [EvoIn: Bridging Evolution and Internalization for Agent Fine-Tuning](/202610/01/2609.35290v1-evoin-bridging-evolution-and-internalization-for-agent-fine-tuning)  
+   evidence：带推理协程的通用异步LLM智能体架构
+3. [Towards Mitigating Deceptive Safety Alignment in Large Reasoning Models](/202610/02/2609.36254v1-towards-mitigating-deceptive-safety-alignment-in-large-reasoning-models)  
+   标签：评分：8.0/10、query:llm-security
+   evidence：大推理模型的欺骗性安全对齐
+4. [Semantic Projection for Continual Self-Evolution of Language Agents](/202610/02/2609.36626v1-semantic-projection-for-continual-self-evolution-of-language-agents)  
    标签：评分：8.0/10、query:agent-evol
-   evidence：智能体决策流程的自我演化与内化
-6. [Reinforcement Learning of Communication in a Mesh of Small Language Models](/202610/01/2609.30578v1-reinforcement-learning-of-communication-in-a-mesh-of-small-language-models)  
+   evidence：通过语义投影实现语言智能体的持续自进化
+5. [Harness Evolution as Learning: Approximation, Generalization, and Optimization Limits of Self-Improving Personal Agents](/202610/02/2609.36892v1-harness-evolution-as-learning-approximation-generalization-and-optimization-limits-of-self-improving-personal-agents)  
+   标签：评分：8.0/10、query:agent-evol
+   evidence：通过经验演化harness的自我改进个人智能体
+6. [Learning to Refer: Client-Resolved Generation for Privacy-Aware Language Models](/202610/02/2609.32706v1-learning-to-refer-client-resolved-generation-for-privacy-aware-language-models)  
+   标签：评分：7.0/10、query:llm-security
+   evidence：面向云端LLM的隐私保护生成接口
+7. [On Device Agentic Operation Caches -- Classifier-Centric NL-to-Action Generation](/202610/02/2609.33141v1-on-device-agentic-operation-caches----classifier-centric-nl-to-action-generation)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：小型语言模型智能体去中心化网格协同
-7. [Up and Down the Abstraction Ladder: Code-Based Skills for Language Agents](/202610/01/2609.31076v1-up-and-down-the-abstraction-ladder-code-based-skills-for-language-agents)  
+   evidence：端侧智能体将自然语言转换为可执行软件操作
+8. [ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents](/202610/02/2609.33244v1-activemem-dynamic-latent-memory-trees-for-long-horizon-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向语言智能体的可复用代码技能抽象
-8. [MammoClaw: Towards Skill-Evolving Agent Harness for Breast Cancer Mammography Analysis](/202610/01/2609.31789v1-mammoclaw-towards-skill-evolving-agent-harness-for-breast-cancer-mammography-analysis)  
-   标签：评分：7.0/10、query:agent-evol
-   evidence：通过复用失败轨迹进行技能演化的智能体框架
-9. [Multi-Agent System Search via Active Substructure-aware Policy Optimization](/202610/01/2609.32430v1-multi-agent-system-search-via-active-substructure-aware-policy-optimization)  
+   evidence：面向长时程LLM智能体的分层记忆架构
+9. [CompoWorld: Compositional Environment Scaling for General Agents](/202610/02/2609.33665v1-compoworld-compositional-environment-scaling-for-general-agents)  
    标签：评分：7.0/10、query:llm-agent
-   evidence：面向多智能体系统自动构建与协调的强化学习框架
-10. [Agentic Detection of Online Conspiracies](/202610/01/2609.30250v1-agentic-detection-of-online-conspiracies)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：配备社会查询工具进行意图推断的智能体框架
-11. [The Hard Part Comes After Search: Benchmarking Web Agents on Synthesizing, Organizing, and Displaying Knowledge](/202610/01/2609.30604v1-the-hard-part-comes-after-search-benchmarking-web-agents-on-synthesizing-organizing-and-displaying-knowledge)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：面向网页智能体任务自动化工作流的基准
-12. [Overview of the TREC 2025 Million Large Language Models track](/202610/01/2609.31921v1-overview-of-the-trec-2025-million-large-language-models-track)  
-   标签：评分：6.0/10、query:llm-agent
-   evidence：百万级专用LLM智能体生态与专家选择
-13. [Agents as Software: A Programming Languages Agenda for Agent Reliability](/202610/01/2609.32198v1-agents-as-software-a-programming-languages-agenda-for-agent-reliability)  
+   evidence：面向通用智能体的组合式环境扩展与工具服务
+10. [LLM Parkinsonism: Executive-Control Failure, Token-Inefficient Persistence, and an Uncertainty-Aware Global Executive Control Architecture for Autonomous Language-Model Agents](/202610/02/2609.30662v2-llm-parkinsonism-executive-control-failure-token-inefficient-persistence-and-an-uncertainty-aware-global-executive-control-architecture-for-autonomous-language-model-agents)  
    标签：评分：6.0/10、query:llm-security
-   evidence：从编程语言视角提升智能体可靠性与安全
+   evidence：面向自主语言模型智能体安全执行控制的架构
+11. [Learning from Others, Acting for You: Cross-User Memory Sharing for LLM Agents](/202610/02/2609.32511v1-learning-from-others-acting-for-you-cross-user-memory-sharing-for-llm-agents)  
+   标签：评分：6.0/10、query:llm-agent
+   evidence：面向大模型智能体的跨用户记忆共享架构
+12. [EMIR$^2$: Evolution-Aware Memory with Intent-Guided Multi-Round Retrieval](/202610/02/2609.32584v1-emir2-evolution-aware-memory-with-intent-guided-multi-round-retrieval)  
+   标签：评分：6.0/10、query:agent-evol
+   evidence：面向LLM智能体、可追踪演化知识的演化感知记忆
+13. [Adaptive Consistency Graph for Long-Horizon Agents](/202610/02/2609.32754v1-adaptive-consistency-graph-for-long-horizon-agents)  
+   标签：评分：6.0/10、query:llm-agent
+   evidence：面向长时程LLM智能体的结构化上下文架构
 
 
 <div class="dpr-home-promo-card">
